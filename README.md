@@ -49,3 +49,16 @@ Place downloaded reference STL files in `reference/` for measurement and
 visual comparison only. They are intentionally ignored by Git and must remain
 local. Production solids are reconstructed from parameters; do not import the
 reference meshes into production geometry.
+
+## Reference STL audit
+
+Run the read-only binary-STL audit against a directory of reference meshes:
+
+```powershell
+$env:PYTHONPATH = "$PWD;$PWD\src"
+python scripts/analyze_references.py "C:\path\to\reference-files"
+```
+
+The command writes `build/reference-report.json`, containing mesh envelopes,
+signed volumes, connected-component counts, and boundary, non-manifold, and
+degenerate-face counts. The input meshes are never copied into this project.
