@@ -1,18 +1,12 @@
 import struct
-import tempfile
 import unittest
 from pathlib import Path
 
 from windwall.reference_mesh import analyze_binary_stl
+from tests.support import temporary_build_directory
 
 
 FIXTURE_PATH = Path("tests/fixtures/tetrahedron_binary.stl")
-
-
-def temporary_fixture_directory():
-    build_directory = Path("build")
-    build_directory.mkdir(exist_ok=True)
-    return tempfile.TemporaryDirectory(dir=build_directory)
 
 
 class ReferenceMeshTests(unittest.TestCase):
@@ -33,7 +27,7 @@ class ReferenceMeshTests(unittest.TestCase):
         self.assertEqual(report.as_dict()["triangle_count"], 4)
 
     def test_rejects_a_file_with_a_triangle_count_length_mismatch(self):
-        with temporary_fixture_directory() as directory:
+        with temporary_build_directory() as directory:
             path = Path(directory) / "truncated.stl"
             path.write_bytes(b" ".ljust(80, b" ") + struct.pack("<I", 1))
             with self.assertRaisesRegex(ValueError, "does not match triangle count"):

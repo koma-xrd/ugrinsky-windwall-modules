@@ -16,7 +16,7 @@ Create it with an available 3.12 interpreter
 py -3.12 -m venv .venv
 & .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 $env:PYTHONPATH = "$PWD;$PWD\src"
-& .\.venv\Scripts\python.exe -m unittest discover -s tests -v
+& .\.venv\Scripts\python.exe scripts/run_geometry.py -m unittest discover -s tests -v
 ```
 
 The portable CQ-editor 0.7 package contains only `CQ-editor.exe` and has no
@@ -25,15 +25,24 @@ standalone Python. Use it as an interactive viewer by opening
 CadQuery recommends virtual environments and cautions about bleeding-edge Python
 dependencies in its [installation guidance](https://cadquery.readthedocs.io/en/stable/installation.html).
 
-**Known environment limitation:** all 16 test assertions complete successfully,
+**Known environment limitation:** geometry assertions can complete successfully,
 but this local runtime subsequently exits with native Windows status
 `-1073741819` (access violation). `import cadquery` alone reproduces it without
 project code. The earlier CadQuery 2.6.1/OCP 7.8.1.1.post1 combination also
-failed during shutdown, with `-1073740940` (heap corruption). These are not clean
+failed during shutdown, with `-1073740940` (heap corruption); both statuses were
+also observed during bayonet verification in the current runtime. These are not clean
 CLI exits, and `pip check` alone does not detect the native problem. Resolve
 the runtime before using this environment for unattended export/CI. CQ-editor
 preview execution has not been visually verified because its UI automation was
 unstable; a generated section-overlay PNG and STEP preview were inspected/exported.
+
+Use `scripts/run_geometry.py` for CLI commands that import CadQuery. Before
+loading the requested script or module, this launcher sets process-local Windows
+`SetErrorMode` flags `SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX` (`0x0003`),
+preserving inherited flags. This suppresses native error dialogs without
+catching failures or converting exit statuses to success. It changes no registry
+or system setting. Record unittest output and `$LASTEXITCODE` separately. Four
+subprocess tests verify the flags, argument forwarding, and preserved exit code.
 
 ## Run the parameter tests
 
@@ -97,7 +106,7 @@ Reproduce the external comparison without copying the mesh into the repository:
 $env:PYTHONPATH = "$PWD;$PWD\src"
 $env:WINDWALL_REFERENCE_BLADE = "C:\path\to\7 Ugrinsky_Blade.stl"
 & .\.venv\Scripts\python.exe scripts/preview_blade.py $env:WINDWALL_REFERENCE_BLADE
-& .\.venv\Scripts\python.exe -m unittest tests.test_blade_profile tests.test_preview_blade -v
+& .\.venv\Scripts\python.exe scripts/run_geometry.py -m unittest tests.test_blade_profile tests.test_preview_blade -v
 ```
 
 The command slices triangles at z=35 mm, joins edges within 0.05 mm, writes
@@ -120,3 +129,61 @@ A literal exclusion of the outer 85 percent of the 60.75 mm radius would allow
 only 9.11 mm and cannot connect them. The hub uses the approved central-radius-
 20-mm exception and is capped at one configured loaded-wall thickness beyond
 the minimum blade contact radius.
+
+## Counterclockwise bayonet coupon
+
+`src/windwall/bayonet.py` builds a three-lug male hub and receiver independently
+of the blade solid. `build_male_bayonet`, `build_female_bayonet`, and
+`build_bayonet_coupon` take `DesignParameters` and an optional `z_plane_mm`.
+The default builds are placed in the locked assembly frame: the male is at
+0 degrees, and the receiver bottom is at the supplied Z plane.
+`locked_angle_deg` returns the positive travel from insertion to lock, 18 degrees.
+`coupon.male_at_travel(0)` places insertion at -18 degrees (clockwise viewed from
++Z); increasing travel counterclockwise to 18 degrees produces the final zero
+orientation and raises the male by 0.45 mm.
+
+The hub is 34 mm across, with three 4 mm deep, 8 mm wide, 3.2 mm thick rounded
+lugs and 1.5 mm concave root fillets. Receiver insertion windows follow the
+offset lug/root outline. Radial sections at intervals below one degree form
+ruled rising channels; the finite lug envelope includes radial and axial
+manufacturing clearances of 0.30 and 0.25 mm. The receiver is approximately
+48.92 mm across and 12.03 mm high. Its roughly 24.46 mm radius is localized
+interface structure; the earlier 20 mm aerodynamic comparison exclusion is not
+an envelope restriction on these approved fittings. Later module integration
+must keep this intrusion localized and blend the interface into its end region.
+
+The locked lug faces contact solid counterclockwise stops, so the minimum
+distance between the entire parts is intentionally zero. The coupon's
+`minimum_locked_clearance_mm()` measures radial and axial running faces,
+excluding tangential stop/window walls; the default measured running gap is
+0.30 mm. Tests sample axial insertion, every degree of locking, intermediate
+half-degree positions, and both torque directions at the stop. No nominal
+motion has a positive intersection volume; +0.5 degree CCW overtravel intersects
+the stops, while -0.5 degree CW reverses freely. A 2 mm axial pull is obstructed
+in the locked position. These checks establish geometry, not load capacity,
+friction, preload, print fit, or radial rocking.
+
+Export without sending a print job:
+
+```powershell
+$env:PYTHONPATH = "$PWD;$PWD\src"
+& .\.venv\Scripts\python.exe scripts/run_geometry.py scripts/preview_bayonet.py
+$exportExit = $LASTEXITCODE
+& .\.venv\Scripts\python.exe scripts/run_geometry.py -m unittest tests.test_bayonet tests.test_preview_bayonet -v
+$testExit = $LASTEXITCODE
+```
+
+The script writes `build/coupons/bayonet_male.stl` and `bayonet_female.stl`, each
+with its bottom at Z=0, plus `bayonet_locked.step`, top/isometric SVGs, and
+`bayonet_fit.json`. It validates one connected, closed manifold mesh with no
+degenerate faces per part and records motion/stop measurements. Tests re-import
+the STEP assembly and require two solids. Open `scripts/preview_bayonet.py` in
+CQ-editor to show the pair, elevated insertion ghost, and CCW direction marker.
+Interactive rendering remains unverified; static solid-section and mesh views
+were inspected. The female undercut may need slicer bridging/support tuning.
+
+Physical PLA calibration is outstanding and no coupon has been printed. Retain
+the central clearance defaults until an authorized coupon print establishes
+insertion force, locking force, cracking resistance, and radial rocking. Module
+shoulders/preload, blade-end drivers, reverse retainers, and loaded operation
+are separate later work.

@@ -42,6 +42,7 @@ class BayonetParameters:
     insertion_offset_deg: float = 18.0
     hub_outer_diameter_mm: float = 34.0
     lug_radial_depth_mm: float = 4.0
+    lug_tangential_width_mm: float = 8.0
     lug_axial_thickness_mm: float = 3.2
     ramp_rise_mm: float = 0.45
     root_fillet_mm: float = 1.5
