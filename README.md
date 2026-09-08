@@ -45,7 +45,7 @@ integration tolerance to avoid representation-dependent default quadrature.
 | `build/step/*.step` | All five production candidates and five coupon solids; CAD assembly frames retained |
 | `build/stl/*.stl` | Base, standard, top, closure and lower magnet rotor; each bottom translated to Z=0 |
 | `build/coupons/*.stl` | `bayonet_male`, `bayonet_female`, `joint_male`, `joint_female`, `magnet_pocket_coupon` |
-| `build/assembly/rotor_locked.step` | 34 named valid solids; seven stages with zero nominal rotation |
+| `build/assembly/rotor_locked.step` | 34 named valid solids; seven seated stages with zero nominal rotation |
 | `build/assembly/rotor_exploded.step` | Same 34 solids, with entry/withdrawal poses and service separation |
 | `build/manifest.json` | Relative paths, quantities, all centralized parameters, CAD bounds/volumes, triangle and component counts, STL topology, SHA-256 for every STEP/STL, assembly audit and unvalidated physical gates |
 | `build/inspection/*.png` | With `--inspect`: ten individual STEP/STL projection and section sheets |
@@ -55,8 +55,9 @@ The production quantity is nine bodies: one base, five copies of the same
 standard, one top, one closure and one lower magnet rotor. The upper carrier
 is already fused into the base. Stationary generator solids, spacer, sleeve,
 rod and fasteners are clearly identified reference envelopes in the assembly;
-they are not additional certified print files. Older component preview exports
-may coexist under `build/`; the manifest is the authoritative release inventory.
+they are not additional certified print files. Preview exports are isolated
+under `build/previews/`; they never overwrite manifest-listed release assemblies.
+The manifest is the authoritative release inventory.
 
 Rebuilds overwrite these exact paths and preserve unrelated local files. The
 previous manifest is removed at the start and a replacement is published only
@@ -92,6 +93,11 @@ reference variable set before starting CQ-editor if you want the overlay.
 | `scripts/preview_modules.py` | Base, standard and top module |
 | `scripts/preview_generator.py` | Opposed carriers, stationary references and clamp envelopes |
 | `scripts/preview_assembly.py` | Locked, exploded and sectioned full rotor |
+
+Running `scripts/preview_assembly.py` from the CLI writes to
+`build/previews/assembly/` by default. Pass `--output-dir` only for a disposable
+preview destination; use `scripts/build_all.py` to regenerate release files and
+their matching manifest hashes.
 
 Inspect the generated STEP assemblies and each manifest-listed STL in a CAD
 viewer or slicer as well. The static sheets read actual exported files; they
@@ -155,7 +161,10 @@ degrees of internal blade twist, so the next zero-angle stage introduces a
 **-60-degree seam phase jump**; the stack is not a continuous helical skin.
 
 After the joint is fully locked, insert its two radial retainers through the
-outer 3.3 mm guides into the blind pilots at assembly angles 170/280 degrees.
+outer 3.3 mm-wide, vertically relieved guides into the blind pilots at assembly
+angles 170/280 degrees. The relief permits the upper printed body to settle
+0.35 mm onto the bayonet's printed axial seats when the M8 stack is tightened;
+the retainers remain clear and do not become axial load pins.
 Seat lightly after coupon testing; do not use screws to drag an unseated joint
 into place. Their purpose is reverse-release retention; bayonet/driver faces
 provide the geometric torque stops. Check screw length and floor clearance.
@@ -164,7 +173,9 @@ Remove radial screws before clockwise unlocking or axial withdrawal.
 Fit the base captive nut before access is constrained by the lower mechanism.
 At the top, place the washer on the reinforced recessed hub, then the exposed
 M8 nut. Set the rod projection using the actual hardware. Tighten the M8 stack
-gradually while checking free rotation and gaps; **no safe torque/preload value
+gradually and evenly until all six printed bayonet seats engage, while checking
+free rotation and gaps. The loaded stage pitch is 69.65 mm and the modeled
+seven-stage aerodynamic height is 487.90 mm; **no safe torque/preload value
 has been established**. Excess tightening can crush PLA, distort blade ends,
 bind the bearing or close the generator gaps. The removable closure clears
 the clamp and must not carry its axial load. Attach the closure with its two
@@ -286,9 +297,10 @@ section's shaft frame. No production code imports STL geometry.
 The source twists **60 degrees counterclockwise over 70 mm**. Nine analytic
 sections are lofted through that twist; a straight extrusion would lose the
 original surface and cannot match its full envelope. The midplane is rotated
-30 degrees relative to the bottom section. Later modules retain identical nominal
-placement transforms; that convention does not remove the internal twist or
-prove compatibility of their future end fittings.
+30 degrees relative to the bottom section. The completed base, standard and top
+modules retain identical angular transforms; that convention does not remove
+the internal twist or make the aerodynamic skin continuous across their
+integrated end fittings.
 
 Reproduce the external comparison without copying the mesh into the repository:
 
@@ -311,8 +323,9 @@ Tests require one valid solid, the 121.5 × 120.732 × 70 mm envelope within
 tolerance, retained twist, and less than 0.60 mm symmetric section deviation
 outside radius 20 mm at z=5, 17.5, 35, 52.5, and 60 mm. The external comparison
 is explicitly skipped without its environment variable. Original end fastener
-bosses near z=65–70 mm are replaced in later module tasks. The solid hub is an
-intermediate body; those later tasks also add the shaft clearance and fittings.
+bosses near z=65–70 mm are replaced by the integrated module supports, shaft
+clearance, bayonet, drivers and serviceable end fittings. The standalone blade
+solid remains the shared aerodynamic source body.
 
 The disconnected reference blades require a connecting radius above 11.25 mm.
 A literal exclusion of the outer 85 percent of the 60.75 mm radius would allow
@@ -339,8 +352,8 @@ ruled rising channels; the finite lug envelope includes radial and axial
 manufacturing clearances of 0.30 and 0.25 mm. The receiver is approximately
 48.92 mm across and 12.03 mm high. Its roughly 24.46 mm radius is localized
 interface structure; the earlier 20 mm aerodynamic comparison exclusion is not
-an envelope restriction on these approved fittings. Later module integration
-must keep this intrusion localized and blend the interface into its end region.
+an envelope restriction on these approved fittings. Module integration keeps
+this intrusion localized and blends the interface into its end region.
 
 The locked lug faces contact solid counterclockwise stops, so the minimum
 distance between the entire parts is intentionally zero. The coupon's
@@ -375,8 +388,9 @@ were inspected. The female undercut may need slicer bridging/support tuning.
 Physical PLA calibration is outstanding and no coupon has been printed. Retain
 the central clearance defaults until an authorized coupon print establishes
 insertion force, locking force, cracking resistance, and radial rocking. Module
-shoulders/preload and loaded operation are separate later work. The combined
-coupon below adds transition-adjacent drivers and reverse retainers.
+integration now provides the printed axial seating path and unloaded-to-loaded
+retainer relief; physical preload capacity remains unverified. The combined
+coupon below includes transition-adjacent drivers and reverse retainers.
 
 ## Transition-adjacent drivers and radial retention coupon
 
@@ -647,9 +661,11 @@ without unlocking a module joint. Remove the nut before lifting the washer.
 The closure is not weather-sealed.
 
 `src/windwall/assembly.py` supplies `build_locked_rotor_assembly` and
-`build_exploded_rotor_assembly`. The locked base is at Z=0, five standards at
-Z=70/140/210/280/350, and the top at Z=420. Every nominal stage rotation is zero
-and the aerodynamic height is 490 mm. The +60-degree internal twist remains:
+`build_exploded_rotor_assembly`. In the loaded locked model the base is at Z=0,
+five standards are at Z=69.65/139.30/208.95/278.60/348.25, and the top is at
+Z=417.90. Every stage rotation is zero and the seated aerodynamic height is
+487.90 mm. Before M8 compression, the nominal 70 mm pitch gives 490 mm. The
++60-degree internal twist remains:
 blade phase jumps back 60 degrees at each seam. Structural supports bridge
 the ends; a continuous helical skin or aerodynamic performance is not claimed.
 

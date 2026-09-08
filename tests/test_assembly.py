@@ -17,13 +17,19 @@ class AssemblyTests(unittest.TestCase):
         cls.assembly = build_locked_rotor_assembly(DEFAULT_PARAMETERS)
         cls.audit = audit_rotor_assembly(cls.assembly)
 
-    def test_locked_stack_has_exact_stage_composition_and_height(self):
+    def test_loaded_locked_stack_seats_on_printed_bodies_with_retainer_clearance(self):
         a = self.assembly
         self.assertEqual((a.base_count, a.standard_count, a.top_count), (1, 5, 1))
         self.assertEqual(a.aerodynamic_stage_count, 7)
-        self.assertEqual([s.z_mm for s in a.stages], [0,70,140,210,280,350,420])
+        self.assertEqual([round(s.z_mm, 2) for s in a.stages],
+                         [0, 69.65, 139.3, 208.95, 278.6, 348.25, 417.9])
         self.assertLess(a.maximum_stage_angle_error_deg(), 0.01)
-        self.assertAlmostEqual(a.aerodynamic_height_mm(), 490, places=5)
+        self.assertAlmostEqual(a.aerodynamic_height_mm(), 487.9, places=5)
+        self.assertAlmostEqual(self.audit['joint_seating_travel_mm'], 0.35, places=5)
+        self.assertLess(self.audit['maximum_seated_joint_intersection_mm3'], 0.01)
+        self.assertLess(self.audit['maximum_preseat_retainer_intersection_mm3'], 0.01)
+        self.assertLess(self.audit['maximum_seated_retainer_intersection_mm3'], 0.01)
+        self.assertGreater(self.audit['minimum_pilot_thread_engagement_mm3'], 0.05)
         self.assertEqual(len(a.parts), 34)
         self.assertEqual(len(a.parts['base'].val().Solids()), 1)
 
@@ -31,7 +37,7 @@ class AssemblyTests(unittest.TestCase):
         shaft = self.assembly.parts['shaft'].val()
         box = shaft.BoundingBox()
         self.assertAlmostEqual(box.zmin, -60.5, places=5)
-        self.assertAlmostEqual(box.zmax, 501.3, places=5)
+        self.assertAlmostEqual(box.zmax, 499.2, places=5)
         self.assertAlmostEqual(box.xlen, 8, places=5)
         self.assertAlmostEqual(box.ylen, 8, places=5)
         for name, shape in self.assembly.parts.items():
@@ -72,15 +78,15 @@ class AssemblyTests(unittest.TestCase):
         self.assertEqual(len(closure.val().Solids()),1)
         self.assertLess(closure.cut(closure.rotate((0,0,0),(0,0,1),180)).val().Volume(), 0.01)
         for x in (-24,24):
-            hole = cq.Workplane('XY').center(x,0).circle(1.6499).extrude(5).translate((0,0,490))
+            hole = cq.Workplane('XY').center(x,0).circle(1.6499).extrude(5).translate((0,0,487.9))
             self.assertLess(closure.intersect(hole).val().Volume(), 0.01)
-            self.assertTrue(closure.val().isInside((x+3,0,492)))
+            self.assertTrue(closure.val().isInside((x+3,0,489.9)))
         # Intersect a thin slice lowered onto the top: material must connect to
         # both outer blade tips, beyond the hub/closure screw pads.
         contact = closure.translate((0,0,-0.01)).intersect(self.assembly.parts['top'])
         for sign in (-1,1):
-            half = cq.Workplane('XY').box(100,200,1,centered=(False,True,False)).translate((0 if sign == 1 else -100,0,489.5))
-            outside = cq.Workplane('XY').circle(62).circle(36).extrude(1).translate((0,0,489.5))
+            half = cq.Workplane('XY').box(100,200,1,centered=(False,True,False)).translate((0 if sign == 1 else -100,0,487.4))
+            outside = cq.Workplane('XY').circle(62).circle(36).extrude(1).translate((0,0,487.4))
             self.assertGreater(contact.intersect(half).intersect(outside).val().Volume(),0.05)
 
     def test_closure_preserves_independent_washer_load_and_upward_service(self):
@@ -88,8 +94,8 @@ class AssemblyTests(unittest.TestCase):
         self.assertLess(self.audit['top_wrench_access_intersection_mm3'],0.01)
         self.assertLess(self.audit['top_washer_removal_intersection_mm3'],0.01)
         self.assertGreaterEqual(self.audit['closure_hardware_clearance_mm'],0.249)
-        self.assertAlmostEqual(self.assembly.parts['top_washer'].val().BoundingBox().zmin,489.5,places=5)
-        self.assertAlmostEqual(self.assembly.parts['top_nut'].val().BoundingBox().zmin,491.5,places=5)
+        self.assertAlmostEqual(self.assembly.parts['top_washer'].val().BoundingBox().zmin,487.4,places=5)
+        self.assertAlmostEqual(self.assembly.parts['top_nut'].val().BoundingBox().zmin,489.4,places=5)
         self.assertEqual(len(self.audit['closure_retainer_access']),2)
         for item in self.audit['closure_retainer_access']:
             self.assertLess(item['tool_intersection_mm3'],0.01)

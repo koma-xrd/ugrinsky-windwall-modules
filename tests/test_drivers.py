@@ -82,10 +82,17 @@ class DriverTests(unittest.TestCase):
                     (self.coupon.male, p.manufacturing.screw_pilot_diameter_mm/2,
                      axis.head_radius_mm-p.manufacturing.screw_length_mm+0.01,
                      p.bayonet.hub_outer_diameter_mm/2-0.01)):
-                point = cq.Vector(inner*cos(angle), inner*sin(angle), axis.center_z_mm)
-                shell = cq.Workplane(obj=cq.Solid.makeCylinder(hole_radius+3-1e-5,
-                    outer-inner, point, direction)).cut(cq.Workplane(obj=cq.Solid.makeCylinder(
-                        hole_radius+1e-5, outer-inner, point, direction)))
+                if part is self.coupon.female:
+                    drop = p.modules.locked_seating_travel_mm+p.manufacturing.axial_clearance_mm
+                    slot = lambda radius: (cq.Workplane('YZ').center(0,axis.center_z_mm-drop/2)
+                        .slot2D(drop+2*radius,2*radius,90).extrude(outer-inner)
+                        .translate((inner,0,0)).rotate((0,0,0),(0,0,1),axis.angle_deg))
+                    shell = slot(hole_radius+3-1e-5).cut(slot(hole_radius+1e-5))
+                else:
+                    point = cq.Vector(inner*cos(angle), inner*sin(angle), axis.center_z_mm)
+                    shell = cq.Workplane(obj=cq.Solid.makeCylinder(hole_radius+3-1e-5,
+                        outer-inner, point, direction)).cut(cq.Workplane(obj=cq.Solid.makeCylinder(
+                            hole_radius+1e-5, outer-inner, point, direction)))
                 bounds = cq.Workplane('XY').circle(outer).circle(inner).extrude(40)
                 missing = shell.intersect(bounds).cut(part)
                 self.assertLess(missing.val().Volume(), 0.01, f'wall missing at {axis.angle_deg}')

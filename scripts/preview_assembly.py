@@ -132,7 +132,7 @@ def export_assembly(parameters: DesignParameters, output_dir: Path) -> dict:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--output-dir',type=Path,default=PROJECT_ROOT/'build/assembly')
+    parser.add_argument('--output-dir',type=Path,default=PROJECT_ROOT/'build/previews/assembly')
     args = parser.parse_args()
     print(json.dumps(export_assembly(DEFAULT_PARAMETERS,args.output_dir),indent=2),flush=True)
     return 0

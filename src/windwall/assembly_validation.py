@@ -42,6 +42,11 @@ def require_valid_assembly_audit(report: dict) -> None:
         raise ValueError('Both drivers and bayonet lugs must meet CCW stops')
     if len(report['thread_forming_contacts']) != 14 or min(report['thread_forming_contacts'].values()) <= 0:
         raise ValueError('All fourteen retainers must engage their designated blind pilots')
+    if (report['maximum_seated_joint_intersection_mm3'] >= 0.01
+            or report['maximum_preseat_retainer_intersection_mm3'] >= 0.01
+            or report['maximum_seated_retainer_intersection_mm3'] >= 0.01
+            or report['minimum_pilot_thread_engagement_mm3'] <= 0.05):
+        raise ValueError('Loaded joint must seat on printed geometry before radial retainers carry axial load')
 
 
 def _volume(first, second) -> float:
@@ -113,6 +118,23 @@ def audit_rotor_assembly(a: RotorAssembly) -> dict:
         else:
             closure_access.append(dict(item,pilot_engagement_mm=m.screw_length_mm-p.closure.plate_thickness_mm))
     paths = _joint_paths(a)
+    seat = p.modules.locked_seating_travel_mm
+    seated_joints = []
+    preseat_retainers = []
+    seated_retainers = []
+    pilot_engagement = []
+    radial_retainers = [retainer for retainer in a.retainers if retainer.angle_deg is not None]
+    for index, (lower_stage, upper_stage) in enumerate(zip(a.stages, a.stages[1:])):
+        lower = a.parts[lower_stage.name]
+        upper = a.parts[upper_stage.name]
+        seated_joints.append(_volume(lower, upper))
+        for retainer in radial_retainers[2*index:2*index+2]:
+            shank = a.parts[retainer.name].cut(retainer.head)
+            seated_retainers.append(_volume(lower, shank))
+            for lift_index in range(8):
+                lift = seat*lift_index/7
+                preseat_retainers.append(_volume(lower, shank.translate((0,0,lift))))
+            pilot_engagement.append(_volume(upper, shank))
     depth,height = module_joint_depth_mm(p),p.rotor.stage_height_mm
     lower = a.local_modules['standard']
     upper = place(a.local_modules['top'],z=height)
@@ -140,6 +162,11 @@ def audit_rotor_assembly(a: RotorAssembly) -> dict:
             'standard_count':a.standard_count,'top_count':a.top_count,
             'part_count':len(a.parts),'nominal_stage_z_mm':[s.z_mm for s in a.stages],
             'aerodynamic_height_mm':a.aerodynamic_height_mm(),
+            'joint_seating_travel_mm':seat,
+            'maximum_seated_joint_intersection_mm3':max(seated_joints),
+            'maximum_preseat_retainer_intersection_mm3':max(preseat_retainers),
+            'maximum_seated_retainer_intersection_mm3':max(seated_retainers),
+            'minimum_pilot_thread_engagement_mm3':min(pilot_engagement),
             'maximum_stage_angle_error_deg':a.maximum_stage_angle_error_deg(),
             'internal_blade_twist_deg':p.blade.twist_deg,'seam_phase_jump_deg':-p.blade.twist_deg,
             'aerodynamic_seam_continuous':False,

@@ -5,7 +5,8 @@ insertion starts at -18 degrees viewed from +Z. A common z_plane_mm translates
 the interface without changing its frame. Tracks rise along CCW travel and have
 solid terminal faces. Their finite-lug envelope leaves axial/radial running
 clearance; stop contact intentionally has zero tangential clearance. Blade-end
-drivers, retainers and module shoulders are separate, later integration work.
+drivers, relieved retainer guides and module shoulders are integrated by the
+module builders; this file remains the reusable central bayonet primitive.
 """
 
 from dataclasses import dataclass

@@ -1,6 +1,7 @@
 """Export round trips retain every component and manifold unique print candidate."""
 
 import unittest
+from unittest.mock import patch
 
 import cadquery as cq
 
@@ -10,6 +11,29 @@ from windwall.parameters import DEFAULT_PARAMETERS
 
 
 class AssemblyExportTests(unittest.TestCase):
+    def test_default_preview_destination_is_isolated_from_release_assembly(self):
+        with temporary_build_directory() as root:
+            release = root / 'build' / 'assembly' / 'rotor_locked.step'
+            manifest = root / 'build' / 'manifest.json'
+            release.parent.mkdir(parents=True)
+            release.write_bytes(b'validated release')
+            manifest.write_bytes(b'validated hashes')
+
+            def write_preview(_parameters, destination):
+                destination.mkdir(parents=True)
+                (destination / 'rotor_locked.step').write_bytes(b'preview')
+                return {'ok': True}
+
+            with patch('scripts.preview_assembly.PROJECT_ROOT', root), \
+                    patch('scripts.preview_assembly.export_assembly', side_effect=write_preview) as export, \
+                    patch('sys.argv', ['preview_assembly.py']):
+                from scripts.preview_assembly import main
+                self.assertEqual(main(), 0)
+
+            self.assertEqual(export.call_args.args[1], root / 'build' / 'previews' / 'assembly')
+            self.assertEqual(release.read_bytes(), b'validated release')
+            self.assertEqual(manifest.read_bytes(), b'validated hashes')
+
     def test_exports_are_complete_and_round_trip(self):
         with temporary_build_directory() as destination:
             report = export_assembly(DEFAULT_PARAMETERS,destination)

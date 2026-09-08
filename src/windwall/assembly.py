@@ -101,8 +101,9 @@ def build_locked_rotor_assembly(parameters: DesignParameters) -> RotorAssembly:
     generator = build_generator_assembly(p)
     modules = {'base':generator.base_module.shape,'standard':build_standard_module(p).shape,
                'top':build_top_module(p).shape}
+    loaded_pitch = p.rotor.stage_height_mm-p.modules.locked_seating_travel_mm
     stages = tuple(StagePlacement('base' if i == 0 else 'top' if i == 6 else f'standard_{i}',
-                   'base' if i == 0 else 'top' if i == 6 else 'standard',i*p.rotor.stage_height_mm)
+                   'base' if i == 0 else 'top' if i == 6 else 'standard',i*loaded_pitch)
                    for i in range(7))
     parts = {s.name:place(modules[s.kind],s.angle_deg,s.z_mm) for s in stages}
     parts.update({f'generator_{name}':shape for name,shape in generator.stationary.parts.items()})
@@ -160,7 +161,8 @@ def build_exploded_rotor_assembly(parameters: DesignParameters, *, locked: Rotor
     if a.parameters != parameters or a.exploded:
         raise ValueError('Explosion must use a matching locked assembly')
     p,b = parameters,parameters.bayonet
-    increment = p.closure.exploded_joint_lift_mm-b.ramp_rise_mm
+    increment = (p.closure.exploded_joint_lift_mm-b.ramp_rise_mm
+                 + p.modules.locked_seating_travel_mm)
     if increment <= -min(a.local_modules[k].val().BoundingBox().zmin for k in ('standard','top')):
         raise ValueError('Explosion lift must fully withdraw each lower male')
     stages = tuple(StagePlacement(s.name,s.kind,s.z_mm+i*increment,-b.insertion_offset_deg if i else 0)

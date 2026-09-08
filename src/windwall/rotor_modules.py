@@ -41,11 +41,13 @@ def _validate(p: DesignParameters) -> None:
               end.end_support_radius_mm, end.end_support_thickness_mm,
               end.base_shaft_flange_depth_mm, end.washer_seat_depth_mm,
               end.closure_screw_radius_mm, end.closure_pilot_depth_mm,
-              m.washer_outer_diameter_mm)
+              end.locked_seating_travel_mm, m.washer_outer_diameter_mm)
     if any(not isfinite(value) or value <= 0 for value in values):
         raise ValueError('Module, shaft and clamping dimensions must be positive and finite')
     if not isfinite(end.joint_phase_deg):
         raise ValueError('Common joint phase must be finite')
+    if not m.axial_clearance_mm <= end.locked_seating_travel_mm < p.bayonet.ramp_rise_mm:
+        raise ValueError('Locked seating travel must consume axial clearance without exceeding ramp rise')
     if (s.clearance_hole_diameter_mm-s.nominal_diameter_mm)/2 < 0.35:
         raise ValueError('Module shaft bore requires at least 0.35 mm radial clearance')
     if min(end.end_support_thickness_mm, end.base_shaft_flange_depth_mm) < m.minimum_loaded_wall_mm:

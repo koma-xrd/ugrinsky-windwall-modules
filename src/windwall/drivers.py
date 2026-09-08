@@ -3,8 +3,9 @@
 All builders use its locked joint frame: insertion is -18 degrees, locking is
 positive CCW to zero with the bayonet ramp rise. The nearby small-arc stations
 replace impossible tabs at the true transitions inside the central receiver.
-Short shoulders connect the fittings, without altering the blade source. This
-isolated coupon does not resolve the +60-degree twisted module end registration.
+Short shoulders connect the fittings, without altering the blade source. Module
+builders phase this interface explicitly while retaining the documented
++60-degree aerodynamic seam discontinuity.
 """
 
 from dataclasses import dataclass, replace
@@ -147,6 +148,13 @@ def _radial_cylinder(radius, start, length, z, angle):
     return cq.Workplane(obj=solid.rotate((0,0,0), (0,0,1), angle))
 
 
+def _radial_vertical_slot(radius, start, length, z, drop, angle):
+    """Radial round-ended guide with vertical freedom for joint seating."""
+    return (cq.Workplane('YZ').center(0,z-drop/2)
+            .slot2D(drop+2*radius,2*radius,90).extrude(length)
+            .translate((start,0,0)).rotate((0,0,0),(0,0,1),angle))
+
+
 def _screw_axes(p):
     m, d, b = p.manufacturing, p.drivers, p.bayonet
     wall = max(3, m.minimum_loaded_wall_mm)
@@ -162,8 +170,9 @@ def _screw_axes(p):
         axes.append(ScrewAxis(angle, z, _outer(p), margin,
             _radial_cylinder(m.screw_pilot_diameter_mm/2, start,
                              b.hub_outer_diameter_mm/2+m.radial_clearance_mm-start, z, angle),
-            _radial_cylinder(d.screw_clearance_diameter_mm/2, b.hub_outer_diameter_mm/2,
-                             _outer(p)-b.hub_outer_diameter_mm/2+1, z, angle),
+            _radial_vertical_slot(d.screw_clearance_diameter_mm/2, b.hub_outer_diameter_mm/2,
+                                  _outer(p)-b.hub_outer_diameter_mm/2+1, z,
+                                  p.modules.locked_seating_travel_mm+m.axial_clearance_mm, angle),
             _radial_cylinder(d.screwdriver_diameter_mm/2, _outer(p)+0.01,
                              p.blade.rotor_radius_mm, z, angle)))
     return tuple(axes)
