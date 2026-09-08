@@ -185,5 +185,77 @@ were inspected. The female undercut may need slicer bridging/support tuning.
 Physical PLA calibration is outstanding and no coupon has been printed. Retain
 the central clearance defaults until an authorized coupon print establishes
 insertion force, locking force, cracking resistance, and radial rocking. Module
-shoulders/preload, blade-end drivers, reverse retainers, and loaded operation
-are separate later work.
+shoulders/preload and loaded operation are separate later work. The combined
+coupon below adds transition-adjacent drivers and reverse retainers.
+
+## Transition-adjacent drivers and radial retention coupon
+
+`src/windwall/drivers.py` consumes the same `DesignParameters` and the existing
+bayonet frame. Its public builders are `build_drivers`, `build_driver_pockets`,
+`build_screw_pilots`, and `build_joint_coupon`. The first three return two-solid
+Workplanes for integration; the coupon returns connected `male` and `female`
+print parts, `driver_centers`, `screw_axes`, registration metadata, and the same
+`male_at_travel` motion helper as the bayonet. Translate/rotate both members
+explicitly when registering a module interface.
+
+The true blade transitions `(12, 0)` and `(-12, 0)` lie inside the receiver.
+Exactly two rounded trapezoidal drivers therefore sit at nearby small-arc
+stations `(22.234, 19.660)` and its 180-degree copy (radius approximately 29.68 mm).
+They use 6 mm radial length, 8/6 mm inner/outer widths, 0.8 mm corner radii,
+4 mm engagement and 3 mm shoulder thickness. Short local bridges connect them
+to the hub and receiver. These are transition-adjacent interface fittings;
+their intrusion stays local to the ends and they are not continuous blade-skin
+tabs. The source blade geometry and external reference-STL policy are unchanged.
+
+The open-top pocket cutters cover the -18-to-zero-degree rotation and the
+0.45 mm axial rise. Their one-degree envelope includes the configured 0.30 mm
+radial clearance plus an explicit between-sample displacement allowance
+(approximately 0.29 mm), and 0.25 mm axial clearance. This conservative envelope
+has more play than the nominal clearance alone. Leading trapezoid flats meet
+solid CCW stops at zero; clockwise release is clear. Local receiving pads extend
+3 mm beyond the swept pocket boundary and retain a floor below it.
+
+Two 3 mm × 12 mm screw envelopes at 70 and 180 degrees pass through 3.3 mm outer
+clearance holes into 2.3 mm blind PLA pilots. Three-millimeter solid annuli around
+the holes are tested away from the intentional radial openings. Six-millimeter
+screwdriver corridors extend outward beyond the rotor radius and are clear of
+the isolated coupon. Full seven-stage blade/tool access remains a module and
+assembly integration check. Dimensions and angles are in `DriverParameters`;
+fastener and manufacturing defaults remain in `ManufacturingParameters`.
+
+The combined coupon keeps the complete three-lug ring and both driver/screw
+features to preserve ring stiffness during calibration, rather than cutting out
+a single lug sector. Its male also includes a top-accessible 13.30 mm across-flats,
+6.8 mm deep M8 nut sample. This coupon-only pocket does not imply captive nuts
+in every rotor stage. Exported male/female envelopes are approximately
+52.44 × 47.31 × 12.50 mm and 69.10 × 54.48 × 13.44 mm.
+
+```powershell
+$env:PYTHONPATH = "$PWD;$PWD\src"
+& .\.venv\Scripts\python.exe scripts/run_geometry.py scripts/preview_joint_coupon.py
+$exportExit = $LASTEXITCODE
+& .\.venv\Scripts\python.exe scripts/run_geometry.py -m unittest tests.test_drivers tests.test_preview_joint_coupon -v
+$testExit = $LASTEXITCODE
+```
+
+Outputs under `build/coupons/`: `joint_male.stl`, `joint_female.stl`,
+`joint_locked.step`, top/isometric SVGs, and `joint_fit.json`. Each mesh is one
+closed manifold component with no degenerate faces and bottom at Z=0. Tests
+re-import the STEP as two solids. The exporter checks insertion at 1 mm intervals,
+the locking path at 0.5-degree intervals, directional driver stops, and radial
+tool access. A static actual-solid inspection is available locally as
+`joint-inspection.png`; interactive CQ-editor rendering remains unverified.
+
+Both parts use a zero-angle locked joint frame. Registration metadata preserves
+the measured +60-degree blade twist and zero nominal module rotation, and marks
+`module_end_registration_verified=false`. Identical nominal transforms do not
+make the lower stage's +60-degree top blade section continuous with the next
+stage's zero-degree bottom. Final fitting phase, local blade bridges, and assembled
+tool clearance must be resolved explicitly in module construction (Task 6);
+the pocket sweep does not silently absorb the 60-degree mismatch.
+
+No physical coupon has been printed. Record pilot engagement, nut fit, insertion
+and locking force, reverse retention and cracks before full-stage printing.
+Strength, print support/bridging, screw-head fit and assembled blade access remain
+unverified. CLI assertion/export completion still precedes the known native
+runtime shutdown failure; record the nonzero exit separately.

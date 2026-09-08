@@ -71,12 +71,30 @@ class BladeParameters:
 
 
 @dataclass(frozen=True)
+class DriverParameters:
+    """Local joint fittings; small-arc station is measured from its +X radius."""
+
+    small_arc_station_deg: float = 125.0
+    radial_length_mm: float = 6.0
+    inner_width_mm: float = 8.0
+    outer_width_mm: float = 6.0
+    corner_radius_mm: float = 0.8
+    root_thickness_mm: float = 3.0
+    engagement_depth_mm: float = 4.0
+    sweep_step_deg: float = 1.0
+    screw_angles_deg: tuple[float, float] = (70.0, 180.0)
+    screw_clearance_diameter_mm: float = 3.3
+    screwdriver_diameter_mm: float = 6.0
+
+
+@dataclass(frozen=True)
 class DesignParameters:
     manufacturing: ManufacturingParameters = field(default_factory=ManufacturingParameters)
     shaft: ShaftParameters = field(default_factory=ShaftParameters)
     rotor: RotorParameters = field(default_factory=RotorParameters)
     bayonet: BayonetParameters = field(default_factory=BayonetParameters)
     blade: BladeParameters = field(default_factory=BladeParameters)
+    drivers: DriverParameters = field(default_factory=DriverParameters)
 
 
 DEFAULT_PARAMETERS = DesignParameters()
