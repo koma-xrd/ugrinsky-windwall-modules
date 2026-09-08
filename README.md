@@ -4,6 +4,196 @@ Parametric CadQuery source for a seven-stage Ugrinsky wind-wall rotor. The
 source files are authoritative; generated STEP and STL output belongs in the
 local `build/` directory.
 
+## Rebuild and inspect the release candidates
+
+Use the existing project-local environment from the repository root. All CLI
+commands that import CadQuery must go through the process-local crash-dialog
+launcher; it preserves Python and native failure statuses. These commands
+write files only and never send a print job:
+
+```powershell
+$env:PYTHONPATH = "$PWD;$PWD\src"
+# Optional: enables the measured-source comparison; the STL stays external.
+$env:WINDWALL_REFERENCE_BLADE = "C:\Users\fi87roy\Downloads\Ugrinsky Wind Wall Module - 6236759\files\7 Ugrinsky_Blade.stl"
+& .\.venv\Scripts\python.exe scripts/run_geometry.py -m unittest discover -s tests -v
+$testExit = $LASTEXITCODE
+& .\.venv\Scripts\python.exe scripts/run_geometry.py scripts/build_all.py --inspect
+$buildExit = $LASTEXITCODE
+Write-Output "Test process exit: $testExit; build process exit: $buildExit"
+```
+
+Omit the reference variable or substitute your actual external path if that
+download is unavailable. A missing variable causes one explicit test skip;
+a configured but missing/wrong reference fails the comparison. Record the
+unittest result separately from the process status. The known native shutdown
+failure described below remains unresolved: valid files and passing assertions
+do not make this environment a clean CLI/CI release.
+
+`windwall.export.export_all(Path("build"), parameters)` is the central release
+API. `parameters` defaults to `DEFAULT_PARAMETERS`. It exports the magnet
+pocket coupon before either full carrier, all four joint coupon bodies, five
+unique production candidates, and both complete assemblies. It rejects invalid
+solids, failed STEP round trips, empty/nonfinite/negative-volume STL meshes,
+boundary or non-manifold edges, degenerate triangles, wrong component counts,
+envelope/volume drift, and failed assembly collision/motion/service checks.
+STL linear/angular tolerances come from the centralized manufacturing
+parameters (0.08 mm / 0.12 radians). STEP volumes use explicit adaptive
+integration tolerance to avoid representation-dependent default quadrature.
+
+| Output | Contents |
+| --- | --- |
+| `build/step/*.step` | All five production candidates and five coupon solids; CAD assembly frames retained |
+| `build/stl/*.stl` | Base, standard, top, closure and lower magnet rotor; each bottom translated to Z=0 |
+| `build/coupons/*.stl` | `bayonet_male`, `bayonet_female`, `joint_male`, `joint_female`, `magnet_pocket_coupon` |
+| `build/assembly/rotor_locked.step` | 34 named valid solids; seven stages with zero nominal rotation |
+| `build/assembly/rotor_exploded.step` | Same 34 solids, with entry/withdrawal poses and service separation |
+| `build/manifest.json` | Relative paths, quantities, all centralized parameters, CAD bounds/volumes, triangle and component counts, STL topology, SHA-256 for every STEP/STL, assembly audit and unvalidated physical gates |
+| `build/inspection/*.png` | With `--inspect`: ten individual STEP/STL projection and section sheets |
+| `build/assembly/assembly_inspection.png` | With `--inspect`: locked/exploded STEP projections and top/generator sections |
+
+The production quantity is nine bodies: one base, five copies of the same
+standard, one top, one closure and one lower magnet rotor. The upper carrier
+is already fused into the base. Stationary generator solids, spacer, sleeve,
+rod and fasteners are clearly identified reference envelopes in the assembly;
+they are not additional certified print files. Older component preview exports
+may coexist under `build/`; the manifest is the authoritative release inventory.
+
+Rebuilds overwrite these exact paths and preserve unrelated local files. The
+previous manifest is removed at the start and a replacement is published only
+after every check passes; without a current manifest, partial output is not a
+validated build. No recursive cleanup is needed. Same parameters and runtime
+produce the same STEP/STL bytes: named STEP products, an epoch timestamp and
+file-local occurrence IDs remove OCCT's time/process metadata. Release STEP
+assemblies are uncolored because OCCT's color-record ordering varies between
+processes; CQ-editor previews and static sheets provide visual colors. Geometry
+and entity references are unchanged. Cross-version OCCT reproducibility is not
+promised. Native process exit status is observable only after termination and
+cannot be certified by the in-process manifest.
+
+To regenerate inspection sheets from already exported files, with SHA-256
+verification before viewing:
+
+```powershell
+& .\.venv\Scripts\python.exe scripts/run_geometry.py scripts/inspect_exports.py build/manifest.json
+$inspectionExit = $LASTEXITCODE
+```
+
+For CQ-editor, open the portable application manually, use File → Open on the
+desired Python file below, then press Render. The preview scripts add `src/`
+to their import path; run them from this checkout and keep the external
+reference variable set before starting CQ-editor if you want the overlay.
+`build_all.py` is the CLI exporter; use these preview files in CQ-editor:
+
+| Preview file | View |
+| --- | --- |
+| `scripts/preview_blade.py` | Source blade, section overlay and positive CCW marker |
+| `scripts/preview_bayonet.py` | Male/female coupon and insertion ghost |
+| `scripts/preview_joint_coupon.py` | Full joint coupon with drivers and radial retention |
+| `scripts/preview_modules.py` | Base, standard and top module |
+| `scripts/preview_generator.py` | Opposed carriers, stationary references and clamp envelopes |
+| `scripts/preview_assembly.py` | Locked, exploded and sectioned full rotor |
+
+Inspect the generated STEP assemblies and each manifest-listed STL in a CAD
+viewer or slicer as well. The static sheets read actual exported files; they
+are not screenshots of interactive CQ-editor. Interactive QA remains pending.
+Check through-shaft openings, blind pocket floors, bayonet roofs, driver stops,
+radial screw access, top nut/washer access and opposed magnet pocket direction.
+
+## PLA prototype orientation and physical gates
+
+Suggested starting orientations are geometric guidance, not validated slicer
+profiles. Use the exported Z-up orientation first for the coupon pair, standard
+and top stages, and lower magnet rotor. Standard/top males project downward;
+the blade/support transitions above them need careful support placement. The
+bayonet female's closed undercut roofs require tested bridging or removable
+support; do not leave inaccessible support inside locking tracks. Keep support
+scars and elephant-foot expansion off running faces and screw pilots.
+
+The base's upper magnet pockets open downward in the assembled frame. Its
+Z-up STL therefore starts on the carrier's pocket face, requiring particular
+attention to the 2 mm pocket roofs and the captive nut ceiling. Compare a
+flipped orientation in the slicer only after checking blade support and nut
+access; translating to Z=0 does not optimize orientation automatically. Print
+the magnet coupon with its three pockets open upward. The closure's central
+cavity opens downward and its roof may require bridging/support; flipping the
+closure may improve that cavity but creates an overhang under the outer plate.
+Inspect the complete layer preview and ensure all supports can be removed.
+
+Loaded walls are at least the configured 3 mm in designed structural regions;
+the aerodynamic blade skin is intentionally 1.5 mm. Layer adhesion, perimeter
+count, infill, shrinkage, creep and build-plate grip need physical validation.
+PLA is the prototype material only; no outdoor temperature, UV or weather
+durability has been established.
+
+Hardware represented in the complete CAD model:
+
+- One nominal M8 rod, 8 mm diameter; model length 561.8 mm. Measure the actual
+  assembly before cutting stock or setting the top projection.
+- Three M8 nuts: base captive torque nut, lower rotor clamp nut and exposed
+  top clamp nut. Model envelopes use 13 mm across flats and reserve 6.8 mm
+  height; the printable captive pocket is 13.30 mm across flats.
+- Two nominal 24 mm OD × 2 mm washers, below the top nut and above the lower
+  nut. Check their actual bores and flat bearing contact.
+- Fourteen nominal 3 mm × 12 mm screws: twelve radial screws (two at each of
+  six seams) and two closure screws. The 2.3 mm blind PLA pilots need suitable
+  thread-forming/self-tapping screws; modeled head envelopes are 5.5 × 3 mm.
+  Match actual thread, head and driver, not diameter/length alone.
+- One spacer envelope, 12 mm OD, 8.8 mm bore, 17 mm long at default gaps; its
+  material and compression capability are unresolved. The 12 × 8 × 6 mm
+  bearing sleeve is provisional, not a selected bearing product.
+- Each carrier has eighteen nominal 11 mm × 2 mm blind magnet pockets. This
+  records the source geometry and does not select magnets, polarity, electrical
+  poles or a retention method. Bearings, stator fabrication and magnet retention
+  must be engineered and checked before any powered or wind-driven operation.
+
+For each joint, hold the lower stage fixed. Looking down from +Z, start the
+upper stage 18 degrees clockwise from its final zero-angle blade frame, lower
+its male into the three windows, and rotate it 18 degrees counterclockwise to
+the positive stops. The upper stage rises 0.45 mm along that motion. Do not
+force it beyond the stops. Both drivers must engage. Each stage retains +60
+degrees of internal blade twist, so the next zero-angle stage introduces a
+**-60-degree seam phase jump**; the stack is not a continuous helical skin.
+
+After the joint is fully locked, insert its two radial retainers through the
+outer 3.3 mm guides into the blind pilots at assembly angles 170/280 degrees.
+Seat lightly after coupon testing; do not use screws to drag an unseated joint
+into place. Their purpose is reverse-release retention; bayonet/driver faces
+provide the geometric torque stops. Check screw length and floor clearance.
+Remove radial screws before clockwise unlocking or axial withdrawal.
+
+Fit the base captive nut before access is constrained by the lower mechanism.
+At the top, place the washer on the reinforced recessed hub, then the exposed
+M8 nut. Set the rod projection using the actual hardware. Tighten the M8 stack
+gradually while checking free rotation and gaps; **no safe torque/preload value
+has been established**. Excess tightening can crush PLA, distort blade ends,
+bind the bearing or close the generator gaps. The removable closure clears
+the clamp and must not carry its axial load. Attach the closure with its two
+screws only after measuring clearance; remove them and lift the cap to service
+the nut, then remove the nut before lifting the washer.
+
+Complete physical checks in this order; no step has yet been performed:
+
+1. Bayonet coupon: insertion, CCW stop, axial retention, release, rocking and
+   cracking; calibrate the 0.30 mm radial/0.25 mm axial defaults as needed.
+2. Combined joint coupon: both drivers, screw/pilot fit, head/tool access, M8
+   pocket fit and resistance to reverse release with retainers installed.
+3. Magnet pocket coupon: measure the actual magnets against 10.8/11.0/11.2 mm
+   pockets left-to-right. Confirm depth/protrusion and develop retention before
+   relying on the full carrier. Exporting the coupon is not passing this gate.
+4. Two-stage joint: verify blade/interface clearance through insertion and
+   locking, removable supports, screw access, rod alignment and joint stiffness.
+5. Seven-stage dry assembly: verify one base/five standards/one top, six seated
+   joints, all retainers, straight rod, top washer/nut service and closure gap.
+6. Restrained, unpowered hand-spin generator clearance check: establish bearing
+   fit/axial retention and support, inspect actual magnet protrusion, measure
+   both gaps through a full revolution, and stop at any rub, looseness or wobble.
+   The nominal 1.5 mm gaps assume flush or recessed magnets. This check does not
+   validate speed, load, magnetic retention or electricity generation.
+
+Outdoor exposure, overspeed, storm loading and electrical operation remain
+unvalidated. The deliverable is a reproducible set of CAD prototype candidates,
+not a structural, outdoor, overspeed or electrical certification.
+
 ## CadQuery environment
 
 Use a project-local Python **3.12** virtual environment for geometry commands.

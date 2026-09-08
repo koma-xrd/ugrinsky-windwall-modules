@@ -1,7 +1,7 @@
 """Read binary STL meshes for measurement and topology reporting.
 
-This module inspects external reference meshes only. It does not construct,
-modify, or import them into production CAD geometry.
+This module inspects external references and generated release STL topology.
+It does not construct, modify, or import meshes into production CAD geometry.
 """
 
 from collections import Counter

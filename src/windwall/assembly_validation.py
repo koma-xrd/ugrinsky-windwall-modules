@@ -23,6 +23,27 @@ def _can_overlap(first, second) -> bool:
                max(getattr(a,f'{axis}min'),getattr(b,f'{axis}min')) > 1e-7 for axis in 'xyz')
 
 
+def require_valid_assembly_audit(report: dict) -> None:
+    """Fail export on collision, blocked service paths or missing retention."""
+    clear = ['unplanned_intersection_mm3', 'closure_removal_intersection_mm3',
+             'top_wrench_access_intersection_mm3', 'top_washer_removal_intersection_mm3',
+             'generator_rotating_stationary_intersection_mm3', 'driver_cw_release_intersection_mm3']
+    if any(report[key] >= 0.01 for key in clear):
+        raise ValueError('Full assembly collision or service audit failed')
+    for result in report['joint_paths'].values():
+        if (max(result['maximum_insertion_intersection_mm3'], result['maximum_locking_intersection_mm3'],
+                result['cw_release_intersection_mm3']) >= 0.01
+                or min(result['ccw_overtravel_intersection_mm3'], result['locked_pull_intersection_mm3']) <= 0.05):
+            raise ValueError('Integrated module insertion, lock stop or axial retention check failed')
+    for item in report['radial_retainer_access'] + report['closure_retainer_access']:
+        if max(item[key] for key in ('head_intersection_mm3', 'tool_intersection_mm3', 'unplanned_shank_intersection_mm3')) >= 0.01:
+            raise ValueError('Fastener shank, head or driver access is obstructed')
+    if min(report['driver_ccw_stop_intersection_mm3'], report['bayonet_ccw_stop_intersection_mm3']) <= 0.05:
+        raise ValueError('Both drivers and bayonet lugs must meet CCW stops')
+    if len(report['thread_forming_contacts']) != 14 or min(report['thread_forming_contacts'].values()) <= 0:
+        raise ValueError('All fourteen retainers must engage their designated blind pilots')
+
+
 def _volume(first, second) -> float:
     return first.intersect(second).val().Volume() if _can_overlap(first,second) else 0.0
 

@@ -21,27 +21,8 @@ import cadquery as cq
 from scripts.preview_generator import _export_print_candidate, export_magnet_pocket_coupon
 from windwall.assembly import (audit_rotor_assembly, build_exploded_rotor_assembly,
                                build_locked_rotor_assembly)
+from windwall.assembly_validation import require_valid_assembly_audit
 from windwall.parameters import DEFAULT_PARAMETERS, DesignParameters
-
-
-def _require_valid_audit(report):
-    clear = ['unplanned_intersection_mm3','closure_removal_intersection_mm3',
-             'top_wrench_access_intersection_mm3','top_washer_removal_intersection_mm3',
-             'generator_rotating_stationary_intersection_mm3','driver_cw_release_intersection_mm3']
-    if any(report[key] >= 0.01 for key in clear):
-        raise ValueError('Full assembly collision or service audit failed')
-    for result in report['joint_paths'].values():
-        if (max(result['maximum_insertion_intersection_mm3'],result['maximum_locking_intersection_mm3'],
-                result['cw_release_intersection_mm3']) >= 0.01
-                or min(result['ccw_overtravel_intersection_mm3'],result['locked_pull_intersection_mm3']) <= 0.05):
-            raise ValueError('Integrated module insertion, lock stop or axial retention check failed')
-    for item in report['radial_retainer_access']+report['closure_retainer_access']:
-        if max(item[key] for key in ('head_intersection_mm3','tool_intersection_mm3','unplanned_shank_intersection_mm3')) >= 0.01:
-            raise ValueError('Fastener shank, head or driver access is obstructed')
-    if min(report['driver_ccw_stop_intersection_mm3'],report['bayonet_ccw_stop_intersection_mm3']) <= 0.05:
-        raise ValueError('Both drivers and bayonet lugs must meet CCW stops')
-    if len(report['thread_forming_contacts']) != 14 or min(report['thread_forming_contacts'].values()) <= 0:
-        raise ValueError('All fourteen retainers must engage their designated blind pilots')
 
 
 def _static_inspection(destination: Path, report: dict) -> None:
@@ -117,7 +98,7 @@ def export_assembly(parameters: DesignParameters, output_dir: Path) -> dict:
     exports = {'magnet_pocket_coupon':export_magnet_pocket_coupon(parameters,output_dir)}
     locked = build_locked_rotor_assembly(parameters)
     report = audit_rotor_assembly(locked)
-    _require_valid_audit(report)
+    require_valid_assembly_audit(report)
     exploded = build_exploded_rotor_assembly(parameters,locked=locked)
     unique = {f'{name}_module':shape for name,shape in locked.local_modules.items()}
     unique.update(top_closure=locked.parts['top_closure'].translate((0,0,-locked.stages[-1].z_mm)),

@@ -2,7 +2,8 @@
 
 Unique printable bodies come from rotor_modules/top_closure; generator supplies
 the lower mechanism. Shapes are already placed in millimetres. Every locked
-blade frame has zero angular offset, preserving the +60-degree skin jump.
+blade frame has zero angular offset, retaining +60-degree internal twist and
+a -60-degree skin phase jump at each seam.
 Nominal screw envelopes intentionally overlap blind pilots to represent thread
 forming, confined by explicit per-fastener masks. Validation owns the fit audit.
 """
