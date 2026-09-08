@@ -42,7 +42,7 @@ def _static_inspection(destination: Path, report: dict) -> None:
     exploded = cq.importers.importStep(str(destination/'rotor_exploded.step')).val()
     fig = plt.figure(figsize=(17,12))
     grid = fig.add_gridspec(2,3,width_ratios=(1,1,1.35))
-    for column,shape,title in ((0,locked,'Locked | seven stages, 490 mm'),
+    for column,shape,title in ((0,locked,'Locked | seven seated stages, 487.84 mm'),
                                (1,exploded,'Exploded | entry poses at -18 degrees')):
         ax = fig.add_subplot(grid[:,column])
         view = np.array([1.,-2.,0.3]); view /= np.linalg.norm(view)

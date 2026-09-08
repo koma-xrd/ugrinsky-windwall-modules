@@ -133,7 +133,7 @@ durability has been established.
 
 Hardware represented in the complete CAD model:
 
-- One nominal M8 rod, 8 mm diameter; model length 561.8 mm. Measure the actual
+- One nominal M8 rod, 8 mm diameter; model length 559.64 mm. Measure the actual
   assembly before cutting stock or setting the top projection.
 - Three M8 nuts: base captive torque nut, lower rotor clamp nut and exposed
   top clamp nut. Model envelopes use 13 mm across flats and reserve 6.8 mm
@@ -163,7 +163,7 @@ degrees of internal blade twist, so the next zero-angle stage introduces a
 After the joint is fully locked, insert its two radial retainers through the
 outer 3.3 mm-wide, vertically relieved guides into the blind pilots at assembly
 angles 170/280 degrees. The relief permits the upper printed body to settle
-0.35 mm onto the bayonet's printed axial seats when the M8 stack is tightened;
+0.36 mm onto the bayonet's printed axial seats when the M8 stack is tightened;
 the retainers remain clear and do not become axial load pins.
 Seat lightly after coupon testing; do not use screws to drag an unseated joint
 into place. Their purpose is reverse-release retention; bayonet/driver faces
@@ -174,8 +174,8 @@ Fit the base captive nut before access is constrained by the lower mechanism.
 At the top, place the washer on the reinforced recessed hub, then the exposed
 M8 nut. Set the rod projection using the actual hardware. Tighten the M8 stack
 gradually and evenly until all six printed bayonet seats engage, while checking
-free rotation and gaps. The loaded stage pitch is 69.65 mm and the modeled
-seven-stage aerodynamic height is 487.90 mm; **no safe torque/preload value
+free rotation and gaps. The loaded stage pitch is 69.64 mm and the modeled
+seven-stage aerodynamic height is 487.84 mm; **no safe torque/preload value
 has been established**. Excess tightening can crush PLA, distort blade ends,
 bind the bearing or close the generator gaps. The removable closure clears
 the clamp and must not carry its axial load. Attach the closure with its two
@@ -662,16 +662,16 @@ The closure is not weather-sealed.
 
 `src/windwall/assembly.py` supplies `build_locked_rotor_assembly` and
 `build_exploded_rotor_assembly`. In the loaded locked model the base is at Z=0,
-five standards are at Z=69.65/139.30/208.95/278.60/348.25, and the top is at
-Z=417.90. Every stage rotation is zero and the seated aerodynamic height is
-487.90 mm. Before M8 compression, the nominal 70 mm pitch gives 490 mm. The
+five standards are at Z=69.64/139.28/208.92/278.56/348.20, and the top is at
+Z=417.84. Every stage rotation is zero and the seated aerodynamic height is
+487.84 mm. Before M8 compression, the nominal 70 mm pitch gives 490 mm. The
 +60-degree internal twist remains:
 blade phase jumps back 60 degrees at each seam. Structural supports bridge
 the ends; a continuous helical skin or aerodynamic performance is not claimed.
 
 The 34 named solids include seven stages, one closure, twelve radial seam
 screws, two closure screws, the lower generator references and clamps, top
-nut/washer, and one M8 rod from Z=-60.5 to Z=501.3 mm (561.8 mm nominal length).
+nut/washer, and one M8 rod from Z=-60.5 to Z=499.14 mm (559.64 mm nominal length).
 The upper magnet carrier is fused into the base and appears only once. Rod
 length is an envelope, not a stock-cutting instruction: measure actual hardware.
 Both generator gaps remain 1.5 mm for flush/subflush magnets.
@@ -704,7 +704,8 @@ $exportExit = $LASTEXITCODE
 ```
 
 The exporter validates the magnet pocket coupon first, then STEP/STL for base,
-standard, top, closure and lower magnet rotor. Outputs under `build/assembly/`
+standard, top, closure and lower magnet rotor. Release outputs under `build/assembly/`
+and preview outputs under `build/previews/assembly/`
 include 34-solid locked/exploded STEP files, `assembly_fit.json`, a top section
 SVG and `assembly_inspection.png` rendered from exported STEP solids. Every STL
 must be one closed manifold component without degenerate faces, at print Z=0.

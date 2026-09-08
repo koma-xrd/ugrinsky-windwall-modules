@@ -100,7 +100,7 @@ class ModuleParameters:
     closure_screw_radius_mm: float = 24.0
     closure_pilot_depth_mm: float = 8.0
     joint_phase_deg: float = 100.0
-    locked_seating_travel_mm: float = 0.35
+    locked_seating_travel_mm: float = 0.36
 
 
 @dataclass(frozen=True)

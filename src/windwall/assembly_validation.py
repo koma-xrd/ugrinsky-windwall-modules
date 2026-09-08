@@ -43,6 +43,7 @@ def require_valid_assembly_audit(report: dict) -> None:
     if len(report['thread_forming_contacts']) != 14 or min(report['thread_forming_contacts'].values()) <= 0:
         raise ValueError('All fourteen retainers must engage their designated blind pilots')
     if (report['maximum_seated_joint_intersection_mm3'] >= 0.01
+            or report['minimum_postseat_bearing_intersection_mm3'] <= 0.001
             or report['maximum_preseat_retainer_intersection_mm3'] >= 0.01
             or report['maximum_seated_retainer_intersection_mm3'] >= 0.01
             or report['minimum_pilot_thread_engagement_mm3'] <= 0.05):
@@ -120,6 +121,7 @@ def audit_rotor_assembly(a: RotorAssembly) -> dict:
     paths = _joint_paths(a)
     seat = p.modules.locked_seating_travel_mm
     seated_joints = []
+    postseat_bearing_contacts = []
     preseat_retainers = []
     seated_retainers = []
     pilot_engagement = []
@@ -128,6 +130,11 @@ def audit_rotor_assembly(a: RotorAssembly) -> dict:
         lower = a.parts[lower_stage.name]
         upper = a.parts[upper_stage.name]
         seated_joints.append(_volume(lower, upper))
+        # A small additional compression probe must encounter the printed
+        # horizontal seats. At the locked angle the tangential stops are
+        # vertical faces, so their contact does not create volume in this
+        # axial-only probe.
+        postseat_bearing_contacts.append(_volume(lower, upper.translate((0, 0, -0.04))))
         for retainer in radial_retainers[2*index:2*index+2]:
             shank = a.parts[retainer.name].cut(retainer.head)
             seated_retainers.append(_volume(lower, shank))
@@ -164,6 +171,7 @@ def audit_rotor_assembly(a: RotorAssembly) -> dict:
             'aerodynamic_height_mm':a.aerodynamic_height_mm(),
             'joint_seating_travel_mm':seat,
             'maximum_seated_joint_intersection_mm3':max(seated_joints),
+            'minimum_postseat_bearing_intersection_mm3':min(postseat_bearing_contacts),
             'maximum_preseat_retainer_intersection_mm3':max(preseat_retainers),
             'maximum_seated_retainer_intersection_mm3':max(seated_retainers),
             'minimum_pilot_thread_engagement_mm3':min(pilot_engagement),
