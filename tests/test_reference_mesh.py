@@ -6,12 +6,7 @@ from pathlib import Path
 from windwall.reference_mesh import analyze_binary_stl
 
 
-def write_binary_stl(path: Path, triangles: list[tuple[tuple[float, float, float], ...]]) -> None:
-    header = b"deterministic tetrahedron fixture".ljust(80, b" ")
-    records = [header, struct.pack("<I", len(triangles))]
-    for triangle in triangles:
-        records.append(struct.pack("<12fH", 0.0, 0.0, 0.0, *triangle[0], *triangle[1], *triangle[2], 0))
-    path.write_bytes(b"".join(records))
+FIXTURE_PATH = Path("tests/fixtures/tetrahedron_binary.stl")
 
 
 def temporary_fixture_directory():
@@ -22,22 +17,7 @@ def temporary_fixture_directory():
 
 class ReferenceMeshTests(unittest.TestCase):
     def test_closed_tetrahedron_is_one_manifold_component(self):
-        vertices = (
-            (0.0, 0.0, 0.0),
-            (1.0, 0.0, 0.0),
-            (0.0, 1.0, 0.0),
-            (0.0, 0.0, 1.0),
-        )
-        triangles = (
-            (vertices[0], vertices[2], vertices[1]),
-            (vertices[0], vertices[1], vertices[3]),
-            (vertices[0], vertices[3], vertices[2]),
-            (vertices[1], vertices[2], vertices[3]),
-        )
-        with temporary_fixture_directory() as directory:
-            path = Path(directory) / "tetrahedron_binary.stl"
-            write_binary_stl(path, triangles)
-            report = analyze_binary_stl(path)
+        report = analyze_binary_stl(FIXTURE_PATH)
 
         self.assertEqual(report.filename, "tetrahedron_binary.stl")
         self.assertEqual(report.triangle_count, 4)

@@ -52,6 +52,13 @@ reference meshes into production geometry.
 
 ## Reference STL audit
 
+The reference audit requires NumPy. In a clean Python environment, install the
+project's declared dependency before running it:
+
+```powershell
+python -m pip install -r requirements.txt
+```
+
 Run the read-only binary-STL audit against a directory of reference meshes:
 
 ```powershell
