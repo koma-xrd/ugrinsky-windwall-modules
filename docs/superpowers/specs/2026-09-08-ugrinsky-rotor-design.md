@@ -265,3 +265,34 @@ performance is finalized. Gaps refer to carrier pocket planes and require
 flush/subflush magnets; actual magnet protrusion must be measured. Full carrier
 exporters generate a 10.8/11.0/11.2 mm pocket coupon first, and mark all physical
 fits and print readiness unverified. No physical part is printed by this task.
+
+## Task 8 complete rotor and independent top cover (2026-09-08)
+
+The top closure uses a 121.5 mm disc, 5 mm plate and two M3 x 12 mm screw
+envelopes in the existing X=+/-24 mm seats, engaging 7 mm of the 8 mm pilots.
+Its raised center clears the 24 x 2 mm washer, exposed 6.8 mm M8 nut envelope
+and parameterized 3 mm rod projection. The cavity is 24.6 mm across with
+3 mm walls/roof and 0.25 mm tip clearance. Local Z levels: washer bottom 69.5,
+nut bottom 71.5, rod tip 81.3, cover top 84.55 mm. The disc attaches to the
+blade ends independently of M8 preload. Removing two screws exposes the clamp
+without unlocking a bayonet. Actual screw fit, sealing and strength remain open.
+
+The locked assembly has 34 solids, including seven stages at nominal
+Z=0/70/140/210/280/350/420, twelve seam screws, two closure screws, closure,
+generator reference/clamp solids, top nut/washer and one M8 rod from Z=-60.5
+to Z=501.3 mm. All nominal rotations are zero. Internal +60-degree twist and
+the resulting -60-degree skin phase jump at every seam remain explicit. The
+integrated upper carrier occurs only once; aerodynamic height is 490 mm.
+
+Exploded modules show -18-degree entry orientation with cumulative 15 mm lifts
+from entry, or 14.55 mm increments above locked seam pitch. Each pose refers
+to its own locked lower frame, not a simultaneous whole-stack insertion.
+Retainers withdraw, the closure lifts separately, and the shaft is not extended.
+
+The audit tests actual component intersections, permitting only bounded,
+explicitly named thread-forming contacts in blind pilots. Each unique module
+pair samples insertion every 1 mm, CCW lock every 0.5 degree, overtravel stops,
+CW release and locked axial capture. Every seam checks shank/head/tool access;
+top service paths and generator gaps are tested. Round-trip STEP, manifold
+STL and static views provide CAD evidence. Interactive inspection, continuous
+collision proof and physical validation are not claimed; nothing is printed.

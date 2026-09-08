@@ -13,6 +13,8 @@ class ManufacturingParameters:
     screw_nominal_diameter_mm: float = 3.0
     screw_pilot_diameter_mm: float = 2.3
     screw_length_mm: float = 12.0
+    screw_head_diameter_mm: float = 5.5
+    screw_head_height_mm: float = 3.0
     export_linear_tolerance_mm: float = 0.08
     export_angular_tolerance_rad: float = 0.12
 
@@ -144,6 +146,17 @@ class GeneratorParameters:
 
 
 @dataclass(frozen=True)
+class ClosureParameters:
+    """Removable cover and nominal M8 rod end, pending actual hardware fitting."""
+
+    plate_thickness_mm: float = 5.0
+    roof_thickness_mm: float = 3.0
+    rod_projection_mm: float = 3.0
+    shaft_bottom_projection_mm: float = 5.0
+    exploded_joint_lift_mm: float = 15.0
+
+
+@dataclass(frozen=True)
 class DesignParameters:
     manufacturing: ManufacturingParameters = field(default_factory=ManufacturingParameters)
     shaft: ShaftParameters = field(default_factory=ShaftParameters)
@@ -153,6 +166,7 @@ class DesignParameters:
     drivers: DriverParameters = field(default_factory=DriverParameters)
     modules: ModuleParameters = field(default_factory=ModuleParameters)
     generator: GeneratorParameters = field(default_factory=GeneratorParameters)
+    closure: ClosureParameters = field(default_factory=ClosureParameters)
 
 
 DEFAULT_PARAMETERS = DesignParameters()

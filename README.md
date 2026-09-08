@@ -434,7 +434,75 @@ unchanged active blade; standard/top geometry and exposed top clamp remain.
 The relief comment now correctly states that the upper stage starts below its
 locked height and rises during locking. Static actual-solid generator section
 inspection is supplied locally as `build/generator/generator-inspection.png`.
-CQ-editor interactive verification, full-stack integration, physical coupons,
+CQ-editor interactive verification, physical coupons,
 support/bridging, strength and operation remain unverified. Every CadQuery CLI
 process still uses the dialog-suppressing launcher and records native shutdown
 failure separately from assertion/export results.
+
+## Serviceable top closure and complete rotor
+
+`src/windwall/top_closure.py` builds a symmetric 121.5 mm disc seated at the
+top module's local Z=70 mm. Its 5 mm plate ties both blade ends to the existing
+reinforced pilot pads at X=+/-24 mm. Two nominal M3 x 12 mm screws engage 7 mm
+of each 8 mm blind pilot through 3.3 mm clearance holes. Nominal 5.5 mm diameter,
+3 mm tall heads fit inside the 6 mm tool corridors. Verify actual hardware.
+
+The raised center has a 24.6 mm cavity, 3 mm wall and 3 mm roof. A 24 x 2 mm
+washer bears on the reinforced hub at local Z=69.5 mm, beneath the exposed M8
+nut at Z=71.5 mm. Its reserved 6.8 mm height and a 3 mm rod projection put the
+shaft tip at Z=81.3 mm, 0.25 mm below the roof. The closure ends at Z=84.55 mm.
+The cavity clears the washer, nut and rod, so the disc does not carry the M8
+clamping load. Remove its two screws and lift straight up to expose the nut
+without unlocking a module joint. Remove the nut before lifting the washer.
+The closure is not weather-sealed.
+
+`src/windwall/assembly.py` supplies `build_locked_rotor_assembly` and
+`build_exploded_rotor_assembly`. The locked base is at Z=0, five standards at
+Z=70/140/210/280/350, and the top at Z=420. Every nominal stage rotation is zero
+and the aerodynamic height is 490 mm. The +60-degree internal twist remains:
+blade phase jumps back 60 degrees at each seam. Structural supports bridge
+the ends; a continuous helical skin or aerodynamic performance is not claimed.
+
+The 34 named solids include seven stages, one closure, twelve radial seam
+screws, two closure screws, the lower generator references and clamps, top
+nut/washer, and one M8 rod from Z=-60.5 to Z=501.3 mm (561.8 mm nominal length).
+The upper magnet carrier is fused into the base and appears only once. Rod
+length is an envelope, not a stock-cutting instruction: measure actual hardware.
+Both generator gaps remain 1.5 mm for flush/subflush magnets.
+
+Exploded stages are 18 degrees clockwise from their own locked frames. Entry
+is 0.45 mm below lock; 15 mm lift from each entry gives cumulative 14.55 mm
+increments above nominal stage placement, fully separating each joint. Each
+stage is illustrated relative to its own locked lower frame; this is not a
+simultaneous insertion motion between all exploded pieces. Radial screws
+withdraw first, the closure lifts separately, and the real rod keeps its length.
+
+`assembly_validation.py` intersects all actual component pairs, allowing only
+each named M3 shank's bounded thread-forming overlap in its designated blind
+pilot. Stops and washer/closure seating are zero-volume contacts. All three
+unique pairings (base/standard, standard/standard, standard/top) sample axial
+insertion every 1 mm and locking every 0.5 degree. CCW overtravel must meet
+both bayonet and driver stops, CW release must remain clear, and a 2 mm locked
+pull must meet the retention roof. Running clearance is measured on the
+reusable bayonet interface, excluding intentional stop contact. All six seams
+check actual shank/head/tool access at 170 and 280 degrees. Top closure,
+wrench and washer service paths and generator clearances are also audited.
+Sampling is CAD evidence, not a proof of continuous motion or physical fit.
+
+```powershell
+$env:PYTHONPATH = "$PWD;$PWD\src"
+& .\.venv\Scripts\python.exe scripts/run_geometry.py -m unittest tests.test_assembly tests.test_preview_assembly -v
+$testExit = $LASTEXITCODE
+& .\.venv\Scripts\python.exe scripts/run_geometry.py scripts/preview_assembly.py
+$exportExit = $LASTEXITCODE
+```
+
+The exporter validates the magnet pocket coupon first, then STEP/STL for base,
+standard, top, closure and lower magnet rotor. Outputs under `build/assembly/`
+include 34-solid locked/exploded STEP files, `assembly_fit.json`, a top section
+SVG and `assembly_inspection.png` rendered from exported STEP solids. Every STL
+must be one closed manifold component without degenerate faces, at print Z=0.
+The script also supplies locked, exploded and sectioned CQ-editor views;
+interactive inspection remains unverified. No print is sent. Physical coupons,
+two-stage fit, support/bridging, balance, strength, magnet/bearing retention
+and generator operation remain unverified.
