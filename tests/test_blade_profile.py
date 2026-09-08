@@ -55,6 +55,19 @@ class BladeProfileTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             build_blade_stage(replace(DEFAULT_PARAMETERS, blade=oversized_hub))
 
+    def test_noncanonical_or_nonfinite_coordinates_are_rejected(self):
+        p = DEFAULT_PARAMETERS
+        for blade in (
+            replace(p.blade, small_arc_center_xy_mm=(36,1), large_arc_center_xy_mm=(-48,1),
+                    tangent_transition_xy_mm=(12,1)),
+            replace(p.blade, small_arc_center_xy_mm=(float('nan'),0)),
+            replace(p.blade, tangent_transition_xy_mm=(12,)),
+        ):
+            for builder in (build_blade_profile, build_blade_stage):
+                with self.subTest(blade=blade, builder=builder.__name__):
+                    with self.assertRaises(ValueError):
+                        builder(replace(p, blade=blade))
+
     @unittest.skipUnless(os.environ.get("WINDWALL_REFERENCE_BLADE"), "External reference path not configured")
     def test_active_sections_match_external_reference_in_both_directions(self):
         from scripts.preview_blade import load_reference_triangles, slice_triangles

@@ -7,6 +7,7 @@ needed. Fit clearances remain uncalibrated until the physical PLA test.
 
 import argparse
 import json
+from math import ceil
 from pathlib import Path
 import sys
 
@@ -58,9 +59,10 @@ def export_coupon(parameters: DesignParameters, output_dir: Path) -> dict:
         "projectionDir": (0,0,1), "showHidden": True, "width": 900, "height": 900})
     cq.exporters.export(assembly, str(output_dir / "bayonet_isometric.svg"), opt={
         "projectionDir": (1,-2,2), "showHidden": True, "width": 1000, "height": 800})
-    motion = [{"travel_deg": angle,
-               "intersection_mm3": coupon.male_at_travel(angle).intersect(coupon.female).val().Volume()}
-              for angle in range(int(parameters.bayonet.insertion_offset_deg)+1)]
+    travel = parameters.bayonet.insertion_offset_deg
+    motion = [{"travel_deg": min(angle, travel),
+               "intersection_mm3": coupon.male_at_travel(min(angle, travel)).intersect(coupon.female).val().Volume()}
+              for angle in range(ceil(travel)+1)]
     insertion = [coupon.male_at_travel(0).translate((0,0,lift)).intersect(coupon.female).val().Volume()
                  for lift in range(int(coupon.female.val().BoundingBox().zmax)+2)]
     ccw = coupon.male.rotate((0,0,0), (0,0,1), 0.5).intersect(coupon.female).val().Volume()

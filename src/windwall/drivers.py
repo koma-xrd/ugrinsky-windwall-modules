@@ -7,7 +7,7 @@ Short shoulders connect the fittings, without altering the blade source. This
 isolated coupon does not resolve the +60-degree twisted module end registration.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from math import atan2, ceil, cos, degrees, hypot, isfinite, radians, sin
 
 import cadquery as cq
@@ -32,7 +32,9 @@ def _validate(p: DesignParameters) -> None:
         raise ValueError('Driver corners consume the footprint')
     if not 0 < d.sweep_step_deg <= 1 or not 110 <= d.small_arc_station_deg <= 130:
         raise ValueError('Use a nearby small-arc station and sweep steps at most one degree')
-    if len(d.screw_angles_deg) != 2 or len(set(d.screw_angles_deg)) != 2:
+    if any(not isfinite(angle) for angle in d.screw_angles_deg):
+        raise ValueError('Screw angles must be finite')
+    if len(d.screw_angles_deg) != 2 or len({angle % 360 for angle in d.screw_angles_deg}) != 2:
         raise ValueError('Exactly two distinct radial screws are required')
     if not m.screw_pilot_diameter_mm < m.screw_nominal_diameter_mm < d.screw_clearance_diameter_mm:
         raise ValueError('Screw pilot, nominal and clearance diameters must increase')
@@ -56,6 +58,12 @@ def _arm_bottom(p):
     screw_z = _insertion_height(p)+p.bayonet.ramp_rise_mm+wall+m.screw_pilot_diameter_mm/2
     boss_top = screw_z+d.screw_clearance_diameter_mm/2+wall
     return max(_receiver_height(p), boss_top) + m.axial_clearance_mm + p.bayonet.ramp_rise_mm
+
+
+def joint_interface_height_mm(parameters: DesignParameters) -> float:
+    """Validated height from receiver bottom to the upper male shoulder face."""
+    _validate(parameters)
+    return _arm_bottom(parameters)+parameters.drivers.root_thickness_mm
 
 
 def _footprint(p, clearance=0):
@@ -149,9 +157,8 @@ def _screw_axes(p):
     if margin < wall-1e-8 or start >= b.hub_outer_diameter_mm/2-wall:
         raise ValueError('Screw length must retain loaded material at blind pilot end and sufficient engagement')
     axes = []
-    for angle in d.screw_angles_deg:
-        if not isfinite(angle):
-            raise ValueError('Screw angles must be finite')
+    for configured_angle in d.screw_angles_deg:
+        angle = configured_angle % 360
         axes.append(ScrewAxis(angle, z, _outer(p), margin,
             _radial_cylinder(m.screw_pilot_diameter_mm/2, start,
                              b.hub_outer_diameter_mm/2+m.radial_clearance_mm-start, z, angle),
@@ -178,12 +185,8 @@ class JointCoupon(BayonetCoupon):
         return self.locked_intersection_volume_mm3()
 
 
-def build_joint_coupon(parameters: DesignParameters) -> JointCoupon:
-    """Compact full interface pair, including M8 calibration pocket.
-
-    Keeping all three bayonet lugs and both drivers avoids sectioning away the
-    ring's real stiffness. Coupon-only nut pocket is not a nut in every module.
-    """
+def build_joint_interface(parameters: DesignParameters) -> JointCoupon:
+    """Complete reusable joint members, without the coupon-only nut pocket."""
     _validate(parameters)
     p, d, m = parameters, parameters.drivers, parameters.manufacturing
     base = build_bayonet_coupon(p)
@@ -223,12 +226,18 @@ def build_joint_coupon(parameters: DesignParameters) -> JointCoupon:
         female = female.union(boss).cut(axis.clearance)
         male = male.cut(axis.pilot)
     female = female.cut(cq.Workplane('XY').circle(p.bayonet.hub_outer_diameter_mm/2+m.radial_clearance_mm).extrude(top+1))
-    # Captive M8 nut sample, top accessible and clear of the radial pilot ends.
-    nut = (cq.Workplane('XY').polygon(6, m.nut_pocket_across_flats_mm/cos(radians(30)))
-           .extrude(m.nut_pocket_depth_mm+1).translate((0,0,top-m.nut_pocket_depth_mm)))
-    male = male.cut(nut)
     centers = tuple((radius*cos(radians(a)),radius*sin(radians(a))) for a in (angle,angle+180))
     return JointCoupon(p, male, female, driver_centers=centers, screw_axes=axes,
         registration={'nominal_module_rotation_deg': 0, 'blade_bottom_phase_deg': 0,
                       'blade_top_phase_deg': p.blade.twist_deg,
                       'joint_locked_phase_deg': 0, 'module_end_registration_verified': False})
+
+
+def build_joint_coupon(parameters: DesignParameters) -> JointCoupon:
+    """Add the top-accessible M8 fit sample to the reusable joint pair."""
+    joint = build_joint_interface(parameters)
+    m = parameters.manufacturing
+    top = _arm_bottom(parameters) + parameters.drivers.root_thickness_mm
+    nut = (cq.Workplane('XY').polygon(6, m.nut_pocket_across_flats_mm/cos(radians(30)))
+           .extrude(m.nut_pocket_depth_mm+1).translate((0,0,top-m.nut_pocket_depth_mm)))
+    return replace(joint, male=joint.male.cut(nut))

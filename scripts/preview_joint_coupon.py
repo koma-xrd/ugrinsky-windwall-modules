@@ -8,6 +8,7 @@ and one top-accessible M8 nut calibration pocket.
 
 import argparse
 import json
+from math import ceil
 from pathlib import Path
 import sys
 
@@ -44,9 +45,10 @@ def export_coupon(parameters: DesignParameters, output_dir: Path) -> dict:
     for name, direction in (('top', (0,0,1)), ('isometric', (1,-2,2))):
         cq.exporters.export(assembly, str(output_dir / f'joint_{name}.svg'), opt={
             'projectionDir': direction, 'showHidden': False, 'width': 1000, 'height': 800})
-    motion = [{'travel_deg': angle/2, 'intersection_mm3': coupon.male_at_travel(angle/2)
+    travel = parameters.bayonet.insertion_offset_deg
+    motion = [{'travel_deg': min(angle/2,travel), 'intersection_mm3': coupon.male_at_travel(min(angle/2,travel))
                .intersect(coupon.female).val().Volume()}
-              for angle in range(int(parameters.bayonet.insertion_offset_deg*2)+1)]
+              for angle in range(ceil(travel*2)+1)]
     insertion = [coupon.male_at_travel(0).translate((0,0,lift)).intersect(coupon.female).val().Volume()
                  for lift in range(25)]
     drivers = build_drivers(parameters)

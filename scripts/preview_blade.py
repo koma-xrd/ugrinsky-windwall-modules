@@ -22,8 +22,6 @@ if str(PROJECT_ROOT / "src") not in sys.path:
 from windwall.reference_mesh import analyze_binary_stl
 
 REFERENCE_AXIS_XY_MM = np.array([6.25, 122.634])
-REFERENCE_HEIGHT_MM = 70.0
-REFERENCE_TWIST_DEG = 60.0
 
 
 def slice_triangles(triangles: np.ndarray, z_mm: float) -> np.ndarray:

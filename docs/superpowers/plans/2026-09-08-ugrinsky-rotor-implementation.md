@@ -16,7 +16,8 @@
 - Rotation is viewed from above, looking down along negative Z.
 - Normal rotation and bayonet locking are counterclockwise.
 - The completed rotor has one base stage, five standard stages, and one top stage, nominally 490 mm high.
-- Final blade profiles are vertically aligned.
+- Final module transforms are identical; the retained +60-degree within-stage
+  twist means aerodynamic skins are not continuous at the seams.
 - The prototype shaft is one ordinary M8 threaded rod.
 - The upper magnet rotor is integrated into the base rotor module; the lower magnet rotor remains separate.
 - Production solids must be reconstructed and must not contain the reference STL meshes.
@@ -510,9 +511,9 @@ class RotorModuleTests(unittest.TestCase):
         for builder in (build_base_module, build_standard_module, build_top_module):
             self.assertGreaterEqual(builder(DEFAULT_PARAMETERS).shaft_clearance_radial_mm, 0.35)
 
-    def test_top_has_m8_nut_and_washer_access(self):
+    def test_top_has_exposed_m8_nut_and_washer_access(self):
         top = build_top_module(DEFAULT_PARAMETERS)
-        self.assertAlmostEqual(top.nut_pocket_across_flats_mm, 13.30)
+        self.assertIsNone(top.nut_pocket_across_flats_mm)
         self.assertGreaterEqual(top.washer_seat_diameter_mm, 24.0)
 ```
 
@@ -532,7 +533,13 @@ Reuse the standard upper female interface and blade body. Replace its lower male
 
 - [ ] **Step 5: Build the top stage**
 
-Reuse the standard lower male interface and blade body. Replace the upper female interface with a reinforced hub containing the top-accessible 13.30 mm M8 hex pocket, 6.8 mm depth, 24 mm washer seat, shaft passage, and closure attachment seats. Ensure the washer bears on the reinforced hub rather than the removable closure.
+Reuse the standard lower male interface and blade body. Replace the upper female interface with a reinforced hub containing an 8.8 mm shaft passage, a shallow 24.6 mm centering recess for the 24 mm OD washer, and separate closure seats. The exposed M8 nut sits above the washer, so the washer bears directly on the hub and spreads its clamp load. This Task 6 correction supersedes the captive top hex pocket; that 13.30 mm by 6.8 mm pocket remains in the calibration coupon only. A wrench is required during assembly, and the closure must provide headroom above the nominal blade height.
+
+Task 6 also explicitly phases both joint members +100 degrees, placing the
+radial screws at 170/280 degrees, and relieves only the outer bottom 0.70 mm
+edge for the axial ramp motion. End supports bridge the +60-degree source skin
+to the common joint frame. No aerodynamic seam continuity is claimed. The
+base's lower flange remains a Task 7 carrier/shaft-interface integration face.
 
 - [ ] **Step 6: Run all module tests and inspect all three parts in CQ-editor**
 
@@ -667,7 +674,7 @@ Expected: import failure for `windwall.assembly`.
 
 - [ ] **Step 3: Build the removable top closure**
 
-Create a symmetric disc tying both blade ends to the reinforced top hub. Provide two serviceable screw seats outside the washer load path. Ensure removal exposes the nut and washer without disturbing any bayonet joint.
+Create a symmetric disc tying both blade ends to the reinforced top hub. Use the two blind pilot seats at local XY=(24,0) and (-24,0), diameter 2.3 mm and depth 8 mm, outside the washer load path. Provide clearance above the washer, exposed nut and actual rod projection: with a 2 mm washer the nut starts at local z=71.5 mm, above the 70 mm blade height. Ensure removal exposes the nut and washer without disturbing any bayonet joint.
 
 - [ ] **Step 4: Place the complete locked and exploded assemblies**
 

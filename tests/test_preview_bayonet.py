@@ -1,6 +1,7 @@
 """Export checks exercise actual coupon files and CQ-editor display objects."""
 
 import unittest
+from dataclasses import replace
 
 import cadquery as cq
 
@@ -40,6 +41,14 @@ class CouponExportTests(unittest.TestCase):
             self.assertTrue(shape.val().isValid())
             self.assertTrue(name)
             self.assertIn("color", options)
+
+    def test_fractional_travel_export_includes_the_exact_locked_endpoint(self):
+        p = DEFAULT_PARAMETERS
+        changed = replace(p, bayonet=replace(p.bayonet, insertion_offset_deg=18.25))
+        with temporary_build_directory() as destination:
+            report = export_coupon(changed, destination)
+        self.assertAlmostEqual(report['motion_samples'][-1]['travel_deg'], 18.25)
+        self.assertLess(report['maximum_motion_intersection_mm3'], 0.01)
 
 
 if __name__ == "__main__":

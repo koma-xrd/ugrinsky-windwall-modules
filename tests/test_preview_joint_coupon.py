@@ -1,4 +1,5 @@
 import unittest
+from dataclasses import replace
 
 import cadquery as cq
 
@@ -11,7 +12,10 @@ from tests.support import temporary_build_directory
 class JointExportTests(unittest.TestCase):
     def test_export_contains_manifold_pair_step_and_fit_evidence(self):
         with temporary_build_directory() as destination:
-            report = export_coupon(DEFAULT_PARAMETERS, destination)
+            p = DEFAULT_PARAMETERS
+            changed = replace(p, bayonet=replace(p.bayonet, insertion_offset_deg=18.25))
+            report = export_coupon(changed, destination)
+            self.assertAlmostEqual(report['motion_samples'][-1]['travel_deg'], 18.25)
             for name in ('male', 'female'):
                 mesh = analyze_binary_stl(destination / f'joint_{name}.stl')
                 self.assertEqual(mesh.component_count, 1)

@@ -95,6 +95,21 @@ class DriverTests(unittest.TestCase):
         self.assertEqual(self.coupon.registration['nominal_module_rotation_deg'], 0)
         self.assertFalse(self.coupon.registration['module_end_registration_verified'])
 
+    def test_radial_screws_are_distinct_modulo_full_turns(self):
+        p = DEFAULT_PARAMETERS
+        with self.assertRaises(ValueError):
+            build_screw_pilots(replace(p, drivers=replace(p.drivers, screw_angles_deg=(70,430))))
+        changed = replace(p, drivers=replace(p.drivers, screw_angles_deg=(-290,540)))
+        pilots = build_screw_pilots(changed)
+        self.assertLess(pilots.cut(build_screw_pilots(p)).val().Volume(), 0.01)
+
+    def test_reusable_joint_has_no_coupon_nut_pocket(self):
+        from windwall.drivers import build_joint_interface
+        interface = build_joint_interface(DEFAULT_PARAMETERS)
+        top = interface.male.val().BoundingBox().zmax
+        self.assertTrue(interface.male.val().isInside((6,0,top-0.1)))
+        self.assertFalse(self.coupon.male.val().isInside((6,0,top-0.1)))
+
     def test_top_accessible_nut_pocket_has_configured_size_depth_and_floor(self):
         m = DEFAULT_PARAMETERS.manufacturing
         top = self.coupon.male.val().BoundingBox().zmax

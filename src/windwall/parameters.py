@@ -88,6 +88,19 @@ class DriverParameters:
 
 
 @dataclass(frozen=True)
+class ModuleParameters:
+    """Local structural end fittings; generator dimensions belong to Task 7."""
+
+    end_support_radius_mm: float = 36.0
+    end_support_thickness_mm: float = 3.0
+    base_shaft_flange_depth_mm: float = 3.0
+    washer_seat_depth_mm: float = 0.5
+    closure_screw_radius_mm: float = 24.0
+    closure_pilot_depth_mm: float = 8.0
+    joint_phase_deg: float = 100.0
+
+
+@dataclass(frozen=True)
 class DesignParameters:
     manufacturing: ManufacturingParameters = field(default_factory=ManufacturingParameters)
     shaft: ShaftParameters = field(default_factory=ShaftParameters)
@@ -95,6 +108,7 @@ class DesignParameters:
     bayonet: BayonetParameters = field(default_factory=BayonetParameters)
     blade: BladeParameters = field(default_factory=BladeParameters)
     drivers: DriverParameters = field(default_factory=DriverParameters)
+    modules: ModuleParameters = field(default_factory=ModuleParameters)
 
 
 DEFAULT_PARAMETERS = DesignParameters()

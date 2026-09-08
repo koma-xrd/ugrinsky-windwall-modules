@@ -30,6 +30,13 @@ def _validate(parameters: DesignParameters) -> None:
     small = blade.small_arc_center_xy_mm
     large = blade.large_arc_center_xy_mm
     transition = blade.tangent_transition_xy_mm
+    for point in (small, large, transition):
+        if len(point) != 2 or any(not isfinite(value) for value in point):
+            raise ValueError('Blade centers and transition must be finite XY pairs')
+        if abs(point[1]) > 1e-7:
+            raise ValueError('Blade centers and transition must use the canonical shaft-frame X axis')
+    if small[0] <= 0 or large[0] >= 0 or transition[0] <= 0:
+        raise ValueError('Blade centers must retain the canonical small-positive/large-negative frame')
     expected = ((small[0] - blade.small_arc_radius_mm, small[1]),
                 (large[0] + blade.large_arc_radius_mm, large[1]))
     if any(abs(a-b) > 1e-7 for point in expected for a,b in zip(point, transition)):
@@ -72,6 +79,8 @@ def build_blade_profile(parameters: DesignParameters) -> cq.Wire:
     second = first.rotate((0, 0, 0), (0, 0, 1), 180)
     hub = cq.Face.makeFromWires(cq.Workplane("XY").circle(parameters.blade.hub_blend_radius_mm).val())
     face = hub.fuse(first, second).clean()
+    if not face.isValid() or len(face.Faces()) != 1:
+        raise ValueError('Blade profile must be one valid connected planar face')
     return face.Faces()[0].outerWire()
 
 
@@ -90,4 +99,6 @@ def build_blade_stage(parameters: DesignParameters) -> cq.Workplane:
     second = first.rotate((0, 0, 0), (0, 0, 1), 180)
     hub = cq.Workplane("XY").circle(blade.hub_blend_radius_mm).extrude(height).val()
     stage = hub.fuse(first, second).clean()
+    if not stage.isValid() or len(stage.Solids()) != 1:
+        raise ValueError('Blade stage must be one valid connected solid')
     return cq.Workplane(obj=stage)

@@ -47,13 +47,15 @@ The nominal stack contains seven aerodynamically active stages and is about
 1. One base rotor module with the upper magnet rotor integrated into its lower
    structure.
 2. Five identical standard rotor modules.
-3. One top rotor module with a reinforced central M8 nut and washer seat.
+3. One top rotor module with a reinforced washer-bearing hub and exposed M8 clamp nut.
 4. One removable top closure disc above the top rotor module. The closure disc
    is not an additional aerodynamic stage.
 
-All seven stages finish in the same angular orientation so the blade surfaces
-are vertically aligned. The stack uses one continuous, ordinary M8 threaded
-rod as its rotating shaft for the first prototype.
+All seven stages finish with identical nominal angular transforms. Each retains
+the measured +60-degree within-stage twist, so their aerodynamic skins are not
+continuous across the seam. Local structural end supports bridge the seam;
+they do not hide a compensating stage rotation. The stack uses one continuous,
+ordinary M8 threaded rod as its rotating shaft for the first prototype.
 
 ## Bayonet Interface
 
@@ -63,7 +65,7 @@ the central hub.
 - The upper module is presented approximately 15 to 20 degrees clockwise from
   its final position.
 - It is inserted axially and rotated counterclockwise to lock.
-- The locked end stop places the blade profile exactly above the profile below.
+- The locked end stop places the next module at the same nominal stage angle.
 - Shallow ramps generate light axial preload without wedging or splitting the
   printed hub.
 - Large internal radii reduce stress concentrations.
@@ -92,8 +94,8 @@ M8 nuts are not placed along the shaft.
 The top rotor module contains:
 
 - a reinforced central hub;
-- a top-accessible captive M8 hex-nut pocket;
-- a broad washer seat to distribute axial preload into the printed body; and
+- a top-accessible exposed M8 nut above the washer, requiring a wrench;
+- a broad washer seat below the nut to distribute axial preload into the printed body; and
 - access for adjustment before the closure disc is installed.
 
 The base rotor module provides the lower torque-transfer interface to the M8
@@ -163,7 +165,7 @@ The initial prototype targets PLA. Outdoor parts will later use ASA.
 Initial design values, all adjustable from one parameter source, are:
 
 - bayonet contact clearance: 0.25 to 0.30 mm per side;
-- captive M8 nut pocket: 13.2 to 13.4 mm across flats before calibration;
+- captive M8 nut calibration coupon: 13.2 to 13.4 mm across flats before calibration;
 - locally loaded wall thickness: at least 3 mm where geometry permits;
 - generous fillets at lug, pocket, hub, and driver roots; and
 - an M8 shaft clearance suitable for a commercial threaded rod rather than a
@@ -191,7 +193,8 @@ Automated checks shall verify:
 - one intended connected solid per printed part unless documented otherwise;
 - absence of part interference in the locked assembly;
 - collision-free axial insertion and locking rotation;
-- exact final blade alignment at the counterclockwise end stop;
+- identical nominal stage transforms at the counterclockwise end stop, explicitly
+  retaining the +60-degree skin discontinuity at each seam;
 - free passage of the M8 threaded rod;
 - nut and washer access in the top module;
 - intended component count in the seven-stage assembly;
@@ -215,3 +218,25 @@ mounting are required before unattended outdoor operation.
 The initial electrical target is a future isolated 48 V lead-acid battery
 system. Electrical design is deferred and does not change the approved rotor
 stack architecture.
+
+## Task 6 mechanical corrections (2026-09-08)
+
+The common joint frame is explicitly phased +100 degrees relative to the blade
+frame. Both mating members use it; locking remains 18 degrees CCW and each
+module's nominal transform remains zero. This places the two screw axes at
+170 and 280 degrees, where actual adjacent blade solids permit radial tool
+access. A 0.70 mm outer bottom-edge relief permits the 0.45 mm ramp motion plus
+0.25 mm axial clearance. End supports use a 36 mm radius; the shared middle
+blade and the outer skin above the relieved edge retain the source twist.
+
+The original top captive-nut requirement is superseded: a washer above a buried
+nut would not spread that nut's clamping load. The top instead has a 24.6 mm
+diameter, 0.5 mm deep centering recess for the 24 mm OD washer. Its reinforced
+floor is at local z=69.5 mm. A 2 mm washer places the exposed nut bottom at
+z=71.5 mm; the later closure must clear the washer, actual nut height and rod
+projection. The 13.30 mm by 6.8 mm hex pocket remains only in the calibration
+coupon. Torque transfer belongs to the base and the module joints.
+
+Task 6's base ends in a 34 mm diameter, 3 mm deep shaft flange. It prepares a
+fusion face for Task 7; it is not yet an integrated upper magnet carrier or a
+completed shaft torque interface.

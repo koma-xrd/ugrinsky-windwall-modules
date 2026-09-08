@@ -105,7 +105,7 @@ Reproduce the external comparison without copying the mesh into the repository:
 ```powershell
 $env:PYTHONPATH = "$PWD;$PWD\src"
 $env:WINDWALL_REFERENCE_BLADE = "C:\path\to\7 Ugrinsky_Blade.stl"
-& .\.venv\Scripts\python.exe scripts/preview_blade.py $env:WINDWALL_REFERENCE_BLADE
+& .\.venv\Scripts\python.exe scripts/run_geometry.py scripts/preview_blade.py $env:WINDWALL_REFERENCE_BLADE
 & .\.venv\Scripts\python.exe scripts/run_geometry.py -m unittest tests.test_blade_profile tests.test_preview_blade -v
 ```
 
@@ -250,12 +250,96 @@ Both parts use a zero-angle locked joint frame. Registration metadata preserves
 the measured +60-degree blade twist and zero nominal module rotation, and marks
 `module_end_registration_verified=false`. Identical nominal transforms do not
 make the lower stage's +60-degree top blade section continuous with the next
-stage's zero-degree bottom. Final fitting phase, local blade bridges, and assembled
-tool clearance must be resolved explicitly in module construction (Task 6);
-the pocket sweep does not silently absorb the 60-degree mismatch.
+stage's zero-degree bottom. Module construction below explicitly sets the fitting
+phase, local end supports, and blade/tool clearance. The pocket sweep does not
+absorb the 60-degree mismatch.
 
 No physical coupon has been printed. Record pilot engagement, nut fit, insertion
 and locking force, reverse retention and cracks before full-stage printing.
-Strength, print support/bridging, screw-head fit and assembled blade access remain
-unverified. CLI assertion/export completion still precedes the known native
+Strength, print support/bridging and screw-head fit remain unverified. Assembled
+blade/tool access is checked by the module geometry below. CLI assertion/export
+completion still precedes the known native
 runtime shutdown failure; record the nonzero exit separately.
+
+## Base, standard and top rotor modules
+
+`src/windwall/rotor_modules.py` supplies `build_base_module`,
+`build_standard_module`, and `build_top_module`. Each returns a frozen
+`RotorModuleModel` containing one printable `shape` and its shaft/seat metadata.
+Every module has an 8.8 mm continuous shaft passage, giving 0.40 mm radial
+clearance around the nominal M8 rod. All three retain the same source blade
+frame and +60-degree twist; place the modules at successive 70 mm Z increments
+with zero nominal angular offsets.
+
+The standard module consumes the reusable `build_joint_interface` pair: bottom
+male lugs/drivers and blind pilots, top female tracks/pockets and radial guides.
+The coupon-only hex pocket is excluded. A single explicit
+`ModuleParameters.joint_phase_deg=100` rotates both fitting members, placing
+the two module screw axes at 170 and 280 degrees. The upper module still enters
+18 degrees clockwise from its final nominal orientation and rotates CCW to
+zero. This fitting phase is not a rotation of the module or its source blade.
+
+`module_joint_depth_mm` returns 17.141922 mm. The lower male is translated by
+minus that depth; the upper receiver starts at local z=52.858078 mm. A 3 mm
+support plate below the receiver and a 3 mm lower root plate use a 36 mm radius
+to join the fittings to the blades. The standard and top solids extend down to
+z=-12.5 mm for engagement, so their print envelopes are approximately
+121.49 x 120.93 x 82.50 mm despite their 70 mm nominal stage pitch.
+
+At radius above 36 mm, only the bottom 0.70 mm of blade is relieved for the
+0.45 mm ramp displacement plus 0.25 mm axial clearance. That removes
+161.30 mm3, or 0.246 percent of the source stage volume. The source skin above
+this edge is retained; receiver pads add local material out to radius 36.351 mm.
+Material outside radius 36.4 mm is unchanged above the relief. For base/standard
+receivers, reconstruction in the
+upper 17.14 mm additionally displaces 1901.56 mm3 of source blade material
+between radii 20 and 36 mm before installing structural fittings. The middle
+blade remains unchanged; the structural end regions have an aerodynamic
+impact that has not been measured. No aerodynamic continuity across the
+60-degree seam is claimed.
+
+The base currently replaces its lower male with a 34 mm diameter, 3 mm deep
+shaft flange, yielding a 73 mm print height. This is Task 7's carrier fusion
+face. The upper magnet carrier and lower shaft torque hardware are not yet
+integrated, and no magnet, air-gap or electrical details are implied.
+
+The top uses a reinforced washer-bearing hub with a 24.6 mm diameter,
+0.5 mm deep recess for a 24 mm OD washer. Its floor is at z=69.5 mm. The exposed
+M8 nut sits above the washer and is accessible to a wrench before the closure
+is fitted. This corrects the original captive-top-nut plan: a washer above a
+buried nut would not distribute that nut's clamp load. Accordingly,
+`nut_pocket_across_flats_mm` is `None` for every module, while the top's
+`washer_seat_diameter_mm` is 24.6. The independent coupon retains its 13.30 mm
+across-flats, 6.8 mm deep nut fit sample.
+
+Closure pilots are at XY=(24,0) and (-24,0), 2.3 mm diameter and 8 mm blind
+depth, with at least 3 mm surrounding material and a blind floor. The closure
+must clear the washer, exposed nut and actual rod projection. With a 2 mm
+washer, the nut starts at z=71.5 mm, above the 70 mm blade ends; the closure
+must not take the M8 axial clamping load.
+
+```powershell
+$env:PYTHONPATH = "$PWD;$PWD\src"
+& .\.venv\Scripts\python.exe scripts/run_geometry.py -m unittest tests.test_rotor_modules tests.test_preview_modules -v
+$testExit = $LASTEXITCODE
+& .\.venv\Scripts\python.exe scripts/run_geometry.py scripts/preview_modules.py
+$exportExit = $LASTEXITCODE
+```
+
+Outputs under `build/modules/` include the three STLs placed at print Z=0,
+three STEP files preserving their assembly frames, individual isometric SVGs,
+`two_modules_locked.step`, and `module_fit.json`. Tests round-trip every STEP
+and require each STL to be one connected closed manifold with no degenerate
+faces. The export checks all three unique adjacent pairings at lock and their
+6 mm radial screwdriver corridors. The standard/top pair checks locking every
+0.5 degree and insertion every 1 mm; all measured intersection volumes are
+zero. Changed joint phases are rejected if they obstruct a blade/tool corridor.
+These are solid-envelope checks, not a calibrated screw-head, wrench or print
+fit certification.
+
+`scripts/preview_modules.py` also displays the three parts in CQ-editor. Actual
+exported STEP meshes, blade seam sections, top seat and locked screw/tool
+sections were inspected in the local static image
+`build/modules/module-inspection.png`; interactive CQ-editor rendering remains
+unverified. No physical parts were printed. Validate coupons, support/bridging,
+loaded walls, torque, rod alignment and two-stage fit before full-stack printing.
