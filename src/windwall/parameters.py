@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from math import acos, degrees
 
 
 @dataclass(frozen=True)
@@ -47,11 +48,34 @@ class BayonetParameters:
 
 
 @dataclass(frozen=True)
+class BladeParameters:
+    """Measured circular centerlines in the bottom-section shaft frame, in mm.
+
+    The small upper semicircle meets the descending large arc at (12, 0).
+    The second blade is its 180-degree rotation. Stage height remains in
+    RotorParameters; twist is positive counterclockwise when viewed from above.
+    """
+
+    rotor_radius_mm: float = 60.75
+    wall_thickness_mm: float = 1.5
+    small_arc_center_xy_mm: tuple[float, float] = (36.0, 0.0)
+    large_arc_center_xy_mm: tuple[float, float] = (-48.0, 0.0)
+    small_arc_radius_mm: float = 24.0
+    large_arc_radius_mm: float = 60.0
+    tangent_transition_xy_mm: tuple[float, float] = (12.0, 0.0)
+    large_arc_sweep_deg: float = degrees(acos(0.4))
+    hub_blend_radius_mm: float = 13.0
+    twist_deg: float = 60.0
+    loft_section_count: int = 9
+
+
+@dataclass(frozen=True)
 class DesignParameters:
     manufacturing: ManufacturingParameters = field(default_factory=ManufacturingParameters)
     shaft: ShaftParameters = field(default_factory=ShaftParameters)
     rotor: RotorParameters = field(default_factory=RotorParameters)
     bayonet: BayonetParameters = field(default_factory=BayonetParameters)
+    blade: BladeParameters = field(default_factory=BladeParameters)
 
 
 DEFAULT_PARAMETERS = DesignParameters()
