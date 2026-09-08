@@ -558,6 +558,17 @@ git commit -m "feat: build modular seven-stage rotor parts"
 
 ### Task 7: Reconstruct the Dual-Magnet Generator Geometry
 
+Measured implementation refinement (2026-09-08): the source 104 mm carrier has
+18 approximately 11 mm blind pockets on a 44.5 mm radius, with 2 mm pocket
+depth above a 1 mm floor. The clean carrier uses 106 mm OD, 2 mm pockets and a
+3 mm web for the loaded-wall requirement, with rear ribs/hub keeping its 10 mm
+overall height. It adds a base captive torque nut while preserving the exposed
+top clamp. Stationary solids conservatively reserve 12+2 mm for former/cover;
+the 12 x 8 x 6 mm sleeve in the measured 12.3 mm bearing feature remains an
+explicitly unverified clearance envelope. No bearing product or retention,
+magnet retention, physical fit, winding, polarity or electrical performance is
+finalized. Both full-carrier export paths generate the magnet coupon first.
+
 **Files:**
 - Create: `src/windwall/generator.py`
 - Create: `tests/test_generator.py`
@@ -595,7 +606,7 @@ class GeneratorTests(unittest.TestCase):
 
 - [ ] **Step 2: Run the tests and confirm the missing implementation failure**
 
-Run: `python -m unittest tests.test_generator -v`
+Run: `.venv/Scripts/python.exe scripts/run_geometry.py -m unittest tests.test_generator -v`
 
 Expected: import failure for `windwall.generator`.
 
@@ -613,9 +624,14 @@ Reconstruct simplified, valid stationary solids for the coil former, stator cove
 
 - [ ] **Step 6: Run generator tests and inspect the section view**
 
-Run: `python -m unittest tests.test_generator -v`
+Run: `.venv/Scripts/python.exe scripts/run_geometry.py -m unittest tests.test_generator -v`
 
-Open `scripts/preview_generator.py` in CQ-editor and inspect a Z-axis section confirming two rotating magnet carriers, stationary stator between them, continuous shaft, adjustable spacer regions, and no collision.
+Export `scripts/preview_generator.py` through `scripts/run_geometry.py` and
+inspect the actual STEP/static Z-axis section confirming two rotating magnet
+carriers, stationary stator between them, continuous shaft, adjustable spacer
+regions, and no collision. Interactive CQ-editor inspection is optional and
+must not be claimed from static evidence. Record native process status
+separately from passing assertions; the existing shutdown fault is unresolved.
 
 - [ ] **Step 7: Commit the dual-rotor generator geometry**
 

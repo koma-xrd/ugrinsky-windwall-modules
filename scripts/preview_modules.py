@@ -1,7 +1,7 @@
 """Export the three mechanical stage bodies or inspect them in CQ-editor.
 
 Run CLI through scripts/run_geometry.py. This is local CAD evidence only;
-the base awaits its measured generator carrier and no print job is sent.
+the base includes its coupon-gated generator carrier and no print job is sent.
 """
 
 import argparse
@@ -11,11 +11,13 @@ from pathlib import Path
 import sys
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-if str(PROJECT_ROOT / 'src') not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT / 'src'))
+for import_root in (PROJECT_ROOT, PROJECT_ROOT / 'src'):
+    if str(import_root) not in sys.path:
+        sys.path.insert(0, str(import_root))
 
 import cadquery as cq
 
+from scripts.preview_generator import export_magnet_pocket_coupon
 from windwall.blade_profile import build_blade_stage
 from windwall.drivers import build_joint_interface
 from windwall.parameters import DEFAULT_PARAMETERS, DesignParameters
@@ -26,6 +28,7 @@ from windwall.rotor_modules import (build_base_module, build_standard_module,
 
 def export_modules(parameters: DesignParameters, output_dir: Path) -> dict:
     p, m = parameters, parameters.manufacturing
+    export_magnet_pocket_coupon(p,output_dir)
     models = {name: builder(p) for name, builder in (
         ('base',build_base_module), ('standard',build_standard_module), ('top',build_top_module))}
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -81,8 +84,10 @@ def export_modules(parameters: DesignParameters, output_dir: Path) -> dict:
                        .circle(20).extrude(depth).translate((0,0,height-depth)))
     report = {'modules': parts, 'nominal_module_rotation_deg': 0,
               'blade_twist_deg': p.blade.twist_deg, 'joint_phase_deg': phase,
-              'aerodynamic_seam_continuous': False, 'upper_magnet_carrier_integrated': False,
+              'aerodynamic_seam_continuous': False, 'upper_magnet_carrier_integrated': True,
               'physical_fit_verified': False, 'interactive_qa_verified': False,
+              'physical_magnet_fit_verified': False, 'print_ready': False,
+              'magnet_coupon': 'magnet_pocket_coupon.stl',
               'joint_depth_mm': depth, 'female_bottom_z_mm': height-depth,
               'bottom_edge_relief_height_mm': relief_height,
               'bottom_edge_removed_source_volume_mm3': removed,

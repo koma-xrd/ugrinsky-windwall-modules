@@ -89,7 +89,7 @@ class DriverParameters:
 
 @dataclass(frozen=True)
 class ModuleParameters:
-    """Local structural end fittings; generator dimensions belong to Task 7."""
+    """Local structural end fittings and the generator carrier fusion offset."""
 
     end_support_radius_mm: float = 36.0
     end_support_thickness_mm: float = 3.0
@@ -101,6 +101,49 @@ class ModuleParameters:
 
 
 @dataclass(frozen=True)
+class GeneratorParameters:
+    """Mechanical reference reconstruction, never an electrical or print approval.
+
+    Hole count/pitch/diameter come from the mesh, not measured magnets. Carrier
+    OD grows from 104 to 106 mm to retain a 3 mm rim. The 12 x 8 x 6 bearing
+    envelope is a provisional sleeve inside the measured ~12.3 mm opening;
+    it does not identify a bearing product, fit, or axial retention system.
+    """
+
+    carrier_diameter_mm: float = 106.0
+    carrier_height_mm: float = 10.0
+    carrier_disc_thickness_mm: float = 5.0
+    carrier_hub_diameter_mm: float = 34.0
+    rib_count: int = 6
+    rib_width_mm: float = 3.0
+    magnet_pocket_count: int = 18
+    magnet_pitch_radius_mm: float = 44.5
+    magnet_pocket_diameter_mm: float = 11.0
+    magnet_pocket_depth_mm: float = 2.0
+    coupon_diameter_step_mm: float = 0.2
+    coil_former_diameter_mm: float = 118.0
+    coil_former_height_mm: float = 12.0
+    coil_former_bore_diameter_mm: float = 12.4
+    stator_cover_diameter_mm: float = 112.0
+    stator_cover_bore_diameter_mm: float = 62.0
+    stator_cover_height_mm: float = 2.0
+    base_diameter_mm: float = 120.0
+    base_cavity_diameter_mm: float = 114.0
+    base_height_mm: float = 27.0
+    base_floor_mm: float = 3.0
+    bearing_seat_diameter_mm: float = 12.3
+    bearing_outer_diameter_mm: float = 12.0
+    bearing_bore_diameter_mm: float = 8.0
+    bearing_length_mm: float = 6.0
+    bearing_support_diameter_mm: float = 20.0
+    upper_air_gap_mm: float = 1.5
+    lower_air_gap_mm: float = 1.5
+    spacer_outer_diameter_mm: float = 12.0
+    clamp_nut_across_flats_mm: float = 13.0
+    clamp_washer_thickness_mm: float = 2.0
+
+
+@dataclass(frozen=True)
 class DesignParameters:
     manufacturing: ManufacturingParameters = field(default_factory=ManufacturingParameters)
     shaft: ShaftParameters = field(default_factory=ShaftParameters)
@@ -109,6 +152,7 @@ class DesignParameters:
     blade: BladeParameters = field(default_factory=BladeParameters)
     drivers: DriverParameters = field(default_factory=DriverParameters)
     modules: ModuleParameters = field(default_factory=ModuleParameters)
+    generator: GeneratorParameters = field(default_factory=GeneratorParameters)
 
 
 DEFAULT_PARAMETERS = DesignParameters()

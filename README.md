@@ -298,19 +298,19 @@ blade remains unchanged; the structural end regions have an aerodynamic
 impact that has not been measured. No aerodynamic continuity across the
 60-degree seam is claimed.
 
-The base currently replaces its lower male with a 34 mm diameter, 3 mm deep
-shaft flange, yielding a 73 mm print height. This is Task 7's carrier fusion
-face. The upper magnet carrier and lower shaft torque hardware are not yet
-integrated, and no magnet, air-gap or electrical details are implied.
+The base replaces its lower male with a 34 mm diameter, 3 mm deep shaft flange
+and the integrated upper magnet carrier described below. Its nominal bounds
+are z=-13..70 mm, yielding an 83 mm print height. The carrier has an
+open-bottom captive M8 torque-nut pocket; the top module retains its exposed nut.
 
 The top uses a reinforced washer-bearing hub with a 24.6 mm diameter,
 0.5 mm deep recess for a 24 mm OD washer. Its floor is at z=69.5 mm. The exposed
 M8 nut sits above the washer and is accessible to a wrench before the closure
 is fitted. This corrects the original captive-top-nut plan: a washer above a
 buried nut would not distribute that nut's clamp load. Accordingly,
-`nut_pocket_across_flats_mm` is `None` for every module, while the top's
-`washer_seat_diameter_mm` is 24.6. The independent coupon retains its 13.30 mm
-across-flats, 6.8 mm deep nut fit sample.
+`nut_pocket_across_flats_mm` is `None` for standard/top and 13.30 for the base,
+while the top's `washer_seat_diameter_mm` is 24.6. The independent joint coupon
+retains its 13.30 mm across-flats, 6.8 mm deep nut fit sample.
 
 Closure pilots are at XY=(24,0) and (-24,0), 2.3 mm diameter and 8 mm blind
 depth, with at least 3 mm surrounding material and a blind floor. The closure
@@ -328,7 +328,8 @@ $exportExit = $LASTEXITCODE
 
 Outputs under `build/modules/` include the three STLs placed at print Z=0,
 three STEP files preserving their assembly frames, individual isometric SVGs,
-`two_modules_locked.step`, and `module_fit.json`. Tests round-trip every STEP
+`two_modules_locked.step`, and `module_fit.json`. The module exporter now
+generates `magnet_pocket_coupon.stl`/STEP before the base carrier. Tests round-trip every STEP
 and require each STL to be one connected closed manifold with no degenerate
 faces. The export checks all three unique adjacent pairings at lock and their
 6 mm radial screwdriver corridors. The standard/top pair checks locking every
@@ -343,3 +344,97 @@ sections were inspected in the local static image
 `build/modules/module-inspection.png`; interactive CQ-editor rendering remains
 unverified. No physical parts were printed. Validate coupons, support/bridging,
 loaded walls, torque, rod alignment and two-stage fit before full-stack printing.
+
+## Dual magnet generator reconstruction
+
+`src/windwall/generator.py` builds clean analytic upper/lower magnet carriers,
+stationary clearance solids, nominal M8 rod/clamps, and an adjustable central
+spacer. `build_upper_magnet_carrier`, `build_lower_magnet_rotor`, and
+`build_stationary_generator_reference` consume `DesignParameters`.
+`build_generator_assembly` returns the integrated base module, separate lower
+rotor, stationary parts, shaft, spacer and clamp envelopes. Its gap helpers use
+actual solid Z bounds; collision helpers intersect the actual solids.
+
+Measurements came from external STL sections, never imported mesh solids.
+The magnet ring measures about 103.994 mm OD with a 3 mm disc and a 10 mm
+overall boss height. Eighteen approximately 11.004 mm diameter blind pockets
+lie on a 44.5 mm radius; the source pocket floor is at z=0.998 mm and the
+opening at z=3 mm. The reconstruction regularizes the pockets to 11 x 2 mm,
+increases the web from 1 to 3 mm, and grows the OD to 106 mm to retain a 3 mm
+outer rim. The resulting disc is 5 mm thick, with a 34 mm central hub and six
+3 mm wide rear ribs reaching the 10 mm overall height. Hole count records the
+reference pattern only; it does not select electrical poles or polarity.
+
+The upper carrier faces downward and fuses through the base flange. A 13.30 mm
+across-flats, 6.8 mm deep hex opens from below; its ceiling leaves 3.2 mm of
+hub material beneath the fusion face. It receives the same coupon-gated M8
+torque-nut fit as the existing joint coupon. The lower carrier faces upward;
+its rear hub has a flat 24 mm washer load face and a nominal lower nut envelope.
+The nuts and spacer reserve a mechanical clamping path; hardware tolerances,
+preload, anti-loosening, torque capacity and centrifugal magnet retention have
+not been validated. Magnet pockets are open and need a proven retention method.
+
+The coil former is conservatively represented by a 118 mm OD, 12 mm thick
+annulus with the measured 12.4 mm center passage. Its entire winding zone is
+occupied clearance volume; no coil shape or potting construction is inferred.
+The separate 112 mm OD, 62 mm ID, 2 mm cover sits above it, reserving 14 mm
+total stator height. The original cover may nest into the former; that seating
+detail is deliberately not certified by this conservative reference.
+The cup retains the measured 120 mm OD, 114 mm cavity, 27 mm height and 3 mm
+floor, with a new central bore/support for the common rotating shaft.
+
+The source top-bearing feature has an approximately 12.305 mm bore and 20 mm
+boss; it does not establish a specific M8 bearing product. A **provisional
+12 x 8 x 6 mm sleeve envelope** sits in a parameterized 12.3 mm seat and 20 mm
+support. Its length and inner/outer diameters are assumptions for clearance
+work, not procurement dimensions. Axial bearing retention, alignment and
+threaded-rod running fit remain unresolved. Stationary solids are clearance
+references, not completed printable generator supports.
+
+| Part or region | Default nominal Z bounds, mm |
+| --- | --- |
+| Upper carrier, integrated into base | -13 to -3 |
+| Stator cover | -16.5 to -14.5 |
+| Coil-former reference | -28.5 to -16.5 |
+| Lower rotating carrier | -40 to -30 |
+| Central 12 mm OD spacer | -30 to -13 |
+| Lower washer / nut envelopes | -42 to -40 / -48.8 to -42 |
+| Stationary cup | -55.5 to -28.5 |
+| Provisional sleeve bearing | -55.5 to -49.5 |
+
+Both carrier-to-stator gaps are 1.5 mm. These are magnet air gaps only when
+the installed magnets are flush or below their pocket planes; measure actual
+magnet thickness/protrusion before relying on them. Gap parameters remain
+adjustable, and the central spacer changes with their sum. Increasing the
+lower gap consumes clearance below the lower clamp; incompatible cup height,
+gap, bearing and clamp combinations are rejected. For example, a 3 mm lower
+gap is tested with a 30 mm cup instead of the default 27 mm cup.
+The default spacer-to-former radial clearance is 0.2 mm and the sleeve-to-seat
+radial clearance is 0.15 mm, both physically unverified.
+
+```powershell
+$env:PYTHONPATH = "$PWD;$PWD\src"
+& .\.venv\Scripts\python.exe scripts/run_geometry.py scripts/preview_generator.py
+$exportExit = $LASTEXITCODE
+& .\.venv\Scripts\python.exe scripts/run_geometry.py -m unittest tests.test_generator tests.test_preview_generator -v
+$testExit = $LASTEXITCODE
+```
+
+Outputs under `build/generator/` include the magnet-pocket coupon, integrated
+base and separate lower carrier in STEP/STL, an 11-solid colored assembly STEP,
+isometric/section SVGs, and `generator_fit.json`. Coupon diameters increase along
+the coupon's +X direction: 10.8, 11.0 and 11.2 mm; each is 2 mm deep above a
+3 mm floor. Both full-carrier export paths generate and topology-check the
+coupon first. This is a CAD generation gate; it does not claim a physical
+coupon was printed or passed. Report flags explicitly retain unverified
+magnet fit, bearing fit/retention, magnet retention and electrical design.
+
+The base preserves Task 6's +100-degree joint phase, 0.70 mm edge relief and
+unchanged active blade; standard/top geometry and exposed top clamp remain.
+The relief comment now correctly states that the upper stage starts below its
+locked height and rises during locking. Static actual-solid generator section
+inspection is supplied locally as `build/generator/generator-inspection.png`.
+CQ-editor interactive verification, full-stack integration, physical coupons,
+support/bridging, strength and operation remain unverified. Every CadQuery CLI
+process still uses the dialog-suppressing launcher and records native shutdown
+failure separately from assertion/export results.

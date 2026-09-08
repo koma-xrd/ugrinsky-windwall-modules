@@ -119,7 +119,7 @@ shaft:
   stationary.
 - Nuts and spacers establish the axial location and air gaps.
 
-Magnet count, polarity sequence, coil winding, electrical phase arrangement,
+Electrical pole count, polarity sequence, coil winding, electrical phase arrangement,
 air gap, charging electronics, and final generator optimization are explicitly
 deferred until the mechanical reference geometry has been reconstructed and
 the available magnets and coils have been physically verified. The CAD
@@ -234,9 +234,34 @@ nut would not spread that nut's clamping load. The top instead has a 24.6 mm
 diameter, 0.5 mm deep centering recess for the 24 mm OD washer. Its reinforced
 floor is at local z=69.5 mm. A 2 mm washer places the exposed nut bottom at
 z=71.5 mm; the later closure must clear the washer, actual nut height and rod
-projection. The 13.30 mm by 6.8 mm hex pocket remains only in the calibration
-coupon. Torque transfer belongs to the base and the module joints.
+projection. The 13.30 mm by 6.8 mm hex pocket remains in the calibration
+coupon and Task 7's base torque interface; it is absent from the top.
+Torque transfer belongs to the base and the module joints.
 
-Task 6's base ends in a 34 mm diameter, 3 mm deep shaft flange. It prepares a
-fusion face for Task 7; it is not yet an integrated upper magnet carrier or a
-completed shaft torque interface.
+Task 6's 34 mm diameter, 3 mm deep shaft flange now joins Task 7's upper
+magnet carrier to the base as one solid.
+
+## Task 7 measured generator reconstruction (2026-09-08)
+
+The measured 18-hole, 44.5 mm radius pattern uses regularized 11 x 2 mm blind
+pockets, without assigning magnet polarity or winding. Carrier OD increases
+from approximately 104 to 106 mm for a 3 mm loaded rim, and a 3 mm web replaces
+the approximately 1 mm source pocket floor. Five-millimeter discs, rear ribs
+and a 34 mm hub produce a 10 mm carrier height. The upper carrier is fused
+below the base flange and has an open-bottom 13.30 x 6.8 mm captive torque nut;
+the lower carrier has an external washer/nut clamp. The top clamp is unchanged.
+
+Conservative stationary geometry reserves a 118 x 12 mm coil former with
+12.4 mm center passage, a separate 112/62 x 2 mm cover, and a 120/114 x 27 mm
+cup with 3 mm floor. Default rotating faces z=-13 and -30 mm bracket the
+14 mm stator stack with 1.5 mm gaps. A 12 mm OD spacer bridges the center.
+Larger lower gaps require enough cup height to clear the clamp and bearing.
+
+The source bearing feature measures a 12.305 mm bore and 20 mm boss. A
+provisional 12 x 8 x 6 mm sleeve envelope and 12.3 mm seat are clearance
+assumptions only; bearing product, fit and axial retention remain unresolved.
+No winding, polarity, magnet retention, preload, load capacity or generator
+performance is finalized. Gaps refer to carrier pocket planes and require
+flush/subflush magnets; actual magnet protrusion must be measured. Full carrier
+exporters generate a 10.8/11.0/11.2 mm pocket coupon first, and mark all physical
+fits and print readiness unverified. No physical part is printed by this task.

@@ -13,6 +13,7 @@ class ModuleExportTests(unittest.TestCase):
     def test_each_module_exports_as_one_closed_mesh_and_step_solid(self):
         with temporary_build_directory() as destination:
             report = export_modules(DEFAULT_PARAMETERS, destination)
+            self.assertTrue((destination / 'magnet_pocket_coupon.stl').is_file())
             for name in ('base','standard','top'):
                 mesh = report['modules'][name]['mesh']
                 self.assertEqual(mesh['component_count'], 1)
@@ -24,7 +25,7 @@ class ModuleExportTests(unittest.TestCase):
                 self.assertEqual(len(shape.Solids()), 1)
                 self.assertTrue((destination / f'{name}_module.svg').is_file())
             self.assertFalse(report['aerodynamic_seam_continuous'])
-            self.assertFalse(report['upper_magnet_carrier_integrated'])
+            self.assertTrue(report['upper_magnet_carrier_integrated'])
             self.assertLess(report['maximum_tool_intersection_mm3'], 0.01)
             self.assertLess(report['maximum_locked_intersection_mm3'], 0.01)
             self.assertTrue((destination / 'module_fit.json').is_file())

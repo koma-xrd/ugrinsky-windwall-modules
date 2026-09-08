@@ -5,8 +5,8 @@ only its outer bottom edge is relieved for the axial locking motion. The upper
 receiver is recessed into a local end-support region;
 the next stage's male extends below zero into it. The support plate bridges
 the phase difference structurally. Identical module transforms do not produce
-a continuous aerodynamic surface across the seam. Base generator integration
-and the removable top closure are owned by later modules.
+a continuous aerodynamic surface across the seam. The base fuses the analytic
+upper generator carrier; the removable top closure is owned by its own module.
 """
 
 from dataclasses import dataclass
@@ -16,6 +16,7 @@ import cadquery as cq
 
 from windwall.blade_profile import build_blade_stage
 from windwall.drivers import build_joint_interface, joint_interface_height_mm
+from windwall.generator import build_upper_magnet_carrier
 from windwall.parameters import DesignParameters
 
 
@@ -75,18 +76,18 @@ def _build(parameters: DesignParameters, kind: str) -> RotorModuleModel:
     joint_z = height-depth
     joint = build_joint_interface(p)
     body = build_blade_stage(p)
-    # The upper stage descends by the ramp rise during locking. Remove only the
-    # outer bottom edge so skins retain axial clearance throughout that motion.
+    # The upper stage starts below its locked height and rises during locking.
+    # Relieve the outer bottom edge for its lower insertion/early-travel poses.
     relief = p.bayonet.ramp_rise_mm+m.axial_clearance_mm
     edge = (cq.Workplane('XY').circle(p.blade.rotor_radius_mm+1)
             .circle(end.end_support_radius_mm).extrude(relief))
     body = body.cut(edge)
     body = body.union(_disc(end.end_support_radius_mm, 0, end.end_support_thickness_mm))
     if kind == 'base':
-        # An annular shaft flange is the explicit future carrier fusion face.
-        # No magnet pockets, torque nut, air gap or electrical choices are made here.
+        # The annular flange joins the carrier's rear clamping face to the blade.
         body = body.union(_disc(p.bayonet.hub_outer_diameter_mm/2,
                                 -end.base_shaft_flange_depth_mm, end.base_shaft_flange_depth_mm))
+        body = body.union(build_upper_magnet_carrier(p))
     else:
         body = body.union(joint.male.rotate((0,0,0), (0,0,1), end.joint_phase_deg).translate((0,0,-depth)))
     if kind != 'top':
@@ -128,11 +129,12 @@ def _build(parameters: DesignParameters, kind: str) -> RotorModuleModel:
             if body.intersect(access).val().Volume() >= 0.01:
                 raise ValueError('Common joint phase blocks a radial screwdriver corridor through the blade')
     return RotorModuleModel(body, (p.shaft.clearance_hole_diameter_mm-p.shaft.nominal_diameter_mm)/2,
-                            None, m.washer_outer_diameter_mm+2*m.radial_clearance_mm if kind == 'top' else None)
+                            m.nut_pocket_across_flats_mm if kind == 'base' else None,
+                            m.washer_outer_diameter_mm+2*m.radial_clearance_mm if kind == 'top' else None)
 
 
 def build_base_module(parameters: DesignParameters) -> RotorModuleModel:
-    """Base blade and upper receiver; the lower flange awaits Task 7's carrier."""
+    """Base blade, upper receiver and fused down-facing magnet carrier/torque nut."""
     return _build(parameters, 'base')
 
 

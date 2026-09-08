@@ -66,8 +66,8 @@ class RotorModuleTests(unittest.TestCase):
         self.assertLess(top.shape.intersect(wrench).val().Volume(), 0.01)
         self.assertTrue(top.shape.val().isInside((6,0,68)))
         for name in ('base', 'standard'):
-            self.assertIsNone(self.modules[name].nut_pocket_across_flats_mm)
             self.assertIsNone(self.modules[name].washer_seat_diameter_mm)
+        self.assertIsNone(self.modules['standard'].nut_pocket_across_flats_mm)
 
     def test_top_closure_pilots_have_material_and_open_access(self):
         top = self.modules['top'].shape
@@ -77,10 +77,11 @@ class RotorModuleTests(unittest.TestCase):
             self.assertTrue(top.val().isInside((x+3,0,66)))
             self.assertTrue(top.val().isInside((x,0,61.99)))
 
-    def test_base_has_shaft_flange_ready_for_later_carrier(self):
+    def test_base_has_carrier_fused_below_its_shaft_flange(self):
         base = self.modules['base'].shape
-        self.assertAlmostEqual(base.val().BoundingBox().zmin, -3, places=5)
+        self.assertAlmostEqual(base.val().BoundingBox().zmin, -13, places=5)
         self.assertTrue(base.val().isInside((12,0,-1.5)))
+        self.assertTrue(base.val().isInside((44.5,0,-8.5)))
 
     def test_deeper_base_flange_keeps_the_bore_open_to_its_bottom(self):
         p = DEFAULT_PARAMETERS
