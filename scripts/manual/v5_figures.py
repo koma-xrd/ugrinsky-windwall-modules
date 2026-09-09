@@ -13,6 +13,7 @@ import argparse
 from dataclasses import asdict, dataclass
 import hashlib
 import json
+from math import cos, pi, sin
 import os
 from pathlib import Path
 import sys
@@ -73,6 +74,19 @@ class FigureRecord:
     language: str
     parts: tuple[PartRecord, ...]
     callouts: tuple[Callout, ...] = ()
+    magnet_poles: tuple[MagnetPole, ...] = ()
+
+
+@dataclass(frozen=True)
+class MagnetPole:
+    """Winding-facing pole at one installed CAD magnet position."""
+
+    name: str
+    index: int
+    angle_degrees: float
+    pole: str
+    center_mm: tuple[float, float, float]
+    facing_direction: tuple[int, int, int]
 
 
 @dataclass(frozen=True)
@@ -105,11 +119,23 @@ class Scene:
     caption: str
     note: str
     panels: tuple[Panel, ...]
+    magnet_poles: tuple[MagnetPole, ...] = ()
 
 
 def _bounds(shape):
     box = shape.val().BoundingBox()
     return ((box.xmin, box.ymin, box.zmin), (box.xmax, box.ymax, box.zmax))
+
+
+def _geometry_parameters(p):
+    """Normalize the requested design to the V5 geometry inventory schema."""
+    parameters = asdict(p)
+    projections = parameters.pop('closure')
+    parameters['modules'].pop('closure_pilot_depth_mm')
+    parameters['modules'].pop('closure_screw_radius_mm')
+    parameters['shaft_end'] = {key: projections[key] for key in
+                               ('rod_projection_mm', 'shaft_bottom_projection_mm')}
+    return json.loads(json.dumps(parameters))
 
 
 class _Model:
@@ -121,6 +147,8 @@ class _Model:
         self.manifest = json.loads(self.manifest_path.read_text(encoding='utf-8'))
         if self.manifest['release'] != 'v5':
             raise ValueError('The figure renderer requires a V5 release manifest')
+        if _geometry_parameters(p) != self.manifest['parameters']:
+            raise ValueError('Requested figure parameters do not match the geometry manifest')
         self.sources = {item['name']: item for assembly in self.manifest['assemblies']
                         for item in assembly['components']}
         self.locked = build_locked_rotor_assembly(p)
@@ -207,8 +235,8 @@ def build_v5_scenes(p=DEFAULT_PARAMETERS):
     C = _call
     scenes = []
 
-    def add(number, slug, title, caption, note, *panels):
-        scenes.append(Scene(f'E{number:02d}', slug, title, caption, note, tuple(panels)))
+    def add(number, slug, title, caption, note, *panels, magnet_poles=()):
+        scenes.append(Scene(f'E{number:02d}', slug, title, caption, note, tuple(panels), magnet_poles))
 
     def panel(title, parts, *callouts, view=(1, -1.8, .7)):
         return Panel(title, tuple(parts), tuple(callouts), view)
@@ -287,6 +315,17 @@ def build_v5_scenes(p=DEFAULT_PARAMETERS):
     explosion += list(m.parts(('cover', '51105_housing_washer', '51105_rolling_envelope', '51105_shaft_washer'), offset=(0, 0, 70)))
     explosion += list(m.parts(('base', 'upper_magnets', 'upper_nut'), offset=(0, 0, 100), cut=_cut_box(-100, 112)))
     explosion += list(m.parts(('cover_screw_1', 'cover_nut_1'), offset=(0, 0, 90)))
+    gaps = g.air_gap_report()
+    magnet_poles = tuple(
+        MagnetPole(name, index, index * 360 / p.generator.magnet_pocket_count,
+                   sequence[index % 2],
+                   (p.generator.magnet_pitch_radius_mm * cos(2*pi*index/p.generator.magnet_pocket_count),
+                    p.generator.magnet_pitch_radius_mm * sin(2*pi*index/p.generator.magnet_pocket_count),
+                    gaps[face]), direction)
+        for name, sequence, face, direction in (
+            ('upper_magnets', 'NS', 'upper_magnet_face_z_mm', (0, 0, -1)),
+            ('lower_magnets', 'SN', 'lower_magnet_face_z_mm', (0, 0, 1)))
+        for index in range(p.generator.magnet_pocket_count))
     add(6, 'generator-explosion', 'Generator · Explosionsdarstellung',
         'Kassette, Deckel und Base sind angehoben; der untere Magnetrotor bleibt im aufgeschnittenen Gehäuse.',
         'Unterer Rotor unter der stationären Wicklung. Base-Blätter zur Lesbarkeit gekürzt.',
@@ -298,12 +337,14 @@ def build_v5_scenes(p=DEFAULT_PARAMETERS):
               C('lower_magnet_rotor', 'Unterer Magnetrotor im Gehäuse · rotierend'),
               C('housing', 'Gehäuse / Bodenlaschen · stationär'),
               C('cover_screw_1', '6 × M4-Deckelschraube (1 gezeigt)'),
-              C('cover_nut_1', '6 × gefangene M4-Mutter (1 gezeigt)'), view=(1, -2, .35)))
+              C('cover_nut_1', '6 × gefangene M4-Mutter (1 gezeigt)'), view=(1, -2, .35)),
+        magnet_poles=magnet_poles)
 
     all_generator = tuple({**g.rotating_parts, **g.stationary_parts, **g.bearing_parts})
     add(7, 'generator-schnitt', 'Generator · montierter Mittelschnitt',
         'Zwei rotierende Magnetträger umschließen die stationäre Wicklung; der untere Rotor sitzt im Gehäuse.',
-        f'Nennabstand Magnet–Wicklung: oben {g.upper_air_gap_mm():.1f} mm / unten {g.lower_air_gap_mm():.1f} mm. Keine Betriebsfreigabe.',
+        f'Magnetfläche–aktive Wicklung: oben {g.upper_air_gap_mm():.1f} mm / unten {g.lower_air_gap_mm():.1f} mm, einschließlich Kunststoff. '
+        'Mechanisch: Magnet–Deckel 0,35 mm; Magnet–Kassettenboden 0,50 mm.',
         panel('X–Z · reale Höhen, keine Explosion', m.parts(all_generator, cut=_cut_box(-60, 8, section=True)),
               C('base', 'Base / oberer Magnetträger · rotierend'),
               C('cover', 'Deckel über der Wicklung · stationär'),
@@ -311,7 +352,8 @@ def build_v5_scenes(p=DEFAULT_PARAMETERS):
               C('coil_cassette', 'Spulenkassette / Boden · stationär'),
               C('lower_magnet_rotor', 'Unterer Magnetrotor · rotierend'),
               C('housing', 'Gehäuse mit geschlossenem Boden · stationär'),
-              C('lower_nut', 'M8-Mutter im unteren Rotor'), view=(0, -1, 0)))
+              C('lower_nut', 'M8-Mutter im unteren Rotor'), view=(0, -1, 0)),
+        magnet_poles=magnet_poles)
 
     retention = m.parts(('housing',), cut=_cut_box()) + m.parts(('coil_cassette',), offset=(0, 0, 25)) + m.parts(('cover',), offset=(0, 0, 50))
     add(8, 'kassettenrueckhaltung', 'Spulenkassette · Führung und Rückhaltung',
@@ -549,6 +591,31 @@ def _draw_panel(fig, panel, rectangle, *, compact=False):
                       va='top', fontsize=11 if compact else 13, color='#263745', linespacing=1.35)
 
 
+def _draw_magnet_polarity(fig, poles):
+    """Show both winding faces in a common projection, avoiding a mirrored ring."""
+    fig.text(.045, .335, 'Polung zur Wicklung · gleiche +Z-Projektion beider Ringe',
+             fontsize=11, fontweight='bold', color='#263745')
+    for name, x, label in (('upper_magnets', .045, 'OBEN\nFläche ↓'),
+                            ('lower_magnets', .275, 'UNTEN\nFläche ↑')):
+        ax = fig.add_axes((x, .19, .21, .135))
+        ax.set_aspect('equal')
+        ax.axis('off')
+        ring = [pole for pole in poles if pole.name == name]
+        radius = max((pole.center_mm[0]**2 + pole.center_mm[1]**2)**.5 for pole in ring)
+        for pole in ring:
+            px, py = pole.center_mm[:2]
+            ax.text(px, py, pole.pole, ha='center', va='center', fontsize=9, fontweight='bold',
+                    color='#182c3a', bbox={'boxstyle': 'circle,pad=.15', 'fc': 'white',
+                                         'ec': COLORS['rotating'], 'lw': 1.2})
+        ax.text(0, 0, label, ha='center', va='center', fontsize=8, color='#263745')
+        ax.set_xlim(-radius*1.2, radius*1.2)
+        ax.set_ylim(-radius*1.2, radius*1.2)
+    fig.text(.515, .301, 'Je 18 Magnete · abwechselnd N / S', fontsize=11, color='#263745')
+    fig.text(.515, .267, 'Gleicher Winkel: gegenüberliegende Pole N ↔ S', fontsize=11, color='#263745')
+    fig.text(.515, .233, '0° rechts: oben N / unten S · 20°: oben S / unten N', fontsize=10, color='#263745')
+    fig.text(.515, .200, '90° oben · Pfeile zeigen axial zur stationären Wicklung', fontsize=10, color='#263745')
+
+
 def _render_scene(scene, output_dir):
     fig = plt.figure(figsize=(16, 11.2), dpi=150, facecolor='#ffffff')
     fig.text(.045, .946, f'{scene.drawing_id}  |  WINDWALL V5', fontsize=13, fontweight='bold', color='#487080')
@@ -556,12 +623,17 @@ def _render_scene(scene, output_dir):
     fig.text(.045, .865, scene.caption, fontsize=12.5, color='#3d5261')
     count = len(scene.panels)
     if count == 1:
-        _draw_panel(fig, scene.panels[0], (.045, .255, .91, .565))
+        rectangle = (.045, .355, .91, .465) if scene.magnet_poles else (.045, .255, .91, .565)
+        _draw_panel(fig, scene.panels[0], rectangle)
     else:
         width = .91/count
         for index, panel in enumerate(scene.panels):
             _draw_panel(fig, panel, (.045+index*width, .225, width-.024, .59), compact=True)
-    fig.text(.045, .176, textwrap.fill(scene.note, 135), fontsize=12, color='#3d5261', linespacing=1.5)
+    if scene.magnet_poles:
+        _draw_magnet_polarity(fig, scene.magnet_poles)
+    fig.text(.045, .164 if scene.magnet_poles else .176, textwrap.fill(scene.note, 135),
+             fontsize=11 if scene.magnet_poles else 12, color='#3d5261',
+             linespacing=1.3 if scene.magnet_poles else 1.5)
     for index, (state, label) in enumerate(zip(COLORS, LEGEND)):
         x, y = .045+(index % 2)*.49, .110-(index//2)*.032
         fig.text(x, y, '■', fontsize=16, color=COLORS[state])
@@ -572,13 +644,17 @@ def _render_scene(scene, output_dir):
     path = output_dir / filename
     labels = tuple(callout.label for panel in scene.panels for callout in panel.callouts)
     alt = f'{scene.drawing_id}. {scene.caption} {scene.note} ' + ' '.join(labels)
+    if scene.magnet_poles:
+        alt += (' Beide Ringe haben 18 zur Wicklung weisende Pole, oben N S im Wechsel, unten S N. '
+                'Gleiche Winkel in derselben +Z-Projektion tragen gegenüberliegende Pole; '
+                'bei 0 Grad oben N und unten S, bei 20 Grad oben S und unten N.')
     fig.savefig(path, dpi=150, metadata={'Title': f'{scene.drawing_id} {scene.title}', 'Description': alt,
                                         'Software': 'Windwall V5 deterministic CadQuery/Matplotlib renderer'})
     plt.close(fig)
     parts = tuple(part.record for panel in scene.panels for part in panel.parts)
     callouts = tuple(callout for panel in scene.panels for callout in panel.callouts)
     return FigureRecord(scene.drawing_id, path, filename, scene.caption, alt, labels, LEGEND,
-                        2400, 1680, 'de', parts, callouts)
+                        2400, 1680, 'de', parts, callouts, scene.magnet_poles)
 
 
 def render_v5_figures(output_dir: Path, p=DEFAULT_PARAMETERS) -> tuple[FigureRecord, ...]:

@@ -291,7 +291,8 @@ def _generator(doc, data):
     _page(doc, "Beide Luftspalte kontrollieren")
     _figure(doc, "E07", data)
     gaps = data["manifest"]["assembly_audit"]["generator_air_gap_report"]
-    _paragraph(doc, f"Oben sind {mm(gaps['upper_air_gap_mm'])} mm und unten {mm(gaps['lower_air_gap_mm'])} mm nominal vorgesehen. Diese Luftspalte gelten nur, wenn Magnete bündig oder tiefer in ihren Taschen sitzen. Überstand, Klebstoff, Wicklungshöhe, axialer Versatz und Rundlauf können den tatsächlichen kleinsten Spalt verringern.")
+    _paragraph(doc, f"Oben sind {mm(gaps['upper_air_gap_mm'])} mm und unten {mm(gaps['lower_air_gap_mm'])} mm nominal von der Magnetfläche zur aktiven Wicklungsfläche vorgesehen. Beide magnetischen Abstände schließen den dazwischenliegenden Kunststoff ein: oben die Deckelmembran, unten den Kassettenboden. Sie gelten nur, wenn Magnete bündig oder tiefer in ihren Taschen sitzen. Überstand, Klebstoff, Wicklungshöhe, axialer Versatz und Rundlauf können den tatsächlichen kleinsten Abstand verringern.")
+    _paragraph(doc, "Die mechanischen Freigänge sind kleiner: oben 0,35 mm zwischen Magnetfläche und Deckelmembran, unten 0,50 mm zwischen Magnetfläche und Kassettenboden. Die Membran und der Kassettenboden sind jeweils 1,00 mm dick. Zwischen Kassettenoberkante und Deckelunterseite bleiben 0,15 mm zur axialen Rückhaltung. Magnetische Abstände und mechanische Freigänge getrennt prüfen.")
     _paragraph(doc, "Miss über eine vollständige Handumdrehung und prüfe auch vorhandenes axiales Spiel. Ein berührungsfreier CAD-Zustand bestätigt keine Reserve unter Last. Bei Schleifen weder einschleifen noch mit höherer Drehzahl freifahren; Ursache lokalisieren und den Aufbau korrigieren.")
     _page(doc, "Kassette und Deckel sichern")
     _figure(doc, "E08", data)

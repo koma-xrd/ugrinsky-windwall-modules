@@ -113,6 +113,20 @@ class GeneratorHousingTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'cassette'):
             build_generator_housing(p)
 
+    def test_cassette_height_keeps_cable_boss_below_cover(self):
+        # Boss centre is 6 mm above cassette bottom, radius 6 mm; the cover
+        # starts 0.15 mm above cassette top, giving a minimum height of 11.85.
+        for height in (10.0, 11.849):
+            p = replace(DEFAULT_PARAMETERS, generator=replace(
+                DEFAULT_PARAMETERS.generator, coil_former_height_mm=height))
+            with self.subTest(height=height), self.assertRaisesRegex(ValueError, 'cable boss'):
+                build_generator_housing(p)
+        p = replace(DEFAULT_PARAMETERS, generator=replace(
+            DEFAULT_PARAMETERS.generator, coil_former_height_mm=11.85))
+        parts = build_generator_housing(p)
+        self.assertAlmostEqual(parts.metadata['cover_bottom_z_mm'], 39.0)
+        self.assertLess(parts.housing.intersect(parts.cover).val().Volume(), 1e-6)
+
     def test_exported_print_bodies_are_closed_manifold_meshes(self):
         p = DEFAULT_PARAMETERS
         shapes = (self.parts.housing, self.parts.coil_cassette, self.parts.cover,

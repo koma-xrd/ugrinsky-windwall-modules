@@ -137,6 +137,9 @@ class V5ManualTests(unittest.TestCase):
             self.assertIn(value, self.text)
         matrix = next(t for t in self.doc.tables if t.cell(0, 0).text == "Draht")
         self.assertEqual([r.cells[1].text for r in matrix.rows[1:]], ["20", "40", "80"])
+        for reference in ("Magnetfläche zur aktiven Wicklungsfläche", "Kassettenboden",
+                          "Deckelmembran", "0,35 mm", "0,50 mm", "0,15 mm"):
+            self.assertIn(reference, self.text)
 
     def test_no_obsolete_instructions_or_internal_placeholders(self):
         for forbidden in ("Top-Closure", "top_closure", "radiale Sicherungsschrauben",

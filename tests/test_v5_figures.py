@@ -1,10 +1,12 @@
 """The drawing handoff must describe actual, legible V5 CAD scenes."""
 
 import importlib.util
+from dataclasses import replace
 import hashlib
 import json
 from pathlib import Path
 import unittest
+from unittest.mock import patch
 
 from PIL import Image
 
@@ -17,6 +19,23 @@ class V5FigureTests(unittest.TestCase):
 
         scenes, _ = build_v5_scenes()
         scenes = {scene.drawing_id: scene for scene in scenes}
+        for drawing_id in ('E06', 'E07'):
+            poles = getattr(scenes[drawing_id], 'magnet_poles', ())
+            self.assertEqual(len(poles), 36, 'Both 18-magnet winding faces need pole labels')
+            rings = {name: sorted((pole for pole in poles if pole.name == name),
+                                  key=lambda pole: pole.index)
+                     for name in ('upper_magnets', 'lower_magnets')}
+            self.assertEqual([pole.pole for pole in rings['upper_magnets']], list('NS' * 9))
+            self.assertEqual([pole.pole for pole in rings['lower_magnets']], list('SN' * 9))
+            self.assertEqual([pole.angle_degrees for pole in rings['upper_magnets']],
+                             list(range(0, 360, 20)))
+            for upper, lower in zip(*rings.values(), strict=True):
+                self.assertEqual(upper.center_mm[:2], lower.center_mm[:2])
+                self.assertEqual(upper.angle_degrees, lower.angle_degrees)
+                self.assertGreater(upper.center_mm[2], lower.center_mm[2])
+                self.assertEqual(upper.facing_direction, (0, 0, -1))
+                self.assertEqual(lower.facing_direction, (0, 0, 1))
+                self.assertNotEqual(upper.pole, lower.pole)
         for drawing_id in ('E08', 'E09'):
             panel = scenes[drawing_id].panels[0]
             callout = next(c for c in panel.callouts if c.name == 'housing')
@@ -84,11 +103,36 @@ class V5FigureTests(unittest.TestCase):
     def test_renderer_exists(self):
         self.assertIsNotNone(importlib.util.find_spec('scripts.manual.v5_figures'))
 
+    def test_rejects_parameters_that_do_not_match_geometry_provenance(self):
+        from scripts.manual.v5_figures import render_v5_figures
+        from windwall.parameters import DEFAULT_PARAMETERS
+
+        p = replace(DEFAULT_PARAMETERS, generator=replace(
+            DEFAULT_PARAMETERS.generator, coil_former_height_mm=13.0))
+        with temporary_build_directory() as output:
+            with self.assertRaisesRegex(ValueError, 'parameters.*manifest'):
+                render_v5_figures(output, p)
+            self.assertEqual(list(output.iterdir()), [])
+
     def test_rendered_inventory_and_installed_generator_order(self):
         from scripts.manual.v5_figures import render_v5_figures
+        import matplotlib.pyplot as plt
+        from matplotlib.figure import Figure
+
+        observed_poles = {}
+        close_figure = plt.close
+
+        def inspect_then_close(figure=None):
+            if isinstance(figure, Figure):
+                drawing_id = figure.texts[0].get_text().split()[0]
+                observed_poles[drawing_id] = [text.get_text() for axes in figure.axes
+                                              for text in axes.texts
+                                              if text.get_text() in ('N', 'S')]
+            close_figure(figure)
 
         with temporary_build_directory() as output:
-            records = render_v5_figures(output)
+            with patch('scripts.manual.v5_figures.plt.close', side_effect=inspect_then_close):
+                records = render_v5_figures(output)
             self.assertEqual([r.drawing_id for r in records], [f'E{i:02d}' for i in range(1, 16)])
             self.assertEqual(len(list(output.glob('*.png'))), 15)
             exported = json.loads((output / 'figures.json').read_text(encoding='utf-8'))
@@ -116,6 +160,9 @@ class V5FigureTests(unittest.TestCase):
                 self.assertNotIn('Top-Closure', record.caption + record.alt_text + ' '.join(record.callout_labels))
             for drawing_id in ('E06', 'E07'):
                 record = next(r for r in records if r.drawing_id == drawing_id)
+                self.assertEqual(observed_poles[drawing_id], list('NS' * 9 + 'SN' * 9),
+                                 'The actual rendered figure must contain both full polarity rings')
+                self.assertEqual(len(record.magnet_poles), 36)
                 parts = {part.name: part for part in record.parts}
                 self.assertLess(parts['lower_magnet_rotor'].display_bounds_mm[1][2],
                                 parts['winding_volume'].display_bounds_mm[0][2])

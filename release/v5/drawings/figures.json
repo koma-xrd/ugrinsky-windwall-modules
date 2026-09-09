@@ -529,7 +529,8 @@
             0
           ]
         }
-      ]
+      ],
+      "magnet_poles": []
     },
     {
       "drawing_id": "E02",
@@ -730,7 +731,8 @@
             0
           ]
         }
-      ]
+      ],
+      "magnet_poles": []
     },
     {
       "drawing_id": "E03",
@@ -919,7 +921,8 @@
             0
           ]
         }
-      ]
+      ],
+      "magnet_poles": []
     },
     {
       "drawing_id": "E04",
@@ -1228,7 +1231,8 @@
             0
           ]
         }
-      ]
+      ],
+      "magnet_poles": []
     },
     {
       "drawing_id": "E05",
@@ -1459,13 +1463,14 @@
             0
           ]
         }
-      ]
+      ],
+      "magnet_poles": []
     },
     {
       "drawing_id": "E06",
       "filename": "E06-generator-explosion.png",
       "caption": "Kassette, Deckel und Base sind angehoben; der untere Magnetrotor bleibt im aufgeschnittenen Gehäuse.",
-      "alt_text": "E06. Kassette, Deckel und Base sind angehoben; der untere Magnetrotor bleibt im aufgeschnittenen Gehäuse. Unterer Rotor unter der stationären Wicklung. Base-Blätter zur Lesbarkeit gekürzt. Base mit oberem Magnetträger · rotierend Deckel und 51105-Aufnahme · stationär Spulenkassette · stationär Aktiver Wicklungsraum · stationär Unterer Magnetrotor im Gehäuse · rotierend Gehäuse / Bodenlaschen · stationär 6 × M4-Deckelschraube (1 gezeigt) 6 × gefangene M4-Mutter (1 gezeigt)",
+      "alt_text": "E06. Kassette, Deckel und Base sind angehoben; der untere Magnetrotor bleibt im aufgeschnittenen Gehäuse. Unterer Rotor unter der stationären Wicklung. Base-Blätter zur Lesbarkeit gekürzt. Base mit oberem Magnetträger · rotierend Deckel und 51105-Aufnahme · stationär Spulenkassette · stationär Aktiver Wicklungsraum · stationär Unterer Magnetrotor im Gehäuse · rotierend Gehäuse / Bodenlaschen · stationär 6 × M4-Deckelschraube (1 gezeigt) 6 × gefangene M4-Mutter (1 gezeigt) Beide Ringe haben 18 zur Wicklung weisende Pole, oben N S im Wechsel, unten S N. Gleiche Winkel in derselben +Z-Projektion tragen gegenüberliegende Pole; bei 0 Grad oben N und unten S, bei 20 Grad oben S und unten N.",
       "callout_labels": [
         "Base mit oberem Magnetträger · rotierend",
         "Deckel und 51105-Aufnahme · stationär",
@@ -2072,13 +2077,591 @@
             0
           ]
         }
+      ],
+      "magnet_poles": [
+        {
+          "name": "upper_magnets",
+          "index": 0,
+          "angle_degrees": 0.0,
+          "pole": "N",
+          "center_mm": [
+            44.5,
+            0.0,
+            -13.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            -1
+          ]
+        },
+        {
+          "name": "upper_magnets",
+          "index": 1,
+          "angle_degrees": 20.0,
+          "pole": "S",
+          "center_mm": [
+            41.81632162497292,
+            15.219896377992258,
+            -13.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            -1
+          ]
+        },
+        {
+          "name": "upper_magnets",
+          "index": 2,
+          "angle_degrees": 40.0,
+          "pole": "N",
+          "center_mm": [
+            34.088977718794524,
+            28.604048631050997,
+            -13.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            -1
+          ]
+        },
+        {
+          "name": "upper_magnets",
+          "index": 3,
+          "angle_degrees": 60.0,
+          "pole": "S",
+          "center_mm": [
+            22.250000000000004,
+            38.538130468407516,
+            -13.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            -1
+          ]
+        },
+        {
+          "name": "upper_magnets",
+          "index": 4,
+          "angle_degrees": 80.0,
+          "pole": "N",
+          "center_mm": [
+            7.727343906178404,
+            43.82394500904326,
+            -13.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            -1
+          ]
+        },
+        {
+          "name": "upper_magnets",
+          "index": 5,
+          "angle_degrees": 100.0,
+          "pole": "S",
+          "center_mm": [
+            -7.727343906178398,
+            43.82394500904326,
+            -13.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            -1
+          ]
+        },
+        {
+          "name": "upper_magnets",
+          "index": 6,
+          "angle_degrees": 120.0,
+          "pole": "N",
+          "center_mm": [
+            -22.24999999999999,
+            38.53813046840752,
+            -13.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            -1
+          ]
+        },
+        {
+          "name": "upper_magnets",
+          "index": 7,
+          "angle_degrees": 140.0,
+          "pole": "S",
+          "center_mm": [
+            -34.08897771879452,
+            28.604048631051008,
+            -13.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            -1
+          ]
+        },
+        {
+          "name": "upper_magnets",
+          "index": 8,
+          "angle_degrees": 160.0,
+          "pole": "N",
+          "center_mm": [
+            -41.81632162497292,
+            15.219896377992265,
+            -13.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            -1
+          ]
+        },
+        {
+          "name": "upper_magnets",
+          "index": 9,
+          "angle_degrees": 180.0,
+          "pole": "S",
+          "center_mm": [
+            -44.5,
+            5.449678256205722e-15,
+            -13.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            -1
+          ]
+        },
+        {
+          "name": "upper_magnets",
+          "index": 10,
+          "angle_degrees": 200.0,
+          "pole": "N",
+          "center_mm": [
+            -41.81632162497292,
+            -15.219896377992255,
+            -13.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            -1
+          ]
+        },
+        {
+          "name": "upper_magnets",
+          "index": 11,
+          "angle_degrees": 220.0,
+          "pole": "S",
+          "center_mm": [
+            -34.08897771879454,
+            -28.604048631050983,
+            -13.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            -1
+          ]
+        },
+        {
+          "name": "upper_magnets",
+          "index": 12,
+          "angle_degrees": 240.0,
+          "pole": "N",
+          "center_mm": [
+            -22.25000000000002,
+            -38.538130468407516,
+            -13.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            -1
+          ]
+        },
+        {
+          "name": "upper_magnets",
+          "index": 13,
+          "angle_degrees": 260.0,
+          "pole": "S",
+          "center_mm": [
+            -7.7273439061784,
+            -43.82394500904326,
+            -13.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            -1
+          ]
+        },
+        {
+          "name": "upper_magnets",
+          "index": 14,
+          "angle_degrees": 280.0,
+          "pole": "N",
+          "center_mm": [
+            7.727343906178383,
+            -43.823945009043264,
+            -13.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            -1
+          ]
+        },
+        {
+          "name": "upper_magnets",
+          "index": 15,
+          "angle_degrees": 300.0,
+          "pole": "S",
+          "center_mm": [
+            22.24999999999997,
+            -38.53813046840754,
+            -13.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            -1
+          ]
+        },
+        {
+          "name": "upper_magnets",
+          "index": 16,
+          "angle_degrees": 320.0,
+          "pole": "N",
+          "center_mm": [
+            34.08897771879451,
+            -28.60404863105101,
+            -13.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            -1
+          ]
+        },
+        {
+          "name": "upper_magnets",
+          "index": 17,
+          "angle_degrees": 340.0,
+          "pole": "S",
+          "center_mm": [
+            41.81632162497292,
+            -15.219896377992253,
+            -13.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            -1
+          ]
+        },
+        {
+          "name": "lower_magnets",
+          "index": 0,
+          "angle_degrees": 0.0,
+          "pole": "S",
+          "center_mm": [
+            44.5,
+            0.0,
+            -27.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "name": "lower_magnets",
+          "index": 1,
+          "angle_degrees": 20.0,
+          "pole": "N",
+          "center_mm": [
+            41.81632162497292,
+            15.219896377992258,
+            -27.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "name": "lower_magnets",
+          "index": 2,
+          "angle_degrees": 40.0,
+          "pole": "S",
+          "center_mm": [
+            34.088977718794524,
+            28.604048631050997,
+            -27.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "name": "lower_magnets",
+          "index": 3,
+          "angle_degrees": 60.0,
+          "pole": "N",
+          "center_mm": [
+            22.250000000000004,
+            38.538130468407516,
+            -27.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "name": "lower_magnets",
+          "index": 4,
+          "angle_degrees": 80.0,
+          "pole": "S",
+          "center_mm": [
+            7.727343906178404,
+            43.82394500904326,
+            -27.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "name": "lower_magnets",
+          "index": 5,
+          "angle_degrees": 100.0,
+          "pole": "N",
+          "center_mm": [
+            -7.727343906178398,
+            43.82394500904326,
+            -27.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "name": "lower_magnets",
+          "index": 6,
+          "angle_degrees": 120.0,
+          "pole": "S",
+          "center_mm": [
+            -22.24999999999999,
+            38.53813046840752,
+            -27.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "name": "lower_magnets",
+          "index": 7,
+          "angle_degrees": 140.0,
+          "pole": "N",
+          "center_mm": [
+            -34.08897771879452,
+            28.604048631051008,
+            -27.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "name": "lower_magnets",
+          "index": 8,
+          "angle_degrees": 160.0,
+          "pole": "S",
+          "center_mm": [
+            -41.81632162497292,
+            15.219896377992265,
+            -27.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "name": "lower_magnets",
+          "index": 9,
+          "angle_degrees": 180.0,
+          "pole": "N",
+          "center_mm": [
+            -44.5,
+            5.449678256205722e-15,
+            -27.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "name": "lower_magnets",
+          "index": 10,
+          "angle_degrees": 200.0,
+          "pole": "S",
+          "center_mm": [
+            -41.81632162497292,
+            -15.219896377992255,
+            -27.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "name": "lower_magnets",
+          "index": 11,
+          "angle_degrees": 220.0,
+          "pole": "N",
+          "center_mm": [
+            -34.08897771879454,
+            -28.604048631050983,
+            -27.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "name": "lower_magnets",
+          "index": 12,
+          "angle_degrees": 240.0,
+          "pole": "S",
+          "center_mm": [
+            -22.25000000000002,
+            -38.538130468407516,
+            -27.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "name": "lower_magnets",
+          "index": 13,
+          "angle_degrees": 260.0,
+          "pole": "N",
+          "center_mm": [
+            -7.7273439061784,
+            -43.82394500904326,
+            -27.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "name": "lower_magnets",
+          "index": 14,
+          "angle_degrees": 280.0,
+          "pole": "S",
+          "center_mm": [
+            7.727343906178383,
+            -43.823945009043264,
+            -27.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "name": "lower_magnets",
+          "index": 15,
+          "angle_degrees": 300.0,
+          "pole": "N",
+          "center_mm": [
+            22.24999999999997,
+            -38.53813046840754,
+            -27.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "name": "lower_magnets",
+          "index": 16,
+          "angle_degrees": 320.0,
+          "pole": "S",
+          "center_mm": [
+            34.08897771879451,
+            -28.60404863105101,
+            -27.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "name": "lower_magnets",
+          "index": 17,
+          "angle_degrees": 340.0,
+          "pole": "N",
+          "center_mm": [
+            41.81632162497292,
+            -15.219896377992253,
+            -27.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            1
+          ]
+        }
       ]
     },
     {
       "drawing_id": "E07",
       "filename": "E07-generator-schnitt.png",
       "caption": "Zwei rotierende Magnetträger umschließen die stationäre Wicklung; der untere Rotor sitzt im Gehäuse.",
-      "alt_text": "E07. Zwei rotierende Magnetträger umschließen die stationäre Wicklung; der untere Rotor sitzt im Gehäuse. Nennabstand Magnet–Wicklung: oben 1.5 mm / unten 1.5 mm. Keine Betriebsfreigabe. Base / oberer Magnetträger · rotierend Deckel über der Wicklung · stationär Wicklungsraum · stationär Spulenkassette / Boden · stationär Unterer Magnetrotor · rotierend Gehäuse mit geschlossenem Boden · stationär M8-Mutter im unteren Rotor",
+      "alt_text": "E07. Zwei rotierende Magnetträger umschließen die stationäre Wicklung; der untere Rotor sitzt im Gehäuse. Magnetfläche–aktive Wicklung: oben 1.5 mm / unten 1.5 mm, einschließlich Kunststoff. Mechanisch: Magnet–Deckel 0,35 mm; Magnet–Kassettenboden 0,50 mm. Base / oberer Magnetträger · rotierend Deckel über der Wicklung · stationär Wicklungsraum · stationär Spulenkassette / Boden · stationär Unterer Magnetrotor · rotierend Gehäuse mit geschlossenem Boden · stationär M8-Mutter im unteren Rotor Beide Ringe haben 18 zur Wicklung weisende Pole, oben N S im Wechsel, unten S N. Gleiche Winkel in derselben +Z-Projektion tragen gegenüberliegende Pole; bei 0 Grad oben N und unten S, bei 20 Grad oben S und unten N.",
       "callout_labels": [
         "Base / oberer Magnetträger · rotierend",
         "Deckel über der Wicklung · stationär",
@@ -2643,6 +3226,584 @@
             0
           ]
         }
+      ],
+      "magnet_poles": [
+        {
+          "name": "upper_magnets",
+          "index": 0,
+          "angle_degrees": 0.0,
+          "pole": "N",
+          "center_mm": [
+            44.5,
+            0.0,
+            -13.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            -1
+          ]
+        },
+        {
+          "name": "upper_magnets",
+          "index": 1,
+          "angle_degrees": 20.0,
+          "pole": "S",
+          "center_mm": [
+            41.81632162497292,
+            15.219896377992258,
+            -13.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            -1
+          ]
+        },
+        {
+          "name": "upper_magnets",
+          "index": 2,
+          "angle_degrees": 40.0,
+          "pole": "N",
+          "center_mm": [
+            34.088977718794524,
+            28.604048631050997,
+            -13.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            -1
+          ]
+        },
+        {
+          "name": "upper_magnets",
+          "index": 3,
+          "angle_degrees": 60.0,
+          "pole": "S",
+          "center_mm": [
+            22.250000000000004,
+            38.538130468407516,
+            -13.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            -1
+          ]
+        },
+        {
+          "name": "upper_magnets",
+          "index": 4,
+          "angle_degrees": 80.0,
+          "pole": "N",
+          "center_mm": [
+            7.727343906178404,
+            43.82394500904326,
+            -13.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            -1
+          ]
+        },
+        {
+          "name": "upper_magnets",
+          "index": 5,
+          "angle_degrees": 100.0,
+          "pole": "S",
+          "center_mm": [
+            -7.727343906178398,
+            43.82394500904326,
+            -13.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            -1
+          ]
+        },
+        {
+          "name": "upper_magnets",
+          "index": 6,
+          "angle_degrees": 120.0,
+          "pole": "N",
+          "center_mm": [
+            -22.24999999999999,
+            38.53813046840752,
+            -13.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            -1
+          ]
+        },
+        {
+          "name": "upper_magnets",
+          "index": 7,
+          "angle_degrees": 140.0,
+          "pole": "S",
+          "center_mm": [
+            -34.08897771879452,
+            28.604048631051008,
+            -13.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            -1
+          ]
+        },
+        {
+          "name": "upper_magnets",
+          "index": 8,
+          "angle_degrees": 160.0,
+          "pole": "N",
+          "center_mm": [
+            -41.81632162497292,
+            15.219896377992265,
+            -13.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            -1
+          ]
+        },
+        {
+          "name": "upper_magnets",
+          "index": 9,
+          "angle_degrees": 180.0,
+          "pole": "S",
+          "center_mm": [
+            -44.5,
+            5.449678256205722e-15,
+            -13.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            -1
+          ]
+        },
+        {
+          "name": "upper_magnets",
+          "index": 10,
+          "angle_degrees": 200.0,
+          "pole": "N",
+          "center_mm": [
+            -41.81632162497292,
+            -15.219896377992255,
+            -13.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            -1
+          ]
+        },
+        {
+          "name": "upper_magnets",
+          "index": 11,
+          "angle_degrees": 220.0,
+          "pole": "S",
+          "center_mm": [
+            -34.08897771879454,
+            -28.604048631050983,
+            -13.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            -1
+          ]
+        },
+        {
+          "name": "upper_magnets",
+          "index": 12,
+          "angle_degrees": 240.0,
+          "pole": "N",
+          "center_mm": [
+            -22.25000000000002,
+            -38.538130468407516,
+            -13.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            -1
+          ]
+        },
+        {
+          "name": "upper_magnets",
+          "index": 13,
+          "angle_degrees": 260.0,
+          "pole": "S",
+          "center_mm": [
+            -7.7273439061784,
+            -43.82394500904326,
+            -13.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            -1
+          ]
+        },
+        {
+          "name": "upper_magnets",
+          "index": 14,
+          "angle_degrees": 280.0,
+          "pole": "N",
+          "center_mm": [
+            7.727343906178383,
+            -43.823945009043264,
+            -13.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            -1
+          ]
+        },
+        {
+          "name": "upper_magnets",
+          "index": 15,
+          "angle_degrees": 300.0,
+          "pole": "S",
+          "center_mm": [
+            22.24999999999997,
+            -38.53813046840754,
+            -13.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            -1
+          ]
+        },
+        {
+          "name": "upper_magnets",
+          "index": 16,
+          "angle_degrees": 320.0,
+          "pole": "N",
+          "center_mm": [
+            34.08897771879451,
+            -28.60404863105101,
+            -13.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            -1
+          ]
+        },
+        {
+          "name": "upper_magnets",
+          "index": 17,
+          "angle_degrees": 340.0,
+          "pole": "S",
+          "center_mm": [
+            41.81632162497292,
+            -15.219896377992253,
+            -13.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            -1
+          ]
+        },
+        {
+          "name": "lower_magnets",
+          "index": 0,
+          "angle_degrees": 0.0,
+          "pole": "S",
+          "center_mm": [
+            44.5,
+            0.0,
+            -27.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "name": "lower_magnets",
+          "index": 1,
+          "angle_degrees": 20.0,
+          "pole": "N",
+          "center_mm": [
+            41.81632162497292,
+            15.219896377992258,
+            -27.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "name": "lower_magnets",
+          "index": 2,
+          "angle_degrees": 40.0,
+          "pole": "S",
+          "center_mm": [
+            34.088977718794524,
+            28.604048631050997,
+            -27.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "name": "lower_magnets",
+          "index": 3,
+          "angle_degrees": 60.0,
+          "pole": "N",
+          "center_mm": [
+            22.250000000000004,
+            38.538130468407516,
+            -27.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "name": "lower_magnets",
+          "index": 4,
+          "angle_degrees": 80.0,
+          "pole": "S",
+          "center_mm": [
+            7.727343906178404,
+            43.82394500904326,
+            -27.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "name": "lower_magnets",
+          "index": 5,
+          "angle_degrees": 100.0,
+          "pole": "N",
+          "center_mm": [
+            -7.727343906178398,
+            43.82394500904326,
+            -27.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "name": "lower_magnets",
+          "index": 6,
+          "angle_degrees": 120.0,
+          "pole": "S",
+          "center_mm": [
+            -22.24999999999999,
+            38.53813046840752,
+            -27.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "name": "lower_magnets",
+          "index": 7,
+          "angle_degrees": 140.0,
+          "pole": "N",
+          "center_mm": [
+            -34.08897771879452,
+            28.604048631051008,
+            -27.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "name": "lower_magnets",
+          "index": 8,
+          "angle_degrees": 160.0,
+          "pole": "S",
+          "center_mm": [
+            -41.81632162497292,
+            15.219896377992265,
+            -27.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "name": "lower_magnets",
+          "index": 9,
+          "angle_degrees": 180.0,
+          "pole": "N",
+          "center_mm": [
+            -44.5,
+            5.449678256205722e-15,
+            -27.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "name": "lower_magnets",
+          "index": 10,
+          "angle_degrees": 200.0,
+          "pole": "S",
+          "center_mm": [
+            -41.81632162497292,
+            -15.219896377992255,
+            -27.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "name": "lower_magnets",
+          "index": 11,
+          "angle_degrees": 220.0,
+          "pole": "N",
+          "center_mm": [
+            -34.08897771879454,
+            -28.604048631050983,
+            -27.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "name": "lower_magnets",
+          "index": 12,
+          "angle_degrees": 240.0,
+          "pole": "S",
+          "center_mm": [
+            -22.25000000000002,
+            -38.538130468407516,
+            -27.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "name": "lower_magnets",
+          "index": 13,
+          "angle_degrees": 260.0,
+          "pole": "N",
+          "center_mm": [
+            -7.7273439061784,
+            -43.82394500904326,
+            -27.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "name": "lower_magnets",
+          "index": 14,
+          "angle_degrees": 280.0,
+          "pole": "S",
+          "center_mm": [
+            7.727343906178383,
+            -43.823945009043264,
+            -27.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "name": "lower_magnets",
+          "index": 15,
+          "angle_degrees": 300.0,
+          "pole": "N",
+          "center_mm": [
+            22.24999999999997,
+            -38.53813046840754,
+            -27.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "name": "lower_magnets",
+          "index": 16,
+          "angle_degrees": 320.0,
+          "pole": "S",
+          "center_mm": [
+            34.08897771879451,
+            -28.60404863105101,
+            -27.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "name": "lower_magnets",
+          "index": 17,
+          "angle_degrees": 340.0,
+          "pole": "N",
+          "center_mm": [
+            41.81632162497292,
+            -15.219896377992253,
+            -27.0
+          ],
+          "facing_direction": [
+            0,
+            0,
+            1
+          ]
+        }
       ]
     },
     {
@@ -2798,7 +3959,8 @@
             -5
           ]
         }
-      ]
+      ],
+      "magnet_poles": []
     },
     {
       "drawing_id": "E09",
@@ -3311,7 +4473,8 @@
             0
           ]
         }
-      ]
+      ],
+      "magnet_poles": []
     },
     {
       "drawing_id": "E10",
@@ -3466,7 +4629,8 @@
             0
           ]
         }
-      ]
+      ],
+      "magnet_poles": []
     },
     {
       "drawing_id": "E11",
@@ -3635,7 +4799,8 @@
             0
           ]
         }
-      ]
+      ],
+      "magnet_poles": []
     },
     {
       "drawing_id": "E12",
@@ -3730,7 +4895,8 @@
             0
           ]
         }
-      ]
+      ],
+      "magnet_poles": []
     },
     {
       "drawing_id": "E13",
@@ -4187,7 +5353,8 @@
             0
           ]
         }
-      ]
+      ],
+      "magnet_poles": []
     },
     {
       "drawing_id": "E14",
@@ -5984,7 +7151,8 @@
             0
           ]
         }
-      ]
+      ],
+      "magnet_poles": []
     },
     {
       "drawing_id": "E15",
@@ -8315,7 +9483,8 @@
             0
           ]
         }
-      ]
+      ],
+      "magnet_poles": []
     }
   ]
 }

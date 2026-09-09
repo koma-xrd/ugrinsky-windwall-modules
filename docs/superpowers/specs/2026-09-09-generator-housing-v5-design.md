@@ -110,9 +110,16 @@ PLA-Prototyp vermieden. Der Deckel darf nicht mitrotieren.
 
 ## Luftspalte und Einbaureihenfolge
 
-Die ersten CAD-Nennwerte betragen 1,5 mm oberhalb und 1,5 mm unterhalb der
-Spulenkassette. Sie gelten nur für bündig oder tiefer sitzende Magnete. Die
-Einbaureihenfolge ist:
+Die ersten CAD-Nennwerte betragen oben und unten jeweils 1,5 mm von der
+Magnetfläche zur aktiven Wicklungsfläche. Beide magnetischen Abstände enthalten
+den dazwischenliegenden Kunststoff: oben die 1,00 mm dicke Deckelmembran,
+unten den 1,00 mm dicken Kassettenboden. Sie gelten nur für bündig oder tiefer
+sitzende Magnete. Die mechanischen Freigänge betragen oben 0,35 mm zwischen
+Magnetfläche und Deckelmembran und unten 0,50 mm zwischen Magnetfläche und
+Kassettenboden. Weitere 0,15 mm zwischen Kassettenoberkante und Deckelunterseite
+erlauben die axiale Rückhaltung. Diese Bezugsebenen sind die verbindliche,
+im Abschlussreview bestätigte Interpretation; die Nenngeometrie bleibt unverändert.
+Die Einbaureihenfolge ist:
 
 1. untere Magnetplatte und M8-Hardware in den Gehäusetopf einsetzen;
 2. Spulenkassette auf Schulter und Verdrehsicherung setzen;

@@ -8,6 +8,8 @@ Beschriftungen, explizite 3D-Merkmalsanker und 2D-Markierungsversätze, Pixelma�
 CAD-Quellen, Bewegungszuordnung und dargestellte Grenzen. Bauteildatensätze enthalten
 zusätzlich Druckbarkeit, Referenzhinweise und gegebenenfalls die Einschraubrichtung.
 Die SHA-256 des verwendeten V5-Manifests steht im Kopf des Bildinventars.
+Vor dem CAD-Aufbau vergleicht der Renderer die normalisierten angeforderten
+Geometrieparameter mit diesem Manifest und weist Abweichungen zurück.
 
 Erneut erzeugen, aus dem Repository-Verzeichnis mit aktivierter Python-Umgebung:
 
@@ -47,6 +49,15 @@ CAD-Referenz ebenfalls türkis dargestellt. Schrauben, Magnete, Wicklung und Lag
 sind Nennhüllen. Es werden weder Gewinde noch elektrische Wicklungsdetails behauptet.
 Magnete sind im rotierenden Ocker dunkler, der Wicklungsraum im stationären Türkis
 heller dargestellt, damit ihre bündigen Grenzflächen erkennbar bleiben.
+E06/E07 zeigen zusätzlich je 18 alternierende N/S-Polflächen beider Ringe in
+derselben +Z-Projektion, 0 Grad rechts und 90 Grad oben. Beschriftet sind die zur
+Wicklung gerichteten Flächen: oben nach unten, unten nach oben. Bei gleichem Winkel
+stehen sich N und S gegenüber. Die Polbeschriftung verwendet keine zusätzlichen
+Bewegungsfarben; `magnet_poles` hält Winkel, CAD-Flächenposition und Polrichtung fest.
+Beide 1,5-mm-Abstände verlaufen von der Magnetfläche zur aktiven Wicklungsfläche
+einschließlich der Deckelmembran oben beziehungsweise des Kassettenbodens unten.
+Mechanisch bleiben Magnet–Deckel 0,35 mm und Magnet–Kassettenboden 0,50 mm frei;
+der stationäre Kassetten–Deckel-Freigang zur Rückhaltung beträgt separat 0,15 mm.
 
 E01 zeigt die Lage vor dem dauerhaften Einrasten, keine zugesicherte Demontage.
 E04/E06/E07/E15 begrenzen den oberen Blattbereich für die Detailansicht. E05

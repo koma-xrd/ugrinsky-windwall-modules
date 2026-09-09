@@ -76,6 +76,34 @@ class BearingReferenceTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "positive and finite"):
             build_51105_fit_coupon(invalid)
 
+    def test_rejects_nonfinite_dimensions_and_invalid_export_tolerances(self):
+        for group, field in (('bearings', 'thrust_height_mm'),
+                             ('bearings', 'radial_height_mm'),
+                             ('manufacturing', 'export_linear_tolerance_mm'),
+                             ('manufacturing', 'export_angular_tolerance_rad'),
+                             ('shaft', 'clearance_hole_diameter_mm')):
+            for value in (float('nan'), float('inf'), -float('inf'), 0.0, -0.1):
+                with self.subTest(group=group, field=field, value=value):
+                    p = replace(DEFAULT_PARAMETERS, **{group: replace(
+                        getattr(DEFAULT_PARAMETERS, group), **{field: value})})
+                    with self.assertRaisesRegex(ValueError, 'positive and finite'):
+                        build_51105_reference(p)
+
+    def test_rejects_shaft_without_clearance_and_reversed_bearing_rings(self):
+        for clearance in (8.0, 7.9):
+            with self.subTest(clearance=clearance):
+                p = replace(DEFAULT_PARAMETERS, shaft=replace(
+                    DEFAULT_PARAMETERS.shaft, clearance_hole_diameter_mm=clearance))
+                with self.assertRaisesRegex(ValueError, 'exceed the nominal shaft'):
+                    build_608_reference(p)
+        for prefix, outer in (('thrust', 42.0), ('radial', 22.0)):
+            for bore in (outer, outer + 1):
+                with self.subTest(bearing=prefix, bore=bore):
+                    p = replace(DEFAULT_PARAMETERS, bearings=replace(
+                        DEFAULT_PARAMETERS.bearings, **{prefix + '_bore_diameter_mm': bore}))
+                    with self.assertRaisesRegex(ValueError, 'outer diameter must exceed its bore'):
+                        build_608_reference(p)
+
 
 if __name__ == "__main__":
     unittest.main()

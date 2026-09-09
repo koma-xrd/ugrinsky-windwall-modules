@@ -34,6 +34,8 @@ class HousingDimensions:
     m4_clearance_diameter_mm: float = 4.4
     m4_nut_pocket_flats_mm: float = 7.3
     m4_nut_pocket_depth_mm: float = 3.4
+    cable_center_above_cassette_bottom_mm: float = 6.0
+    cable_boss_radius_mm: float = 6.0
 
 
 @dataclass(frozen=True)
@@ -114,8 +116,11 @@ def _layout(p: DesignParameters) -> tuple[HousingDimensions, float, float, float
     radius = g.coil_former_diameter_mm / 2
     if radius + d.radial_clearance_mm >= d.cavity_radius_mm or radius < 55:
         raise ValueError('The cassette must fit the 130 mm shell and its support shoulder')
-    if g.coil_former_height_mm < 10:
-        raise ValueError('The cassette must have room for the side cable passage')
+    minimum_cassette_height = (d.cable_center_above_cassette_bottom_mm
+                              + d.cable_boss_radius_mm - d.cover_clearance_mm)
+    if g.coil_former_height_mm < minimum_cassette_height:
+        raise ValueError(f'The cassette height must be at least {minimum_cassette_height:g} mm '
+                         'to keep the cable boss below the cover')
     if p.bearings.thrust_housing_seat_diameter_mm / 2 + 3 >= 25:
         raise ValueError('The bearing boss must clear the cassette central bore')
     top = d.cassette_bottom_mm + g.coil_former_height_mm
@@ -129,7 +134,7 @@ def _fastener_axes(d: HousingDimensions) -> tuple[tuple[float, float], ...]:
 
 def _cable_passage(d: HousingDimensions) -> cq.Workplane:
     return (cq.Workplane('YZ').circle(3).extrude(24)
-            .translate((54, 0, d.cassette_bottom_mm + 6))
+            .translate((54, 0, d.cassette_bottom_mm + d.cable_center_above_cassette_bottom_mm))
             .rotate((0, 0, 0), (0, 0, 1), 45))
 
 
@@ -210,8 +215,8 @@ def build_generator_housing(p: DesignParameters) -> GeneratorHousingParts:
         nut = _hex(7, 0.1, 3.2).cut(_cylinder(2.1, 0, 3.4)).translate((x, y, 0))
         driver = _cylinder(4.3, head_bottom + 4, 20).translate((x, y, 0))
         fasteners.append(CoverFastener((x, y), screw, nut, driver))
-    cable_z = d.cassette_bottom_mm + 6
-    boss = (cq.Workplane('YZ').circle(6).extrude(12).translate((63, 0, cable_z))
+    cable_z = d.cassette_bottom_mm + d.cable_center_above_cassette_bottom_mm
+    boss = (cq.Workplane('YZ').circle(d.cable_boss_radius_mm).extrude(12).translate((63, 0, cable_z))
             .rotate((0, 0, 0), (0, 0, 1), 45))
     passage = _cable_passage(d)
     body = _valid(body.union(boss).cut(passage), 'Generator housing')

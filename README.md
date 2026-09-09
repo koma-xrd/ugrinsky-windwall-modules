@@ -44,8 +44,16 @@ assembly order, cassette service access and the experimental 20/40/80 winding
 matrix for 0.18 mm wire and each later measured wire diameter. It explicitly
 prohibits direct connection to a 48 V lead battery. No final winding, safe speed,
 load rating, watertightness or outdoor-operation approval is claimed. The nominal
-1.5 mm gaps apply only with flush or subflush magnets; actual fits and retention
-require physical tests.
+1.5 mm distances run from each magnet face to the active winding face and include
+the intervening plastic: the 1.00 mm cover diaphragm above and the 1.00 mm cassette
+floor below. Mechanical magnet-to-plastic clearances are 0.35 mm above and 0.50 mm
+below; cassette-to-cover retention travel is separately 0.15 mm. These nominal
+distances apply only with flush or subflush magnets; actual fits and retention
+require physical tests. E06/E07 show all 18 alternating winding-facing poles on
+each ring in a common angular projection, with opposite poles at matching angles.
+The housing rejects cassette heights below 11.85 mm, derived from its fixed cable
+boss and cover envelope; the 12 mm default is unchanged. The figure renderer
+rejects requested geometry parameters that differ from its source manifest.
 
 `scripts/manual/manual_data.py` reads only the current V5 manifest and drawing
 index for release data, checks the drawing index's manifest SHA-256, and rejects
