@@ -60,6 +60,36 @@ _REFERENCE = '#8876a4'
 _MAGNET = '#bd5b4d'
 _SECTION = '#91b8cd'
 
+_CLASSIFICATION_LEGENDS = {
+    'E01': (
+        (_PRINTED, 'DRUCKTEILE: P01–P05'),
+        (_HARDWARE, 'AUSGEWÄHLTE HARDWARE: H01–H05 (Nennhüllen)'),
+        (_REFERENCE, 'PROVISORISCHE REFERENZHÜLLEN: Stator, Lager, Distanzstück'),
+    ),
+    'E02': (
+        (_PRINTED, 'DRUCKTEILE: P01, P05'),
+        (_HARDWARE, 'AUSGEWÄHLTE HARDWARE: H01–H03 (Nennhüllen)'),
+        (_REFERENCE, 'PROVISORISCH/REFERENZ: H06, H07, H10 und stationäre Generatorhüllen'),
+    ),
+    'E03': (
+        (_PRINTED, 'DRUCKTEILE: P01, P05'),
+        (_REFERENCE, 'PROVISORISCH/REFERENZ: H10; H11 Rückhaltung noch offen'),
+    ),
+    'E04': (
+        (_PRINTED, 'DRUCKTEILE: P01, P02 einschließlich der zwei Treiber'),
+        (_HARDWARE, 'AUSGEWÄHLTE HARDWARE: H04 (Nennhüllen)'),
+    ),
+    'E05': (
+        (_PRINTED, 'DRUCKTEILE: P03, P04'),
+        (_HARDWARE, 'AUSGEWÄHLTE HARDWARE: H01–H05 (Nennhüllen)'),
+    ),
+    'E06': (
+        (_PRINTED, 'DRUCKTEILE: P01, P02, P03, P05'),
+        (_HARDWARE, 'AUSGEWÄHLTE HARDWARE: H01–H03 (Nennhüllen)'),
+        (_REFERENCE, 'PROVISORISCH/REFERENZ: H06, H07, H10 und stationäre Generatorhüllen'),
+    ),
+}
+
 _SHORT_NAMES = {
     'P01': 'Basis-Modul / oberer Träger',
     'P02': 'Standard-Rotormodul',
@@ -85,6 +115,11 @@ def _center(shape: cq.Workplane) -> tuple[float, float, float]:
         (box.ymin + box.ymax) / 2,
         (box.zmin + box.zmax) / 2,
     )
+
+
+def _radial_target(shape: cq.Workplane, radius: float) -> tuple[float, float, float]:
+    center = _center(shape)
+    return center[0] + radius, center[1], center[2]
 
 
 def _translate(shape: cq.Workplane, x: float = 0, y: float = 0, z: float = 0) -> cq.Workplane:
@@ -202,16 +237,21 @@ def _draw_leaders(
     xmin, xmax, ymin, ymax = bounds
     width = xmax - xmin
     height = ymax - ymin
-    left = [(index, leader) for index, leader in enumerate(leaders) if index % 2 == 0]
-    right = [(index, leader) for index, leader in enumerate(leaders) if index % 2 == 1]
+    projected = [
+        (index, leader, _project(leader.target))
+        for index, leader in enumerate(leaders)
+    ]
+    projected.sort(key=lambda entry: (entry[2][0], entry[2][1]))
+    split = (len(projected) + 1) // 2
+    left = sorted(projected[:split], key=lambda entry: entry[2][1], reverse=True)
+    right = sorted(projected[split:], key=lambda entry: entry[2][1], reverse=True)
     alignments = ('left', 'right') if grow_inward else ('right', 'left')
     for entries, x, alignment in (
         (left, xmin - width * horizontal_offset, alignments[0]),
         (right, xmax + width * horizontal_offset, alignments[1]),
     ):
         slots = np.linspace(ymax - height * 0.02, ymin + height * 0.02, max(len(entries), 2))
-        for slot, (index, leader) in zip(slots, entries):
-            target = _project(leader.target)
+        for slot, (index, leader, target) in zip(slots, entries):
             detail = leader.detail or _SHORT_NAMES.get(leader.bom_id, leader.bom_id)
             ax.annotate(
                 f'{start_number + index:02d}  {leader.bom_id}\n{detail}',
@@ -223,11 +263,12 @@ def _draw_leaders(
                 color='#1f2930',
                 linespacing=1.15,
                 arrowprops={
-                    'arrowstyle': '-',
+                    'arrowstyle': '-|>',
                     'color': '#37434a',
                     'lw': 0.75,
+                    'mutation_scale': 7,
                     'shrinkA': 3,
-                    'shrinkB': 1,
+                    'shrinkB': 0,
                     'connectionstyle': 'angle3',
                 },
                 bbox={
@@ -239,6 +280,39 @@ def _draw_leaders(
                 },
                 annotation_clip=False,
             )
+            ax.plot(
+                target[0],
+                target[1],
+                marker='o',
+                markersize=2.8,
+                markerfacecolor='#ffffff',
+                markeredgecolor='#26343b',
+                markeredgewidth=0.75,
+                zorder=5,
+            )
+
+
+def _validated_callout_ids(
+    drawing_id: str,
+    expected_ids: Sequence[str],
+    leaders: Sequence[_Leader],
+) -> tuple[str, ...]:
+    """Return IDs from rendered leaders, rejecting omissions or extras."""
+
+    expected = tuple(expected_ids)
+    rendered = tuple(leader.bom_id for leader in leaders)
+    if rendered == expected:
+        return rendered
+    missing = [bom_id for bom_id in expected if bom_id not in rendered]
+    unexpected = [bom_id for bom_id in rendered if bom_id not in expected]
+    details = []
+    if missing:
+        details.append(f"missing: {', '.join(missing)}")
+    if unexpected:
+        details.append(f"unexpected: {', '.join(unexpected)}")
+    if not missing and not unexpected:
+        details.append('leader order differs from manual data')
+    raise ValueError(f"{drawing_id} rendered callouts differ from manual data; {'; '.join(details)}")
 
 
 def _style_for_assembly_part(name: str) -> tuple[str, float]:
@@ -278,7 +352,7 @@ def _scene_e01(exploded: RotorAssembly) -> tuple[list[_RenderPart], list[_Leader
         _Leader('P02', _center(display_shapes['standard_3'])),
         _Leader('P03', _center(display_shapes['top'])),
         _Leader('P04', _center(display_shapes['top_closure'])),
-        _Leader('P05', _center(display_shapes['lower_magnet_rotor'])),
+        _Leader('P05', _radial_target(display_shapes['lower_magnet_rotor'], 30)),
         _Leader('H01', _center(display_shapes['shaft'])),
         _Leader('H02', _center(display_shapes['top_nut'])),
         _Leader('H03', _center(display_shapes['top_washer'])),
@@ -322,13 +396,13 @@ def _scene_e02(locked: RotorAssembly) -> tuple[list[_RenderPart], list[_Leader],
     ]
     leaders = [
         _Leader('P01', _center(base)),
-        _Leader('P05', _center(lower)),
+        _Leader('P05', _radial_target(lower, 30)),
         _Leader('H01', _center(generator.shaft)),
-        _Leader('H02', _center(lower_nut)),
-        _Leader('H03', _center(lower_washer)),
-        _Leader('H06', _center(bearing)),
-        _Leader('H07', _center(spacer)),
-        _Leader('H10', _center(lower_magnets)),
+        _Leader('H02', _radial_target(lower_nut, 5)),
+        _Leader('H03', _radial_target(lower_washer, 10)),
+        _Leader('H06', _radial_target(bearing, 5)),
+        _Leader('H07', _radial_target(spacer, 5)),
+        _Leader('H10', _radial_target(lower_magnets, 44.5)),
     ]
     notes = [
         'Rotierend: Orange/Blau · Stationär: Grün · Referenzhüllen: Violett',
@@ -352,8 +426,8 @@ def _scene_e03(locked: RotorAssembly) -> tuple[list[_RenderPart], list[_Leader],
     pocket_target = _center(upper_magnets)
     leaders = [
         _Leader('P01', _center(base)),
-        _Leader('P05', _center(lower)),
-        _Leader('H10', _center(lower_magnets)),
+        _Leader('P05', _radial_target(lower, 30)),
+        _Leader('H10', _radial_target(lower_magnets, 44.5)),
         _Leader('H11', (pocket_target[0] + 44.5, pocket_target[1], pocket_target[2]), 'Rückhaltung vor Betrieb entwickeln'),
     ]
     notes = [
@@ -452,8 +526,8 @@ def _scene_e05(locked: RotorAssembly) -> tuple[list[_RenderPart], list[_Leader],
         _Leader('P03', _center(top)),
         _Leader('P04', _center(closure)),
         _Leader('H01', _center(shaft)),
-        _Leader('H02', _center(nut)),
-        _Leader('H03', _center(washer)),
+        _Leader('H02', _radial_target(nut, 5)),
+        _Leader('H03', _radial_target(washer, 10)),
         _Leader('H04', _center(radial_screws[0])),
         _Leader('H05', _center(closure_screws[0])),
     ]
@@ -473,6 +547,29 @@ def _section_half(shape: cq.Workplane, zmin: float, zmax: float) -> cq.Workplane
     return shape.intersect(cutter)
 
 
+def _add_classification_legend(fig, drawing_id: str) -> None:
+    """Identify the status of every displayed non-printed solid on the sheet."""
+
+    from matplotlib.patches import Rectangle
+
+    entries = _CLASSIFICATION_LEGENDS[drawing_id]
+    positions = {
+        2: ((0.055, 0.089), (0.47, 0.089)),
+        3: ((0.055, 0.089), (0.47, 0.089), (0.055, 0.068)),
+    }[len(entries)]
+    for (x, y), (color, label) in zip(positions, entries):
+        fig.add_artist(Rectangle(
+            (x, y - 0.006),
+            0.009,
+            0.012,
+            transform=fig.transFigure,
+            facecolor=color,
+            edgecolor='#49545a',
+            linewidth=0.45,
+        ))
+        fig.text(x + 0.012, y, label, ha='left', va='center', fontsize=6.4, color='#29353c')
+
+
 def _add_sheet_text(fig, drawing_id: str, drawing: dict, notes: Sequence[str]) -> None:
     fig.suptitle(
         f"{drawing_id}  {drawing['title']}",
@@ -484,10 +581,11 @@ def _add_sheet_text(fig, drawing_id: str, drawing: dict, notes: Sequence[str]) -
         color='#17232a',
     )
     fig.text(0.055, 0.925, drawing['description'], ha='left', va='top', fontsize=8.4, color='#3b474e')
-    fig.text(0.055, 0.065, '\n'.join(notes), ha='left', va='bottom', fontsize=7.7, color='#344149')
+    _add_classification_legend(fig, drawing_id)
+    fig.text(0.055, 0.027, '\n'.join(notes), ha='left', va='bottom', fontsize=7.3, color='#344149')
     fig.text(
         0.945,
-        0.052,
+        0.010,
         'CAD-REFERENZ · KEINE PHYSISCHE PASSUNGS-, FESTIGKEITS- ODER RÜCKHALTEFREIGABE',
         ha='right',
         va='bottom',
@@ -519,7 +617,12 @@ def _save_standard_figure(path: Path, drawing_id: str, drawing: dict, parts, lea
     plt.close(fig)
 
 
-def _save_section_figure(path: Path, drawing_id: str, drawing: dict, locked: RotorAssembly) -> None:
+def _save_section_figure(
+    path: Path,
+    drawing_id: str,
+    drawing: dict,
+    locked: RotorAssembly,
+) -> list[_Leader]:
     import matplotlib.pyplot as plt
 
     generator = locked.generator
@@ -566,13 +669,13 @@ def _save_section_figure(path: Path, drawing_id: str, drawing: dict, locked: Rot
         _Leader('P03', _center(locked.parts['top'])),
     ]
     detail_leaders = [
-        _Leader('P05', _center(generator.lower_rotor)),
+        _Leader('P05', _radial_target(generator.lower_rotor, 30)),
         _Leader('H01', _center(generator.shaft)),
-        _Leader('H02', _center(generator.clamp_hardware['lower_nut'])),
-        _Leader('H03', _center(generator.clamp_hardware['lower_washer'])),
-        _Leader('H06', _center(generator.stationary.bearing), 'Lagerhülle (Ref.)'),
-        _Leader('H07', _center(generator.spacer), 'Distanzhülse (Ref.)'),
-        _Leader('H10', _center(lower_magnets), '10 × 2 mm (Ref.)'),
+        _Leader('H02', _radial_target(generator.clamp_hardware['lower_nut'], 5)),
+        _Leader('H03', _radial_target(generator.clamp_hardware['lower_washer'], 10)),
+        _Leader('H06', _radial_target(generator.stationary.bearing, 5), 'Lagerhülle (Ref.)'),
+        _Leader('H07', _radial_target(generator.spacer, 5), 'Distanzhülse (Ref.)'),
+        _Leader('H10', _radial_target(lower_magnets, 44.5), '10 × 2 mm (Ref.)'),
     ]
     _draw_leaders(
         overview_ax,
@@ -621,6 +724,7 @@ def _save_section_figure(path: Path, drawing_id: str, drawing: dict, locked: Rot
     fig.subplots_adjust(left=0.035, right=0.965, top=0.87, bottom=0.12, wspace=0.12)
     fig.savefig(path, dpi=200, facecolor=fig.get_facecolor(), metadata={'Software': 'Windwall CAD manual renderer'})
     plt.close(fig)
+    return overview_leaders + detail_leaders
 
 
 def render_cad_figures(project_root: Path, output_dir: Path) -> list[FigureRecord]:
@@ -650,15 +754,17 @@ def render_cad_figures(project_root: Path, output_dir: Path) -> list[FigureRecor
         drawing = data['drawings'][drawing_id]
         path = output_dir / Path(drawing['figure_file']).name
         if drawing_id == 'E06':
-            _save_section_figure(path, drawing_id, drawing, locked)
+            leaders = _save_section_figure(path, drawing_id, drawing, locked)
+            callouts = _validated_callout_ids(drawing_id, drawing['items'], leaders)
         else:
             parts, leaders, notes = scene_builders[drawing_id]()
+            callouts = _validated_callout_ids(drawing_id, drawing['items'], leaders)
             _save_standard_figure(path, drawing_id, drawing, parts, leaders, notes)
         records.append(FigureRecord(
             drawing_id=drawing_id,
             path=path,
             caption=f"{drawing['title']}. {drawing['description']}",
-            callouts=tuple(drawing['items']),
+            callouts=callouts,
         ))
     return records
 
