@@ -6,3 +6,6 @@ __pycache__/
 *.pyc
 .venv/
 .pytest_cache/
+
+# V5 geometry and manifest are tracked; interrupted manifest writes are not.
+release/v5/manifest.pending.json

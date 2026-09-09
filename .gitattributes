@@ -1,0 +1,4 @@
+# Release checksums describe exact bytes, including on Windows checkouts.
+release/v5/**/*.step -text
+release/v5/**/*.stl -text
+release/v5/manifest.json -text

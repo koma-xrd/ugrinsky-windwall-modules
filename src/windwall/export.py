@@ -1,7 +1,7 @@
 """Deterministic release exports from analytic builders, with geometry gates.
 
 STEP preserves assembly frames; STL translates each candidate to print Z=0.
-Only five unique bodies are production candidates. Coupons are separate, and
+Eight unique bodies are production candidates. Coupons are separate, and
 stationary generator/hardware envelopes remain explicitly named in assemblies.
 The manifest certifies CAD checks only, never print fit, strength or operation.
 """
@@ -17,13 +17,33 @@ import re
 
 import cadquery as cq
 
-from windwall.assembly import RotorAssembly, build_exploded_rotor_assembly, build_locked_rotor_assembly
+from windwall.assembly import RotorAssembly, build_locked_rotor_assembly
 from windwall.assembly_validation import audit_rotor_assembly, require_valid_assembly_audit
 from windwall.bayonet import build_bayonet_coupon
+from windwall.bearings import build_51105_fit_coupon, build_608_fit_coupon
 from windwall.drivers import build_joint_coupon
-from windwall.generator import build_magnet_pocket_coupon
+from windwall.generator import build_magnet_pocket_coupon, intersection_volume
+from windwall.generator_housing import build_coil_fit_coupon
 from windwall.parameters import DEFAULT_PARAMETERS, DesignParameters
 from windwall.reference_mesh import MeshReport, analyze_binary_stl
+from windwall.top_support import build_top_support
+
+
+PRINT_SOURCES = {
+    'base_rotor_module': ('rotating', 'windwall.rotor_modules.build_base_module'),
+    'standard_rotor_module': ('rotating', 'windwall.rotor_modules.build_standard_module'),
+    'top_rotor_module': ('rotating', 'windwall.rotor_modules.build_top_module'),
+    'lower_magnet_rotor': ('rotating', 'windwall.generator.build_lower_magnet_rotor'),
+    'generator_housing': ('stationary', 'windwall.generator_housing.build_generator_housing'),
+    'coil_cassette': ('stationary', 'windwall.generator_housing.build_coil_cassette'),
+    'generator_cover': ('stationary', 'windwall.generator_housing.build_generator_cover'),
+    'top_support': ('stationary', 'windwall.top_support.build_top_support'),
+}
+PROTOTYPE_LIMITS = (
+    'Printed fits, material strength and physical assembly remain unverified.',
+    'Permanent bayonet elastic insertion and inherited joint axial float require coupon tests.',
+    'Magnet retention, electrical output, load capacity and outdoor operation remain unvalidated.',
+)
 
 
 @dataclass(frozen=True)
@@ -37,6 +57,9 @@ class PartExport:
     cad_volume_mm3: float
     cad_bounds: dict
     mesh: MeshReport
+    role: str = 'hardware-reference'
+    source_builder: str = 'windwall.export.export_part'
+    fit_dimensions_mm: dict | None = None
 
     @property
     def boundary_edge_count(self) -> int:
@@ -50,17 +73,26 @@ class PartExport:
     def degenerate_face_count(self) -> int:
         return self.mesh.degenerate_face_count
 
-    def as_dict(self, root: Path) -> dict:
-        return {
+    def as_dict(self, root: Path, prefix: Path = Path()) -> dict:
+        record = {
             'name': self.name, 'quantity': self.quantity,
-            'step_path': self.step_path.relative_to(root).as_posix(),
-            'stl_path': self.stl_path.relative_to(root).as_posix(),
+            'step_path': (prefix / self.step_path.relative_to(root)).as_posix(),
+            'stl_path': (prefix / self.stl_path.relative_to(root)).as_posix(),
             'step_sha256': self.step_sha256, 'stl_sha256': self.stl_sha256,
             'cad_volume_mm3': self.cad_volume_mm3, 'cad_bounds_mm': self.cad_bounds,
             'cad_valid': True, 'cad_solid_count': 1, 'step_round_trip_valid': True,
             'expected_component_count': 1, 'mesh': self.mesh.as_dict(),
             'stl_translation_z_mm': -self.cad_bounds['minimum_xyz'][2],
+            'role': self.role, 'printable': True, 'source_builder': self.source_builder,
+            'dimensions_mm': self.cad_bounds, 'physical_validation_verified': False,
+            'known_limitations': list(PROTOTYPE_LIMITS),
+            'topology_result': {'cad_valid': True, 'cad_solid_count': 1,
+                                'step_round_trip_valid': True, 'stl_binary': True,
+                                'stl_closed_manifold': True, 'stl_component_count': 1},
         }
+        if self.fit_dimensions_mm is not None:
+            record['fit_dimensions_mm'] = self.fit_dimensions_mm
+        return record
 
 
 @dataclass(frozen=True)
@@ -156,7 +188,9 @@ def _export_step(assembly: cq.Assembly, path: Path, expected_count: int,
 
 def export_part(name: str, shape: cq.Workplane, destination: Path,
                 parameters: DesignParameters = DEFAULT_PARAMETERS, *,
-                coupon: bool = False, quantity: int = 1) -> PartExport:
+                coupon: bool = False, quantity: int = 1,
+                role: str | None = None, source_builder: str = 'windwall.export.export_part',
+                fit_dimensions_mm: dict | None = None) -> PartExport:
     """Validate and export one candidate; return paths and independently measured mesh."""
     _validate_tolerances(parameters)
     solid = shape.val()
@@ -171,8 +205,12 @@ def export_part(name: str, shape: cq.Workplane, destination: Path,
     step_hash = _export_step(assembly, step_path, 1, volume)
     printable = shape.translate((0, 0, -bounds['minimum_xyz'][2]))
     m = parameters.manufacturing
-    cq.exporters.export(printable, str(stl_path), tolerance=m.export_linear_tolerance_mm,
-                        angularTolerance=m.export_angular_tolerance_rad)
+    # The Workplane exporter uses edge-relative deflection. Our parameter is
+    # millimetres; use absolute deflection and a serial mesh for reproducibility.
+    if not printable.val().exportStl(str(stl_path), tolerance=m.export_linear_tolerance_mm,
+                                     angularTolerance=m.export_angular_tolerance_rad,
+                                     ascii=False, relative=False, parallel=False):
+        raise ValueError(f'{name} binary STL export failed')
     mesh = validate_mesh(stl_path)
     if (abs(mesh.signed_volume - volume) > max(0.05, volume * 0.005)
             or max(abs(a - b) for a, b in zip(mesh.size_xyz, bounds['size_xyz']))
@@ -180,43 +218,171 @@ def export_part(name: str, shape: cq.Workplane, destination: Path,
             or abs(mesh.minimum_xyz[2]) > 1e-5):
         raise ValueError(f'{name} STL changed CAD envelope, volume or print origin')
     return PartExport(name, quantity, step_path, stl_path, step_hash, _file_hash(stl_path),
-                      volume, bounds, mesh)
+                      volume, bounds, mesh, role or ('coupon' if coupon else 'hardware-reference'),
+                      source_builder, fit_dimensions_mm)
 
 
-def _export_assembly(model: RotorAssembly, destination: Path, parameters: DesignParameters) -> dict:
-    if len(model.parts) != 34:
-        raise ValueError('Complete rotor STEP must contain exactly 34 component solids')
-    name = 'rotor_exploded' if model.exploded else 'rotor_locked'
+def _component_record(name: str, shape: cq.Workplane, rotating: set[str],
+                      stationary: set[str], source: str) -> dict:
+    print_name = {'base': 'base_rotor_module', 'top': 'top_rotor_module',
+                  'housing': 'generator_housing', 'cover': 'generator_cover'}.get(name, name)
+    if name.startswith('standard_'):
+        print_name = 'standard_rotor_module'
+    printable = print_name in PRINT_SOURCES
+    role, builder = PRINT_SOURCES.get(print_name, ('hardware-reference', source))
+    solid = shape.val()
+    solids = solid.Solids()
+    if not solids or not solid.isValid():
+        raise ValueError(f'{name} must contain valid component solids')
+    for member in solids:
+        _valid_solid(member, name)
+    return {
+        'name': name, 'role': role, 'printable': printable,
+        'quantity': len(solids), 'named_group_count': 1, 'cad_solid_count': len(solids),
+        'motion': ('rotating' if name in rotating else 'stationary' if name in stationary
+                   else 'bearing-internal'),
+        'source_builder': builder, 'dimensions_mm': _bounds(solid),
+        'cad_bounds_mm': _bounds(solid), 'cad_volume_mm3': _volume_mm3(solid),
+        'cad_valid': True, 'physical_validation_verified': False,
+        'known_limitations': list(PROTOTYPE_LIMITS) if printable else
+            ['Nominal occupied-volume reference; procurement dimensions, material and physical fit are unverified.'],
+        'topology_result': {'cad_valid': True, 'cad_solid_count': len(solids),
+                            'step_round_trip_valid': True, 'stl_required': False},
+        **({'print_part': print_name} if printable else {}),
+    }
+
+
+def _export_named_assembly(name: str, parts: dict[str, cq.Workplane], destination: Path,
+                           *, rotating: set[str], stationary: set[str], source: str,
+                           prefix: Path = Path(), source_overrides: dict | None = None) -> dict:
+    """Export named groups while counting every solid in compound references."""
     path = destination / 'assembly' / f'{name}.step'
     path.parent.mkdir(parents=True, exist_ok=True)
     # OCCT serializes color presentation records in pointer-dependent order.
     # Keep release geometry/names deterministic; previews supply visual colors.
     assembly = cq.Assembly(name=name)
     components = []
-    production_names = {stage.name for stage in model.stages} | {'top_closure', 'lower_magnet_rotor'}
-    m = parameters.manufacturing
-    for component_name, workplane in model.parts.items():
+    for component_name, workplane in parts.items():
         assembly.add(workplane, name=component_name)
-        solid = workplane.val()
-        _valid_solid(solid, component_name)
-        _, triangles = solid.tessellate(m.export_linear_tolerance_mm, m.export_angular_tolerance_rad)
-        components.append({'name': component_name, 'cad_valid': True, 'cad_solid_count': 1,
-                           'role': 'production_candidate' if component_name in production_names else 'reference_envelope',
-                           'cad_bounds_mm': _bounds(solid), 'cad_volume_mm3': _volume_mm3(solid),
-                           'triangle_count': len(triangles)})
+        builder = (source_overrides or {}).get(component_name, source)
+        components.append(_component_record(component_name, workplane, rotating, stationary, builder))
     volume = sum(component['cad_volume_mm3'] for component in components)
-    step_hash = _export_step(assembly, path, len(components), volume)
-    compound = cq.Compound.makeCompound([part.val() for part in model.parts.values()])
-    return {'name': name, 'step_path': path.relative_to(destination).as_posix(),
+    count = sum(component['cad_solid_count'] for component in components)
+    step_hash = _export_step(assembly, path, count, volume)
+    compound = cq.Compound.makeCompound([part.val() for part in parts.values()])
+    return {'name': name, 'step_path': (prefix / path.relative_to(destination)).as_posix(),
             'step_sha256': step_hash, 'cad_bounds_mm': _bounds(compound),
             'summed_component_volume_mm3': volume,
-            'triangle_count': sum(component['triangle_count'] for component in components),
-            'component_count': len(components), 'expected_component_count': 34,
-            'step_round_trip_valid': True, 'components': components,
-            'stages': [asdict(stage) for stage in model.stages]}
+            'component_count': len(components), 'expected_component_count': len(parts),
+            'cad_solid_count': count, 'role': 'hardware-reference', 'motion': 'mixed',
+            'quantity': 1, 'printable': False, 'dimensions_mm': _bounds(compound),
+            'source_builder': source, 'physical_validation_verified': False,
+            'known_limitations': list(PROTOTYPE_LIMITS),
+            'topology_result': {'cad_valid': True, 'cad_solid_count': count,
+                                'step_round_trip_valid': True, 'stl_required': False},
+            'step_round_trip_valid': True, 'components': components}
 
 
-def export_all(destination: Path, parameters: DesignParameters = DEFAULT_PARAMETERS) -> ExportManifest:
+def _export_assembly(model: RotorAssembly, destination: Path, parameters: DesignParameters,
+                     prefix: Path = Path()) -> dict:
+    """Export the rotor with explicit ownership and no fixed hardware count."""
+    record = _export_named_assembly('rotor_exploded' if model.exploded else 'rotor_locked',
+        model.parts, destination, rotating=set(model.rotating_parts),
+        stationary=set(model.stationary_parts),
+        source='windwall.assembly.build_locked_rotor_assembly', prefix=prefix)
+    record.update(stages=[asdict(stage) for stage in model.stages], stage_count=len(model.stages))
+    return record
+
+
+def _export_coupons(destination: Path, p: DesignParameters) -> tuple[PartExport, ...]:
+    """Split the Task-1 combined gauge at its empty midline into print choices.
+
+    The negative-Y half retains all three outer seats; the positive-Y half
+    retains all three pilot gauges. The cut preserves sampled fit surfaces.
+    """
+    result = [export_part('magnet_pocket_coupon', build_magnet_pocket_coupon(p), destination, p,
+                          coupon=True, source_builder='windwall.generator.build_magnet_pocket_coupon',
+                          fit_dimensions_mm={'pocket_diameters': [
+                              p.generator.magnet_pocket_diameter_mm + offset*p.generator.coupon_diameter_step_mm
+                              for offset in (-1, 0, 1)], 'pocket_depth': p.generator.magnet_pocket_depth_mm})]
+    thrust = build_51105_fit_coupon(p)
+    box = thrust.shape.val().BoundingBox()
+    for name, center_y, dimensions in (
+            ('51105_outer_seat_coupon', box.ymin/2,
+             {'seat_diameters': list(thrust.seat_diameters_mm), 'seat_depth': thrust.seat_depth_mm}),
+            ('25mm_pilot_coupon', box.ymax/2,
+             {'pilot_diameters': list(thrust.pilot_diameters_mm), 'bearing_bore': p.bearings.thrust_bore_diameter_mm})):
+        half = (cq.Workplane('XY').box(box.xlen+2, abs(center_y)*2, box.zlen+2,
+                                      centered=(True, True, False))
+                .translate((0, center_y, box.zmin-1)))
+        shape = thrust.shape.intersect(half).clean()
+        result.append(export_part(name, shape, destination, p, coupon=True,
+            source_builder='windwall.bearings.build_51105_fit_coupon', fit_dimensions_mm=dimensions))
+    radial = build_608_fit_coupon(p)
+    result.append(export_part('608_seat_coupon', radial.shape, destination, p, coupon=True,
+        source_builder='windwall.bearings.build_608_fit_coupon',
+        fit_dimensions_mm={'seat_diameters': list(radial.seat_diameters_mm), 'seat_depth': radial.seat_depth_mm}))
+    coil = build_coil_fit_coupon(p)
+    result.append(export_part('coil_cassette_segment_coupon', coil.shape, destination, p, coupon=True,
+        source_builder='windwall.generator_housing.build_coil_fit_coupon',
+        fit_dimensions_mm={'radial_clearances': list(coil.radial_clearances_mm),
+                           'cassette_diameter': coil.cassette_diameter_mm,
+                           'release_instruction': coil.release_instruction}))
+    for name, builder in (('bayonet', build_bayonet_coupon), ('joint', build_joint_coupon)):
+        pair = builder(p)
+        for member in ('male', 'female'):
+            result.append(export_part(f'{name}_{member}', getattr(pair, member), destination, p,
+                coupon=True, source_builder=f'{builder.__module__}.{builder.__name__}'))
+    return tuple(result)
+
+
+def _integrate_top_support(locked: RotorAssembly, support) -> tuple[dict, dict, set[str]]:
+    """Replace the rod once and audit the full rotating collection against the support.
+
+    The wood block and screws describe engagement, not a complete fence or
+    structural validation. The top clamp must be fitted before installing the
+    support; the rotor-only service-access audit does not include that plate.
+    """
+    extra = {'top_support': support.shape, 'bearing_608': support.bearing,
+             'upper_wood_frame_reference': support.wood_frame_reference,
+             **{f'wood_screw_{i}_reference': shape for i, shape in enumerate(support.wood_screws, 1)}}
+    parts = {**locked.parts, 'shaft': support.required_shaft_reference, **extra}
+    rotating = {name: parts[name] for name in locked.rotating_parts}
+    pairs = {f'{moving}/{fixed}/axial_shift_{shift:g}': intersection_volume(
+                 shape.translate((0, 0, shift)), stationary)
+             for moving, shape in rotating.items() for fixed, stationary in extra.items()
+             for shift in (-support.axial_float_mm, 0, support.axial_float_mm)}
+    shaft_pairs = {name: intersection_volume(parts['shaft'], shape)
+                   for name, shape in parts.items() if name != 'shaft'}
+    original = locked.parts['shaft'].val().BoundingBox()
+    shaft = parts['shaft'].val().BoundingBox()
+    bearing = support.bearing.val().BoundingBox()
+    frame_bottom = support.wood_frame_reference.val().BoundingBox().zmin
+    engaged = (shaft.zmin+support.axial_float_mm <= bearing.zmin
+               and shaft.zmax-support.axial_float_mm >= frame_bottom-1e-6)
+    if (sum(pairs.values()) >= 0.01 or sum(shaft_pairs.values()) >= 0.01
+            or abs(shaft.zmin-original.zmin) > 1e-6 or not engaged):
+        raise ValueError('Integrated upper support requires a clear, fully engaged replacement shaft')
+    audit = {
+        'extended_shaft_integrated': True, 'shaft_bounds_z_mm': [shaft.zmin, shaft.zmax],
+        'shaft_extension_mm': shaft.zmax-original.zmax,
+        'shaft_engages_full_bearing_at_axial_float': engaged,
+        'axial_float_each_direction_mm': support.axial_float_mm,
+        'bearing_seat_play_mm': frame_bottom-bearing.zmax,
+        'upper_support_rotating_intersection_mm3': sum(pairs.values()),
+        'upper_support_pair_intersections_mm3': pairs,
+        'shaft_pair_intersections_mm3': shaft_pairs,
+        'physical_validation_verified': False,
+        'known_limitations': ['Fit and tighten the top clamp before installing the support.',
+            'Wood and screw overlap denotes unvalidated nominal engagement.',
+            '608 envelope does not resolve individual race or rolling-element kinematics.',
+            'Existing wood frame is a local closure reference; lower frame and mounting screws are not modeled.'],
+    }
+    return parts, audit, set(extra)
+
+
+def export_all(destination: Path, parameters: DesignParameters = DEFAULT_PARAMETERS, *,
+               repository_prefix: Path = Path()) -> ExportManifest:
     """Build every candidate, audit the assembly and publish a manifest only on success.
 
     Fixed paths are overwritten on rebuild; unrelated files are never removed.
@@ -228,38 +394,59 @@ def export_all(destination: Path, parameters: DesignParameters = DEFAULT_PARAMET
     manifest_path = destination / 'manifest.json'
     manifest_path.unlink(missing_ok=True)
     _validate_tolerances(parameters)
-    coupons = [export_part('magnet_pocket_coupon', build_magnet_pocket_coupon(parameters),
-                           destination, parameters, coupon=True)]
-    for prefix, builder in (('bayonet', build_bayonet_coupon), ('joint', build_joint_coupon)):
-        pair = builder(parameters)
-        for member in ('male', 'female'):
-            coupons.append(export_part(f'{prefix}_{member}', getattr(pair, member),
-                                       destination, parameters, coupon=True))
+    coupons = _export_coupons(destination, parameters)
     locked = build_locked_rotor_assembly(parameters)
     audit = audit_rotor_assembly(locked)
     require_valid_assembly_audit(audit)
-    production = [export_part(f'{kind}_rotor_module', locked.local_modules[kind],
-                             destination, parameters, quantity=5 if kind == 'standard' else 1)
-                  for kind in ('base', 'standard', 'top')]
-    production.extend((
-        export_part('top_closure', locked.parts['top_closure'].translate((0, 0, -locked.stages[-1].z_mm)),
-                    destination, parameters),
-        export_part('lower_magnet_rotor', locked.parts['lower_magnet_rotor'], destination, parameters),
-    ))
-    assemblies = tuple(_export_assembly(model, destination, parameters) for model in (
-        locked, build_exploded_rotor_assembly(parameters, locked=locked)))
+    support = build_top_support(parameters)
+    generator = locked.generator
+    shapes = {f'{kind}_rotor_module': locked.local_modules[kind] for kind in ('base', 'standard', 'top')}
+    shapes.update(lower_magnet_rotor=generator.lower_rotor,
+                  generator_housing=generator.housing_parts.housing,
+                  coil_cassette=generator.housing_parts.coil_cassette,
+                  generator_cover=generator.housing_parts.cover,
+                  top_support=support.shape.translate((0, 0, -support.plate_bottom_z_mm)))
+    production = tuple(export_part(name, shape, destination, parameters,
+        quantity=5 if name == 'standard_rotor_module' else 1,
+        role=PRINT_SOURCES[name][0], source_builder=PRINT_SOURCES[name][1])
+        for name, shape in shapes.items())
+    total_parts, support_audit, extra_names = _integrate_top_support(locked, support)
+    assemblies = (
+        _export_assembly(locked, destination, parameters, repository_prefix),
+        _export_named_assembly('generator', {**generator.rotating_parts, **generator.stationary_parts,
+                              **generator.bearing_parts}, destination,
+            rotating=set(generator.rotating_parts), stationary=set(generator.stationary_parts),
+            source='windwall.generator.build_generator_assembly', prefix=repository_prefix),
+        _export_named_assembly('fence_assembly', total_parts, destination,
+            rotating=set(locked.rotating_parts), stationary=set(locked.stationary_parts) | extra_names,
+            source='windwall.assembly.build_locked_rotor_assembly', prefix=repository_prefix,
+            source_overrides={name: 'windwall.top_support.build_top_support'
+                              for name in extra_names | {'shaft'}}))
+    # Legacy builders read rod projections from ClosureParameters; V5 exposes
+    # only those active shaft dimensions instead of obsolete cover dimensions.
+    parameter_record = asdict(parameters)
+    parameter_record.pop('closure')
+    parameter_record['shaft_end'] = {
+        'rod_projection_mm': parameters.closure.rod_projection_mm,
+        'shaft_bottom_projection_mm': parameters.closure.shaft_bottom_projection_mm,
+    }
     data = {
-        'schema_version': 1, 'units': 'mm', 'parameters': asdict(parameters),
+        'schema_version': 2, 'release': 'v5', 'units': 'mm', 'parameters': parameter_record,
         'runtime': {'python': python_version(), **{name: version(name) for name in
                     ('cadquery', 'cadquery-ocp', 'numpy', 'vtk', 'casadi', 'nlopt')}},
         'production_quantity': sum(part.quantity for part in production),
-        'production_parts': [part.as_dict(destination) for part in production],
-        'coupons': [part.as_dict(destination) for part in coupons],
-        'assemblies': assemblies, 'assembly_audit': audit,
+        'production_parts': [part.as_dict(destination, repository_prefix) for part in production],
+        'coupons': [part.as_dict(destination, repository_prefix) for part in coupons],
+        'assemblies': assemblies, 'assembly_audit': audit, 'fence_assembly_audit': support_audit,
+        'coordinate_frames': {'print_step': 'Builder-local coordinates; support bottom at Z=0.',
+                              'print_stl': 'Each STEP body translated vertically to bottom Z=0.',
+                              'assembly_step': 'Base nominal blade bottom Z=0; shaft axis X=Y=0.'},
+        'manifest_path_base': 'repository' if repository_prefix.parts else 'output directory',
+        'physical_validation_verified': False, 'known_limitations': list(PROTOTYPE_LIMITS),
         'physical_fit_verified': False, 'print_ready': False,
         'outdoor_operation_validated': False, 'overspeed_validated': False,
         'storm_operation_validated': False, 'electrical_operation_validated': False,
-        'determinism': 'Same parameters and pinned runtime; uncolored named STEP assemblies, normalized timestamp and occurrence counters. Geometry unchanged.',
+        'determinism': 'Same parameters and pinned runtime; absolute serial STL meshing, uncolored named STEP assemblies, normalized timestamp and occurrence counters.',
         'runtime_exit_status': 'Reported by the caller after process termination; not certified by this manifest.',
     }
     pending = destination / 'manifest.pending.json'
