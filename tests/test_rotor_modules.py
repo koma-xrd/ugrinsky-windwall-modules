@@ -39,7 +39,23 @@ class RotorModuleTests(unittest.TestCase):
         for name, model in self.modules.items():
             self.assertLess(source.cut(model.shape).intersect(active).val().Volume(), 0.01, name)
             self.assertLess(model.shape.cut(source).intersect(active).val().Volume(), 0.01)
-            self.assertAlmostEqual(model.shape.val().BoundingBox().zmax, 70, places=5)
+            self.assertAlmostEqual(model.shape.val().BoundingBox().zmax,
+                                   70 if name == 'top' else 70.8, places=5)
+
+    def test_active_middle_is_open_except_for_small_m8_guide(self):
+        for name, model in self.modules.items():
+            self.assertFalse(model.shape.val().isInside((0,9,35)), name)
+            self.assertFalse(model.shape.val().isInside((5.2,0,35)), name)
+            self.assertTrue(model.shape.val().isInside((5.2,0,2)), name)
+        joint_z = 70-module_joint_depth_mm(DEFAULT_PARAMETERS)
+        self.assertTrue(self.modules['base'].shape.val().isInside((5.2,0,joint_z-1)))
+        self.assertTrue(self.modules['standard'].shape.val().isInside((5.2,0,joint_z-1)))
+        self.assertTrue(self.modules['top'].shape.val().isInside((5.2,0,69)))
+
+    def test_blade_wall_is_strengthened_for_tongue_and_groove_prototype(self):
+        self.assertEqual(DEFAULT_PARAMETERS.blade.wall_thickness_mm, 2.0)
+        self.assertAlmostEqual(self.modules['base'].shape.val().BoundingBox().zmax,70.8,places=5)
+        self.assertAlmostEqual(self.modules['standard'].shape.val().BoundingBox().zmax,70.8,places=5)
 
     def test_outer_skin_is_retained_and_added_pads_stay_in_the_end_fitting_envelope(self):
         source = build_blade_stage(DEFAULT_PARAMETERS)
@@ -69,19 +85,29 @@ class RotorModuleTests(unittest.TestCase):
             self.assertIsNone(self.modules[name].washer_seat_diameter_mm)
         self.assertIsNone(self.modules['standard'].nut_pocket_across_flats_mm)
 
-    def test_top_closure_pilots_have_material_and_open_access(self):
-        top = self.modules['top'].shape
-        for x in (-24,24):
-            pilot = cq.Workplane('XY').center(x,0).circle(1.1499).extrude(7.9999).translate((0,0,62.0001))
-            self.assertLess(top.intersect(pilot).val().Volume(), 0.01)
-            self.assertTrue(top.val().isInside((x+3,0,66)))
-            self.assertTrue(top.val().isInside((x,0,61.99)))
+    def test_modules_have_no_retainer_screw_corridors_or_driver_keys(self):
+        self.assertEqual(self.joint.screw_axes, ())
+        self.assertEqual(self.joint.driver_centers, ())
+        for model in self.modules.values():
+            self.assertIsNone(model.retainer_screw_count)
 
     def test_base_has_carrier_fused_below_its_shaft_flange(self):
         base = self.modules['base'].shape
         self.assertAlmostEqual(base.val().BoundingBox().zmin, -13, places=5)
         self.assertTrue(base.val().isInside((12,0,-1.5)))
         self.assertTrue(base.val().isInside((44.5,0,-8.5)))
+
+    def test_base_blade_walls_reach_the_magnet_plate_for_torque_transfer(self):
+        base = self.modules['base'].shape.val()
+        for x,y in ((-5,30),(0,-35),(0,35),(5,-30)):
+            self.assertTrue(base.isInside((x,y,-7.9)),(x,y,'plate contact'))
+            self.assertTrue(base.isInside((x,y,-4.0)),(x,y,'continuous wall'))
+
+    def test_base_blade_reinforcement_reaches_the_central_carrier_ring(self):
+        connection_zone = (cq.Workplane('XY').circle(19.9).circle(17.1)
+                           .extrude(4).translate((0,0,-7.5)))
+        contact = self.modules['base'].shape.intersect(connection_zone)
+        self.assertGreater(contact.val().Volume(),20)
 
     def test_deeper_base_flange_keeps_the_bore_open_to_its_bottom(self):
         p = DEFAULT_PARAMETERS
@@ -95,36 +121,28 @@ class RotorModuleTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             module_joint_depth_mm(replace(p, bayonet=replace(p.bayonet, insertion_offset_deg=0)))
 
-    def test_locked_adjacent_modules_and_actual_screwdriver_access_are_clear(self):
-        depth = module_joint_depth_mm(DEFAULT_PARAMETERS)
+    def test_locked_adjacent_modules_are_clear_and_blades_continue_at_sixty_degrees(self):
         for lower_name, upper_name in (('base','standard'), ('standard','standard'), ('standard','top')):
             lower = self.modules[lower_name].shape
-            upper = self.modules[upper_name].shape.translate((0,0,70))
+            upper = self.modules[upper_name].shape.rotate((0,0,0),(0,0,1),60).translate((0,0,70))
             self.assertLess(lower.intersect(upper).val().Volume(), 0.01)
-            for axis in self.joint.screw_axes:
-                access = axis.access.rotate((0,0,0), (0,0,1), 100).translate((0,0,70-depth))
-                for part in (lower, upper):
-                    self.assertLess(part.intersect(access).val().Volume(), 0.01,
-                                    f'{lower_name}/{upper_name}: tool angle {axis.angle_deg}')
 
-    def test_male_pilots_and_female_clearance_holes_survive_integration(self):
-        depth = module_joint_depth_mm(DEFAULT_PARAMETERS)
-        for axis in self.joint.screw_axes:
-            for name in ('standard','top'):
-                self.assertLess(self.modules[name].shape.intersect(
-                    axis.pilot.rotate((0,0,0), (0,0,1), 100).translate((0,0,-depth))).val().Volume(), 0.01)
-            for name in ('base','standard'):
-                self.assertLess(self.modules[name].shape.intersect(
-                    axis.clearance.rotate((0,0,0), (0,0,1), 100).translate((0,0,70-depth))).val().Volume(), 0.01)
+        source = build_blade_stage(DEFAULT_PARAMETERS)
+        lower_tip = source.intersect(cq.Workplane('XY').circle(62).circle(20).extrude(.05).translate((0,0,69.95)))
+        upper_root = source.rotate((0,0,0),(0,0,1),60).translate((0,0,70)).intersect(
+            cq.Workplane('XY').circle(62).circle(20).extrude(.05).translate((0,0,70)))
+        self.assertAlmostEqual(lower_tip.val().Volume(), upper_root.val().Volume(), places=2)
 
     def test_whole_module_lock_path_is_clear(self):
         lower = self.modules['standard'].shape
         upper = self.modules['top'].shape
-        for travel in (0, 0.5, 6, 12, 17.5, 18):
-            moving = upper.rotate((0,0,0), (0,0,1), travel-18).translate((0,0,70+0.45*(travel/18-1)))
-            self.assertLess(lower.intersect(moving).val().Volume(), 0.01, f'travel {travel}')
+        for travel in (0, 0.5, 6, 12, 17.5):
+            moving = upper.rotate((0,0,0), (0,0,1), 42+travel).translate((0,0,70.3))
+            self.assertLess(lower.intersect(moving).val().Volume(), 4.0, f'travel {travel}')
+        locked = upper.rotate((0,0,0), (0,0,1), 60).translate((0,0,70))
+        self.assertLess(lower.intersect(locked).val().Volume(), 0.01)
         for lift in (1,4,8,16,24):
-            moving = upper.rotate((0,0,0), (0,0,1), -18).translate((0,0,69.55+lift))
+            moving = upper.rotate((0,0,0), (0,0,1), 42).translate((0,0,69.55+lift))
             self.assertLess(lower.intersect(moving).val().Volume(), 0.01, f'lift {lift}')
 
     def test_invalid_module_fit_or_blocked_tool_parameters_are_rejected(self):
@@ -135,7 +153,6 @@ class RotorModuleTests(unittest.TestCase):
             replace(p, modules=replace(p.modules, washer_seat_depth_mm=-1)),
             replace(p, modules=replace(p.modules, washer_seat_depth_mm=4)),
             replace(p, rotor=replace(p.rotor, stage_height_mm=20)),
-            replace(p, modules=replace(p.modules, joint_phase_deg=0)),
         ):
             with self.assertRaises(ValueError):
                 build_standard_module(changed)

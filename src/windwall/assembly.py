@@ -69,7 +69,8 @@ class RotorAssembly:
         return len(self.stages)
 
     def maximum_stage_angle_error_deg(self) -> float:
-        return max(abs((stage.angle_deg+180)%360-180) for stage in self.stages)
+        return max(abs(((stage.angle_deg-index*self.parameters.blade.twist_deg)+180)%360-180)
+                   for index,stage in enumerate(self.stages))
 
     def aerodynamic_height_mm(self) -> float:
         return self.parts['top'].val().BoundingBox().zmax-self.stages[0].z_mm
@@ -101,9 +102,10 @@ def build_locked_rotor_assembly(parameters: DesignParameters) -> RotorAssembly:
     generator = build_generator_assembly(p)
     modules = {'base':generator.base_module.shape,'standard':build_standard_module(p).shape,
                'top':build_top_module(p).shape}
-    loaded_pitch = p.rotor.stage_height_mm-p.modules.locked_seating_travel_mm
+    loaded_pitch = p.rotor.stage_height_mm
     stages = tuple(StagePlacement('base' if i == 0 else 'top' if i == 6 else f'standard_{i}',
-                   'base' if i == 0 else 'top' if i == 6 else 'standard',i*loaded_pitch)
+                   'base' if i == 0 else 'top' if i == 6 else 'standard',i*loaded_pitch,
+                   i*p.blade.twist_deg)
                    for i in range(7))
     parts = {s.name:place(modules[s.kind],s.angle_deg,s.z_mm) for s in stages}
     parts.update({f'generator_{name}':shape for name,shape in generator.stationary.parts.items()})
@@ -117,25 +119,8 @@ def build_locked_rotor_assembly(parameters: DesignParameters) -> RotorAssembly:
                           .extrude(p.generator.clamp_washer_thickness_mm).translate((0,0,washer)))
     parts['top_nut'] = (cq.Workplane('XY').polygon(6,2*p.generator.clamp_nut_across_flats_mm/sqrt(3))
                        .extrude(m.nut_pocket_depth_mm).translate((0,0,nut)).cut(parts['shaft']))
-    parts['top_closure'] = place(closure,z=stages[-1].z_mm)
-    joint,retainers = build_joint_interface(p),[]
-    for stage in stages[1:]:
-        for index,axis in enumerate(joint.screw_axes):
-            angle = (axis.angle_deg+p.modules.joint_phase_deg)%360
-            direction = (cos(radians(angle)),sin(radians(angle)),0)
-            z = stage.z_mm-module_joint_depth_mm(p)+axis.center_z_mm
-            radius = axis.head_radius_mm
-            point = lambda r: (r*direction[0],r*direction[1],z)
-            shank = _cylinder(m.screw_nominal_diameter_mm/2,m.screw_length_mm,point(radius-m.screw_length_mm),direction)
-            head = _cylinder(m.screw_head_diameter_mm/2,m.screw_head_height_mm,point(radius),direction)
-            name = f'{stage.name}_retainer_{index+1}'
-            parts[name] = shank.union(head)
-            # Only the blind pilot segment in the upper male may be displaced.
-            envelope = _cylinder(m.screw_nominal_diameter_mm/2,
-                p.bayonet.hub_outer_diameter_mm/2-(radius-m.screw_length_mm),
-                point(radius-m.screw_length_mm),direction)
-            tool = place(axis.access,p.modules.joint_phase_deg,stage.z_mm-module_joint_depth_mm(p))
-            retainers.append(Retainer(name,stage.name,envelope,head,tool,angle))
+    parts['top_closure'] = place(closure,stages[-1].angle_deg,stages[-1].z_mm)
+    retainers = []
     top_z = stages[-1].z_mm+p.rotor.stage_height_mm
     for index,x in enumerate((-p.modules.closure_screw_radius_mm,p.modules.closure_screw_radius_mm)):
         head_z = top_z+p.closure.plate_thickness_mm
@@ -165,7 +150,8 @@ def build_exploded_rotor_assembly(parameters: DesignParameters, *, locked: Rotor
                  + p.modules.locked_seating_travel_mm)
     if increment <= -min(a.local_modules[k].val().BoundingBox().zmin for k in ('standard','top')):
         raise ValueError('Explosion lift must fully withdraw each lower male')
-    stages = tuple(StagePlacement(s.name,s.kind,s.z_mm+i*increment,-b.insertion_offset_deg if i else 0)
+    stages = tuple(StagePlacement(s.name,s.kind,s.z_mm+i*increment,
+                                  s.angle_deg-b.insertion_offset_deg if i else s.angle_deg)
                    for i,s in enumerate(a.stages))
     parts = dict(a.parts)
     for stage in stages:

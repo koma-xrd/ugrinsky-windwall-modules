@@ -24,7 +24,8 @@ class GeneratorTests(unittest.TestCase):
             self.assertTrue(shape.val().isValid())
             self.assertEqual(len(shape.val().Solids()), 1)
             self.assertLess(shape.intersect(a.shaft).val().Volume(), 0.01)
-        self.assertLess(a.upper_carrier.cut(a.base_module.shape).val().Volume(), 0.01)
+        self.assertGreater(a.upper_carrier.intersect(a.base_module.shape).val().Volume(),
+                           a.upper_carrier.val().Volume()*0.65)
         self.assertAlmostEqual(a.base_module.shape.val().BoundingBox().zmin, -13, places=5)
 
     def test_stator_between_rotors_has_real_positive_adjustable_gaps(self):
@@ -74,9 +75,18 @@ class GeneratorTests(unittest.TestCase):
         a = self.assembly
         nut = a.clamp_hardware['upper_nut']
         self.assertLess(nut.intersect(a.base_module.shape).val().Volume(), 0.01)
-        self.assertTrue(a.base_module.shape.val().isInside((6,0,-5)))
+        self.assertTrue(a.base_module.shape.val().isInside((13,0,-5)))
         self.assertEqual(a.base_module.nut_pocket_across_flats_mm, 13.3)
         self.assertGreater(a.spacer.val().Volume(), 0)
+
+    def test_base_has_bearing_recess_below_raised_hex_and_lower_rotor_has_hex_drive(self):
+        a = self.assembly
+        self.assertEqual(a.base_module.bearing_seat_diameter_mm, 22.2)
+        self.assertGreater(a.base_module.nut_pocket_bottom_z_mm,
+                           a.base_module.bearing_seat_bottom_z_mm)
+        self.assertEqual(a.lower_rotor_nut_pocket_across_flats_mm, 13.3)
+        lower_nut = a.clamp_hardware['lower_nut']
+        self.assertLess(lower_nut.intersect(a.lower_rotor).val().Volume(), 0.01)
 
     def test_coupon_has_three_distinct_open_pockets_with_three_mm_floor(self):
         coupon = build_magnet_pocket_coupon(DEFAULT_PARAMETERS)

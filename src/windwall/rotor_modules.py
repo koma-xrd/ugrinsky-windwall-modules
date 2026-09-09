@@ -10,7 +10,7 @@ upper generator carrier; the removable top closure is owned by its own module.
 """
 
 from dataclasses import dataclass
-from math import isfinite
+from math import hypot, isfinite
 
 import cadquery as cq
 
@@ -28,6 +28,10 @@ class RotorModuleModel:
     shaft_clearance_radial_mm: float
     nut_pocket_across_flats_mm: float | None = None
     washer_seat_diameter_mm: float | None = None
+    bearing_seat_diameter_mm: float | None = None
+    bearing_seat_bottom_z_mm: float | None = None
+    nut_pocket_bottom_z_mm: float | None = None
+    retainer_screw_count: int | None = None
 
 
 def module_joint_depth_mm(parameters: DesignParameters) -> float:
@@ -41,13 +45,14 @@ def _validate(p: DesignParameters) -> None:
               end.end_support_radius_mm, end.end_support_thickness_mm,
               end.base_shaft_flange_depth_mm, end.washer_seat_depth_mm,
               end.closure_screw_radius_mm, end.closure_pilot_depth_mm,
-              end.locked_seating_travel_mm, m.washer_outer_diameter_mm)
+              m.washer_outer_diameter_mm, end.base_bearing_seat_diameter_mm,
+              end.base_bearing_seat_depth_mm)
     if any(not isfinite(value) or value <= 0 for value in values):
         raise ValueError('Module, shaft and clamping dimensions must be positive and finite')
     if not isfinite(end.joint_phase_deg):
         raise ValueError('Common joint phase must be finite')
-    if not m.axial_clearance_mm <= end.locked_seating_travel_mm < p.bayonet.ramp_rise_mm:
-        raise ValueError('Locked seating travel must consume axial clearance without exceeding ramp rise')
+    if not (end.locked_seating_travel_mm == 0 and p.bayonet.ramp_rise_mm == 0):
+        raise ValueError('Flush prototype requires zero axial bayonet rise and seating travel')
     if (s.clearance_hole_diameter_mm-s.nominal_diameter_mm)/2 < 0.35:
         raise ValueError('Module shaft bore requires at least 0.35 mm radial clearance')
     if min(end.end_support_thickness_mm, end.base_shaft_flange_depth_mm) < m.minimum_loaded_wall_mm:
@@ -70,6 +75,40 @@ def _disc(radius: float, bottom: float, depth: float) -> cq.Workplane:
     return cq.Workplane('XY').circle(radius).extrude(depth).translate((0,0,bottom))
 
 
+def _outer_blade_key(source: cq.Workplane, height: float, depth: float, top: bool) -> cq.Workplane:
+    target_z = height if top else 0
+    faces = [face for face in source.val().Faces()
+             if abs(face.Center().z-target_z) < 0.01 and abs(face.normalAt().z) > 0.9]
+    solids = [cq.Solid.extrudeLinear(face.outerWire(),face.innerWires(),cq.Vector(0,0,depth))
+              for face in faces]
+    key = cq.Workplane(obj=cq.Compound.makeCompound(solids))
+    outer = (cq.Workplane('XY').circle(62).circle(24).extrude(depth+0.2)
+             .translate((0,0,target_z)))
+    return key.intersect(outer)
+
+
+def _end_guide(p: DesignParameters, bottom: float, angle_deg: float) -> cq.Workplane:
+    guide = (cq.Workplane('XY').circle(6).circle(p.shaft.clearance_hole_diameter_mm/2)
+             .extrude(3).translate((0,0,bottom)))
+    bridge = (cq.Workplane('XY').box(10,3,3,centered=(False,True,False))
+              .translate((4,0,bottom)))
+    for phase in (angle_deg,angle_deg+180):
+        guide = guide.union(bridge.rotate((0,0,0),(0,0,1),phase))
+    return guide
+
+
+def _base_blade_extension(source: cq.Workplane, depth: float,
+                          inner_radius: float) -> cq.Workplane:
+    faces = [face for face in source.val().Faces()
+             if abs(face.Center().z) < 0.01 and abs(face.normalAt().z) > 0.9]
+    solids = [cq.Solid.extrudeLinear(face.outerWire(),face.innerWires(),cq.Vector(0,0,-depth))
+              for face in faces]
+    extension = cq.Workplane(obj=cq.Compound.makeCompound(solids))
+    blade_zone = (cq.Workplane('XY').circle(62).circle(inner_radius)
+                  .extrude(depth).translate((0,0,-depth)))
+    return extension.intersect(blade_zone)
+
+
 def _build(parameters: DesignParameters, kind: str) -> RotorModuleModel:
     _validate(parameters)
     p, end, m = parameters, parameters.modules, parameters.manufacturing
@@ -80,25 +119,27 @@ def _build(parameters: DesignParameters, kind: str) -> RotorModuleModel:
     body = build_blade_stage(p)
     # The upper stage starts below its locked height and rises during locking.
     # Relieve the outer bottom edge for its lower insertion/early-travel poses.
-    relief = p.bayonet.ramp_rise_mm+m.axial_clearance_mm
-    edge = (cq.Workplane('XY').circle(p.blade.rotor_radius_mm+1)
-            .circle(end.end_support_radius_mm).extrude(relief))
-    body = body.cut(edge)
-    body = body.union(_disc(end.end_support_radius_mm, 0, end.end_support_thickness_mm))
     if kind == 'base':
         # The annular flange joins the carrier's rear clamping face to the blade.
+        carrier_disc_top_depth = (end.base_shaft_flange_depth_mm+p.generator.carrier_height_mm
+                                  -p.generator.carrier_disc_thickness_mm)
+        carrier_ring_radius = p.generator.carrier_hub_diameter_mm/2
+        body = body.union(_base_blade_extension(
+            body,carrier_disc_top_depth+0.1,carrier_ring_radius-0.1))
         body = body.union(_disc(p.bayonet.hub_outer_diameter_mm/2,
                                 -end.base_shaft_flange_depth_mm, end.base_shaft_flange_depth_mm))
         body = body.union(build_upper_magnet_carrier(p))
     else:
-        body = body.union(joint.male.rotate((0,0,0), (0,0,1), end.joint_phase_deg).translate((0,0,-depth)))
+        body = body.union(joint.male.rotate((0,0,0), (0,0,1), end.joint_phase_deg-p.blade.twist_deg).translate((0,0,-depth)))
     if kind != 'top':
         # Remove the source hub/skin only inside the localized receiver envelope.
         # The floor connects the explicitly phased pads to the twisted blade.
-        body = body.cut(_disc(end.end_support_radius_mm, joint_z, depth+1))
-        body = body.union(_disc(end.end_support_radius_mm,
-                                joint_z-end.end_support_thickness_mm, end.end_support_thickness_mm))
+        receiver_radius = max(hypot(vertex.X,vertex.Y)
+                              for vertex in joint.female.val().Vertices())+0.05
+        body = body.cut(_disc(receiver_radius, joint_z, depth+1))
         body = body.union(joint.female.rotate((0,0,0), (0,0,1), end.joint_phase_deg).translate((0,0,joint_z)))
+        guide_angle = p.blade.twist_deg*(joint_z-1.5)/height
+        body = body.union(_end_guide(p,joint_z-3,guide_angle))
     else:
         washer_floor = height-end.washer_seat_depth_mm
         pad_bottom = height-end.closure_pilot_depth_mm-m.minimum_loaded_wall_mm
@@ -108,31 +149,36 @@ def _build(parameters: DesignParameters, kind: str) -> RotorModuleModel:
         # where the twisted skin meets the otherwise narrower source hub.
         hub_bottom = min(pad_bottom, washer_floor-m.minimum_loaded_wall_mm)
         body = body.union(_disc(hub_radius, hub_bottom, height-hub_bottom))
-        # Opposite pads and a bridge carry closure screws independently of M8 load.
-        pad_radius = m.screw_pilot_diameter_mm/2+m.minimum_loaded_wall_mm
-        bridge = cq.Workplane('XY').box(2*end.closure_screw_radius_mm, 2*pad_radius,
-                    height-pad_bottom, centered=(True,True,False)).translate((0,0,pad_bottom))
-        body = body.union(bridge)
-        for x in (-end.closure_screw_radius_mm,end.closure_screw_radius_mm):
-            body = body.union(_disc(pad_radius, pad_bottom, height-pad_bottom).translate((x,0,0)))
-            body = body.cut(_disc(m.screw_pilot_diameter_mm/2,
-                            height-end.closure_pilot_depth_mm, end.closure_pilot_depth_mm+1).translate((x,0,0)))
         # The nut stays exposed above the washer. A buried hex would put the
         # washer above the nut and defeat its intended load-spreading function.
         body = body.cut(_disc(m.washer_outer_diameter_mm/2+m.radial_clearance_mm,
                          height-end.washer_seat_depth_mm, end.washer_seat_depth_mm+1))
     bottom = -max(depth,end.base_shaft_flange_depth_mm)-1
     body = body.cut(_disc(p.shaft.clearance_hole_diameter_mm/2, bottom, height-bottom+1)).clean()
+    bearing_bottom = nut_bottom = None
+    if kind == 'base':
+        bearing_bottom = upper_magnet_face = -end.base_shaft_flange_depth_mm-p.generator.carrier_height_mm
+        nut_bottom = bearing_bottom+end.base_bearing_seat_depth_mm
+        body = body.cut(_disc(end.base_bearing_seat_diameter_mm/2, bearing_bottom,
+                              end.base_bearing_seat_depth_mm))
+        nut = (cq.Workplane('XY').polygon(6,2*m.nut_pocket_across_flats_mm/(3**0.5))
+               .extrude(m.nut_pocket_depth_mm).translate((0,0,nut_bottom)))
+        body = body.cut(nut)
+    if kind != 'top':
+        body = body.union(_outer_blade_key(body,height,0.8,True))
+    if kind != 'base':
+        groove = _outer_blade_key(build_blade_stage(p),height,0.95,False)
+        clearance = groove
+        for dx,dy in ((0.12,0),(-0.12,0),(0,0.12),(0,-0.12)):
+            clearance = clearance.union(groove.translate((dx,dy,0)))
+        body = body.cut(clearance)
     if not body.val().isValid() or len(body.val().Solids()) != 1:
         raise ValueError(f'{kind.capitalize()} module must be one valid connected solid')
-    if kind != 'top':
-        for axis in joint.screw_axes:
-            access = axis.access.rotate((0,0,0), (0,0,1), end.joint_phase_deg).translate((0,0,joint_z))
-            if body.intersect(access).val().Volume() >= 0.01:
-                raise ValueError('Common joint phase blocks a radial screwdriver corridor through the blade')
     return RotorModuleModel(body, (p.shaft.clearance_hole_diameter_mm-p.shaft.nominal_diameter_mm)/2,
                             m.nut_pocket_across_flats_mm if kind == 'base' else None,
-                            m.washer_outer_diameter_mm+2*m.radial_clearance_mm if kind == 'top' else None)
+                            m.washer_outer_diameter_mm+2*m.radial_clearance_mm if kind == 'top' else None,
+                            end.base_bearing_seat_diameter_mm if kind == 'base' else None,
+                            bearing_bottom, nut_bottom, None)
 
 
 def build_base_module(parameters: DesignParameters) -> RotorModuleModel:

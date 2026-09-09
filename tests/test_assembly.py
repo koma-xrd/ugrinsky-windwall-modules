@@ -22,16 +22,18 @@ class AssemblyTests(unittest.TestCase):
         self.assertEqual((a.base_count, a.standard_count, a.top_count), (1, 5, 1))
         self.assertEqual(a.aerodynamic_stage_count, 7)
         self.assertEqual([round(s.z_mm, 2) for s in a.stages],
-                         [0, 69.64, 139.28, 208.92, 278.56, 348.2, 417.84])
+                         [0, 70, 140, 210, 280, 350, 420])
+        self.assertEqual([round(s.angle_deg, 2) for s in a.stages],
+                         [0, 60, 120, 180, 240, 300, 360])
         self.assertLess(a.maximum_stage_angle_error_deg(), 0.01)
-        self.assertAlmostEqual(a.aerodynamic_height_mm(), 487.84, places=5)
-        self.assertAlmostEqual(self.audit['joint_seating_travel_mm'], 0.36, places=5)
+        self.assertAlmostEqual(a.aerodynamic_height_mm(), 490, places=5)
+        self.assertAlmostEqual(self.audit['joint_seating_travel_mm'], 0, places=5)
         self.assertLess(self.audit['maximum_seated_joint_intersection_mm3'], 0.01)
         self.assertGreater(self.audit['minimum_postseat_bearing_intersection_mm3'], 0.001)
         self.assertLess(self.audit['maximum_preseat_retainer_intersection_mm3'], 0.01)
         self.assertLess(self.audit['maximum_seated_retainer_intersection_mm3'], 0.01)
         self.assertGreater(self.audit['minimum_pilot_thread_engagement_mm3'], 0.05)
-        self.assertEqual(len(a.parts), 34)
+        self.assertEqual(len(a.parts), 22)
         self.assertEqual(len(a.parts['base'].val().Solids()), 1)
 
     def test_continuous_m8_shaft_clears_all_rotating_and_stationary_parts(self):
@@ -65,13 +67,10 @@ class AssemblyTests(unittest.TestCase):
         self.assertLess(self.audit['driver_cw_release_intersection_mm3'], 0.01)
         self.assertGreaterEqual(self.audit['bayonet_running_clearance_mm'], 0.25)
 
-    def test_twelve_radial_retainers_have_shaft_head_and_tool_access(self):
-        self.assertEqual(len(self.audit['radial_retainer_access']), 12)
-        for result in self.audit['radial_retainer_access']:
-            self.assertIn(result['angle_deg'], (170,280))
-            self.assertLess(result['tool_intersection_mm3'], 0.01)
-            self.assertLess(result['head_intersection_mm3'], 0.01)
-            self.assertLess(result['unplanned_shank_intersection_mm3'], 0.01)
+    def test_bayonet_joints_have_no_radial_retainer_screws(self):
+        self.assertEqual(self.audit['radial_retainer_access'], [])
+        self.assertFalse(any('retainer_' in name and not name.startswith('closure_')
+                             for name in self.assembly.parts))
 
     def test_closure_ties_both_blade_ends_and_uses_existing_pilot_centers(self):
         closure = self.assembly.parts['top_closure']
@@ -120,8 +119,8 @@ class AssemblyTests(unittest.TestCase):
 
     def test_report_exposes_twist_discontinuity_and_unverified_physical_fits(self):
         self.assertEqual(self.audit['internal_blade_twist_deg'],60)
-        self.assertEqual(self.audit['seam_phase_jump_deg'],-60)
-        self.assertFalse(self.audit['aerodynamic_seam_continuous'])
+        self.assertEqual(self.audit['seam_phase_jump_deg'],0)
+        self.assertTrue(self.audit['aerodynamic_seam_continuous'])
         self.assertFalse(self.audit['physical_fit_verified'])
         self.assertFalse(self.audit['print_ready'])
 

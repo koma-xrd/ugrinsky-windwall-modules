@@ -26,11 +26,12 @@ class CouponExportTests(unittest.TestCase):
             self.assertEqual(mesh.degenerate_face_count, 0)
             self.assertAlmostEqual(mesh.minimum_xyz[2], 0, places=5)
             self.assertGreater(mesh.signed_volume, 0)
+            self.assertTrue((destination / f"bayonet_{name}_snap_test.stl").is_file())
         assembly = cq.importers.importStep(str(destination / "bayonet_locked.step"))
         self.assertEqual(len(assembly.val().Solids()), 2)
         self.assertTrue((destination / "bayonet_top.svg").is_file())
         self.assertTrue((destination / "bayonet_fit.json").is_file())
-        self.assertLess(report["maximum_motion_intersection_mm3"], 0.01)
+        self.assertGreater(report["clockwise_snap_lock_intersection_mm3"], 0.01)
         self.assertGreater(report["ccw_stop_intersection_mm3"], 0.05)
         self.assertFalse(report["physically_calibrated"])
 
@@ -48,7 +49,7 @@ class CouponExportTests(unittest.TestCase):
         with temporary_build_directory() as destination:
             report = export_coupon(changed, destination)
         self.assertAlmostEqual(report['motion_samples'][-1]['travel_deg'], 18.25)
-        self.assertLess(report['maximum_motion_intersection_mm3'], 0.01)
+        self.assertGreater(report['clockwise_snap_lock_intersection_mm3'], 0.01)
 
 
 if __name__ == "__main__":

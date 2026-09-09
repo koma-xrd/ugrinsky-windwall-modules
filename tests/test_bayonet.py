@@ -72,6 +72,11 @@ class BayonetTests(unittest.TestCase):
         point = (20*cos(radians(-36)), 20*sin(radians(-36)), 2.99)
         self.assertTrue(self.coupon.female.val().isInside(point))
 
+    def test_lower_circular_rail_is_continuous_beneath_every_entry_window(self):
+        for angle_deg in range(0,360,10):
+            point = (20*cos(radians(angle_deg)),20*sin(radians(angle_deg)),2.9)
+            self.assertTrue(self.coupon.female.val().isInside(point),angle_deg)
+
     def test_motion_is_clear_between_integer_samples(self):
         for travel in (0.5, 4.5, 8.5, 12.5, 17.5):
             with self.subTest(travel=travel):
@@ -82,6 +87,15 @@ class BayonetTests(unittest.TestCase):
         shaft = cq.Workplane("XY").circle(4.4-1e-5).extrude(30)
         for part in (self.coupon.male, self.coupon.female):
             self.assertLess(part.intersect(shaft).val().Volume(), 0.01)
+
+    def test_male_center_is_open_except_for_small_shaft_guide_and_spokes(self):
+        male = self.coupon.male.val()
+        self.assertTrue(male.isInside((5.2, 0, 6)))
+        self.assertFalse(male.isInside((10, 5, 6)))
+
+    def test_locked_snap_prevents_clockwise_release(self):
+        clockwise_release = self.coupon.male.rotate((0,0,0),(0,0,1),-0.5)
+        self.assertGreater(clockwise_release.intersect(self.coupon.female).val().Volume(), 0.01)
 
     def test_motion_rejects_travel_outside_the_track(self):
         for travel in (-1, 19, float("nan")):

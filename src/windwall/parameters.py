@@ -30,7 +30,7 @@ class RotorParameters:
     stage_height_mm: float = 70.0
     stage_count: int = 7
     standard_stage_count: int = 5
-    rotor_diameter_mm: float = 121.5
+    rotor_diameter_mm: float = 122.0
     rotation_direction: str = "counterclockwise_from_top"
 
     @property
@@ -46,7 +46,7 @@ class BayonetParameters:
     lug_radial_depth_mm: float = 4.0
     lug_tangential_width_mm: float = 8.0
     lug_axial_thickness_mm: float = 3.2
-    ramp_rise_mm: float = 0.45
+    ramp_rise_mm: float = 0.0
     root_fillet_mm: float = 1.5
 
 
@@ -59,8 +59,8 @@ class BladeParameters:
     RotorParameters; twist is positive counterclockwise when viewed from above.
     """
 
-    rotor_radius_mm: float = 60.75
-    wall_thickness_mm: float = 1.5
+    rotor_radius_mm: float = 61.0
+    wall_thickness_mm: float = 2.0
     small_arc_center_xy_mm: tuple[float, float] = (36.0, 0.0)
     large_arc_center_xy_mm: tuple[float, float] = (-48.0, 0.0)
     small_arc_radius_mm: float = 24.0
@@ -100,7 +100,9 @@ class ModuleParameters:
     closure_screw_radius_mm: float = 24.0
     closure_pilot_depth_mm: float = 8.0
     joint_phase_deg: float = 100.0
-    locked_seating_travel_mm: float = 0.36
+    locked_seating_travel_mm: float = 0.0
+    base_bearing_seat_diameter_mm: float = 22.2
+    base_bearing_seat_depth_mm: float = 7.2
 
 
 @dataclass(frozen=True)

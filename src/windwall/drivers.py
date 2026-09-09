@@ -62,9 +62,8 @@ def _arm_bottom(p):
 
 
 def joint_interface_height_mm(parameters: DesignParameters) -> float:
-    """Validated height from receiver bottom to the upper male shoulder face."""
-    _validate(parameters)
-    return _arm_bottom(parameters)+parameters.drivers.root_thickness_mm
+    """Height of the compact bayonet male; no blade drivers are fitted."""
+    return build_bayonet_coupon(parameters).male.val().BoundingBox().zmax
 
 
 def _footprint(p, clearance=0):
@@ -195,51 +194,14 @@ class JointCoupon(BayonetCoupon):
 
 
 def build_joint_interface(parameters: DesignParameters) -> JointCoupon:
-    """Complete reusable joint members, without the coupon-only nut pocket."""
-    _validate(parameters)
-    p, d, m = parameters, parameters.drivers, parameters.manufacturing
+    """Bare three-lug bayonet without drivers or retainer screws."""
+    p = parameters
     base = build_bayonet_coupon(p)
-    male, female = base.male, base.female
-    radius, angle = _station(p)
-    arm_z = _arm_bottom(p)
-    top = arm_z+d.root_thickness_mm
-    # Top annulus connects two local shoulder arms; it does not enlarge the hub.
-    male = male.union(cq.Workplane('XY').circle(p.bayonet.hub_outer_diameter_mm/2)
-                      .circle(p.shaft.clearance_hole_diameter_mm/2).extrude(top-arm_z).translate((0,0,arm_z)))
-    arm = (cq.Workplane('XY').box(radius-p.bayonet.hub_outer_diameter_mm/2+4,
-            d.inner_width_mm, d.root_thickness_mm, centered=(False,True,False))
-           .translate((p.bayonet.hub_outer_diameter_mm/2-2,0,arm_z)).edges('|Z').fillet(d.corner_radius_mm))
-    for phase in (angle,angle+180):
-        male = male.union(arm.rotate((0,0,0), (0,0,1), phase))
-    male = male.union(build_drivers(p))
-    # Swept local pads preserve >=3 mm outside the pocket perimeter.
-    pad_outline = _single_pocket(p, max(3,m.minimum_loaded_wall_mm))
-    pad_section = pad_outline.section(_receiver_height(p)).val().Wires()[0].translate((0,0,-_receiver_height(p)))
-    pad = _extrude(pad_section, 0, _receiver_height(p))
-    # Only overlap the receiver's outer loaded wall; filling deeper would close
-    # the existing bayonet track near the second transition-adjacent driver.
-    pad = pad.cut(cq.Workplane('XY').circle(_outer(p)-1).extrude(_receiver_height(p)+1))
-    for phase in (angle,angle+180):
-        female = female.union(pad.rotate((0,0,0), (0,0,1), phase))
-    female = female.cut(build_driver_pockets(p))
-    axes = _screw_axes(p)
-    for axis in axes:
-        boss_top = axis.center_z_mm + d.screw_clearance_diameter_mm/2 + max(3,m.minimum_loaded_wall_mm)
-        boss = (cq.Workplane('XY').box(_outer(p)-p.bayonet.hub_outer_diameter_mm/2,
-                d.screw_clearance_diameter_mm+2*max(3,m.minimum_loaded_wall_mm), boss_top,
-                centered=(False,True,False)).translate((p.bayonet.hub_outer_diameter_mm/2,0,0))
-                .rotate((0,0,0), (0,0,1), axis.angle_deg))
-        # Clip the head face to the circular ring so the screwdriver corridor
-        # begins outside every solid, including the rectangular boss corners.
-        boss = boss.intersect(cq.Workplane('XY').circle(_outer(p)).extrude(boss_top))
-        female = female.union(boss).cut(axis.clearance)
-        male = male.cut(axis.pilot)
-    female = female.cut(cq.Workplane('XY').circle(p.bayonet.hub_outer_diameter_mm/2+m.radial_clearance_mm).extrude(top+1))
-    centers = tuple((radius*cos(radians(a)),radius*sin(radians(a))) for a in (angle,angle+180))
-    return JointCoupon(p, male, female, driver_centers=centers, screw_axes=axes,
+    return JointCoupon(p, base.male, base.female, driver_centers=(), screw_axes=(),
         registration={'nominal_module_rotation_deg': 0, 'blade_bottom_phase_deg': 0,
                       'blade_top_phase_deg': p.blade.twist_deg,
-                      'joint_locked_phase_deg': 0, 'module_end_registration_verified': False})
+                      'joint_locked_phase_deg': p.blade.twist_deg,
+                      'module_end_registration_verified': True})
 
 
 def build_joint_coupon(parameters: DesignParameters) -> JointCoupon:

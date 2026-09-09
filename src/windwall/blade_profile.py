@@ -97,8 +97,22 @@ def build_blade_stage(parameters: DesignParameters) -> cq.Workplane:
         sections.append(section.translate((0, 0, height * fraction)))
     first = cq.Solid.makeLoft(sections)
     second = first.rotate((0, 0, 0), (0, 0, 1), 180)
-    hub = cq.Workplane("XY").circle(blade.hub_blend_radius_mm).extrude(height).val()
-    stage = hub.fuse(first, second).clean()
+    guide_bottom = (cq.Workplane("XY").circle(6.0)
+                    .circle(parameters.shaft.clearance_hole_diameter_mm/2).extrude(3).val())
+    guide_top = guide_bottom.translate(cq.Vector(0,0,height-3))
+    bridge_sections = []
+    for index in range(blade.loft_section_count):
+        fraction = index/(blade.loft_section_count-1)
+        wire = cq.Wire.makePolygon([cq.Vector(4,-1.5,0),cq.Vector(14,-1.5,0),
+                                    cq.Vector(14,1.5,0),cq.Vector(4,1.5,0)],close=True)
+        bridge_sections.append(wire.rotate((0,0,0),(0,0,1),blade.twist_deg*fraction)
+                               .translate((0,0,height*fraction)))
+    bridge = cq.Solid.makeLoft(bridge_sections)
+    bridges_full = bridge.fuse(bridge.rotate((0,0,0),(0,0,1),180))
+    end_zones = (cq.Workplane("XY").circle(20).extrude(3)
+                 .union(cq.Workplane("XY").circle(20).extrude(3).translate((0,0,height-3))))
+    bridges = cq.Workplane(obj=bridges_full).intersect(end_zones).val()
+    stage = guide_bottom.fuse(guide_top,bridges,first,second).clean()
     if not stage.isValid() or len(stage.Solids()) != 1:
         raise ValueError('Blade stage must be one valid connected solid')
     return cq.Workplane(obj=stage)

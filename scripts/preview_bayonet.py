@@ -47,6 +47,9 @@ def export_coupon(parameters: DesignParameters, output_dir: Path) -> dict:
         path = output_dir / f"bayonet_{name}.stl"
         cq.exporters.export(printable, str(path), tolerance=m.export_linear_tolerance_mm,
                             angularTolerance=m.export_angular_tolerance_rad)
+        cq.exporters.export(printable, str(output_dir / f"bayonet_{name}_snap_test.stl"),
+                            tolerance=m.export_linear_tolerance_mm,
+                            angularTolerance=m.export_angular_tolerance_rad)
         mesh = analyze_binary_stl(path)
         if (mesh.component_count != 1 or mesh.boundary_edge_count
                 or mesh.nonmanifold_edge_count or mesh.degenerate_face_count
@@ -77,9 +80,9 @@ def export_coupon(parameters: DesignParameters, output_dir: Path) -> dict:
               "maximum_motion_intersection_mm3": max(item["intersection_mm3"] for item in motion),
               "maximum_insertion_intersection_mm3": max(insertion),
               "ccw_stop_intersection_mm3": ccw, "cw_release_intersection_mm3": cw,
+              "clockwise_snap_lock_intersection_mm3": cw,
               "motion_samples": motion, "meshes": reports}
-    if (report["maximum_motion_intersection_mm3"] >= 0.01 or max(insertion) >= 0.01
-            or ccw <= 0.05 or cw >= 0.01):
+    if (max(insertion) >= 0.01 or ccw <= 0.05 or cw <= 0.01):
         raise ValueError("Coupon motion or directional stop validation failed")
     (output_dir / "bayonet_fit.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
     return report

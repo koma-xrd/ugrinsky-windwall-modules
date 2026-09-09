@@ -82,14 +82,31 @@ def build_male_bayonet(parameters: DesignParameters, z_plane_mm: float = 0) -> c
     radius, wall = b.hub_outer_diameter_mm/2, m.minimum_loaded_wall_mm
     bottom = _insertion_height(parameters) + b.ramp_rise_mm
     body = (cq.Workplane("XY").workplane(offset=bottom).circle(radius)
-            .circle(parameters.shaft.clearance_hole_diameter_mm/2)
+            .circle(radius-m.minimum_loaded_wall_mm)
             .extrude(_receiver_height(parameters) + wall - bottom))
+    guide = (cq.Workplane("XY").workplane(offset=bottom).circle(6.0)
+             .circle(parameters.shaft.clearance_hole_diameter_mm/2)
+             .extrude(_receiver_height(parameters)+wall-bottom))
+    spoke = (cq.Workplane("XY").box(radius-5,3,
+             _receiver_height(parameters)+wall-bottom,centered=(False,True,False))
+             .translate((5,0,bottom)))
+    body = body.union(guide)
+    for angle in (0,120,240):
+        body = body.union(spoke.rotate((0,0,0),(0,0,1),angle))
     lug = (cq.Workplane("XY").box(b.lug_radial_depth_mm + wall,
            b.lug_tangential_width_mm, b.lug_axial_thickness_mm,
            centered=(False, True, False)).translate((radius-wall, 0, bottom))
            .edges("|Z").fillet(b.root_fillet_mm))
     for angle in (0, 120, 240):
         body = body.union(lug.rotate((0,0,0), (0,0,1), angle))
+    tooth_radius = _lug_outer_radius(parameters)
+    tooth_wire = cq.Wire.makePolygon([
+        cq.Vector(tooth_radius-0.7,-1,0),cq.Vector(tooth_radius+0.30,0,0),
+        cq.Vector(tooth_radius-0.7,1,0)],close=True)
+    tooth = cq.Workplane(obj=cq.Solid.extrudeLinear(tooth_wire,[],cq.Vector(0,0,1.6)))
+    tooth = tooth.translate((0,0,bottom+0.8))
+    for angle in (0,120,240):
+        body = body.union(tooth.rotate((0,0,0),(0,0,1),angle))
     root_edges = [edge for edge in body.val().Edges()
                   if edge.geomType() == "LINE"
                   and abs(edge.Length() - b.lug_axial_thickness_mm) < 1e-6
@@ -97,6 +114,13 @@ def build_male_bayonet(parameters: DesignParameters, z_plane_mm: float = 0) -> c
     if len(root_edges) != 6:
         raise ValueError("Expected six lug-root edges for the configured bayonet")
     body = body.newObject(root_edges).fillet(b.root_fillet_mm)
+    pawl_wire = cq.Wire.makePolygon([
+        cq.Vector(tooth_radius+0.20,-3.85,0),cq.Vector(tooth_radius-0.55,-3.20,0),
+        cq.Vector(tooth_radius+0.20,-2.55,0)],close=True)
+    pawl_notch = cq.Workplane(obj=cq.Solid.extrudeLinear(pawl_wire,[],cq.Vector(0,0,2.0)))
+    pawl_notch = pawl_notch.translate((0,0,bottom+0.6))
+    for angle in (0,120,240):
+        body = body.cut(pawl_notch.rotate((0,0,0),(0,0,1),angle))
     return body.translate((0, 0, z_plane_mm))
 
 
@@ -157,12 +181,29 @@ def build_female_bayonet(parameters: DesignParameters, z_plane_mm: float = 0) ->
     wires = section.val().Wires()
     outline = max(wires, key=lambda item: item.Length())
     offset = outline.offset2D(m.radial_clearance_mm)[0]
-    window = (cq.Workplane(obj=cq.Solid.extrudeLinear(offset, [], cq.Vector(0,0,height*2)))
-              .translate((0,0,-section_z))
+    rail_top = _insertion_height(parameters)-m.axial_clearance_mm
+    window = (cq.Workplane(obj=cq.Solid.extrudeLinear(
+              offset, [], cq.Vector(0,0,height-rail_top+0.1)))
+              .translate((0,0,rail_top-section_z))
               .rotate((0,0,0), (0,0,1), -b.insertion_offset_deg))
     for angle in (0, 120, 240):
         body = body.cut(track.rotate((0,0,0), (0,0,1), angle))
     body = body.cut(window)
+    tooth_radius = _lug_outer_radius(parameters)
+    notch_wire = cq.Wire.makePolygon([
+        cq.Vector(tooth_radius-0.78,-1.08,0),cq.Vector(tooth_radius+0.40,0,0),
+        cq.Vector(tooth_radius-0.78,1.08,0)],close=True)
+    notch = cq.Workplane(obj=cq.Solid.extrudeLinear(notch_wire,[],cq.Vector(0,0,1.8)))
+    notch = notch.translate((0,0,_insertion_height(parameters)+parameters.bayonet.ramp_rise_mm+0.7))
+    for angle in (0,120,240):
+        body = body.cut(notch.rotate((0,0,0),(0,0,1),angle))
+    pawl_wire = cq.Wire.makePolygon([
+        cq.Vector(tooth_radius+0.15,-3.78,0),cq.Vector(tooth_radius-0.45,-3.20,0),
+        cq.Vector(tooth_radius+0.15,-2.62,0)],close=True)
+    pawl = cq.Workplane(obj=cq.Solid.extrudeLinear(pawl_wire,[],cq.Vector(0,0,1.8)))
+    pawl = pawl.translate((0,0,_insertion_height(parameters)+parameters.bayonet.ramp_rise_mm+0.7))
+    for angle in (0,120,240):
+        body = body.union(pawl.rotate((0,0,0),(0,0,1),angle))
     return body.translate((0,0,z_plane_mm))
 
 
