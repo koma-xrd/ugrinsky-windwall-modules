@@ -20,6 +20,14 @@ class ParameterContractTests(unittest.TestCase):
         self.assertGreaterEqual(p.manufacturing.minimum_loaded_wall_mm, 3.0)
         self.assertGreater(p.manufacturing.nut_pocket_across_flats_mm, 13.0)
 
+    def test_bearing_fit_contract(self):
+        p = DEFAULT_PARAMETERS
+        self.assertEqual(p.bearings.thrust_nominal_dimensions_mm, (25.0, 42.0, 11.0))
+        self.assertEqual(p.bearings.radial_nominal_dimensions_mm, (8.0, 22.0, 7.0))
+        self.assertEqual(p.bearings.thrust_housing_seat_diameter_mm, 42.2)
+        self.assertEqual(p.bearings.radial_housing_seat_diameter_mm, 22.2)
+        self.assertEqual(p.bearings.thrust_rotating_pilot_diameter_mm, 24.8)
+
 
 if __name__ == "__main__":
     unittest.main()

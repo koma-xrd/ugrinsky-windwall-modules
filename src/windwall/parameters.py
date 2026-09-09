@@ -149,6 +149,34 @@ class GeneratorParameters:
 
 
 @dataclass(frozen=True)
+class BearingParameters:
+    """Normative bearing envelopes and unapproved PLA fit-coupon dimensions."""
+
+    thrust_bore_diameter_mm: float = 25.0
+    thrust_outer_diameter_mm: float = 42.0
+    thrust_height_mm: float = 11.0
+    thrust_housing_seat_diameter_mm: float = 42.2
+    thrust_housing_seat_depth_mm: float = 11.2
+    thrust_rotating_pilot_diameter_mm: float = 24.8
+    radial_bore_diameter_mm: float = 8.0
+    radial_outer_diameter_mm: float = 22.0
+    radial_height_mm: float = 7.0
+    radial_housing_seat_diameter_mm: float = 22.2
+    radial_housing_seat_depth_mm: float = 7.2
+    coupon_diameter_step_mm: float = 0.2
+
+    @property
+    def thrust_nominal_dimensions_mm(self) -> tuple[float, float, float]:
+        return (self.thrust_bore_diameter_mm, self.thrust_outer_diameter_mm,
+                self.thrust_height_mm)
+
+    @property
+    def radial_nominal_dimensions_mm(self) -> tuple[float, float, float]:
+        return (self.radial_bore_diameter_mm, self.radial_outer_diameter_mm,
+                self.radial_height_mm)
+
+
+@dataclass(frozen=True)
 class ClosureParameters:
     """Removable cover and nominal M8 rod end, pending actual hardware fitting."""
 
@@ -169,6 +197,7 @@ class DesignParameters:
     drivers: DriverParameters = field(default_factory=DriverParameters)
     modules: ModuleParameters = field(default_factory=ModuleParameters)
     generator: GeneratorParameters = field(default_factory=GeneratorParameters)
+    bearings: BearingParameters = field(default_factory=BearingParameters)
     closure: ClosureParameters = field(default_factory=ClosureParameters)
 
 
