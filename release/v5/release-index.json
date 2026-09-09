@@ -103,8 +103,8 @@
       "kind": "manual-audit",
       "path": "release/v5/audits/manual.json",
       "role": "validation-evidence",
-      "sha256": "1a23b141927a2b4b20d07408bc15eb584072d9ae4447c33f5e4e71709f945848",
-      "size_bytes": 731
+      "sha256": "05e0f0c6bbcec0beff3a5bf628d44e3f19652fbd57ed72192b38a5dc56b3444f",
+      "size_bytes": 2474
     },
     {
       "dimensions_mm": {
@@ -440,8 +440,27 @@
         "artifact_sha256": "0eb4f688e2aaf6570d0623e468de43f8792eb337f44759d96e4b986667be1297",
         "canonical_zip_verified": true,
         "chapter_count": 13,
+        "drawing_sha256_by_filename": {
+          "E01-rotorstapel.png": "3bd83cac16ae79558b44aeb1df920c27e4df04aa093053a2f459d68a09d657ab",
+          "E02-modultypen.png": "b47f5e27529aacbc93fd76b4d1301cd0d59a24210c17baf40ed47657ad396c9f",
+          "E03-bajonett-blattnaht.png": "b27c5a451bb714dda736b67f47587a06440bd0e284ce8a6c6c888d0b5a06fae4",
+          "E04-base-51105-schnitt.png": "ecb47bee8580934d0453b5b8f5c3a32cf78c223cc8a418e29bc7f714a388c979",
+          "E05-unterer-magnetrotor.png": "689f533572c2e8327d424c0965b639a2683031f366bf8c545447869d5b5f77be",
+          "E06-generator-explosion.png": "08930aacc36feb0c04d9be33bc64ec02ca0847062d00b7dfd77e68684064a872",
+          "E07-generator-schnitt.png": "f7fa6bf0f141cc55fe93d7327117afa6a8c246a8b398b29b0a6a08017f6d4b34",
+          "E08-kassettenrueckhaltung.png": "6afaee92f6673ad20a4ed74e7fafe33f11ae109aa6e94930cc99d210a35b94cc",
+          "E09-deckelverschraubung.png": "0414cc5b007db059eb8c3c2257beff3073b1c13537c93fe4e31dbc5b4ba07591",
+          "E10-seitlicher-kabelausgang.png": "fc5b7c715da3e191536a53310082dec3352fa7f2a0eeb270789628d10104d7cb",
+          "E11-51105-passungsprobe.png": "84e81865f2a47921660c44451fba2962fbd0c4482954a69bf3f5f30554c6d9fd",
+          "E12-608-passungsprobe.png": "58115e3a87cf9dc27baac4c45eade4c7ee418d5d19a11c23d7637c82599e5ee6",
+          "E13-oberer-halter.png": "069747a9c501da37d8cb50da3c1869ff60cf35ff609c3835db69537ad6a0afb3",
+          "E14-zaunmontage.png": "175464bfa97cb4f41c604e25c13f4f87d33eaf34b1fbd9a8f41fd61a6793a2e9",
+          "E15-gesamtbaugruppe.png": "746afb69e71385efac18a400760b8447677f5eedfaf64857e786940acaa39d37"
+        },
         "embedded_images_match_release": 15,
+        "figures_manifest_sha256": "15b891e7a1ce867c79592003435e9a6e3c4c9002ba7456fe17a6255ee2705300",
         "full_rebuild_determinism": "verified_in_Task_7_not_rerun_in_Task_8",
+        "geometry_manifest_sha256": "14f4fe404dc1e6df3f2e6a6c4a094d514bb6a8831f2a3018b1de873023508152",
         "inspection_runtime": "bundled_codex_document_python",
         "margins_mm": [
           18,

@@ -23,7 +23,11 @@ drawings, the DOCX and their inventories to repository-relative paths, SHA-256
 hashes, file sizes, roles, quantities, dimensions and available validation evidence.
 `scripts/index_v5.py` regenerates it after validating the geometry/drawing source
 binding and the hash-bound [manual inspection](release/v5/audits/manual.json).
-Changed or unlisted files invalidate the index; it does not imply physical approval.
+The audit binds the reviewed geometry manifest, figures inventory, exact E01–E15
+filename-to-SHA256 mapping, and DOCX bytes. Changed CAD, PNG, DOCX or source-manifest
+bytes cannot inherit that prior review; the index builder rejects mismatches and
+unlisted files. Regeneration does not perform or approve a new manual review,
+and the index does not imply physical approval.
 
 The user reported that the printed V4.3 bayonet coupon fits and closes. Its
 assembly force and durability remain unmeasured. Rigid CAD sweeps encounter

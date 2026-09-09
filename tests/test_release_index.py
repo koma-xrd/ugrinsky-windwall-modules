@@ -36,7 +36,7 @@ class ReleaseIndexTests(unittest.TestCase):
             filename = f'E{i:02d}.png'
             path = self.release / 'drawings' / filename
             path.parent.mkdir(exist_ok=True)
-            Image.new('RGB', (2400, 1680), 'white').save(path)
+            Image.new('RGB', (2400, 1680), (i, 0, 0)).save(path)
             drawings.append({'drawing_id': f'E{i:02d}', 'filename': filename,
                              'pixel_width': 2400, 'pixel_height': 1680,
                              'caption': 'Geprüfte Zeichnung', 'language': 'de'})
@@ -49,6 +49,10 @@ class ReleaseIndexTests(unittest.TestCase):
                       'artifact_sha256': self.digest('release/v5/docs/Ugrinsky-Wind-Wall-V5-Bauanleitung.docx'),
                       'structural_checks_passed': True, 'accessibility_findings': {'high': 0, 'medium': 0, 'low': 0},
                       'canonical_zip_verified': True, 'page_review': 'blocked_missing_bundled_soffice',
+                      'geometry_manifest_sha256': self.digest('release/v5/manifest.json'),
+                      'figures_manifest_sha256': self.digest('release/v5/drawings/figures.json'),
+                      'drawing_sha256_by_filename': {item['filename']: self.digest('release/v5/drawings/' + item['filename'])
+                                                     for item in drawings},
                       'physical_validation_verified': False}
         self.save('release/v5/audits/manual.json', self.audit)
 
@@ -96,6 +100,44 @@ class ReleaseIndexTests(unittest.TestCase):
         self.write(self.audit['artifact_path'], b'changed document')
         with self.assertRaisesRegex(ValueError, 'hash'):
             self.build(self.root)
+
+    def test_same_dimension_drawing_replacement_cannot_inherit_manual_review(self):
+        self.build(self.root)
+        replacement = (self.release / 'drawings/E02.png').read_bytes()
+        self.assertNotEqual(replacement, (self.release / 'drawings/E01.png').read_bytes())
+        self.write('release/v5/drawings/E01.png', replacement)
+        with self.assertRaisesRegex(ValueError, 'reviewed drawing'):
+            self.build(self.root)
+        self.assertFalse((self.release / 'release-index.json').exists())
+
+    def test_updated_geometry_and_drawing_source_cannot_reuse_stale_manual_review(self):
+        self.manifest['production_parts'][0]['quantity'] = 6
+        self.save('release/v5/manifest.json', self.manifest)
+        self.figures['source_manifest_sha256'] = self.digest('release/v5/manifest.json')
+        self.save('release/v5/drawings/figures.json', self.figures)
+        with self.assertRaisesRegex(ValueError, 'reviewed geometry manifest'):
+            self.build(self.root)
+
+    def test_updated_figure_metadata_cannot_reuse_stale_manual_review(self):
+        self.figures['figures'][0]['caption'] = 'Changed source caption'
+        self.save('release/v5/drawings/figures.json', self.figures)
+        with self.assertRaisesRegex(ValueError, 'reviewed figures manifest'):
+            self.build(self.root)
+
+    def test_manual_review_requires_exact_drawing_filename_hash_mapping(self):
+        for change in ('missing', 'extra', 'wrong_hash'):
+            with self.subTest(change=change):
+                audit = json.loads(json.dumps(self.audit))
+                mapping = audit['drawing_sha256_by_filename']
+                if change == 'missing':
+                    mapping.pop('E01.png')
+                elif change == 'extra':
+                    mapping['E16.png'] = '0' * 64
+                else:
+                    mapping['E01.png'] = '0' * 64
+                self.save('release/v5/audits/manual.json', audit)
+                with self.assertRaisesRegex(ValueError, 'reviewed drawing'):
+                    self.build(self.root)
 
     def test_missing_figure_stale_source_and_escape_paths_are_rejected(self):
         for change in ('missing', 'stale', 'escape'):

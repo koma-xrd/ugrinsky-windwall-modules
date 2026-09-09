@@ -1,8 +1,9 @@
 """Bind the finished V5 geometry, drawings and manual in one portable inventory.
 
 The geometry manifest remains the CAD API. This final index verifies its file
-hashes, PNG dimensions and a hash-bound, separately produced DOCX audit; it does
-not author documents, certify physical operation or claim rendered-page review.
+hashes, PNG dimensions and a separately produced DOCX audit bound to the exact
+reviewed inputs. It does not author documents, certify physical operation or
+claim rendered-page review.
 """
 
 import argparse
@@ -43,7 +44,7 @@ def build_release_index(project_root: Path) -> dict:
 
     geometry_path, geometry_record = asset('release/v5/manifest.json', 'geometry-manifest', role='inventory')
     geometry = json.loads(geometry_path.read_bytes())
-    figures_path, _ = asset('release/v5/drawings/figures.json', 'drawing-manifest', role='inventory')
+    figures_path, figures_record = asset('release/v5/drawings/figures.json', 'drawing-manifest', role='inventory')
     figures = json.loads(figures_path.read_bytes())
     if geometry['release'] != 'v5' or figures['release'] != 'v5':
         raise ValueError('The final index requires V5 inputs')
@@ -59,6 +60,7 @@ def build_release_index(project_root: Path) -> dict:
                   physical_validation_verified=item['physical_validation_verified'])
     if [item['drawing_id'] for item in figures['figures']] != [f'E{i:02d}' for i in range(1, 16)]:
         raise ValueError('The release requires E01 through E15 exactly once')
+    drawing_hashes = {}
     for drawing in figures['figures']:
         local, record = asset('release/v5/drawings/' + drawing['filename'], 'drawing',
                               name=drawing['drawing_id'], role='documentation', quantity=1,
@@ -70,9 +72,16 @@ def build_release_index(project_root: Path) -> dict:
         if size != [drawing['pixel_width'], drawing['pixel_height']] or size[0] < 2400 or size[1] < 1680:
             raise ValueError(f'Invalid drawing dimensions: {drawing["drawing_id"]}')
         record.update(dimensions_px=size, validation={'png_decodes': True, 'inventory_dimensions_match': True})
+        drawing_hashes[drawing['filename']] = record['sha256']
     asset('release/v5/drawings/README.md', 'drawing-notes', role='documentation')
     audit_path, _ = asset('release/v5/audits/manual.json', 'manual-audit', role='validation-evidence')
     audit = json.loads(audit_path.read_bytes())
+    if audit.get('geometry_manifest_sha256') != geometry_record['sha256']:
+        raise ValueError('Manual audit no longer matches the reviewed geometry manifest')
+    if audit.get('figures_manifest_sha256') != figures_record['sha256']:
+        raise ValueError('Manual audit no longer matches the reviewed figures manifest')
+    if len(drawing_hashes) != 15 or audit.get('drawing_sha256_by_filename') != drawing_hashes:
+        raise ValueError('Manual audit no longer matches the exact reviewed drawing hashes')
     if (audit['artifact_path'] != MANUAL or not audit['structural_checks_passed']
             or not audit['canonical_zip_verified'] or any(audit['accessibility_findings'].values())):
         raise ValueError('Manual structural and accessibility evidence has not passed')
