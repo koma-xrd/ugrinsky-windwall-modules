@@ -176,7 +176,7 @@ def _render_e07(path: Path, drawing_id: str, drawing: dict, data: dict) -> None:
 
     fig, ax = _new_sheet(drawing_id, drawing)
     top, bottom = magnet_polarities(data['dimensions']['magnet_pocket_count_per_rotor'])
-    _draw_rotor(ax, (3.0, 4.35), top, 'OBERER ROTOR · Sichtfläche', 'P01 / H10')
+    _draw_rotor(ax, (3.0, 4.35), top, 'OBERER ROTOR · Sichtfläche', 'H10')
     _draw_rotor(ax, (9.0, 4.35), bottom, 'UNTERER ROTOR · Sichtfläche', 'P05 / H10')
 
     ax.text(6.0, 6.85, 'AUSGERICHTETE TASCHEN: immer N ↔ S', ha='center', va='center',
@@ -256,7 +256,7 @@ def _render_e08(path: Path, drawing_id: str, drawing: dict, data: dict) -> None:
                 fontweight='bold', color=_SAFE, arrowprops={'arrowstyle': '-|>', 'color': _SAFE})
     ax.annotate('A2 · ENDE', xy=finish, xytext=(2.15, 6.95), fontsize=8.2,
                 fontweight='bold', color=_PROVISIONAL, arrowprops={'arrowstyle': '-|>', 'color': _PROVISIONAL})
-    _arrow(ax, shifted[13], shifted[18], color=_COPPER, width=1.2)
+    _arrow(ax, shifted[14], shifted[15], color=_COPPER, width=1.2)
     ax.text(6.0, 7.35, 'WICKELRICHTUNG A1 → A2 · EIN DURCHGEHENDER LEITER',
             ha='center', va='center', fontsize=9.2, fontweight='bold', color=_INK)
     ax.text(6.0, 0.34,
@@ -317,33 +317,116 @@ def _render_e09(path: Path, drawing_id: str, drawing: dict, data: dict) -> None:
     _finish_sheet(fig, path, drawing, data)
 
 
+def _wire(ax, points, color) -> None:
+    ax.plot(
+        [point[0] for point in points],
+        [point[1] for point in points],
+        color=color,
+        linewidth=1.7,
+        solid_capstyle='round',
+    )
+
+
+def _meter_symbol(ax, center, symbol: str, color) -> None:
+    from matplotlib.patches import Circle
+
+    ax.add_patch(Circle(center, 0.32, facecolor=_PANEL, edgecolor=color, linewidth=1.5, zorder=3))
+    ax.text(*center, symbol, ha='center', va='center', fontsize=8.2,
+            fontweight='bold', color=color, zorder=4)
+
+
+def _draw_resistive_load(ax, left: float, right: float, y: float, color) -> None:
+    from matplotlib.patches import Rectangle
+
+    ax.add_patch(Rectangle(
+        (left, y - 0.30), right - left, 0.60,
+        facecolor=_PANEL, edgecolor=color, linewidth=1.5, zorder=3,
+    ))
+    ax.text((left + right) / 2, y, 'RTEST = ____ Ω\nP = ____ W',
+            ha='center', va='center', fontsize=6.8, color=_INK, linespacing=1.25)
+
+
+def _draw_parallel_meter(
+    ax,
+    load_left: float,
+    load_right: float,
+    load_y: float,
+    meter_y: float,
+    symbol: str,
+    label: str,
+    color,
+) -> None:
+    center_x = (load_left + load_right) / 2
+    _wire(ax, ((load_left, load_y), (load_left, meter_y), (center_x - 0.32, meter_y)), color)
+    _wire(ax, ((center_x + 0.32, meter_y), (load_right, meter_y), (load_right, load_y)), color)
+    ax.scatter((load_left, load_right), (load_y, load_y), s=18, color=color, zorder=5)
+    _meter_symbol(ax, (center_x, meter_y), symbol, color)
+    ax.text(center_x, meter_y - 0.47, label, ha='center', va='center',
+            fontsize=6.3, fontweight='bold', color=color)
+
+
 def _render_e10(path: Path, drawing_id: str, drawing: dict, data: dict) -> None:
     fig, ax = _new_sheet(drawing_id, drawing)
-    _box(ax, 0.25, 3.55, 1.65, 1.25, 'GENERATOR', ('Testspule H08', 'Isolation H09'))
-    _box(ax, 0.25, 5.65, 1.65, 0.95, 'TACHOMETER', ('n = ____ min⁻¹',), color=_SAFE)
-    _arrow(ax, (1.08, 5.65), (1.08, 4.82), color=_SAFE)
-    _box(ax, 0.25, 1.45, 1.65, 0.95, 'TEMPERATUR', ('T₀ ____ °C', 'T₁ ____ °C'), color=_SAFE)
-    _arrow(ax, (1.08, 2.40), (1.08, 3.52), color=_SAFE)
+    _box(ax, 0.15, 5.25, 1.35, 0.95, 'TACHOMETER', ('n = ____ min⁻¹',), color=_SAFE)
+    _box(ax, 0.15, 2.20, 1.35, 1.05, 'TEMPERATUR', ('T₀ ____ °C', 'T₁ ____ °C'), color=_SAFE)
+    ax.text(0.82, 4.13, 'für jeden Lauf\ngleich erfassen', ha='center', va='center',
+            fontsize=6.8, color=_SAFE)
+    _arrow(ax, (0.82, 5.23), (0.82, 4.58), color=_SAFE)
+    _arrow(ax, (0.82, 3.27), (0.82, 3.72), color=_SAFE)
 
-    _box(ax, 2.35, 3.55, 1.55, 1.25, 'H13 SCHUTZ', ('nach Messung', 'auswählen'), color=_PROVISIONAL)
-    _arrow(ax, (1.92, 4.18), (2.32, 4.18))
-    ax.plot([3.92, 4.25], [4.18, 4.18], color=_INK, linewidth=1.5)
-    ax.scatter([4.25], [4.18], s=25, color=_INK)
+    # AC configuration: current meter sits in the conductor; voltage meter
+    # bridges exactly the two load terminals.
+    ac_y, ac_return_y = 5.55, 4.12
+    ax.text(1.82, 6.90, 'AC-KONFIGURATION · ohne Gleichrichter · separate Messung',
+            fontsize=8.0, fontweight='bold', color=_NORTH)
+    _box(ax, 1.82, 4.55, 1.30, 1.55, 'TESTSPULE', ('H08', 'Isolation H09'), color=_NORTH)
+    _box(ax, 3.40, 5.18, 0.78, 0.72, 'H13', ('Schutz',), color=_PROVISIONAL)
+    _wire(ax, ((3.12, ac_y), (3.40, ac_y)), _NORTH)
+    _wire(ax, ((4.18, ac_y), (4.72, ac_y)), _NORTH)
+    _meter_symbol(ax, (5.05, ac_y), 'A~', _NORTH)
+    ax.text(5.05, 6.05, 'A~ IN REIHE', ha='center', va='center', fontsize=6.5,
+            fontweight='bold', color=_NORTH)
+    _wire(ax, ((5.38, ac_y), (6.12, ac_y)), _NORTH)
+    _draw_resistive_load(ax, 6.12, 8.72, ac_y, _NORTH)
+    _wire(
+        ax,
+        ((8.72, ac_y), (9.02, ac_y), (9.02, ac_return_y),
+         (3.12, ac_return_y), (3.12, 4.55)),
+        _NORTH,
+    )
+    _draw_parallel_meter(
+        ax, 6.12, 8.72, ac_y, 4.82, 'V~', 'V~ PARALLEL ZU RTEST', _NORTH,
+    )
+    ax.text(5.05, 4.52, 'A~ und V~: TRUE RMS', ha='center', va='center',
+            fontsize=6.4, color=_NORTH)
 
-    ax.text(4.38, 6.72, 'AC-ZWEIG · ohne Gleichrichter', fontsize=8.2, fontweight='bold', color=_NORTH)
-    _arrow(ax, (4.25, 4.18), (4.85, 5.55), color=_NORTH)
-    _box(ax, 4.85, 5.15, 1.8, 1.25, 'TRUE-RMS-METER', ('V~ ____ V', 'I~ ____ A'), color=_NORTH)
-    _arrow(ax, (6.68, 5.78), (7.15, 5.78), color=_NORTH)
-    _box(ax, 7.15, 5.15, 2.05, 1.25, 'DEFINIERTE LAST', ('RTEST = ____ Ω', 'P = ____ W'), color=_NORTH)
-
-    ax.text(4.38, 2.30, 'DC-ZWEIG · optional, getrennte Messreihe', fontsize=8.2,
+    # DC configuration: rectification exists only in this separately wired
+    # branch; series-current and parallel-voltage topology stays explicit.
+    dc_y, dc_return_y = 2.45, 0.88
+    ax.text(1.82, 3.55, 'DC-KONFIGURATION · optional · separate Messung',
+            fontsize=8.0, fontweight='bold', color=_SOUTH)
+    _box(ax, 1.82, 1.35, 1.30, 1.55, 'TESTSPULE', ('H08', 'Isolation H09'), color=_SOUTH)
+    _box(ax, 3.30, 2.08, 0.68, 0.72, 'H13', ('Schutz',), color=_PROVISIONAL)
+    _box(ax, 4.18, 1.98, 1.12, 0.92, 'H12', ('Gleichrichter',), color=_SOUTH)
+    _wire(ax, ((3.12, dc_y), (3.30, dc_y)), _SOUTH)
+    _wire(ax, ((3.98, dc_y), (4.18, dc_y)), _SOUTH)
+    _wire(ax, ((5.30, dc_y), (5.57, dc_y)), _SOUTH)
+    _meter_symbol(ax, (5.90, dc_y), 'A DC', _SOUTH)
+    ax.text(5.90, 2.96, 'A DC IN REIHE', ha='center', va='center', fontsize=6.5,
             fontweight='bold', color=_SOUTH)
-    _arrow(ax, (4.25, 4.18), (4.85, 3.05), color=_SOUTH)
-    _box(ax, 4.85, 2.65, 1.8, 1.25, 'H12 GLEICHRICHTER', ('nur hier', 'nach Messung wählen'), color=_SOUTH)
-    _arrow(ax, (6.68, 3.28), (7.15, 3.28), color=_SOUTH)
-    _box(ax, 7.15, 2.65, 2.05, 1.25, 'DC-METER + LAST', ('V DC ____ V', 'I DC ____ A'), color=_SOUTH)
+    _wire(ax, ((6.23, dc_y), (6.55, dc_y)), _SOUTH)
+    _draw_resistive_load(ax, 6.55, 8.85, dc_y, _SOUTH)
+    _wire(
+        ax,
+        ((8.85, dc_y), (9.08, dc_y), (9.08, dc_return_y),
+         (3.12, dc_return_y), (3.12, 1.35)),
+        _SOUTH,
+    )
+    _draw_parallel_meter(
+        ax, 6.55, 8.85, dc_y, 1.62, 'V DC', 'V DC PARALLEL ZU RTEST', _SOUTH,
+    )
 
-    _box(ax, 9.65, 1.35, 2.10, 5.35, 'VERGLEICHSFELDER', (
+    _box(ax, 9.48, 0.88, 2.25, 6.10, 'VERGLEICHSFELDER', (
         'd über Emaille ____ mm',
         'Windungen 20 / 40 / 80',
         'n ____ min⁻¹',
@@ -357,9 +440,9 @@ def _render_e10(path: Path, drawing_id: str, drawing: dict, data: dict) -> None:
         'aus diesen Messdaten',
         'auswählen.',
     ), color=_PROVISIONAL)
-    ax.text(5.95, 0.65,
-            'Gleiche Drehzahl, Last, Temperatur und Messmethode je Lauf; keine Leerlaufspannung als Leistungswert verwenden.',
-            ha='center', va='center', fontsize=7.2, color=_DANGER)
+    ax.text(1.82, 0.38,
+            'Gleiche Drehzahl, Last und Temperatur; Leerlaufspannung ist kein Leistungswert.',
+            ha='left', va='center', fontsize=6.7, color=_DANGER)
     _finish_sheet(fig, path, drawing, data)
 
 

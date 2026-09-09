@@ -1,10 +1,14 @@
 """Electrical manual figures must encode the experimental safety workflow."""
 
 import unittest
+import os
 from pathlib import Path
+import re
+from unittest.mock import patch
 
 from PIL import Image
 
+from scripts.manual import electrical_figures
 from scripts.manual.electrical_figures import (
     build_test_matrix,
     estimate_final_turns,
@@ -16,9 +20,25 @@ from tests.support import temporary_build_directory
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+MPL_CACHE = PROJECT_ROOT / 'build' / 'matplotlib'
+MPL_CACHE.mkdir(parents=True, exist_ok=True)
+os.environ.setdefault('MPLCONFIGDIR', str(MPL_CACHE))
+import matplotlib
+
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
 
 class ManualElectricalFigureTests(unittest.TestCase):
+    def _draw_without_saving(self, drawing_id):
+        data = load_manual_data(PROJECT_ROOT)
+        drawing = data['drawings'][drawing_id]
+        with patch.object(electrical_figures, '_finish_sheet'):
+            electrical_figures._RENDERERS[drawing_id](
+                Path('unused.png'), drawing_id, drawing, data
+            )
+        return plt.gcf(), data, drawing
+
     def test_polarity_alternates_and_opposed_faces_attract(self):
         top, bottom = magnet_polarities(18)
 
@@ -50,6 +70,74 @@ class ManualElectricalFigureTests(unittest.TestCase):
         for diameters in ([], [0.0], [-0.18], [0.18, 0.0]):
             with self.subTest(diameters=diameters), self.assertRaises(ValueError):
                 build_test_matrix(diameters)
+
+    def test_e07_visible_identifiers_match_authoritative_drawing_items(self):
+        figure, _data, drawing = self._draw_without_saving('E07')
+        try:
+            visible_ids = {
+                item_id
+                for text in figure.findobj(match=plt.Text)
+                for item_id in re.findall(r'\b[PH]\d{2}\b', text.get_text())
+            }
+        finally:
+            plt.close(figure)
+
+        self.assertEqual(visible_ids, set(drawing['items']))
+
+    def test_e10_explicitly_labels_series_current_and_parallel_voltage_measurement(self):
+        figure, _data, _drawing = self._draw_without_saving('E10')
+        try:
+            rendered_text = '\n'.join(
+                text.get_text() for text in figure.findobj(match=plt.Text)
+            )
+            wire_vertices = {
+                (round(float(x), 2), round(float(y), 2))
+                for line in figure.axes[0].lines
+                for x, y in zip(line.get_xdata(), line.get_ydata())
+            }
+        finally:
+            plt.close(figure)
+
+        for label in (
+            'A~ IN REIHE',
+            'V~ PARALLEL ZU RTEST',
+            'A DC IN REIHE',
+            'V DC PARALLEL ZU RTEST',
+        ):
+            with self.subTest(label=label):
+                self.assertIn(label, rendered_text)
+        self.assertGreaterEqual(rendered_text.count('RTEST = ____ Ω'), 2)
+        self.assertIn((3.12, 4.55), wire_vertices)
+        self.assertIn((3.12, 1.35), wire_vertices)
+
+    def test_e08_direction_arrow_uses_one_adjacent_path_segment(self):
+        data = load_manual_data(PROJECT_ROOT)
+        drawing = data['drawings']['E08']
+        captured_arrows = []
+
+        def capture_arrow(_ax, start, end, **style):
+            captured_arrows.append((start, end, style))
+
+        with (
+            patch.object(electrical_figures, '_finish_sheet'),
+            patch.object(electrical_figures, '_arrow', side_effect=capture_arrow),
+        ):
+            electrical_figures._render_e08(
+                Path('unused.png'), 'E08', drawing, data
+            )
+        figure = plt.gcf()
+        plt.close(figure)
+
+        points, _legs = electrical_figures._serpentine_geometry(18, 1.35, 2.65)
+        shifted = [(6.0 + x, 4.05 + y) for x, y in points]
+        adjacent_segments = set(zip(shifted, shifted[1:]))
+        copper_arrows = [
+            (start, end) for start, end, style in captured_arrows
+            if style.get('color') == electrical_figures._COPPER
+        ]
+
+        self.assertEqual(len(copper_arrows), 1)
+        self.assertIn(copper_arrows[0], adjacent_segments)
 
     def test_electrical_figures_match_manual_data_and_print_resolution(self):
         data = load_manual_data(PROJECT_ROOT)
