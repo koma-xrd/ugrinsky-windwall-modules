@@ -65,6 +65,15 @@ def _docx_text(path: Path) -> str:
     return _normalise_text(' '.join(document.element.body.xpath('.//w:t/text()')))
 
 
+def _docx_metadata(path: Path) -> dict[str, str | None]:
+    properties = Document(path).core_properties
+    return {
+        'title': properties.title or None,
+        'author': properties.author or None,
+        'subject': properties.subject or None,
+    }
+
+
 def _pdf_text(path: Path) -> str:
     with pdfplumber.open(path) as document:
         return _normalise_text(' '.join(page.extract_text() or '' for page in document.pages))
@@ -72,16 +81,20 @@ def _pdf_text(path: Path) -> str:
 
 def _poppler_executable() -> Path:
     name = 'pdftoppm.exe' if sys.platform == 'win32' else 'pdftoppm'
-    discovered = shutil.which(name) or shutil.which('pdftoppm')
-    if discovered:
-        return Path(discovered)
-
     # The Codex bundled Python sits in dependencies/python; Poppler is its
     # sibling.  Deriving this from the active interpreter avoids a user path.
     dependencies = Path(sys.executable).resolve().parents[1]
-    bundled = dependencies / 'native' / 'poppler' / 'Library' / 'bin' / name
-    if bundled.is_file():
-        return bundled
+    bundled_candidates = (
+        dependencies / 'native' / 'poppler' / 'Library' / 'bin' / name,
+        dependencies / 'native' / 'poppler' / 'bin' / name,
+    )
+    for bundled in bundled_candidates:
+        if bundled.is_file():
+            return bundled
+
+    discovered = shutil.which(name) or shutil.which('pdftoppm')
+    if discovered:
+        return Path(discovered)
     raise FileNotFoundError(
         'Poppler pdftoppm was not found on PATH or beside the active bundled Python runtime'
     )
@@ -131,6 +144,19 @@ def _missing(text: str, expected: Iterable[str]) -> list[str]:
     return [item for item in expected if _normalise_text(item) not in normalised]
 
 
+def _metadata_mismatches(
+    expected: dict[str, str | None],
+    actual: dict[str, str | None],
+) -> dict[str, dict[str, str | None]]:
+    """Report populated DOCX metadata that changed or disappeared in the PDF."""
+
+    return {
+        field: {'expected': value, 'actual': actual.get(field)}
+        for field, value in expected.items()
+        if value and actual.get(field) != value
+    }
+
+
 def _inspect_renders(paths: Iterable[Path]) -> tuple[list[dict], list[str]]:
     dimensions = []
     blank_or_tiny = []
@@ -146,7 +172,13 @@ def _inspect_renders(paths: Iterable[Path]) -> tuple[list[dict], list[str]]:
     return dimensions, blank_or_tiny
 
 
-def verify_manual_release(docx_path: Path, pdf_path: Path, render_dir: Path) -> dict:
+def verify_manual_release(
+    docx_path: Path,
+    pdf_path: Path,
+    render_dir: Path,
+    *,
+    project_root: Path | None = None,
+) -> dict:
     """Return structural and rendered-page evidence for one manual release."""
 
     docx_path = Path(docx_path)
@@ -157,12 +189,19 @@ def verify_manual_release(docx_path: Path, pdf_path: Path, render_dir: Path) -> 
     if not pdf_path.is_file():
         raise FileNotFoundError(f'Released PDF not found: {pdf_path}')
 
-    data = load_manual_data(ROOT)
+    source_root = Path(project_root).resolve() if project_root is not None else ROOT
+    data = load_manual_data(source_root / 'assets/manual/release')
     docx_text = _docx_text(docx_path)
+    docx_metadata = _docx_metadata(docx_path)
     pdf_text = _pdf_text(pdf_path)
     reader = PdfReader(pdf_path)
     pdf_pages = len(reader.pages)
-    metadata = reader.metadata or {}
+    raw_metadata = reader.metadata or {}
+    pdf_metadata = {
+        'title': raw_metadata.get('/Title') or None,
+        'author': raw_metadata.get('/Author') or None,
+        'subject': raw_metadata.get('/Subject') or None,
+    }
 
     bom_ids = [*data['printed_parts'], *data['hardware']]
     captions = _drawing_captions(data)
@@ -185,11 +224,9 @@ def verify_manual_release(docx_path: Path, pdf_path: Path, render_dir: Path) -> 
         'missing_pdf_bom_ids': _missing(pdf_text, bom_ids),
         'missing_docx_drawing_captions': _missing(docx_text, captions),
         'missing_pdf_drawing_captions': _missing(pdf_text, captions),
-        'pdf_metadata': {
-            'title': metadata.get('/Title'),
-            'author': metadata.get('/Author'),
-            'subject': metadata.get('/Subject'),
-        },
+        'docx_metadata': docx_metadata,
+        'pdf_metadata': pdf_metadata,
+        'metadata_mismatches': _metadata_mismatches(docx_metadata, pdf_metadata),
     }
 
 
@@ -203,6 +240,7 @@ def _has_release_defect(report: dict) -> bool:
         report['missing_pdf_bom_ids'],
         report['missing_docx_drawing_captions'],
         report['missing_pdf_drawing_captions'],
+        report['metadata_mismatches'],
     ))
 
 

@@ -3,9 +3,14 @@
 from __future__ import annotations
 
 from pathlib import Path
+from contextlib import redirect_stdout
+from io import StringIO
+import json
+import os
 import shutil
 import sys
 import unittest
+from unittest.mock import patch
 from uuid import uuid4
 
 from docx import Document
@@ -17,6 +22,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / 'src'))
 
+from scripts.manual import verify_manual
 from scripts.manual.verify_manual import verify_manual_release
 
 
@@ -59,18 +65,29 @@ RELEASE_LINES = (
     *DRAWING_TITLES,
 )
 
+RELEASE_METADATA = {
+    'title': 'Ugrinsky Wind Wall Bauanleitung',
+    'author': 'Windwall Projekt',
+    'subject': 'Deutscher Werkstattablauf für einen unvalidierten Prototyp',
+}
 
-def _write_docx(path: Path, lines=RELEASE_LINES) -> None:
+
+def _write_docx(path: Path, lines=RELEASE_LINES, metadata=RELEASE_METADATA) -> None:
     document = Document()
-    document.core_properties.title = 'Ugrinsky Wind Wall Bauanleitung'
+    document.core_properties.title = metadata.get('title', '')
+    document.core_properties.author = metadata.get('author', '')
+    document.core_properties.subject = metadata.get('subject', '')
     for line in lines:
         document.add_paragraph(line)
     document.save(path)
 
 
-def _write_pdf(path: Path, *, lines=RELEASE_LINES, pages: int = 16, blank_last=False) -> None:
+def _write_pdf(path: Path, *, lines=RELEASE_LINES, pages: int = 16,
+               blank_last=False, metadata=RELEASE_METADATA) -> None:
     canvas = Canvas(str(path), pagesize=A4)
-    canvas.setTitle('Ugrinsky Wind Wall Bauanleitung')
+    canvas.setTitle(metadata.get('title', ''))
+    canvas.setAuthor(metadata.get('author', ''))
+    canvas.setSubject(metadata.get('subject', ''))
     for page_number in range(1, pages + 1):
         if not (blank_last and page_number == pages):
             canvas.setFont('Helvetica', 9)
@@ -118,6 +135,27 @@ class ManualReleaseTests(unittest.TestCase):
         self.assertEqual(report['blank_or_tiny_pages'], [])
         self.assertEqual(len(report['render_dimensions']), 16)
         self.assertEqual(report['pdf_metadata']['title'], 'Ugrinsky Wind Wall Bauanleitung')
+        self.assertEqual(report['metadata_mismatches'], {})
+
+    def test_clean_project_uses_committed_snapshot_without_root_build_manifest(self):
+        clean_root = self.workspace / 'clean-root'
+        shutil.copytree(ROOT / 'assets/manual/release',
+                        clean_root / 'assets/manual/release')
+        self.assertFalse((clean_root / 'build/manifest.json').exists())
+        docx_path = self.workspace / 'clean.docx'
+        pdf_path = self.workspace / 'clean.pdf'
+        _write_docx(docx_path)
+        _write_pdf(pdf_path)
+
+        report = verify_manual_release(
+            docx_path,
+            pdf_path,
+            self.workspace / 'clean-render',
+            project_root=clean_root,
+        )
+
+        self.assertEqual(report['missing_docx_bom_ids'], [])
+        self.assertEqual(report['missing_pdf_drawing_captions'], [])
 
     def test_missing_content_and_blank_page_are_reported(self):
         docx_path = self.workspace / 'incomplete.docx'
@@ -141,6 +179,61 @@ class ManualReleaseTests(unittest.TestCase):
         self.assertIn('P01', report['missing_docx_bom_ids'])
         self.assertIn('E01 Gesamtexplosion des Sieben-Stufen-Rotors',
                       report['missing_pdf_drawing_captions'])
+
+    def test_metadata_mismatch_is_a_release_defect_and_cli_returns_json(self):
+        docx_path = self.workspace / 'metadata.docx'
+        pdf_path = self.workspace / 'metadata.pdf'
+        render_dir = self.workspace / 'metadata-render'
+        _write_docx(docx_path)
+        _write_pdf(pdf_path, metadata={**RELEASE_METADATA, 'author': 'Falscher Autor'})
+
+        stdout = StringIO()
+        with redirect_stdout(stdout):
+            exit_code = verify_manual.main([
+                '--docx', str(docx_path), '--pdf', str(pdf_path),
+                '--render-dir', str(render_dir),
+            ])
+        report = json.loads(stdout.getvalue())
+
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(
+            report['metadata_mismatches']['author'],
+            {'expected': 'Windwall Projekt', 'actual': 'Falscher Autor'},
+        )
+
+    def test_cli_success_returns_zero_and_parseable_json(self):
+        docx_path = self.workspace / 'cli-good.docx'
+        pdf_path = self.workspace / 'cli-good.pdf'
+        render_dir = self.workspace / 'cli-good-render'
+        _write_docx(docx_path)
+        _write_pdf(pdf_path)
+
+        stdout = StringIO()
+        with redirect_stdout(stdout):
+            exit_code = verify_manual.main([
+                '--docx', str(docx_path), '--pdf', str(pdf_path),
+                '--render-dir', str(render_dir),
+            ])
+        report = json.loads(stdout.getvalue())
+
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(report['pdf_pages'], 16)
+        self.assertEqual(report['rendered_pages'], 16)
+
+    def test_bundled_poppler_is_preferred_over_unrelated_path_executable(self):
+        executable_name = 'pdftoppm.exe' if sys.platform == 'win32' else 'pdftoppm'
+        unrelated_dir = self.workspace / 'unrelated-bin'
+        unrelated_dir.mkdir()
+        unrelated = unrelated_dir / executable_name
+        unrelated.write_bytes(b'not the bundled executable')
+        bundled = (Path(sys.executable).resolve().parents[1] / 'native' / 'poppler' /
+                   'Library' / 'bin' / executable_name)
+        self.assertTrue(bundled.is_file(), 'The document runtime must provide bundled Poppler')
+
+        with patch.dict(os.environ, {'PATH': str(unrelated_dir)}):
+            resolved = verify_manual._poppler_executable()
+
+        self.assertEqual(resolved.resolve(), bundled.resolve())
 
     def test_missing_release_artifact_has_a_clear_error(self):
         docx_path = self.workspace / 'source.docx'
