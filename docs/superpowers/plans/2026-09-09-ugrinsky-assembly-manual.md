@@ -18,7 +18,8 @@
 - Show one base, five standard stages, one top stage, one closure and one separate lower magnet rotor.
 - Preserve CCW wind rotation and locking; insertion begins 18 degrees clockwise from the aligned locked pose.
 - Use 36 nominal 10 x 2 mm magnets in 18 pockets per rotor, with alternating N-S polarity and opposed attraction.
-- Specify 0.50 mm enamelled copper wire and 20 turns only as a test winding, never as the final 48 V winding.
+- Start with the available nominal 0.18 mm enamelled copper wire, measure every wire across its enamel, and test 20, 40 and 80 turns per diameter where the coil fits without forced packing.
+- Never designate a final wire diameter or winding count before comparative voltage, load, resistance and temperature measurements.
 - Do not specify a final winding count, controller, fuse, cable, rectifier or dump-load rating without measured electrical data.
 - State that the generator must not be connected directly to the 48 V lead-acid battery.
 - Mark physical fit, PLA strength, magnet retention, bearing retention, outdoor service and final electrical performance as unverified.
@@ -199,6 +200,12 @@ def test_turn_estimate_rounds_up_and_rejects_missing_measurement():
     assert estimate_final_turns(20, 8.0, 60.0) == 150
     with self.assertRaises(ValueError):
         estimate_final_turns(20, 0.0, 60.0)
+
+def test_matrix_uses_measured_wire_diameters_and_three_turn_counts():
+    assert build_test_matrix([0.18, 0.31]) == [
+        (0.18, 20), (0.18, 40), (0.18, 80),
+        (0.31, 20), (0.31, 40), (0.31, 80),
+    ]
 ```
 
 - [ ] **Step 2: Run the tests and verify RED**
@@ -221,11 +228,16 @@ def estimate_final_turns(test_turns: int, measured_v_rms: float, target_v_rms: f
     if test_turns <= 0 or measured_v_rms <= 0 or target_v_rms <= 0:
         raise ValueError('Turns and voltages must be positive')
     return math.ceil(test_turns * target_v_rms / measured_v_rms)
+
+def build_test_matrix(measured_diameters_mm: Sequence[float]) -> list[tuple[float, int]]:
+    if not measured_diameters_mm or any(value <= 0 for value in measured_diameters_mm):
+        raise ValueError('Measured wire diameters must be positive')
+    return [(diameter, turns) for diameter in measured_diameters_mm for turns in (20, 40, 80)]
 ```
 
 Generate an 18-leg continuous serpentine path alternating between inner and
 outer radii. Show start `A1`, finish `A2`, one unambiguous winding direction and
-20 overlaid test turns schematically without implying conductor packing.
+the 20/40/80-turn test series without implying conductor packing or fit.
 
 - [ ] **Step 4: Render the five electrical figures**
 
@@ -302,10 +314,12 @@ landscape sections only for drawings or BOM tables that cannot remain readable
 in portrait orientation.
 
 Write explicit sequential instructions for printing, coupon checks, magnet dry
-layout, generator stack, 20-turn 0.50 mm test winding, enamel preparation,
-continuity/resistance checks, RPM/voltage measurements, turn calculation,
-potting decision, rotor stacking and commissioning. Include blank measurement
-tables rather than invented results.
+layout, generator stack, measuring each enamelled wire diameter, winding the
+20/40/80-turn test matrix where it fits, enamel preparation,
+continuity/resistance checks, common-RPM open-circuit and defined-load
+measurements, temperature recording, turn calculation, potting decision, rotor
+stacking and commissioning. Include blank comparison tables rather than
+invented results.
 
 - [ ] **Step 5: Build and run structural tests**
 

@@ -103,15 +103,27 @@ circumference so successive active radial legs cross successive alternating
 magnetic poles. All turns follow the same path and winding direction. Start and
 finish leads are labelled before removal from the jig.
 
-The initial recommendation is 0.50 mm enamelled copper wire and a 20-turn test
-winding. This is a measurement article, not the final 48 V winding. The manual
-shows a printable or board-and-pin jig, insulated pins, controlled bend radii,
-temporary binding, continuity testing, placement in the former and conservative
-potting guidance. It prohibits sharp metal tools against enamel and records wire
-length, resistance and temperature.
+The test program starts with the user's existing nominal 0.18 mm enamelled
+copper wire. Every spool, including additional ordered diameters, is measured
+across the enamel with a micrometer before use; nominal labels are recorded but
+never substituted for the measured diameter. No wire diameter is designated as
+the final choice in advance.
 
-The test winding is driven at several measured rotor speeds. Record open-circuit
-RMS voltage and frequency. For a chosen design speed, estimate final turns with:
+For each available diameter, wind separate 20-, 40- and 80-turn serpentine test
+coils when they fit the former without forced packing. If a planned coil does
+not fit, record that result rather than compressing or damaging the enamel. The
+manual shows a reusable printable or board-and-insulated-pin jig, controlled
+bend radii, temporary binding, continuity testing, placement in the former and
+conservative potting guidance. It prohibits sharp metal tools against enamel
+and records measured diameter, turn count, wire length, coil dimensions, DC
+resistance and temperature.
+
+Each test winding is driven at the same set of measured rotor speeds. Record
+open-circuit RMS voltage and frequency, then voltage, current and temperature
+under the same defined resistive test loads. Calculate voltage per turn,
+resistance per metre, internal voltage drop and approximate copper loss so
+different wire diameters and turn counts remain comparable. For a chosen design
+speed, estimate final turns with:
 
 `N_final = N_test * V_ac_target / V_ac_test`
 
