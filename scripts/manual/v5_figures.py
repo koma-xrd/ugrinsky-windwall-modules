@@ -54,6 +54,9 @@ class PartRecord:
     source_builder: str
     source_bounds_mm: tuple[tuple[float, ...], tuple[float, ...]]
     display_bounds_mm: tuple[tuple[float, ...], tuple[float, ...]]
+    printable: bool | None = None
+    reference_note: str = ''
+    installation_direction: tuple[float, float, float] | None = None
 
 
 @dataclass(frozen=True)
@@ -69,6 +72,7 @@ class FigureRecord:
     pixel_height: int
     language: str
     parts: tuple[PartRecord, ...]
+    callouts: tuple[Callout, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -82,6 +86,7 @@ class Callout:
     name: str
     label: str
     target: tuple[float, float, float] | None = None
+    marker_offset_mm: tuple[float, float] = (0, 0)
 
 
 @dataclass(frozen=True)
@@ -127,7 +132,8 @@ class _Model:
                        'upper_wood_frame_reference': self.support.wood_frame_reference,
                        **{f'wood_screw_{i}_reference': s for i, s in enumerate(self.support.wood_screws, 1)}}
 
-    def part(self, name, *, shape=None, offset=(0, 0, 0), cut=None, motion=None, source=None):
+    def part(self, name, *, shape=None, offset=(0, 0, 0), cut=None, motion=None, source=None,
+             reference_note='', installation_direction=None):
         original = self.shapes[name] if shape is None else shape
         metadata = self.sources.get(name, {})
         state = motion or ('bearing' if name in ('51105_rolling_envelope', 'bearing_608')
@@ -142,7 +148,9 @@ class _Model:
             display = display.intersect(cut)
         if not display.val().Solids():
             return None
-        return RenderPart(PartRecord(name, state, provenance, _bounds(original), _bounds(display)), display)
+        return RenderPart(PartRecord(name, state, provenance, _bounds(original), _bounds(display),
+                                     metadata.get('printable', False if reference_note else None), reference_note,
+                                     installation_direction), display)
 
     def parts(self, names, **options):
         return tuple(part for name in names if (part := self.part(name, **options)) is not None)
@@ -153,8 +161,43 @@ def _cut_box(zmin=-100, zmax=700, *, section=False):
                                  centered=(True, section, False)).translate((0, 0, zmin)))
 
 
-def _call(name, label, target=None):
-    return Callout(name, label, target)
+def _call(name, label, target=None, marker_offset_mm=(0, 0)):
+    return Callout(name, label, target, marker_offset_mm)
+
+
+def _frame_references(model):
+    """Illustrative timber and nominal mounting hardware, never product CAD.
+
+    Contact planes and screw axes come from the installed V5 builders. Timber
+    sections and lower 4x30 screw envelopes are drawing-only examples, not a
+    structural mounting specification. No threads or wood pilot holes are implied.
+    """
+    source = 'scripts.manual.v5_figures._frame_references'
+    bottom = model.generator.housing_offset_z_mm
+    upper = model.support.wood_frame_reference.val().BoundingBox().zmin
+    records = []
+    for name, z, depth in (('lower_wood_frame_reference', bottom-30, 190),
+                            ('upper_wood_frame_reference', upper, 70)):
+        wood = cq.Workplane('XY').box(260, depth, 30, centered=(True, True, False)).translate((0, 0, z))
+        if name.startswith('upper'):
+            passage = (cq.Workplane('XY').circle(model.p.shaft.clearance_hole_diameter_mm/2)
+                       .extrude(32).translate((0, 0, z-1)))
+            wood = wood.cut(passage)
+        records.append(model.part(name, shape=wood, motion='stationary', source=source,
+                                   reference_note=f'Holzriegel 260 × {depth} × 30 mm; nicht drucken; Beispielquerschnitt, vor Ort auslegen'))
+    for index, tab in enumerate(model.generator.housing_parts.bottom_mount_tabs, 1):
+        x, y = tab.axis_xy_mm
+        seat = bottom+tab.shape.val().BoundingBox().zmax
+        shank = cq.Workplane('XY').circle(2).extrude(27).translate((x, y, seat-27))
+        head = cq.Workplane('XY').circle(4.5).extrude(3).translate((x, y, seat))
+        records.append(model.part(f'lower_wood_screw_{index}_reference', shape=shank.union(head),
+                                   motion='stationary', source=source,
+                                   reference_note='Holzschraube 4 × 30 mm, flacher Kopf Ø9; nicht drucken; ungeprüfte Nennhülle',
+                                   installation_direction=(0, 0, -1)))
+    records += [model.part(f'wood_screw_{i}_reference',
+                           reference_note='Holzschraube 4 × 40 mm; nicht drucken; V5-Nennhülle',
+                           installation_direction=(0, 0, 1)) for i in range(1, 5)]
+    return tuple(records)
 
 
 def build_v5_scenes(p=DEFAULT_PARAMETERS):
@@ -278,7 +321,10 @@ def build_v5_scenes(p=DEFAULT_PARAMETERS):
               C('cover', 'Deckel hält die Kassette axial zurück'),
               C('coil_cassette', 'Kassette mit einzelnem Verdrehsicherungssteg',
                 (-59, 0, 58+g.housing_offset_z_mm)),
-              C('housing', 'Gehäuseschulter und passende Schlüsselnut'), view=(-1, -1.8, .7)))
+              C('housing', 'Gehäuseschulter und passende Schlüsselnut',
+                (-g.housing_parts.metadata['cassette_radius_mm']-1.35, 0,
+                 g.housing_offset_z_mm+g.housing_parts.metadata['cassette_bottom_z_mm']),
+                marker_offset_mm=(14, -5)), view=(-1, -1.8, .7)))
 
     hardware = m.parts(('housing',), cut=_cut_box()) + m.parts(('cover',), offset=(0, 0, 32))
     hardware += tuple(m.part(f'cover_screw_{i}', offset=(0, 0, 55)) for i in range(1, 7))
@@ -289,7 +335,9 @@ def build_v5_scenes(p=DEFAULT_PARAMETERS):
         panel('Hardware axial abgesetzt', hardware,
               C('cover_screw_1', '6 × M4-Schraube · stationär'),
               C('cover', 'Deckel mit sechs Durchgangsbohrungen'),
-              C('housing', 'Gehäuseaugen mit Sechskanttaschen'),
+              C('housing', 'Gehäuseaugen mit Sechskanttaschen',
+                (*g.housing_parts.cover_fasteners[0].axis_xy_mm, g.housing_offset_z_mm+3.4),
+                marker_offset_mm=(13, 5)),
               C('cover_nut_1', '6 × gefangene M4-Mutter · stationär')))
 
     cable = g.housing_parts.cable_passage.translate((0, 0, g.housing_offset_z_mm))
@@ -302,7 +350,8 @@ def build_v5_scenes(p=DEFAULT_PARAMETERS):
         'Graue Hülle = freier Kabeldurchgang Ø6 mm; kein montiertes Kabel, keine Abdichtung.',
         panel('Gehäuse und angehobene Kassette', m.parts(('housing',)) + m.parts(('coil_cassette',), offset=(0, 0, 38)) + (cable_part,),
               C('housing', 'Gehäuseöffnung bei 45°', (46, 46, 33+g.housing_offset_z_mm)),
-              C('coil_cassette', 'Kassettenöffnung bei 45°', (41, 41, 71+g.housing_offset_z_mm)),
+              C('coil_cassette', 'Kassettenöffnung bei 45°', (41, 41, 71+g.housing_offset_z_mm),
+                marker_offset_mm=(14, 10)),
               C('cable_passage', 'Ø6-mm-Durchgang · Referenzvolumen'), view=(1, 1, .85)))
 
     thrust = build_51105_fit_coupon(p)
@@ -352,22 +401,44 @@ def build_v5_scenes(p=DEFAULT_PARAMETERS):
                 (-8, 0, s.plate_bottom_z_mm+s.bottom_shoulder_mm)),
               C('shaft', 'Durchgehende verlängerte M8-Welle'), view=(0, -1, 0)))
 
-    fence_names = tuple(m.shapes)
+    frame_references = _frame_references(m)
+    fence_names = tuple(name for name in m.shapes if name != 'upper_wood_frame_reference'
+                        and not name.startswith('wood_screw_'))
+    installed_fence = m.parts(fence_names) + frame_references
+    frame_by_name = {part.record.name: part for part in frame_references}
+    lower_z = g.housing_offset_z_mm
+    # The X-Z section passes through the actual +/-X tab holes and lower screws.
+    lower_section = list(m.parts(('housing',), cut=_cut_box(-90, -12, section=True)))
+    for name in ('lower_wood_frame_reference', 'lower_wood_screw_1_reference', 'lower_wood_screw_3_reference'):
+        part = frame_by_name[name]
+        lower_section.append(m.part(name, shape=part.shape, cut=_cut_box(-90, -12, section=True),
+                                    motion='stationary', source=part.record.source_builder,
+                                    reference_note=part.record.reference_note,
+                                    installation_direction=part.record.installation_direction))
     add(14, 'zaunmontage', 'Einbau am vorhandenen Holzrahmen',
-        'Der obere 608-Halter sitzt unter dem Holzrahmen; die unteren Gehäuselaschen bilden die Befestigungspunkte.',
-        'Unterer Rahmen und seine Schrauben sind im V5-CAD nicht modelliert; Anschluss vor Ort auslegen.',
-        panel('Integrierte V5-Baugruppe', m.parts(fence_names),
-              C('upper_wood_frame_reference', 'Vorhandener oberer Holzrahmen'),
-              C('top_support', '608-Halter · von unten verschraubt'),
-              C('top_nut', 'Top-Klemmung vor Haltermontage anziehen'),
-              C('base', 'Sieben rotierende Stufen auf M8-Welle'),
-              C('housing', 'Stationäres Gehäuse mit Bodenlaschen'), view=(1, -2, .15)))
+        'Zwischen zwei Holzriegeln: Gehäuse von oben befestigt, oberer 608-Halter von unten angeschraubt.',
+        'Holz und Holzschrauben: Referenzen, nicht drucken. Querschnitte und Befestigung vor Ort auslegen; keine Lastfreigabe.',
+        panel('Vollständige Einbaulage zwischen zwei Riegeln', installed_fence,
+              C('upper_wood_frame_reference', 'Oberer Holzriegel · Referenz, nicht drucken'),
+              C('top_support', '608-Halter · 4 Holzschrauben von unten', (30, -15, s.plate_bottom_z_mm), (30, -22)),
+              C('lower_wood_frame_reference', 'Unterer Holzriegel · Referenz, nicht drucken'),
+              C('lower_wood_screw_1_reference', 'Bodenlaschen · 4 Holzschrauben von oben', (83, 0, lower_z+6), (24, 24)),
+              view=(1, -2, .15)),
+        panel('Unterer Anschluss · Schnitt durch zwei Laschen', lower_section,
+              C('housing', 'Gehäuseboden und vier Bodenlaschen', (70, 0, lower_z+5)),
+              C('lower_wood_screw_1_reference', '4 × 30 mm von oben nach unten; Nennhüllen', (83, 0, lower_z+8), (15, 14)),
+              C('lower_wood_frame_reference', 'Laschen-Unterseite liegt auf dem Holz', (73, 0, lower_z), (0, -15)),
+              C('lower_wood_frame_reference', 'Holz / Schrauben: nicht drucken', (-100, 0, lower_z-20)),
+              view=(0, -1, 0)))
     add(15, 'gesamtbaugruppe', 'Gesamtbaugruppe · Betriebsanordnung im CAD',
-        'Sieben Rotorstufen, eingeschlossener Generator und oberer 608-Halter sind in montierter Lage dargestellt.',
-        'CAD-Geometrie V5. Physische Passung, Magnetrückhaltung, Elektrik und Betrieb sind nicht validiert.',
-        panel('Gesamtansicht', m.parts(fence_names),
-              C('top_support', 'Stationärer oberer Halter'), C('standard_3', 'Rotor · 1 Base + 5 Standard + 1 Top'),
-              C('housing', 'Stationärer Generator mit unterem Rotor'), view=(1, -2, .18)),
+        'Sieben Rotorstufen und Generator sind zwischen unterem und oberem Holzriegel montiert.',
+        'Holz / Holzschrauben: nicht drucken, vor Ort auslegen. CAD V5; Passung, Elektrik und Betrieb sind unvalidiert.',
+        panel('Gesamtansicht mit beiden Rahmenanschlüssen', installed_fence,
+              C('upper_wood_frame_reference', 'Oberer Holzriegel · nicht drucken'),
+              C('top_support', '608-Halter · 4 Schrauben von unten', (30, -15, s.plate_bottom_z_mm), (30, -22)),
+              C('standard_3', 'Rotor · 1 Base + 5 Standard + 1 Top'),
+              C('lower_wood_screw_1_reference', 'Bodenlaschen · 4 Schrauben von oben', (83, 0, lower_z+6), (24, 24)),
+              C('lower_wood_frame_reference', 'Unterer Holzriegel · nicht drucken'), view=(1, -2, .18)),
         panel('Generator · aufgeschnittenes Einbaudetail', m.parts(all_generator, cut=_cut_box(-60, 8)),
               C('base', 'Oberer Magnetträger · rotierend'), C('winding_volume', 'Wicklung / Kassette · stationär'),
               C('lower_magnet_rotor', 'Unterer Magnetrotor · rotierend',
@@ -405,7 +476,7 @@ def _draw_panel(fig, panel, rectangle, *, compact=False):
         for solid in part.shape.val().Solids():
             vertices, triangles = solid.tessellate(.35, .28)
             xyz = np.asarray([v.toTuple() for v in vertices])[np.asarray(triangles)]
-            if 'coupon' in part.record.name:
+            if 'coupon' in part.record.name or ('wood_frame' in part.record.name and part.record.reference_note):
                 # Long planar triangles can incorrectly obscure a nearer seat
                 # when sorted only by their centroid. Bound their size before
                 # the painter sort; subdivision preserves the actual CAD plane.
@@ -431,6 +502,8 @@ def _draw_panel(fig, panel, rectangle, *, compact=False):
                 rgb *= .65
             elif part.record.name == 'winding_volume':
                 rgb = .65*rgb+.35
+            elif 'wood_frame' in part.record.name and part.record.reference_note:
+                rgb = .35*rgb+.65
             colors.append(illumination[:, None]*rgb)
         projected_by_name[part.record.name] = np.concatenate(part_polygons).reshape(-1, 2)
     flat = np.concatenate(polygons)
@@ -463,7 +536,7 @@ def _draw_panel(fig, panel, rectangle, *, compact=False):
             # An actual triangle vertex near the visible right outline avoids
             # placing a marker in a ring bore or an empty bounding-box center.
             target = candidates[np.argmax(candidates[:, 0])].copy()
-        marker = target.copy()
+        marker = target + np.asarray(callout.marker_offset_mm)
         while any(np.linalg.norm((marker-other)/span) < .055 for other in used):
             marker[0] -= span[0]*.055
         used.append(marker)
@@ -503,8 +576,9 @@ def _render_scene(scene, output_dir):
                                         'Software': 'Windwall V5 deterministic CadQuery/Matplotlib renderer'})
     plt.close(fig)
     parts = tuple(part.record for panel in scene.panels for part in panel.parts)
+    callouts = tuple(callout for panel in scene.panels for callout in panel.callouts)
     return FigureRecord(scene.drawing_id, path, filename, scene.caption, alt, labels, LEGEND,
-                        2400, 1680, 'de', parts)
+                        2400, 1680, 'de', parts, callouts)
 
 
 def render_v5_figures(output_dir: Path, p=DEFAULT_PARAMETERS) -> tuple[FigureRecord, ...]:

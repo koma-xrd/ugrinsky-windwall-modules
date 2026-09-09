@@ -4,7 +4,9 @@ Die 15 PNG-Dateien E01–E15 sind mit 2400 × 1680 Pixeln aus den aktuellen
 CadQuery-Volumenkörpern berechnet. Die Figuren enthalten deutsche Beschriftungen,
 nummerierte Bauteilmarkierungen und eine gemeinsame Bewegungslegende.
 `figures.json` enthält Bild-ID, Dateiname, Bildunterschrift, Alternativtext,
-Beschriftungen, Pixelmaße, CAD-Quellen, Bewegungszuordnung und dargestellte Grenzen.
+Beschriftungen, explizite 3D-Merkmalsanker und 2D-Markierungsversätze, Pixelmaße,
+CAD-Quellen, Bewegungszuordnung und dargestellte Grenzen. Bauteildatensätze enthalten
+zusätzlich Druckbarkeit, Referenzhinweise und gegebenenfalls die Einschraubrichtung.
 Die SHA-256 des verwendeten V5-Manifests steht im Kopf des Bildinventars.
 
 Erneut erzeugen, aus dem Repository-Verzeichnis mit aktivierter Python-Umgebung:
@@ -35,8 +37,8 @@ Beschriftung ist über Nummern mit dem Modell verbunden, ohne kreuzende Maßlini
 | E11 | Getrennte 51105-Außensitz- und 25-mm-Pilot-Coupons des Releases |
 | E12 | 608-Lagersitz-Coupon mit drei Durchmessern |
 | E13 | Oberer Halter: Schrauben von unten ins Holz; montierter Lagerschnitt |
-| E14 | Einbau am vorhandenen oberen Holzrahmen |
-| E15 | Gesamtbaugruppe und Generator-Einbaudetail |
+| E14 | Einbau zwischen zwei Holzriegeln und Schnitt durch den unteren Laschenanschluss |
+| E15 | Gesamtbaugruppe zwischen zwei Holzriegeln und Generator-Einbaudetail |
 
 Ocker bedeutet rotierend, Türkis stationär. Violett kennzeichnet den separat
 bewegten 51105-Wälzbereich beziehungsweise die unaufgelöste 608-Lagerhülle.
@@ -52,9 +54,17 @@ blendet Kassette und Deckel zur Einsicht aus. E06 hebt Kassette, Deckel und Base
 an; der untere Rotor bleibt in seiner Einbaulage. Die beiden E11-Coupons verwenden
 dieselbe Trennung des kombinierten Builders an Y=0 wie der V5-Export.
 
-Das V5-CAD enthält einen lokalen oberen Holzrahmen, keinen vollständigen Zaun.
-Unterer Rahmen und seine Schrauben sind nicht modelliert. Der obere Halter wird
-erst nach dem Anziehen der M8-Klemmung montiert. Passung, Lagerung auf M8-Gewinde,
+E14/E15 ergänzen das unveränderte Produkt-CAD um zwei einfache Holzriegel und
+untere Holzschrauben als **nicht druckbare Zeichnungsreferenzen**. Der untere
+Riegel (Beispiel 260 × 190 × 30 mm) liegt an der Unterseite der vier Gehäuselaschen
+an; vier nominale 4 × 30-mm-Schrauben mit flachem Kopf werden von oben eingedreht.
+Ihre Achsen stammen direkt aus den vier CAD-Laschen. Der obere Riegel (Beispiel
+260 × 70 × 30 mm) liegt auf dem vorhandenen 608-Halter; die vier 4 × 40-mm-
+Schraubreferenzen des V5-Builders werden von unten eingedreht. Helles Türkis
+unterscheidet diese stationären Holzreferenzen von den dunkleren Druckteilen.
+Holzquerschnitte, Schrauben, Vorbohrung und Tragfähigkeit sind vor Ort auszulegen;
+die Nennhüllen behaupten keine Gewinde oder geprüfte Verbindung. Der obere Halter
+wird erst nach dem Anziehen der M8-Klemmung montiert. Passung, Lagerung auf M8-Gewinde,
 Magnetrückhaltung, elektrische Leistung, Festigkeit und Betrieb sind unvalidiert.
 
 Die vorhandenen Vorschauprogramme für Rotorbaugruppe, Generator, Module und
