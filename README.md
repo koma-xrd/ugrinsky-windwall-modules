@@ -1,8 +1,81 @@
 # Windwall
 
 Parametric CadQuery source for a seven-stage Ugrinsky wind-wall rotor. The
-source files are authoritative; generated STEP and STL output belongs in the
-local `build/` directory.
+current tracked release is `release/v5/`; its manifest is the inventory authority.
+Exploratory and historical generated output belongs in the local `build/` directory.
+
+## Current V5 manual and release
+
+The German [V5 assembly and experiment manual](release/v5/docs/Ugrinsky-Wind-Wall-V5-Bauanleitung.docx)
+covers twelve printed bodies from eight different STL files: one base, five
+standard modules, one top, one lower magnet rotor, one housing, one coil cassette,
+one stationary cover and one upper bearing support. The upper magnet carrier is
+integrated into the base. Both carriers rotate; the coil, cassette, housing,
+cover and upper support remain stationary. The lower carrier runs inside the
+housing below the coil. V5 uses a 51105 axial bearing (25 × 42 × 11 mm), a 608 upper
+radial bearing (8 × 22 × 7 mm), six M4 cover fasteners with captive nuts, four
+bottom mounting tabs and four wood screws for the upper support. The fence
+assembly includes the extended M8 shaft.
+
+The manual includes all E01–E15 figures, nine coupon files, the three assembly
+STEP references, PLA/Bambu P2S 0.4 mm nozzle guidance, later ASA trials, actual
+assembly order, cassette service access and the experimental 20/40/80 winding
+matrix for 0.18 mm wire and each later measured wire diameter. It explicitly
+prohibits direct connection to a 48 V lead battery. No final winding, safe speed,
+load rating, watertightness or outdoor-operation approval is claimed. The nominal
+1.5 mm gaps apply only with flush or subflush magnets; actual fits and retention
+require physical tests.
+
+`scripts/manual/manual_data.py` reads only the current V5 manifest and drawing
+index for release data, checks the drawing index's manifest SHA-256, and rejects
+missing assets or a changed inventory. `scripts/manual/build_manual.py` provides
+`build_v5_manual(project_root: Path, output_path: Path) -> Path`. It imports no CAD
+code and does not regenerate drawings. Fixed document metadata and ZIP timestamps
+make the DOCX byte-reproducible for the same inputs and bundled document runtime.
+
+Use the bundled document runtime returned by the Codex workspace dependency
+loader for DOCX builds and tests. Do not use the repository CAD Python or system
+Python for these operations. On this Windows setup, the commands are:
+
+```powershell
+$documentRuntime = "$env:USERPROFILE/.cache/codex-runtimes/codex-primary-runtime"
+$documentPython = "$documentRuntime/dependencies/python/python.exe"
+$documentNode = "$documentRuntime/dependencies/node/bin/node.exe"
+$documentSkill = "$documentRuntime/plugins/openai-primary-runtime/plugins/documents/skills/documents"
+# Run once immediately before FIRST authoring for a new artifact operation.
+# The committed V5 DOCX operation already ran this successfully; do not repeat it for rebuilds.
+# & $documentNode "$documentSkill/container_tools/mark_artifact_operation_started.mjs" --operation-kind create --expected-output-count 1 --output-format docx
+& $documentPython scripts/manual/build_manual.py
+& $documentPython -m unittest tests.test_v5_manual -v
+& $documentPython "$documentSkill/scripts/a11y_audit.py" release/v5/docs/Ugrinsky-Wind-Wall-V5-Bauanleitung.docx
+```
+
+The eleven focused manual tests pass, including A4/18 mm margins, German
+language, 13 logical chapters, exact inventory, captions and meaningful alt text,
+inline images, repeated table headers, light-gray table borders, black headings,
+current content, input binding and byte-identical rebuilds. During a CAD-runtime
+full-suite run they explicitly skip; run the command above separately.
+
+The packaged renderer was attempted with `--emit_pdf`, but this bundled Windows
+runtime contains no `soffice.exe`. Rendering and every-page visual QA are **blocked,
+not passed**; no PDF or page images are supplied. The DOCX is structurally verified
+and requires page-by-page review when a bundled LibreOffice renderer is available.
+Do not substitute desktop/system LibreOffice. Once a bundled renderer is available:
+
+```powershell
+& $documentPython "$documentSkill/render_docx.py" release/v5/docs/Ugrinsky-Wind-Wall-V5-Bauanleitung.docx --output_dir build/manual-v5/render --emit_pdf
+```
+
+Inspect every generated page PNG before claiming layout approval. The current
+sources are `release/v5/manifest.json` and `release/v5/drawings/figures.json`; after
+a geometry release rebuild, regenerate the drawings before rebuilding the manual.
+
+## Historical development notes before V5
+
+The remaining sections record earlier development stages. Their closure, radial
+fastener, provisional bearing and older `build/` inventory descriptions are
+historical and do not describe the current V5 assembly. Use the V5 manual and
+manifest above for the current build.
 
 ## Rebuild and inspect the release candidates
 
