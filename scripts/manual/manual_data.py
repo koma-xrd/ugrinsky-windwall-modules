@@ -45,6 +45,12 @@ def _part(
     return record
 
 
+def _format_mm(value: float) -> str:
+    """Format a released millimetre value for German display text."""
+
+    return f'{value:.2f}'.replace('.', ',')
+
+
 PRINTED_PARTS: dict[str, dict[str, Any]] = {
     'P01': _part(
         'Basis-Rotormodul mit integriertem oberem Magnetträger',
@@ -380,10 +386,22 @@ def load_manual_data(project_root: Path) -> dict[str, Any]:
         'manifest_bearing_fit': bool(manifest.get('assembly_audit', {}).get('physical_bearing_fit_verified', False)),
         'manifest_outdoor_operation': bool(manifest.get('outdoor_operation_validated', False)),
     })
+    hardware = deepcopy(HARDWARE)
+    hardware['H01']['specification'] = (
+        'Durchgehende nominale Achse; modellierte Hülllänge '
+        f"{_format_mm(dimensions['rod_length_mm'])} mm. "
+        'Zuschnitt erst nach Messung des realen Stacks.'
+    )
+    drawings = deepcopy(DRAWINGS)
+    drawings['E06']['description'] = (
+        'Schnittansicht mit nominal '
+        f"{_format_mm(dimensions['air_gap_mm'])} mm Luftspalt je Seite, "
+        'bündigen oder versenkten Magneten und provisorischen Lagerhüllen.'
+    )
     return {
         'dimensions': dimensions,
         'printed_parts': deepcopy(PRINTED_PARTS),
-        'hardware': deepcopy(HARDWARE),
-        'drawings': deepcopy(DRAWINGS),
+        'hardware': hardware,
+        'drawings': drawings,
         'validation_status': validation,
     }

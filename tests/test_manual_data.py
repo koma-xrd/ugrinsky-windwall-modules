@@ -1,5 +1,7 @@
 import unittest
+import json
 from pathlib import Path
+from unittest.mock import patch
 
 from scripts.manual.manual_data import load_manual_data
 
@@ -26,6 +28,16 @@ class ManualDataContractTests(unittest.TestCase):
         }
 
         self.assertTrue(set(data['printed_parts']) | set(data['hardware']) <= called_out)
+
+    def test_manifest_backed_display_values_follow_a_changed_audit(self):
+        manifest = json.loads((PROJECT_ROOT / 'build' / 'manifest.json').read_text(encoding='utf-8'))
+        manifest['assembly_audit']['shaft_z_bounds_mm'] = [-61.0, 501.25]
+        manifest['assembly_audit']['upper_generator_air_gap_mm'] = 2.25
+        with patch('scripts.manual.manual_data._read_manifest', return_value=manifest):
+            data = load_manual_data(PROJECT_ROOT)
+
+        self.assertIn('562,25 mm', data['hardware']['H01']['specification'])
+        self.assertIn('2,25 mm', data['drawings']['E06']['description'])
 
 
 if __name__ == '__main__':
