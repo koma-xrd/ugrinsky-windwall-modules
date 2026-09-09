@@ -1,9 +1,9 @@
 """Build the German prototype manual from release data and E01–E11 drawings.
 
 The document describes a measured development workflow, not a validated turbine.
-Existing renderer PNGs allow the bundled document runtime to run without CAD.
-If figures are absent, the corresponding renderer is invoked lazily and requires
-its CAD dependencies. Release dimensions and STL paths come from the manifest.
+The committed asset snapshot couples renderer PNGs to their release manifest.
+Document authoring never imports CAD or regenerates missing drawings. Refreshing
+the snapshot is a separate CAD operation documented in assets/manual/README.md.
 """
 
 from __future__ import annotations
@@ -43,8 +43,8 @@ def _paragraph(doc, text, *, lead=None):
     return paragraph
 
 
-def _page(doc, title):
-    heading = doc.add_heading(title, 1)
+def _page(doc, title, *, level=2):
+    heading = doc.add_heading(title, level)
     heading.paragraph_format.page_break_before = True
 
 
@@ -101,19 +101,15 @@ def _table(doc, headers, rows, widths, *, centered=()):
     return table
 
 
-def _figure_paths(project_root, data):
-    paths = {key: project_root / item['figure_file'] for key, item in data['drawings'].items()}
-    missing = {key for key, path in paths.items() if not path.is_file()}
-    if missing & {f'E{i:02}' for i in range(1, 7)}:
-        from scripts.manual.cad_figures import render_cad_figures
-
-        for record in render_cad_figures(project_root, project_root / 'output/manual-figures'):
-            paths[record.drawing_id] = record.path
-    if missing & {f'E{i:02}' for i in range(7, 12)}:
-        from scripts.manual.electrical_figures import render_electrical_figures
-
-        for record in render_electrical_figures(project_root, project_root / 'output/manual-figures'):
-            paths[record.drawing_id] = record.path
+def _figure_paths(snapshot_root, data):
+    paths = {key: snapshot_root / item['figure_file'] for key, item in data['drawings'].items()}
+    for drawing_id, path in paths.items():
+        if not path.is_file():
+            raise FileNotFoundError(
+                f'Manual drawing asset missing: {drawing_id}: {path}. '
+                'Restore the committed assets/manual/release snapshot; '
+                'CAD regeneration is a separate operation.'
+            )
     return paths
 
 
@@ -187,7 +183,7 @@ def _scope(doc, data):
 
 
 def _boms(doc, data, manifest):
-    _page(doc, '2 Druckteile und STL Dateien')
+    _page(doc, '2 Druckteile und STL Dateien', level=1)
     _paragraph(doc, 'Für einen Rotor werden neun Druckkörper aus fünf unterschiedlichen STL-Dateien benötigt. Der obere Magnetträger ist bereits Teil von P01. Mengen und Pfade folgen dem Release-Manifest; die Pfade gelten relativ zu build/.')
     released = {part['name']: part for part in manifest['production_parts']}
     rows = []
@@ -203,7 +199,7 @@ def _boms(doc, data, manifest):
     ], [35, 80, 59])
     _paragraph(doc, 'Stehendes Generatorgehäuse, Wickelraum und Deckel sowie Lager- und Distanzhüllen sind provisorische Referenzgeometrien der Gesamtbaugruppe. Sie gehören nicht zu den fünf aufgeführten STL-Kandidaten. Die Befestigung des Stators und die externe Abstützung müssen konstruiert und geprüft werden; diese Anleitung ersetzt dafür keine Fertigungszeichnung.', lead='Abgrenzung:')
 
-    _page(doc, '3 Kaufteile für Aufbau und Versuche')
+    _page(doc, '3 Kaufteile für Aufbau und Versuche', level=1)
     _paragraph(doc, 'Erforderlich bedeutet hier: für den geplanten Prototyp vorgesehen. Reale Maße, Werkstoffe und Eignung bleiben zu prüfen. Schraubenlängen nicht ungeprüft in abweichende Druckteile übernehmen.')
     ids = ('H01', 'H02', 'H03', 'H04', 'H05', 'H08', 'H09', 'H10', 'H11', 'H17')
     rows = [(key, data['hardware'][key]['quantity'], data['hardware'][key]['description'],
@@ -226,7 +222,7 @@ def _boms(doc, data, manifest):
 
 
 def _printing(doc):
-    _page(doc, '4 Druck und Vorbereitung')
+    _page(doc, '4 Druckempfehlungen für PLA und ASA', level=1)
     doc.add_heading('PLA Prototyp auf dem Bambu Lab P2S', 2)
     _paragraph(doc, 'Ausgangspunkt ist der Bambu Lab P2S mit 0,4 mm Düse und vorhandenem PLA. Die folgenden Einstellungen sind Versuchsempfehlungen, keine Druckfreigabe. Zuerst alle Coupons mit demselben Filament und Profil wie die späteren Teile drucken.')
     _steps(doc, [
@@ -236,17 +232,20 @@ def _printing(doc):
         'Support nur dort einsetzen, wo die Vorschau ungestützte kritische Flächen zeigt. Kontaktflächen, Rampen und Magnettaschen müssen danach vollständig zugänglich sein. Eine Stützstruktur darf keine Passfläche dauerhaft verformen.',
         'Teile abkühlen lassen, entnehmen und Stützreste vorsichtig entfernen. Grate und Elefantenfuß abtragen, ohne Rampen, Treiber oder Taschengrund zu verändern. Fehlerhafte Schichten und Risse führen zum Aussortieren.',
     ])
+    _paragraph(doc, 'ASA ist eine spätere Materialvariante. Dafür Trocknung, Lüftung, Temperaturen und Druckraumführung nach dem konkreten Herstellerprofil festlegen. Wegen anderer Schrumpfung alle Coupons, Belastungs- und Retentionsprüfungen wiederholen. Ein Materialwechsel allein validiert weder Wetterfestigkeit noch Dauerbetrieb.')
+    _page(doc, '5 Vorbereitung und Coupon Tests', level=1)
+    _paragraph(doc, 'Arbeitsfläche reinigen, Druckteile eindeutig beschriften und alle realen Kaufteile vermessen. Coupon und spätere Bauteile müssen aus demselben Material mit demselben Druckprofil entstehen. Erst nach dokumentierter Passung die vollständigen Rotorteile drucken und montieren.')
     doc.add_heading('Coupon Prüfungen', 2)
     _table(doc, ['Prüfung', 'Vorgehen', 'Weiter erst wenn'], [
         ('Bajonett und Naht', 'Trocken einsetzen, von Hand verriegeln, erneut lösen.', 'Kein Zwang, kein Riss und vollständiges Setzen.'),
         ('Magnettasche', 'Reale Magnete in 10,8 / 11,0 / 11,2 mm prüfen; Tiefe und Überstand messen.', 'Passung, Klebespalt und Rückhaltung sind dokumentiert.'),
         ('M3 und M8', 'Pilotloch, Gewindeeingriff, Scheibenauflage und Werkzeugzugang prüfen.', 'Schrauben greifen, ohne Wände zu sprengen.'),
     ], [37, 75, 62])
-    _paragraph(doc, 'ASA ist eine spätere Materialvariante. Dafür Trocknung, Lüftung, Temperaturen und Druckraumführung nach dem konkreten Herstellerprofil festlegen. Wegen anderer Schrumpfung alle Coupons, Belastungs- und Retentionsprüfungen wiederholen. Ein Materialwechsel allein validiert weder Wetterfestigkeit noch Dauerbetrieb.')
+    _paragraph(doc, 'Zu jeder Prüfung Datum, Filamentcharge, Druckprofil, Messgerät und Ergebnis notieren. Bei Zwangspassung, beschädigter Emaille, Rissen oder fehlender Rückhaltung nicht zur nächsten Bauphase übergehen. Änderungen am Coupon zuerst erneut prüfen und erst danach auf die Baugruppe übertragen.')
 
 
 def _generator(doc, data, paths):
-    _page(doc, '5 Generator mechanisch montieren')
+    _page(doc, '6 Generator mechanisch montieren', level=1)
     _paragraph(doc, 'Zunächst ohne Magnete und ohne elektrische Verbindung arbeiten. E02 trennt rotierende Druckteile von stehenden, noch provisorischen Hüllen. Im fertigen Versuch muss der Stator sicher gegen Mitdrehen und die Lagerung gegen axiales Wandern gehalten sein.')
     _figure(doc, 'E02', data, paths)
     _steps(doc, [
@@ -255,7 +254,7 @@ def _generator(doc, data, paths):
         'P05, H07 und die untere Scheiben-/Mutternstelle entsprechend E02/E06 trocken ordnen. Die reale H07-Länge so bestimmen, dass die Magnetflächen parallel stehen und alle stehenden Teile freigängig bleiben.',
         'Lager und Stator separat abstützen. Erst nach bestätigter axialer Halterung und Abgrenzung aller drehenden Flächen mit Magneten weiterarbeiten. Wenn die Halterung noch fehlt, endet der Aufbau am Trockenversuch.',
     ])
-    _page(doc, '6 Magnetträger vorbereiten')
+    _page(doc, '7 Magnete montieren und Polung prüfen', level=1)
     _figure(doc, 'E03', data, paths)
     _paragraph(doc, 'P01 trägt den oberen Magnetring integriert; P05 ist der untere separate Rotor. Insgesamt werden 36 nominal 10 x 2 mm große Scheibenmagnete H10 benötigt, 18 je Rotor. Jede Scheibe vor Einbau auf Ausbrüche, Beschichtungsschäden, Durchmesser und Dicke prüfen.')
     _paragraph(doc, 'Die modellierten Taschen sind 11 mm weit und 2 mm tief. Ein Magnetnennmaß von 10 mm garantiert weder einen geeigneten Klebespalt noch ausreichende Rückhaltung. Mit dem Coupon 10,8 / 11,0 / 11,2 mm die echte Druckpassung ermitteln und magnetischen Überstand mit Tiefenmaß dokumentieren.')
@@ -284,11 +283,11 @@ def _generator(doc, data, paths):
 
 
 def _winding(doc, data, paths):
-    _page(doc, '7 Durchgehende Testwicklung herstellen')
+    _page(doc, '8 Durchgehende Testwicklung herstellen', level=1)
     _paragraph(doc, 'Die luftkernige Serpentinen-Testwicklung folgt einem durchgehenden Leiterpfad zwischen Innen- und Außenradius. Sie ist eine experimentelle Spule. Drahtdurchmesser, Windungszahl und fertige Verschaltung stehen erst nach den Messungen fest.')
     _figure(doc, 'E08', data, paths)
     _steps(doc, [
-        'Mit dem vorhandenen nominalen 0,18 mm Kupferlackdraht beginnen. Den Durchmesser über der Emaille an mehreren Stellen mit einem Mikrometer und geringer Messkraft erfassen. Spule, Drahtcharge und Messwert beschriften.',
+        'Mit dem vorhandenen nominalen 0,18 mm Kupferlackdraht beginnen. Jede verfügbare oder später bestellte Drahtcharge über der Emaille an mehreren Stellen mit Mikrometer und geringer Messkraft messen. Nennmaß und gemessenen Durchmesser getrennt notieren. Spule, Drahtcharge und Messwert beschriften.',
         'Startende A1 mit ausreichend Anschlussreserve markieren und weich an der Schablone fixieren. Den Pfad in einer einzigen fortlaufenden Richtung verfolgen. Nicht nach einem Sektor umkehren oder einzelne Teilspulen ohne Verschaltungsplan anfügen.',
         'Von Pin zu Pin abwechselnd Innen- und Außenradius anlaufen. Die 18 radialen Schenkel folgen E08. Eine Windung ist ein vollständiger Umlauf des Serpentinenpfads; die 18 Schenkel sind keine 18 einzelnen Windungen.',
     ])
@@ -297,21 +296,36 @@ def _winding(doc, data, paths):
     _figure(doc, 'E09', data, paths)
     _steps(doc, [
         'Eine steife ebene Schablone vorbereiten. Glatte, abgerundete und elektrisch isolierte Pins verwenden. Pinlage aus dem gemessenen Wickelraum ableiten; E09 ist eine Prinzipskizze, keine ungeprüft maßstäbliche Bohrschablone.',
-        '20 vollständige Umläufe locker und gleichmäßig wickeln. Jeden Umlauf zählen, den Draht ohne Knicke führen und Kreuzungen vermeiden. Dann getrennte 40- und 80-Windungs-Testspulen nur anfertigen, wenn die gemessenen Außen-, Innen- und Höhenmaße Platz lassen.',
+        'Für jeden verfügbaren gemessenen Drahtdurchmesser getrennte Testspulen mit 20, 40 und 80 vollständigen Umläufen planen. Jede Variante nur wickeln, wenn Außen-, Innen- und Höhenmaß Platz lassen. Umläufe zählen, den Draht locker ohne Knicke führen und Kreuzungen vermeiden.',
         'Nicht durch starkes Ziehen, Pressen oder erzwungenes Packen passend machen. Bei Platzmangel Variante abbrechen, Maße dokumentieren und Schablone oder Drahtauswahl erneut bewerten.',
         'Die Spule noch auf den Pins an mehreren Stellen mit weichem Band oder Faden binden. Erst danach vorsichtig abheben, Ende A2 markieren, Emaille unter Vergrößerung auf Schäden prüfen und Anschlussenden zugentlasten.',
-        'Durchgang, Widerstand und Außen-/Innenmaß sowie maximale Höhe messen. Auffällige Widerstandssprünge oder beschädigte Emaille bedeuten Nacharbeit beziehungsweise Verwerfen. Bis die Tests ein Design auswählen, nicht vergießen.',
+        'Verbrauchte Drahtlänge mit einem Längenzähler oder vorab markierter Abwicklung erfassen; Anschlussenden einheitlich mitmessen und deren Länge notieren. Durchgang, Widerstand, Außen-/Innenmaß und maximale Höhe messen. Bei beschädigter Emaille nacharbeiten oder verwerfen. Bis die Tests ein Design auswählen, nicht vergießen.',
     ])
+    _page(doc, 'Testmatrix je Drahtdurchmesser')
+    _paragraph(doc, 'Jede Zeile steht für eine gemessene Drahtcharge. Die erste Zeile beginnt mit dem vorhandenen nominalen 0,18-mm-Draht; sein gemessener Durchmesser bleibt maßgeblich. Für zusätzliche Durchmesser weitere Zeilen oder Kopien verwenden. Kein Feld bezeichnet bereits die Endwicklung.')
+    _table(doc, ['Drahtcharge und gemessenes d', '20 Windungen', '40 Windungen', '80 Windungen'], [
+        ('Vorhanden nominal 0,18 mm\nCharge ____\nd = ____ mm',
+         'Spule ____\npasst / passt nicht', 'Spule ____\npasst / passt nicht', 'Spule ____\npasst / passt nicht'),
+        ('Weitere Charge 1 ____\nd = ____ mm',
+         'Spule ____\npasst / passt nicht', 'Spule ____\npasst / passt nicht', 'Spule ____\npasst / passt nicht'),
+        ('Weitere Charge 2 ____\nd = ____ mm',
+         'Spule ____\npasst / passt nicht', 'Spule ____\npasst / passt nicht', 'Spule ____\npasst / passt nicht'),
+    ], [60, 38, 38, 38])
+    _paragraph(doc, 'Passt nicht ist ein verwertbares Versuchsergebnis. Die Variante mit gemessenen Abmessungen und Ursache protokollieren und aus den Drehversuchen ausschließen. Den Draht weder zusammendrücken noch die Emaille abschaben, um ein ausgefülltes 20/40/80-Raster zu erzwingen.')
+    doc.add_heading('Längen und Widerstände vergleichbar erfassen', 2)
+    _paragraph(doc, 'Für jede passende Spule Drahtlänge in Metern, gleich behandelte Anschlusslänge, DC-Widerstand und Messtemperatur erfassen. Bei kurzen dünnen Wicklungen den Messleitungswiderstand korrigieren. Werden Anschlussenden aus der Längenangabe ausgeschlossen, muss auch deren Widerstandsanteil getrennt behandelt werden.')
+    _paragraph(doc, 'Spulennummer __________________  Drahtcharge __________________\nNennmaß ______ mm  Gemessen über Emaille ______ mm\nDrahtlänge gesamt ______ m  Davon Anschlussenden ______ m\nLängenmessverfahren __________________________________________\nPassungsbefund und Abbruchgrund _______________________________\n______________________________________________________________')
 
 
 def _measurements(doc, data, paths):
-    _page(doc, '8 Testspulen vergleichbar messen')
+    _page(doc, '9 Testspulen vergleichbar messen', level=1)
     _figure(doc, 'E10', data, paths)
     _paragraph(doc, 'Alle Varianten bei gleicher Drehzahl, Magnetanordnung, Luftspalt und vergleichbarer Ausgangstemperatur messen. Spulennummer, tatsächliche Windungszahl, Drahtdurchmesser über Emaille, Messgerät und Messbereich aufzeichnen. Ein Leerlaufspannungswert allein ist kein Leistungsnachweis.')
     _steps(doc, [
         'Bei stillgesetztem Rotor isolierte Messleitungen verlegen und sichern. Drehzahlmarker befestigen, Schutzhaube schließen. Im Leerlauf das True-RMS-Voltmeter zwischen A1 und A2 anschließen; keine Batterie verwenden.',
-        'Langsam auf eine vorher begrenzte Prüfdrehzahl bringen. Drehzahl und AC-Leerlaufspannung gemeinsam aufnehmen. Rotor mechanisch stillsetzen, bevor Leitungen oder Messbereiche umgesteckt werden.',
-        'Eine definierte Last mit gemessenem Widerstand und ausreichender Wärmeabfuhr anschließen. Das Amperemeter liegt in Reihe, das Voltmeter parallel zur Last. Laststrom, Lastspannung, Drehzahl, Anfangs-/Endtemperatur und Laufzeit protokollieren.',
+        'Langsam auf eine vorher begrenzte Prüfdrehzahl bringen. Drehzahl, AC-Leerlaufspannung und elektrische Frequenz gemeinsam aufnehmen. Rotor mechanisch stillsetzen, bevor Leitungen oder Messbereiche umgesteckt werden.',
+        'Erste Lasttests ausdrücklich strombegrenzen: Stromgrenze vor dem Drehen dokumentieren, passenden Überstromschutz einsetzen und mit hohem Lastwiderstand beginnen. Als definierte Last einen vermessenen Leistungswiderstand so bemessen, dass bei der begrenzten Prüfdrehzahl der erlaubte Strom nicht überschritten wird; Spannungs- und Wärmefestigkeit prüfen.',
+        'Das Amperemeter liegt in Reihe, das Voltmeter parallel zur definierten Last. Laststrom, Lastspannung, Drehzahl, Temperatur und Laufzeit protokollieren. Erst bei stabilen Werten den Lastwiderstand in kontrollierten Schritten verkleinern. Zum Umstecken stillsetzen; bei Stromgrenze oder Erwärmung sofort stoppen.',
         'Die optionale DC-Messung separat hinter einem passend bemessenen Gleichrichter aufbauen. AC-RMS- und DC-Werte nicht vermischen. Niemals ein Amperemeter direkt über eine Spannungsquelle legen.',
     ])
 
@@ -321,12 +335,15 @@ def _measurements(doc, data, paths):
     _paragraph(doc, 'N_final = N_test * V_ac_target / V_ac_test')
     _paragraph(doc, 'Das Ergebnis auf die nächste ganze Windung aufrunden. N_test ist die gezählte Windungszahl der vermessenen Testspule; V_ac_test ihre gemessene AC-Spannung bei der festgelegten Drehzahl. V_ac_target ist das für die spätere Elektronik begründete AC-Ziel unter derselben Vergleichsbedingung. V_ac_test muss größer als null sein.')
     _paragraph(doc, 'Die Formel ist eine erste lineare Abschätzung bei gleicher Geometrie und Drehzahl. Mehr Windungen ändern Platzbedarf und Widerstand. Die berechnete Spule muss erneut auf Passung, Lastspannung und Temperatur geprüft werden. N_final bezeichnet den Rechenwert, keine freigegebene Endwicklung.')
+    _paragraph(doc, 'Zusätzlich den Widerstand pro Meter und den internen Spannungseinbruch vergleichen: R_pro_m = R_spule / l_draht; Delta_V_intern = V_leer - V_last. R_spule und Drahtlänge müssen denselben Leiterabschnitt betreffen; l_draht muss größer als null sein. Leerlauf und Last nur bei gleicher tatsächlicher Drehzahl und gleicher AC-RMS-Messart vergleichen. Der Spannungseinbruch ist ein Vergleichswert, kein isolierter Nachweis des Kupferverlusts.')
     _paragraph(doc, '48 V ist die nominale Batteriespannung, nicht automatisch V_ac_target. Tatsächliche Ladespannung, Gleichrichterverluste, Regler-Eingangsbereich, Anlauf und Spannung unter Last bestimmen das Ziel. Kein universeller AC-zu-DC-Faktor ersetzt die Messung an dieser Wellenform.')
     doc.add_heading('Vergleichsentscheidung', 2)
     _table(doc, ['Kriterium', '20 Windungen', '40 Windungen', '80 Windungen'], [
         ('Passt ohne Druck', '____', '____', '____'),
         ('AC Volt pro Windung', '____', '____', '____'),
         ('Widerstand bei T₀', '____', '____', '____'),
+        ('Widerstand pro Meter', '____', '____', '____'),
+        ('Interner Spannungseinbruch', '____', '____', '____'),
         ('Spannung an gleicher Last', '____', '____', '____'),
         ('Erwärmung nach gleicher Zeit', '____', '____', '____'),
         ('Weitere Prüfung erforderlich', '____', '____', '____'),
@@ -335,7 +352,7 @@ def _measurements(doc, data, paths):
 
 
 def _rotor(doc, data, paths):
-    _page(doc, '9 Sieben Stufen montieren')
+    _page(doc, '10 Sieben Stufen montieren', level=1)
     _figure(doc, 'E01', data, paths)
     _paragraph(doc, 'Von unten nach oben folgen Basis P01, fünf identische P02 und Top P03. P04 schließt oben ab. Vor dem Stapeln alle sechs Nahtstellen mit Coupons erproben; nur saubere, unbeschädigte Fügeteile verwenden.')
     _steps(doc, [
@@ -355,7 +372,7 @@ def _rotor(doc, data, paths):
     ])
     _paragraph(doc, 'Die M3-Nahtschrauben ziehen die Verbindungen nicht zusammen und tragen keine M8-Vorspannung. Die axialen Sitzflächen und M8-Klemmung müssen unabhängig davon korrekt funktionieren.', lead='Lastpfad:')
 
-    _page(doc, '10 Top Klemmung und Abschluss')
+    _page(doc, '11 Top Klemmung und Abschluss', level=1)
     _figure(doc, 'E05', data, paths)
     _steps(doc, [
         'Vor P04 die obere H03-Scheibe eben auf ihre vorgesehene Auflage setzen. H02 zugänglich aufschrauben und mit passendem Werkzeug gegenhalten. Die Kraft darf nicht über Blattkanten oder Abdeckung laufen.',
@@ -367,7 +384,8 @@ def _rotor(doc, data, paths):
 
 
 def _safety(doc, data, paths):
-    _page(doc, '11 Ladekette und elektrische Sicherheit')
+    _page(doc, '12 Inbetriebnahme Wartung und Sicherheit', level=1)
+    doc.add_heading('Ladekette und elektrische Sicherheit', 2)
     _figure(doc, 'E11', data, paths)
     _paragraph(doc, 'Generator nicht direkt mit dem Akku verbinden.', lead='Verbot:')
     _paragraph(doc, 'Die Funktionskette lautet: Generator → geeignet bemessener Gleichrichter → Überstromschutz → Wind-Laderegler mit Diversion/Dump Load → batterieseitige Sicherung → 48-V-Bleiakku-Bank. Alle elektrischen Bemessungswerte: Nach Messung auswählen.')
@@ -375,7 +393,7 @@ def _safety(doc, data, paths):
     _paragraph(doc, 'Die Überschusslast muss die nachgewiesene maximal mögliche Quellenleistung unter den vorgesehenen Bedingungen aufnehmen können, ohne den Regler zu überlasten. Sie wird heiß und braucht sichere Wärmeabfuhr sowie Berührungsschutz. Der Morningstar-Herstellerleitfaden [S2] erläutert die grundsätzliche Diversionsbemessung; seine Produktwerte sind keine Auswahl für diesen Prototyp.')
     _paragraph(doc, 'Batterien liefern sehr hohe Kurzschlussströme. Schmuck ablegen, isolierte Werkzeuge verwenden, Pole abdecken und Polarität vor Anschluss messen. Sicherungen passend zu Leitungen, DC-Spannung und Abschaltvermögen nahe der jeweiligen Quelle anordnen; H16 nahe dem Batterieanschluss.', lead='Kurzschluss und Verpolung:')
 
-    _page(doc, '12 Inbetriebnahme und Betriebssicherheit')
+    _page(doc, 'Inbetriebnahme und Betriebssicherheit')
     doc.add_heading('Vor dem ersten Drehversuch', 2)
     _steps(doc, [
         'Alle mechanischen Prüfungen dokumentieren: Magnetrückhaltung, Lagerhaltung, Statorfixierung, sechs Nähte, M8-Klemmung, Luftspalte und freie Handdrehung. Offene Retentions- oder Lagerfragen schließen einen angetriebenen Versuch aus.',
@@ -387,7 +405,7 @@ def _safety(doc, data, paths):
     _paragraph(doc, 'Beim Laden von Bleiakkus kann Wasserstoff entstehen. Gut belüftet arbeiten, Zündquellen und Funken fernhalten. Den konkreten Akkutyp und sein Herstellerhandbuch beachten; Ladeprofil und Temperaturkompensation passend einstellen. AGM- und Gel-Akkus nicht öffnen oder nachfüllen. Hinweise nach Trojan [S1] und dem Handbuch der tatsächlich verwendeten Batterie.', lead='Batterie und Lüftung:')
     _paragraph(doc, 'Dieser Prototyp ist nicht gegen Feuchtigkeit validiert. Trocken und kontrolliert prüfen, bei Kondensation oder Nässe nicht betreiben. PLA, offene Lagerung und provisorische Elektronik sind keine Außeninstallation. Den Aufbau niemals unbeaufsichtigt laufen oder laden lassen.', lead='Umgebung und Aufsicht:')
 
-    _page(doc, '13 Wartung und Fehlersuche')
+    _page(doc, 'Wartung und Fehlersuche')
     _paragraph(doc, 'Vor jeder Arbeit Rotor stillsetzen, mechanisch sichern und elektrische Quellen nach dem gerätespezifischen Trennplan isolieren. Erst nach Spannungsprüfung an Leitungen arbeiten. Ein Windrotor kann sich unerwartet wieder in Bewegung setzen.')
     doc.add_heading('Prüfung vor und nach jedem Versuch', 2)
     _paragraph(doc, 'Magnetmarkierungen und Rückhaltung, Klebefugen, Nahtschrauben, M8-Sitz, Risse und Verformung prüfen. Rundlauf und Luftspalt mit dem Ausgangsprotokoll vergleichen. Drahtausgänge, Zugentlastung und Isolierung kontrollieren. Laufzeit, Höchsttemperatur und Änderungen aufzeichnen. Nach Materialwechsel oder Umbau die betroffenen Coupon- und Belastungstests wiederholen.')
@@ -404,30 +422,40 @@ def _safety(doc, data, paths):
 
 
 def _records_and_sources(doc, data):
-    _page(doc, '14 Formeln und Messblätter')
+    _page(doc, '13 Formeln Messblätter und Quellen', level=1)
     _table(doc, ['Größe', 'Beziehung', 'Gültigkeit'], [
         ('Spannung pro Windung', 'u = V_ac_test / N_test', 'Gleiche Drehzahl und Geometrie; gleiche Messart.'),
         ('Lastleistung DC', 'P = V_dc × I_dc', 'Stationäre DC-Werte an derselben Last.'),
         ('Ohmsche Last AC', 'P = V_rms² / R_last', 'Rein ohmsche, bekannte Last; tatsächlicher RMS-Wert.'),
         ('Kupferverlust', 'P_cu = I_rms² × R_spule', 'Widerstand bei erfasster Temperatur; Näherung.'),
+        ('Widerstand je Meter', 'R_pro_m = R_spule / l_draht', 'Identischer Leiterabschnitt; gemessene Länge größer null.'),
+        ('Spannungseinbruch', 'Delta_V_intern = V_leer - V_last', 'Gleiche Drehzahl und AC-RMS-Messart; Vergleichswert.'),
         ('Erwärmung', 'ΔT = T_ende − T_start', 'Gleiche Laufzeit und Umgebung vergleichen.'),
     ], [39, 61, 74])
     doc.add_heading('Messblatt für Draht und Passung', 2)
     _paragraph(doc, 'Datum __________________  Prüfer __________________\nDrahtcharge __________________  Messgerät __________________\nSchablone und Material __________________  Umgebung ______ °C')
-    _table(doc, ['Spule', 'Windungen', 'd über Emaille mm', 'Außen mm', 'Innen mm', 'Höhe mm', 'R kalt Ω'], [
+    _table(doc, ['Spule', 'Windungen', 'd über Emaille mm', 'Außen mm', 'Innen mm', 'Höhe mm', 'Drahtlänge m'], [
         ('____', '20', '____', '____', '____', '____', '____'),
         ('____', '40', '____', '____', '____', '____', '____'),
         ('____', '80', '____', '____', '____', '____', '____'),
         ('____', '____', '____', '____', '____', '____', '____'),
     ], [20, 24, 32, 24, 24, 24, 26])
     _paragraph(doc, 'Prüfung der Emaille ______________________________________________\nDurchgang und Messleitungskorrektur ______________________________\nBindung und Anschlussreserve ____________________________________\nPasst ohne Druck in den realen Wickelraum __________________________')
-    doc.add_heading('Messblatt für Leerlauf und Last', 2)
-    _paragraph(doc, 'Spule ______  Windungen ______  Luftspalt oben/unten ______ / ______ mm\nMessart AC RMS oder DC ______  Gerät / Bereich _____________________')
-    _table(doc, ['n min⁻¹', 'V leer', 'R Last Ω', 'V Last', 'I Last A', 'Zeit s', 'T₀ / T₁ °C'], [
-        ('____', '____', '____', '____', '____', '____', '____ / ____'),
-        ('____', '____', '____', '____', '____', '____', '____ / ____'),
-        ('____', '____', '____', '____', '____', '____', '____ / ____'),
-    ], [25, 22, 25, 22, 25, 20, 35])
+    _page(doc, 'Messblatt für Leerlauf und Last')
+    _paragraph(doc, 'Spule ______  Windungen ______  Drahtcharge _____________________\nGemessener Drahtdurchmesser ______ mm  Drahtlänge ______ m\nLuftspalt oben/unten ______ / ______ mm\nMessart AC RMS oder DC ______  Gerät / Bereich _____________________\nVorab festgelegte Stromgrenze ______ A  Überstromschutz ______________\nMaximale Prüfdrehzahl ______ min⁻¹  Abbruchtemperatur ______ °C')
+    _table(doc, ['n min⁻¹', 'f leer Hz', 'V leer', 'R Last Ω', 'V Last', 'I Last A', 'Zeit s', 'T₀ / T₁ °C'], [
+        ('____', '____', '____', '____', '____', '____', '____', '____ / ____'),
+        ('____', '____', '____', '____', '____', '____', '____', '____ / ____'),
+        ('____', '____', '____', '____', '____', '____', '____', '____ / ____'),
+    ], [21, 20, 20, 23, 21, 23, 18, 28])
+    doc.add_heading('Abgeleitete Vergleichswerte', 2)
+    _paragraph(doc, 'Dieselben Laufnummern wie oben verwenden. Für jeden neuen Durchmesser und jede passende Windungszahl ein eigenes Blatt ausfüllen. Temperaturen, Drehzahl und Lastbedingungen müssen zum Vergleich zusammenpassen.')
+    _table(doc, ['Lauf', 'R Spule Ω', 'T bei R °C', 'R pro m Ω/m', 'ΔV intern V', 'P Kupfer W'], [
+        ('1', '____', '____', '____', '____', '____'),
+        ('2', '____', '____', '____', '____', '____'),
+        ('3', '____', '____', '____', '____', '____'),
+    ], [18, 30, 30, 34, 32, 30])
+    _paragraph(doc, 'Messgerätegrenzen und auffällige Frequenzwerte ____________________\n______________________________________________________________\nAbweichungen und nächster erlaubter Versuch ______________________\n______________________________________________________________')
 
     _page(doc, 'Mechanische Messung und Entscheidung')
     _paragraph(doc, 'Aufbauversion __________________  Material __________________\nDatum __________________  Prüfer __________________')
@@ -448,7 +476,7 @@ def _records_and_sources(doc, data):
     _paragraph(doc, 'Offene Punkte vor Elektronikauswahl ______________________________\n______________________________________________________________\nOffene Punkte vor einem weiteren Drehversuch ______________________\n______________________________________________________________')
     _paragraph(doc, 'Eintrag und Unterschrift dokumentieren einen Versuch. Sie ersetzen keine technische Freigabe für Außen-, Sturm- oder unbeaufsichtigten Betrieb.')
 
-    _page(doc, '15 Zeichnungsindex und Quellen')
+    _page(doc, 'Zeichnungsindex und Quellen')
     _table(doc, ['ID', 'Zeichnung', 'Teilebezug'], [
         (key, item['title'], ', '.join(item['items'])) for key, item in data['drawings'].items()
     ], [15, 86, 73])
@@ -477,9 +505,10 @@ def build_manual(project_root: Path, output_path: Path) -> Path:
     """Create the complete German DOCX and return the requested output path."""
     project_root = Path(project_root).resolve()
     output_path = Path(output_path)
-    data = load_manual_data(project_root)
-    manifest = json.loads((project_root / 'build/manifest.json').read_text(encoding='utf-8'))
-    paths = _figure_paths(project_root, data)
+    snapshot_root = project_root / 'assets/manual/release'
+    data = load_manual_data(snapshot_root)
+    manifest = json.loads((snapshot_root / 'build/manifest.json').read_text(encoding='utf-8'))
+    paths = _figure_paths(snapshot_root, data)
     doc = _setup_document()
     _scope(doc, data)
     _boms(doc, data, manifest)

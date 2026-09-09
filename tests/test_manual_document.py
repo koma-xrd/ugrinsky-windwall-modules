@@ -1,11 +1,13 @@
 """Check the generated maker document at its OOXML delivery boundary.
 
 Run with bundled document Python via ``python -m unittest discover -s tests
--p test_manual_document.py``. Cached CAD drawings avoid a CAD runtime dependency.
+-p test_manual_document.py``. Committed drawing assets need no CAD runtime.
 """
 
 from importlib import import_module
 from pathlib import Path
+import shutil
+import subprocess
 import sys
 import unittest
 from uuid import uuid4
@@ -32,6 +34,7 @@ class ManualDocumentTests(unittest.TestCase):
             'The German manual builder has not been implemented',
         )
         if self.__class__.document is None:
+            (ROOT / 'build').mkdir(exist_ok=True)
             # Windows sandbox ACLs reject tempfile's mode-0700 directories.
             # Use a unique artifact in the existing writable build directory.
             target = ROOT / 'build' / f'manual-test-{uuid4().hex}.docx'
@@ -40,7 +43,7 @@ class ManualDocumentTests(unittest.TestCase):
             self.assertEqual(builder(ROOT, target), target)
             self.__class__.document = Document(target)
         self.doc = self.document
-        self.text = '\n'.join(self.doc.element.body.itertext())
+        self.text = '\n'.join(self.doc.element.body.xpath('.//w:t/text()'))
 
     @classmethod
     def tearDownClass(cls):
@@ -80,14 +83,30 @@ class ManualDocumentTests(unittest.TestCase):
             self.assertIn(filename, table_text)
 
     def test_all_drawings_are_inline_accessible_and_captioned(self):
-        self.assertGreaterEqual(len(self.doc.inline_shapes), 11)
+        self.assertEqual(len(self.doc.inline_shapes), 11)
         self.assertFalse(self.doc.element.body.xpath('.//wp:anchor'))
-        for image in self.doc.inline_shapes:
-            self.assertTrue(image._inline.docPr.get('descr', '').strip())
-        captions = '\n'.join(p.text for p in self.doc.paragraphs
-                             if p.style.name == 'Caption')
-        for number in range(1, 12):
-            self.assertIn(f'E{number:02}', captions)
+        image_ids = []
+        paragraphs = self.doc.paragraphs
+        for index, paragraph in enumerate(paragraphs):
+            properties = paragraph._p.xpath('.//wp:inline/wp:docPr')
+            if not properties:
+                continue
+            self.assertEqual(len(properties), 1)
+            description = properties[0].get('descr', '')
+            drawing_id = description.split(':', 1)[0]
+            image_ids.append(drawing_id)
+            caption = paragraphs[index + 1]
+            self.assertEqual(caption.style.name, 'Caption')
+            self.assertTrue(caption.text.startswith(drawing_id + '  '))
+            self.assertGreater(len(description), 25)
+            relationship_id = paragraph._p.xpath('.//a:blip')[0].get(qn('r:embed'))
+            actual_bytes = self.doc.part.related_parts[relationship_id].blob
+            expected_asset = next((ROOT / 'assets/manual/release/output/manual-figures').glob(
+                drawing_id + '-*.png',
+            ))
+            self.assertEqual(actual_bytes, expected_asset.read_bytes(),
+                             f'{drawing_id} must embed its own drawing asset')
+        self.assertCountEqual(image_ids, [f'E{i:02}' for i in range(1, 12)])
 
     def test_a4_portrait_and_eighteen_mm_side_margins(self):
         for section in self.doc.sections:
@@ -110,6 +129,44 @@ class ManualDocumentTests(unittest.TestCase):
         for name in ('Title', 'Heading 1', 'Heading 2'):
             self.assertEqual(str(self.doc.styles[name].font.color.rgb), '000000')
 
+    def test_thirteen_chapter_outline_keeps_page_topics_subordinate(self):
+        self.assertEqual(
+            [p.text for p in self.doc.paragraphs if p.style.name == 'Heading 1'],
+            ['1 Umfang und Prototypstatus', '2 Druckteile und STL Dateien',
+             '3 Kaufteile für Aufbau und Versuche', '4 Druckempfehlungen für PLA und ASA',
+             '5 Vorbereitung und Coupon Tests', '6 Generator mechanisch montieren',
+             '7 Magnete montieren und Polung prüfen', '8 Durchgehende Testwicklung herstellen',
+             '9 Testspulen vergleichbar messen', '10 Sieben Stufen montieren',
+             '11 Top Klemmung und Abschluss', '12 Inbetriebnahme Wartung und Sicherheit',
+             '13 Formeln Messblätter und Quellen'],
+        )
+
+    def test_each_wire_diameter_has_a_fit_gated_turn_matrix_and_records(self):
+        matrices = [table for table in self.doc.tables
+                    if table.cell(0, 0).text == 'Drahtcharge und gemessenes d']
+        self.assertEqual(len(matrices), 1)
+        matrix = matrices[0]
+        self.assertEqual([cell.text for cell in matrix.rows[0].cells[1:]],
+                         ['20 Windungen', '40 Windungen', '80 Windungen'])
+        self.assertGreaterEqual(len(matrix.rows), 4)
+        for row in matrix.rows[1:]:
+            self.assertIn('d = ____ mm', row.cells[0].text)
+            for cell in row.cells[1:]:
+                self.assertIn('passt / passt nicht', cell.text)
+        headers = [cell.text for table in self.doc.tables for cell in table.rows[0].cells]
+        for label in ('Drahtlänge m', 'f leer Hz', 'R pro m Ω/m', 'ΔV intern V'):
+            self.assertIn(label, headers)
+        for phrase in ('Für jeden verfügbaren gemessenen Drahtdurchmesser',
+                       'R_pro_m = R_spule / l_draht',
+                       'Delta_V_intern = V_leer - V_last'):
+            self.assertIn(phrase, self.text)
+
+    def test_first_loaded_measurements_require_current_limit(self):
+        for phrase in ('Erste Lasttests ausdrücklich strombegrenzen',
+                       'mit hohem Lastwiderstand beginnen',
+                       'Stromgrenze vor dem Drehen dokumentieren'):
+            self.assertTrue(phrase in self.text, f'Missing current-limit instruction: {phrase}')
+
     def test_tables_have_borders_repeating_headers_and_no_fixed_height(self):
         self.assertGreaterEqual(len(self.doc.tables), 4)
         for table in self.doc.tables:
@@ -118,6 +175,41 @@ class ManualDocumentTests(unittest.TestCase):
             for height in table._tbl.xpath('.//w:trHeight'):
                 self.assertNotEqual(height.get(qn('w:hRule')), 'exact')
 
+
+class CleanManualProjectTests(unittest.TestCase):
+    """The document-only build must work without ignored outputs or CAD."""
+
+    def setUp(self):
+        self.snapshot = ROOT / 'assets/manual/release'
+        self.assertTrue(self.snapshot.is_dir(), 'A committed manual asset snapshot is required')
+        (ROOT / 'build').mkdir(exist_ok=True)
+        self.project = ROOT / 'build' / f'manual-clean-{uuid4().hex}'
+        self.project.mkdir()
+        shutil.copytree(self.snapshot, self.project / 'assets/manual/release')
+
+    def tearDown(self):
+        if hasattr(self, 'project'):
+            self.assertEqual(self.project.resolve().parent, (ROOT / 'build').resolve())
+            shutil.rmtree(self.project)
+
+    def test_clean_project_builds_without_ignored_outputs_or_cad(self):
+        self.assertFalse((self.project / 'build').exists())
+        self.assertFalse((self.project / 'output').exists())
+        target = self.project / 'manual.docx'
+        result = subprocess.run(
+            [sys.executable, str(ROOT / 'scripts/manual/build_manual.py'),
+             '--project-root', str(self.project), '--output', str(target)],
+            capture_output=True, text=True, check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(len(Document(target).inline_shapes), 11)
+
+    def test_missing_drawing_names_the_asset_without_importing_cad(self):
+        drawing = self.project / 'assets/manual/release/output/manual-figures/E01-gesamt-explosion.png'
+        drawing.unlink()
+        builder = import_module('scripts.manual.build_manual').build_manual
+        with self.assertRaisesRegex(FileNotFoundError, 'Manual drawing asset missing: E01'):
+            builder(self.project, self.project / 'manual.docx')
 
 if __name__ == '__main__':
     unittest.main()
