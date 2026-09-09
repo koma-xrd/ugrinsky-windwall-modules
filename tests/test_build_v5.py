@@ -70,6 +70,8 @@ class BuildV5Tests(unittest.TestCase):
 
     def test_manifest_records_roles_quantities_dimensions_and_unverified_limits(self):
         self.assertNotIn('closure', self.manifest['parameters'])
+        self.assertNotIn('closure_pilot_depth_mm', self.manifest['parameters']['modules'])
+        self.assertNotIn('closure_screw_radius_mm', self.manifest['parameters']['modules'])
         self.assertEqual(self.manifest['parameters']['shaft_end'],
                          {'rod_projection_mm': 3.0, 'shaft_bottom_projection_mm': 5.0})
         records = self.manifest['production_parts'] + self.manifest['coupons'] + self.manifest['assemblies']

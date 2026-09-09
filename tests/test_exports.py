@@ -98,6 +98,8 @@ class ExportTests(unittest.TestCase):
             data = json.loads((destination / 'manifest.json').read_text())
             expected_parameters = json.loads(json.dumps(asdict(DEFAULT_PARAMETERS)))
             expected_parameters.pop('closure')
+            expected_parameters['modules'].pop('closure_pilot_depth_mm')
+            expected_parameters['modules'].pop('closure_screw_radius_mm')
             expected_parameters['shaft_end'] = {'rod_projection_mm': 3.0,
                                                 'shaft_bottom_projection_mm': 5.0}
             self.assertEqual(data['parameters'], expected_parameters)

@@ -426,6 +426,8 @@ def export_all(destination: Path, parameters: DesignParameters = DEFAULT_PARAMET
     # only those active shaft dimensions instead of obsolete cover dimensions.
     parameter_record = asdict(parameters)
     parameter_record.pop('closure')
+    parameter_record['modules'].pop('closure_pilot_depth_mm')
+    parameter_record['modules'].pop('closure_screw_radius_mm')
     parameter_record['shaft_end'] = {
         'rod_projection_mm': parameters.closure.rod_projection_mm,
         'shaft_bottom_projection_mm': parameters.closure.shaft_bottom_projection_mm,

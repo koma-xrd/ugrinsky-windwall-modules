@@ -8661,8 +8661,6 @@
       "base_bearing_seat_depth_mm": 7.2,
       "base_bearing_seat_diameter_mm": 22.2,
       "base_shaft_flange_depth_mm": 3.0,
-      "closure_pilot_depth_mm": 8.0,
-      "closure_screw_radius_mm": 24.0,
       "end_support_radius_mm": 36.0,
       "end_support_thickness_mm": 3.0,
       "joint_phase_deg": 100.0,
