@@ -45,6 +45,10 @@ class ExportTests(unittest.TestCase):
                 'release/v5/step/sample.step': b'ISO-10303-21;\nEND-ISO-10303-21;\n',
                 'release/v5/manifest.json': b'{"release": "v5"}\n',
                 'release/v5/stl/sample.stl': b'\x00\x01binary\n',
+                'release/v5/release-index.json': b'{"artifacts": []}\n',
+                'release/v5/drawings/figures.json': b'{"figures": []}\n',
+                'release/v5/drawings/README.md': b'Drawing inventory\n',
+                'release/v5/audits/manual.json': b'{"structural_checks_passed": true}\n',
             }
             for name, payload in samples.items():
                 path = destination / name

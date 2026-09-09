@@ -92,6 +92,8 @@ class V5FigureTests(unittest.TestCase):
             self.assertEqual([r.drawing_id for r in records], [f'E{i:02d}' for i in range(1, 16)])
             self.assertEqual(len(list(output.glob('*.png'))), 15)
             exported = json.loads((output / 'figures.json').read_text(encoding='utf-8'))
+            tracked_index = Path(__file__).resolve().parents[1] / 'release/v5/drawings/figures.json'
+            self.assertEqual((output / 'figures.json').read_bytes(), tracked_index.read_bytes())
             self.assertEqual(len(exported['figures']), 15)
             for record in records:
                 tracked = Path(__file__).resolve().parents[1] / 'release/v5/drawings' / record.filename

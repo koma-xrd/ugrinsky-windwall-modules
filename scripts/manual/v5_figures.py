@@ -598,7 +598,8 @@ def render_v5_figures(output_dir: Path, p=DEFAULT_PARAMETERS) -> tuple[FigureRec
                'render_parameters': parameters, 'physical_validation_verified': False,
                'figures': [{key: value for key, value in asdict(record).items() if key != 'path'}
                            for record in records]}
-    (output_dir / 'figures.json').write_text(json.dumps(payload, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
+    (output_dir / 'figures.json').write_text(json.dumps(payload, ensure_ascii=False, indent=2)+'\n',
+                                            encoding='utf-8', newline='\n')
     return records
 
 

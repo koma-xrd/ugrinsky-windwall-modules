@@ -4,9 +4,9 @@ The female stays fixed. Male builders return the locked orientation (0 degrees);
 insertion starts at -18 degrees viewed from +Z. A common z_plane_mm translates
 the interface without changing its frame. Tracks rise along CCW travel and have
 solid terminal faces. Their finite-lug envelope leaves axial/radial running
-clearance; stop contact intentionally has zero tangential clearance. Blade-end
-drivers, relieved retainer guides and module shoulders are integrated by the
-module builders; this file remains the reusable central bayonet primitive.
+clearance; stop contact intentionally has zero tangential clearance. Permanent
+teeth and pawls require an unverified elastic snap during locking. Module
+builders add the blade seams; this file owns the central bayonet primitive.
 """
 
 from dataclasses import dataclass
@@ -231,8 +231,8 @@ class BayonetCoupon:
     def minimum_locked_clearance_mm(self) -> float:
         """Measured running gap; intentional tangential stop faces are omitted.
 
-        Measure cylindrical radial and sloped axial running faces only. Stop
-        and insertion-window walls are intentional tangential boundaries.
+        Measure cylindrical radial and sloped axial running faces only. Stop,
+        window and snap-pawl faces are intentionally outside the running fit.
         """
         b = self.parameters.bayonet
         body = self.male.val()
@@ -244,6 +244,7 @@ class BayonetCoupon:
             center = face.Center()
             bore = face.geomType() == "CYLINDER" and hypot(center.x, center.y) < b.hub_outer_diameter_mm/2+1
             ramp = (abs(normal.z) > 0.90
+                    and hypot(center.x, center.y) < _lug_outer_radius(self.parameters)
                     and self.z_plane_mm + 1e-6 < center.z
                     < self.z_plane_mm + _receiver_height(self.parameters) - 1e-6)
             if bore or ramp:

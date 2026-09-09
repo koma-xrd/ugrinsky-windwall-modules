@@ -33,7 +33,14 @@ class BayonetTests(unittest.TestCase):
         shell = cq.Workplane("XY").circle(23).circle(19).extrude(10)
         self.assertEqual(len(self.coupon.male.intersect(shell).val().Solids()), 3)
 
-    def test_axial_insertion_and_every_degree_of_locking_have_no_interference(self):
+    def assert_only_snap_region_intersects(self, male):
+        collision = male.intersect(self.coupon.female)
+        if collision.val().Volume() >= 0.01:
+            snap_region = (cq.Workplane('XY').circle(22).circle(20.4)
+                           .extrude(1.9).translate((0,0,3.9)))
+            self.assertLess(collision.cut(snap_region).val().Volume(), 0.01)
+
+    def test_axial_insertion_is_clear_and_zero_rise_locking_only_meets_snap_features(self):
         for lift in range(13):
             with self.subTest(insertion_lift_mm=lift):
                 inserted = self.coupon.male_at_travel(0).translate((0, 0, lift))
@@ -41,19 +48,19 @@ class BayonetTests(unittest.TestCase):
         for travel in range(19):
             with self.subTest(travel_deg=travel):
                 male = self.coupon.male_at_travel(travel)
-                self.assertLess(male.intersect(self.coupon.female).val().Volume(), 0.01)
+                self.assert_only_snap_region_intersects(male)
                 self.assertAlmostEqual(male.val().BoundingBox().zmin
-                    - self.coupon.male_at_travel(0).val().BoundingBox().zmin, travel*0.45/18)
+                    - self.coupon.male_at_travel(0).val().BoundingBox().zmin, 0)
 
     def test_locked_coupon_clearance_is_geometric_and_excludes_intentional_stop(self):
         self.assertLess(self.coupon.locked_intersection_volume_mm3(), 0.01)
         self.assertAlmostEqual(self.coupon.male.val().distance(self.coupon.female.val()), 0, places=5)
         self.assertGreaterEqual(self.coupon.minimum_locked_clearance_mm(), 0.20)
 
-    def test_only_the_counterclockwise_stop_blocks_locked_torque(self):
+    def test_counterclockwise_stop_and_clockwise_snap_block_locked_torque(self):
         clockwise = self.coupon.male.rotate((0, 0, 0), (0, 0, 1), -0.5)
         ccw = self.coupon.male.rotate((0, 0, 0), (0, 0, 1), 0.5)
-        self.assertLess(clockwise.intersect(self.coupon.female).val().Volume(), 0.01)
+        self.assertGreater(clockwise.intersect(self.coupon.female).val().Volume(), 0.01)
         collision = ccw.intersect(self.coupon.female)
         self.assertGreater(collision.val().Volume(), 0.05)
         # Independently bounded stop neighborhoods: no bore/roof/floor collision.
@@ -77,11 +84,10 @@ class BayonetTests(unittest.TestCase):
             point = (20*cos(radians(angle_deg)),20*sin(radians(angle_deg)),2.9)
             self.assertTrue(self.coupon.female.val().isInside(point),angle_deg)
 
-    def test_motion_is_clear_between_integer_samples(self):
+    def test_fractional_motion_only_meets_the_permanent_snap_features(self):
         for travel in (0.5, 4.5, 8.5, 12.5, 17.5):
             with self.subTest(travel=travel):
-                self.assertLess(self.coupon.male_at_travel(travel).intersect(
-                    self.coupon.female).val().Volume(), 0.01)
+                self.assert_only_snap_region_intersects(self.coupon.male_at_travel(travel))
 
     def test_m8_shaft_passes_through_both_parts(self):
         shaft = cq.Workplane("XY").circle(4.4-1e-5).extrude(30)
@@ -96,6 +102,12 @@ class BayonetTests(unittest.TestCase):
     def test_locked_snap_prevents_clockwise_release(self):
         clockwise_release = self.coupon.male.rotate((0,0,0),(0,0,1),-0.5)
         self.assertGreater(clockwise_release.intersect(self.coupon.female).val().Volume(), 0.01)
+
+    def test_running_gap_excludes_snap_pawl_faces_without_removing_the_lock(self):
+        self.assertGreaterEqual(self.coupon.minimum_locked_clearance_mm(), 0.20)
+        reverse = self.coupon.male.rotate((0,0,0),(0,0,1),-0.5)
+        self.assertGreater(reverse.intersect(self.coupon.female).val().Volume(), 0.01)
+        self.assertLess(self.coupon.locked_intersection_volume_mm3(), 0.01)
 
     def test_motion_rejects_travel_outside_the_track(self):
         for travel in (-1, 19, float("nan")):

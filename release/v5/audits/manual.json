@@ -1,0 +1,28 @@
+{
+  "accessibility_findings": {
+    "high": 0,
+    "low": 0,
+    "medium": 0
+  },
+  "artifact_path": "release/v5/docs/Ugrinsky-Wind-Wall-V5-Bauanleitung.docx",
+  "artifact_sha256": "0eb4f688e2aaf6570d0623e468de43f8792eb337f44759d96e4b986667be1297",
+  "canonical_zip_verified": true,
+  "chapter_count": 13,
+  "embedded_images_match_release": 15,
+  "full_rebuild_determinism": "verified_in_Task_7_not_rerun_in_Task_8",
+  "inspection_runtime": "bundled_codex_document_python",
+  "margins_mm": [
+    18,
+    18,
+    18,
+    18
+  ],
+  "page_review": "blocked_missing_bundled_soffice",
+  "page_size_mm": [
+    210,
+    297
+  ],
+  "physical_validation_verified": false,
+  "structural_checks_passed": true,
+  "structural_test_count": 10
+}

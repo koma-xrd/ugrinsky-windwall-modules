@@ -260,7 +260,7 @@ Run:
 
 ```powershell
 python -m unittest tests.test_reference_mesh -v
-python scripts/analyze_references.py "C:\Users\fi87roy\Downloads\Ugrinsky Wind Wall Module - 6236759\files"
+python scripts/analyze_references.py "<external-reference-directory>"
 ```
 
 Expected: the fixture test passes; the report contains seven files and records 478 non-manifold edges and four degenerate faces for `7 Ugrinsky_Blade.stl`.

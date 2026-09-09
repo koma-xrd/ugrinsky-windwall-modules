@@ -1,0 +1,1654 @@
+{
+  "artifacts": [
+    {
+      "dimensions_mm": {
+        "maximum_xyz": [
+          90.0,
+          90.0,
+          542.3
+        ],
+        "minimum_xyz": [
+          -90.0,
+          -90.0,
+          -53.5000001
+        ],
+        "size_xyz": [
+          180.0,
+          180.0,
+          595.8000000999999
+        ]
+      },
+      "kind": "geometry",
+      "name": "fence_assembly",
+      "path": "release/v5/assembly/fence_assembly.step",
+      "physical_validation_verified": false,
+      "quantity": 1,
+      "role": "hardware-reference",
+      "sha256": "d9bfe0de8c6311b2570b39a46675b430d2b74e96ceed0247370bd38d8abad060",
+      "size_bytes": 16572712,
+      "validation": {
+        "cad_solid_count": 76,
+        "cad_valid": true,
+        "step_round_trip_valid": true,
+        "stl_required": false
+      }
+    },
+    {
+      "dimensions_mm": {
+        "maximum_xyz": [
+          90.0,
+          90.0,
+          85.0
+        ],
+        "minimum_xyz": [
+          -90.0,
+          -90.0,
+          -53.5000001
+        ],
+        "size_xyz": [
+          180.0,
+          180.0,
+          138.5000001
+        ]
+      },
+      "kind": "geometry",
+      "name": "generator",
+      "path": "release/v5/assembly/generator.step",
+      "physical_validation_verified": false,
+      "quantity": 1,
+      "role": "hardware-reference",
+      "sha256": "89bde7cc6f8f0339f1d3e99fbb3165de3e868391c8a426bffe4945ae462da233",
+      "size_bytes": 3376065,
+      "validation": {
+        "cad_solid_count": 61,
+        "cad_valid": true,
+        "step_round_trip_valid": true,
+        "stl_required": false
+      }
+    },
+    {
+      "dimensions_mm": {
+        "maximum_xyz": [
+          90.0,
+          90.0,
+          501.29999999999995
+        ],
+        "minimum_xyz": [
+          -90.0,
+          -90.0,
+          -53.5000001
+        ],
+        "size_xyz": [
+          180.0,
+          180.0,
+          554.8000000999999
+        ]
+      },
+      "kind": "geometry",
+      "name": "rotor_locked",
+      "path": "release/v5/assembly/rotor_locked.step",
+      "physical_validation_verified": false,
+      "quantity": 1,
+      "role": "hardware-reference",
+      "sha256": "4a32c720d82e5244eb25a6f45a9c06410324edfaa0256d76b547de51496a6ae7",
+      "size_bytes": 16441730,
+      "validation": {
+        "cad_solid_count": 69,
+        "cad_valid": true,
+        "step_round_trip_valid": true,
+        "stl_required": false
+      }
+    },
+    {
+      "kind": "manual-audit",
+      "path": "release/v5/audits/manual.json",
+      "role": "validation-evidence",
+      "sha256": "1a23b141927a2b4b20d07408bc15eb584072d9ae4447c33f5e4e71709f945848",
+      "size_bytes": 731
+    },
+    {
+      "dimensions_mm": {
+        "maximum_xyz": [
+          85.0,
+          55.0,
+          22.2
+        ],
+        "minimum_xyz": [
+          -85.0,
+          0.0,
+          0.0
+        ],
+        "size_xyz": [
+          170.0,
+          55.0,
+          22.2
+        ]
+      },
+      "kind": "geometry",
+      "name": "25mm_pilot_coupon",
+      "path": "release/v5/coupons/25mm_pilot_coupon.stl",
+      "physical_validation_verified": false,
+      "quantity": 1,
+      "role": "coupon",
+      "sha256": "56b7868ec549f8fdb67d8a92aafdde21aa4ac16661080d71b035e922515d3244",
+      "size_bytes": 63684,
+      "validation": {
+        "cad_solid_count": 1,
+        "cad_valid": true,
+        "step_round_trip_valid": true,
+        "stl_binary": true,
+        "stl_closed_manifold": true,
+        "stl_component_count": 1
+      }
+    },
+    {
+      "dimensions_mm": {
+        "maximum_xyz": [
+          85.0,
+          0.0,
+          14.2
+        ],
+        "minimum_xyz": [
+          -85.0,
+          -55.0,
+          0.0
+        ],
+        "size_xyz": [
+          170.0,
+          55.0,
+          14.2
+        ]
+      },
+      "kind": "geometry",
+      "name": "51105_outer_seat_coupon",
+      "path": "release/v5/coupons/51105_outer_seat_coupon.stl",
+      "physical_validation_verified": false,
+      "quantity": 1,
+      "role": "coupon",
+      "sha256": "ad65fbb482a0fbccae2af478ede24503405d9ba471080338b1e3472ed21d9235",
+      "size_bytes": 63684,
+      "validation": {
+        "cad_solid_count": 1,
+        "cad_valid": true,
+        "step_round_trip_valid": true,
+        "stl_binary": true,
+        "stl_closed_manifold": true,
+        "stl_component_count": 1
+      }
+    },
+    {
+      "dimensions_mm": {
+        "maximum_xyz": [
+          50.0,
+          35.0,
+          10.2
+        ],
+        "minimum_xyz": [
+          -50.0,
+          -35.0,
+          0.0
+        ],
+        "size_xyz": [
+          100.0,
+          70.0,
+          10.2
+        ]
+      },
+      "kind": "geometry",
+      "name": "608_seat_coupon",
+      "path": "release/v5/coupons/608_seat_coupon.stl",
+      "physical_validation_verified": false,
+      "quantity": 1,
+      "role": "coupon",
+      "sha256": "4f3a8653f8d7da3e8b06da4848fb72fb140fcffa8ea91b48e93630581dfd3cb2",
+      "size_bytes": 63684,
+      "validation": {
+        "cad_solid_count": 1,
+        "cad_valid": true,
+        "step_round_trip_valid": true,
+        "stl_binary": true,
+        "stl_closed_manifold": true,
+        "stl_component_count": 1
+      }
+    },
+    {
+      "dimensions_mm": {
+        "maximum_xyz": [
+          24.4596032513375,
+          24.4596032513375,
+          9.7
+        ],
+        "minimum_xyz": [
+          -24.4596032513375,
+          -24.4596032513375,
+          0.0
+        ],
+        "size_xyz": [
+          48.919206502675,
+          48.919206502675,
+          9.7
+        ]
+      },
+      "kind": "geometry",
+      "name": "bayonet_female",
+      "path": "release/v5/coupons/bayonet_female.stl",
+      "physical_validation_verified": false,
+      "quantity": 1,
+      "role": "coupon",
+      "sha256": "ba26879fdb6336c655c530f3286032632d48615c462fce88c3c7063f3d594af6",
+      "size_bytes": 175284,
+      "validation": {
+        "cad_solid_count": 1,
+        "cad_valid": true,
+        "step_round_trip_valid": true,
+        "stl_binary": true,
+        "stl_closed_manifold": true,
+        "stl_component_count": 1
+      }
+    },
+    {
+      "dimensions_mm": {
+        "maximum_xyz": [
+          21.4596032513375,
+          19.637495373796554,
+          12.7
+        ],
+        "minimum_xyz": [
+          -17.0,
+          -19.63749537379655,
+          3.2499999999999996
+        ],
+        "size_xyz": [
+          38.4596032513375,
+          39.27499074759311,
+          9.45
+        ]
+      },
+      "kind": "geometry",
+      "name": "bayonet_male",
+      "path": "release/v5/coupons/bayonet_male.stl",
+      "physical_validation_verified": false,
+      "quantity": 1,
+      "role": "coupon",
+      "sha256": "48825d2f652dc04a318e464f0d4107916cd3e708c598390a2d17ae8a2a733304",
+      "size_bytes": 146784,
+      "validation": {
+        "cad_solid_count": 1,
+        "cad_valid": true,
+        "step_round_trip_valid": true,
+        "stl_binary": true,
+        "stl_closed_manifold": true,
+        "stl_component_count": 1
+      }
+    },
+    {
+      "dimensions_mm": {
+        "maximum_xyz": [
+          47.0,
+          11.0,
+          7.0
+        ],
+        "minimum_xyz": [
+          -47.0,
+          -11.0,
+          0.0
+        ],
+        "size_xyz": [
+          94.0,
+          22.0,
+          7.0
+        ]
+      },
+      "kind": "geometry",
+      "name": "coil_cassette_segment_coupon",
+      "path": "release/v5/coupons/coil_cassette_segment_coupon.stl",
+      "physical_validation_verified": false,
+      "quantity": 1,
+      "role": "coupon",
+      "sha256": "4f8c9b0d9c77ce98c90fe2afc568e7e7e06a4673e1dccdaef8128f2419894f63",
+      "size_bytes": 11284,
+      "validation": {
+        "cad_solid_count": 1,
+        "cad_valid": true,
+        "step_round_trip_valid": true,
+        "stl_binary": true,
+        "stl_closed_manifold": true,
+        "stl_component_count": 1
+      }
+    },
+    {
+      "dimensions_mm": {
+        "maximum_xyz": [
+          24.4596032513375,
+          24.4596032513375,
+          9.7
+        ],
+        "minimum_xyz": [
+          -24.4596032513375,
+          -24.4596032513375,
+          0.0
+        ],
+        "size_xyz": [
+          48.919206502675,
+          48.919206502675,
+          9.7
+        ]
+      },
+      "kind": "geometry",
+      "name": "joint_female",
+      "path": "release/v5/coupons/joint_female.stl",
+      "physical_validation_verified": false,
+      "quantity": 1,
+      "role": "coupon",
+      "sha256": "ba26879fdb6336c655c530f3286032632d48615c462fce88c3c7063f3d594af6",
+      "size_bytes": 175284,
+      "validation": {
+        "cad_solid_count": 1,
+        "cad_valid": true,
+        "step_round_trip_valid": true,
+        "stl_binary": true,
+        "stl_closed_manifold": true,
+        "stl_component_count": 1
+      }
+    },
+    {
+      "dimensions_mm": {
+        "maximum_xyz": [
+          21.4596032513375,
+          19.637495373796554,
+          12.7
+        ],
+        "minimum_xyz": [
+          -17.0,
+          -19.63749537379655,
+          3.2499999999999996
+        ],
+        "size_xyz": [
+          38.4596032513375,
+          39.27499074759311,
+          9.45
+        ]
+      },
+      "kind": "geometry",
+      "name": "joint_male",
+      "path": "release/v5/coupons/joint_male.stl",
+      "physical_validation_verified": false,
+      "quantity": 1,
+      "role": "coupon",
+      "sha256": "70a320288720f07c30b0e8a59be3278357568b69a3cdad6baa57ea7bc013e651",
+      "size_bytes": 148584,
+      "validation": {
+        "cad_solid_count": 1,
+        "cad_valid": true,
+        "step_round_trip_valid": true,
+        "stl_binary": true,
+        "stl_closed_manifold": true,
+        "stl_component_count": 1
+      }
+    },
+    {
+      "dimensions_mm": {
+        "maximum_xyz": [
+          27.0,
+          9.0,
+          5.0
+        ],
+        "minimum_xyz": [
+          -27.0,
+          -9.0,
+          0.0
+        ],
+        "size_xyz": [
+          54.0,
+          18.0,
+          5.0
+        ]
+      },
+      "kind": "geometry",
+      "name": "magnet_pocket_coupon",
+      "path": "release/v5/coupons/magnet_pocket_coupon.stl",
+      "physical_validation_verified": false,
+      "quantity": 1,
+      "role": "coupon",
+      "sha256": "93dd5f787766bb91ffc25fab42515b78fb3bf623fa72651725e61c47895b6d17",
+      "size_bytes": 63684,
+      "validation": {
+        "cad_solid_count": 1,
+        "cad_valid": true,
+        "step_round_trip_valid": true,
+        "stl_binary": true,
+        "stl_closed_manifold": true,
+        "stl_component_count": 1
+      }
+    },
+    {
+      "kind": "document",
+      "language": "de-DE",
+      "path": "release/v5/docs/Ugrinsky-Wind-Wall-V5-Bauanleitung.docx",
+      "physical_validation_verified": false,
+      "quantity": 1,
+      "role": "documentation",
+      "sha256": "0eb4f688e2aaf6570d0623e468de43f8792eb337f44759d96e4b986667be1297",
+      "size_bytes": 4803250,
+      "validation": {
+        "accessibility_findings": {
+          "high": 0,
+          "low": 0,
+          "medium": 0
+        },
+        "artifact_path": "release/v5/docs/Ugrinsky-Wind-Wall-V5-Bauanleitung.docx",
+        "artifact_sha256": "0eb4f688e2aaf6570d0623e468de43f8792eb337f44759d96e4b986667be1297",
+        "canonical_zip_verified": true,
+        "chapter_count": 13,
+        "embedded_images_match_release": 15,
+        "full_rebuild_determinism": "verified_in_Task_7_not_rerun_in_Task_8",
+        "inspection_runtime": "bundled_codex_document_python",
+        "margins_mm": [
+          18,
+          18,
+          18,
+          18
+        ],
+        "page_review": "blocked_missing_bundled_soffice",
+        "page_size_mm": [
+          210,
+          297
+        ],
+        "physical_validation_verified": false,
+        "structural_checks_passed": true,
+        "structural_test_count": 10
+      }
+    },
+    {
+      "caption": "Ein Base-Modul, fünf gleiche Standard-Module und ein Top-Modul bilden den Rotor.",
+      "dimensions_px": [
+        2400,
+        1680
+      ],
+      "kind": "drawing",
+      "language": "de",
+      "name": "E01",
+      "path": "release/v5/drawings/E01-rotorstapel.png",
+      "quantity": 1,
+      "role": "documentation",
+      "sha256": "3bd83cac16ae79558b44aeb1df920c27e4df04aa093053a2f459d68a09d657ab",
+      "size_bytes": 338925,
+      "validation": {
+        "inventory_dimensions_match": true,
+        "png_decodes": true
+      }
+    },
+    {
+      "caption": "Die sieben Stufen bestehen aus drei unterschiedlichen, einteiligen CAD-Modultypen.",
+      "dimensions_px": [
+        2400,
+        1680
+      ],
+      "kind": "drawing",
+      "language": "de",
+      "name": "E02",
+      "path": "release/v5/drawings/E02-modultypen.png",
+      "quantity": 1,
+      "role": "documentation",
+      "sha256": "b47f5e27529aacbc93fd76b4d1301cd0d59a24210c17baf40ed47657ad396c9f",
+      "size_bytes": 484404,
+      "validation": {
+        "inventory_dimensions_match": true,
+        "png_decodes": true
+      }
+    },
+    {
+      "caption": "Drei Bajonettklauen verriegeln die Stufen; Nut und Feder führen die Blattnaht.",
+      "dimensions_px": [
+        2400,
+        1680
+      ],
+      "kind": "drawing",
+      "language": "de",
+      "name": "E03",
+      "path": "release/v5/drawings/E03-bajonett-blattnaht.png",
+      "quantity": 1,
+      "role": "documentation",
+      "sha256": "b27c5a451bb714dda736b67f47587a06440bd0e284ce8a6c6c888d0b5a06fae4",
+      "size_bytes": 375704,
+      "validation": {
+        "inventory_dimensions_match": true,
+        "png_decodes": true
+      }
+    },
+    {
+      "caption": "Die Base-Schulter trägt auf der rotierenden Wellenscheibe; die Gehäusescheibe sitzt im Deckel.",
+      "dimensions_px": [
+        2400,
+        1680
+      ],
+      "kind": "drawing",
+      "language": "de",
+      "name": "E04",
+      "path": "release/v5/drawings/E04-base-51105-schnitt.png",
+      "quantity": 1,
+      "role": "documentation",
+      "sha256": "ecb47bee8580934d0453b5b8f5c3a32cf78c223cc8a418e29bc7f714a388c979",
+      "size_bytes": 190082,
+      "validation": {
+        "inventory_dimensions_match": true,
+        "png_decodes": true
+      }
+    },
+    {
+      "caption": "Der separate untere Magnetrotor läuft vollständig innerhalb des Gehäuses unter der Spulenkassette.",
+      "dimensions_px": [
+        2400,
+        1680
+      ],
+      "kind": "drawing",
+      "language": "de",
+      "name": "E05",
+      "path": "release/v5/drawings/E05-unterer-magnetrotor.png",
+      "quantity": 1,
+      "role": "documentation",
+      "sha256": "689f533572c2e8327d424c0965b639a2683031f366bf8c545447869d5b5f77be",
+      "size_bytes": 372973,
+      "validation": {
+        "inventory_dimensions_match": true,
+        "png_decodes": true
+      }
+    },
+    {
+      "caption": "Kassette, Deckel und Base sind angehoben; der untere Magnetrotor bleibt im aufgeschnittenen Gehäuse.",
+      "dimensions_px": [
+        2400,
+        1680
+      ],
+      "kind": "drawing",
+      "language": "de",
+      "name": "E06",
+      "path": "release/v5/drawings/E06-generator-explosion.png",
+      "quantity": 1,
+      "role": "documentation",
+      "sha256": "08930aacc36feb0c04d9be33bc64ec02ca0847062d00b7dfd77e68684064a872",
+      "size_bytes": 411088,
+      "validation": {
+        "inventory_dimensions_match": true,
+        "png_decodes": true
+      }
+    },
+    {
+      "caption": "Zwei rotierende Magnetträger umschließen die stationäre Wicklung; der untere Rotor sitzt im Gehäuse.",
+      "dimensions_px": [
+        2400,
+        1680
+      ],
+      "kind": "drawing",
+      "language": "de",
+      "name": "E07",
+      "path": "release/v5/drawings/E07-generator-schnitt.png",
+      "quantity": 1,
+      "role": "documentation",
+      "sha256": "f7fa6bf0f141cc55fe93d7327117afa6a8c246a8b398b29b0a6a08017f6d4b34",
+      "size_bytes": 216251,
+      "validation": {
+        "inventory_dimensions_match": true,
+        "png_decodes": true
+      }
+    },
+    {
+      "caption": "Die Kassette sitzt auf der Gehäuseschulter; der Deckel begrenzt den Hub nach oben.",
+      "dimensions_px": [
+        2400,
+        1680
+      ],
+      "kind": "drawing",
+      "language": "de",
+      "name": "E08",
+      "path": "release/v5/drawings/E08-kassettenrueckhaltung.png",
+      "quantity": 1,
+      "role": "documentation",
+      "sha256": "6afaee92f6673ad20a4ed74e7fafe33f11ae109aa6e94930cc99d210a35b94cc",
+      "size_bytes": 301084,
+      "validation": {
+        "inventory_dimensions_match": true,
+        "png_decodes": true
+      }
+    },
+    {
+      "caption": "Sechs M4-Schrauben befestigen den stationären Deckel in gefangenen Muttern der Gehäuseaugen.",
+      "dimensions_px": [
+        2400,
+        1680
+      ],
+      "kind": "drawing",
+      "language": "de",
+      "name": "E09",
+      "path": "release/v5/drawings/E09-deckelverschraubung.png",
+      "quantity": 1,
+      "role": "documentation",
+      "sha256": "0414cc5b007db059eb8c3c2257beff3073b1c13537c93fe4e31dbc5b4ba07591",
+      "size_bytes": 285343,
+      "validation": {
+        "inventory_dimensions_match": true,
+        "png_decodes": true
+      }
+    },
+    {
+      "caption": "Die seitlichen Öffnungen von Kassette und Gehäuse fluchten bei korrekt eingesetztem Schlüssel.",
+      "dimensions_px": [
+        2400,
+        1680
+      ],
+      "kind": "drawing",
+      "language": "de",
+      "name": "E10",
+      "path": "release/v5/drawings/E10-seitlicher-kabelausgang.png",
+      "quantity": 1,
+      "role": "documentation",
+      "sha256": "fc5b7c715da3e191536a53310082dec3352fa7f2a0eeb270789628d10104d7cb",
+      "size_bytes": 289979,
+      "validation": {
+        "inventory_dimensions_match": true,
+        "png_decodes": true
+      }
+    },
+    {
+      "caption": "Drei Gehäusesitze und drei Pilotdurchmesser erlauben die Auswahl mit dem realen 51105-Lager.",
+      "dimensions_px": [
+        2400,
+        1680
+      ],
+      "kind": "drawing",
+      "language": "de",
+      "name": "E11",
+      "path": "release/v5/drawings/E11-51105-passungsprobe.png",
+      "quantity": 1,
+      "role": "documentation",
+      "sha256": "84e81865f2a47921660c44451fba2962fbd0c4482954a69bf3f5f30554c6d9fd",
+      "size_bytes": 408243,
+      "validation": {
+        "inventory_dimensions_match": true,
+        "png_decodes": true
+      }
+    },
+    {
+      "caption": "Drei Sitzdurchmesser prüfen die Passung des realen 608-Lagers für den oberen Halter.",
+      "dimensions_px": [
+        2400,
+        1680
+      ],
+      "kind": "drawing",
+      "language": "de",
+      "name": "E12",
+      "path": "release/v5/drawings/E12-608-passungsprobe.png",
+      "quantity": 1,
+      "role": "documentation",
+      "sha256": "58115e3a87cf9dc27baac4c45eade4c7ee418d5d19a11c23d7637c82599e5ee6",
+      "size_bytes": 373148,
+      "validation": {
+        "inventory_dimensions_match": true,
+        "png_decodes": true
+      }
+    },
+    {
+      "caption": "Der stationäre Halter wird von unten an den Holzrahmen geschraubt; das Holz schließt den Lagersitz.",
+      "dimensions_px": [
+        2400,
+        1680
+      ],
+      "kind": "drawing",
+      "language": "de",
+      "name": "E13",
+      "path": "release/v5/drawings/E13-oberer-halter.png",
+      "quantity": 1,
+      "role": "documentation",
+      "sha256": "069747a9c501da37d8cb50da3c1869ff60cf35ff609c3835db69537ad6a0afb3",
+      "size_bytes": 226491,
+      "validation": {
+        "inventory_dimensions_match": true,
+        "png_decodes": true
+      }
+    },
+    {
+      "caption": "Zwischen zwei Holzriegeln: Gehäuse von oben befestigt, oberer 608-Halter von unten angeschraubt.",
+      "dimensions_px": [
+        2400,
+        1680
+      ],
+      "kind": "drawing",
+      "language": "de",
+      "name": "E14",
+      "path": "release/v5/drawings/E14-zaunmontage.png",
+      "quantity": 1,
+      "role": "documentation",
+      "sha256": "175464bfa97cb4f41c604e25c13f4f87d33eaf34b1fbd9a8f41fd61a6793a2e9",
+      "size_bytes": 348132,
+      "validation": {
+        "inventory_dimensions_match": true,
+        "png_decodes": true
+      }
+    },
+    {
+      "caption": "Sieben Rotorstufen und Generator sind zwischen unterem und oberem Holzriegel montiert.",
+      "dimensions_px": [
+        2400,
+        1680
+      ],
+      "kind": "drawing",
+      "language": "de",
+      "name": "E15",
+      "path": "release/v5/drawings/E15-gesamtbaugruppe.png",
+      "quantity": 1,
+      "role": "documentation",
+      "sha256": "746afb69e71385efac18a400760b8447677f5eedfaf64857e786940acaa39d37",
+      "size_bytes": 419673,
+      "validation": {
+        "inventory_dimensions_match": true,
+        "png_decodes": true
+      }
+    },
+    {
+      "kind": "drawing-notes",
+      "path": "release/v5/drawings/README.md",
+      "role": "documentation",
+      "sha256": "91f19f3a873d9772c3153fa05430c658ce4f0fa832751e90bd17dc479dabb25f",
+      "size_bytes": 5042
+    },
+    {
+      "kind": "drawing-manifest",
+      "path": "release/v5/drawings/figures.json",
+      "role": "inventory",
+      "sha256": "15b891e7a1ce867c79592003435e9a6e3c4c9002ba7456fe17a6255ee2705300",
+      "size_bytes": 215095
+    },
+    {
+      "kind": "geometry-manifest",
+      "path": "release/v5/manifest.json",
+      "role": "inventory",
+      "sha256": "14f4fe404dc1e6df3f2e6a6c4a094d514bb6a8831f2a3018b1de873023508152",
+      "size_bytes": 306216
+    },
+    {
+      "dimensions_mm": {
+        "maximum_xyz": [
+          85.0,
+          55.0,
+          22.2
+        ],
+        "minimum_xyz": [
+          -85.0,
+          0.0,
+          0.0
+        ],
+        "size_xyz": [
+          170.0,
+          55.0,
+          22.2
+        ]
+      },
+      "kind": "geometry",
+      "name": "25mm_pilot_coupon",
+      "path": "release/v5/step/25mm_pilot_coupon.step",
+      "physical_validation_verified": false,
+      "quantity": 1,
+      "role": "coupon",
+      "sha256": "175a0ed6d1823459f561ae422225b044ac2ee12f8368a4576cce389b44989382",
+      "size_bytes": 29317,
+      "validation": {
+        "cad_solid_count": 1,
+        "cad_valid": true,
+        "step_round_trip_valid": true,
+        "stl_binary": true,
+        "stl_closed_manifold": true,
+        "stl_component_count": 1
+      }
+    },
+    {
+      "dimensions_mm": {
+        "maximum_xyz": [
+          85.0,
+          0.0,
+          14.2
+        ],
+        "minimum_xyz": [
+          -85.0,
+          -55.0,
+          0.0
+        ],
+        "size_xyz": [
+          170.0,
+          55.0,
+          14.2
+        ]
+      },
+      "kind": "geometry",
+      "name": "51105_outer_seat_coupon",
+      "path": "release/v5/step/51105_outer_seat_coupon.step",
+      "physical_validation_verified": false,
+      "quantity": 1,
+      "role": "coupon",
+      "sha256": "09768f1b3ca8247c9c28483bcbec55d5f6997f7edfc3bd240c498e7471e7b1a2",
+      "size_bytes": 29316,
+      "validation": {
+        "cad_solid_count": 1,
+        "cad_valid": true,
+        "step_round_trip_valid": true,
+        "stl_binary": true,
+        "stl_closed_manifold": true,
+        "stl_component_count": 1
+      }
+    },
+    {
+      "dimensions_mm": {
+        "maximum_xyz": [
+          50.0,
+          35.0,
+          10.2
+        ],
+        "minimum_xyz": [
+          -50.0,
+          -35.0,
+          0.0
+        ],
+        "size_xyz": [
+          100.0,
+          70.0,
+          10.2
+        ]
+      },
+      "kind": "geometry",
+      "name": "608_seat_coupon",
+      "path": "release/v5/step/608_seat_coupon.step",
+      "physical_validation_verified": false,
+      "quantity": 1,
+      "role": "coupon",
+      "sha256": "1b8c3c4a03bb660184245a199fca8433d64695074c8da3a8af570c43b7b5a381",
+      "size_bytes": 28734,
+      "validation": {
+        "cad_solid_count": 1,
+        "cad_valid": true,
+        "step_round_trip_valid": true,
+        "stl_binary": true,
+        "stl_closed_manifold": true,
+        "stl_component_count": 1
+      }
+    },
+    {
+      "dimensions_mm": {
+        "maximum_xyz": [
+          61.000000100000776,
+          60.68442975357152,
+          70.80000010000029
+        ],
+        "minimum_xyz": [
+          -61.000000100000776,
+          -60.68442975357152,
+          -13.0000001
+        ],
+        "size_xyz": [
+          122.00000020000155,
+          121.36885950714304,
+          83.80000020000028
+        ]
+      },
+      "kind": "geometry",
+      "name": "base_rotor_module",
+      "path": "release/v5/step/base_rotor_module.step",
+      "physical_validation_verified": false,
+      "quantity": 1,
+      "role": "rotating",
+      "sha256": "74c89eff6273024c81b35048f6676938f3b1342f262c637aac617c5d70379534",
+      "size_bytes": 2027925,
+      "validation": {
+        "cad_solid_count": 1,
+        "cad_valid": true,
+        "step_round_trip_valid": true,
+        "stl_binary": true,
+        "stl_closed_manifold": true,
+        "stl_component_count": 1
+      }
+    },
+    {
+      "dimensions_mm": {
+        "maximum_xyz": [
+          24.4596032513375,
+          24.4596032513375,
+          9.7
+        ],
+        "minimum_xyz": [
+          -24.4596032513375,
+          -24.4596032513375,
+          0.0
+        ],
+        "size_xyz": [
+          48.919206502675,
+          48.919206502675,
+          9.7
+        ]
+      },
+      "kind": "geometry",
+      "name": "bayonet_female",
+      "path": "release/v5/step/bayonet_female.step",
+      "physical_validation_verified": false,
+      "quantity": 1,
+      "role": "coupon",
+      "sha256": "011fc6a19ee0b94e6d7666976326a8634c5077e87b1eca90cc990c6fa38b6ae3",
+      "size_bytes": 1036986,
+      "validation": {
+        "cad_solid_count": 1,
+        "cad_valid": true,
+        "step_round_trip_valid": true,
+        "stl_binary": true,
+        "stl_closed_manifold": true,
+        "stl_component_count": 1
+      }
+    },
+    {
+      "dimensions_mm": {
+        "maximum_xyz": [
+          21.4596032513375,
+          19.637495373796554,
+          12.7
+        ],
+        "minimum_xyz": [
+          -17.0,
+          -19.63749537379655,
+          3.2499999999999996
+        ],
+        "size_xyz": [
+          38.4596032513375,
+          39.27499074759311,
+          9.45
+        ]
+      },
+      "kind": "geometry",
+      "name": "bayonet_male",
+      "path": "release/v5/step/bayonet_male.step",
+      "physical_validation_verified": false,
+      "quantity": 1,
+      "role": "coupon",
+      "sha256": "dd7be4ff8798b5775a67d522f4924c6eab9722c64e012af2f677ad141a8e6e03",
+      "size_bytes": 272727,
+      "validation": {
+        "cad_solid_count": 1,
+        "cad_valid": true,
+        "step_round_trip_valid": true,
+        "stl_binary": true,
+        "stl_closed_manifold": true,
+        "stl_component_count": 1
+      }
+    },
+    {
+      "dimensions_mm": {
+        "maximum_xyz": [
+          59.0000001,
+          59.0000001,
+          39.0000001
+        ],
+        "minimum_xyz": [
+          -60.0,
+          -59.0000001,
+          26.9999999
+        ],
+        "size_xyz": [
+          119.0000001,
+          118.0000002,
+          12.000000200000002
+        ]
+      },
+      "kind": "geometry",
+      "name": "coil_cassette",
+      "path": "release/v5/step/coil_cassette.step",
+      "physical_validation_verified": false,
+      "quantity": 1,
+      "role": "stationary",
+      "sha256": "15ba46b8d8a868e761dafcb443a3825a0850f9fa0bbef2e83bb6c28a8b99d4bb",
+      "size_bytes": 65905,
+      "validation": {
+        "cad_solid_count": 1,
+        "cad_valid": true,
+        "step_round_trip_valid": true,
+        "stl_binary": true,
+        "stl_closed_manifold": true,
+        "stl_component_count": 1
+      }
+    },
+    {
+      "dimensions_mm": {
+        "maximum_xyz": [
+          47.0,
+          11.0,
+          7.0
+        ],
+        "minimum_xyz": [
+          -47.0,
+          -11.0,
+          0.0
+        ],
+        "size_xyz": [
+          94.0,
+          22.0,
+          7.0
+        ]
+      },
+      "kind": "geometry",
+      "name": "coil_cassette_segment_coupon",
+      "path": "release/v5/step/coil_cassette_segment_coupon.step",
+      "physical_validation_verified": false,
+      "quantity": 1,
+      "role": "coupon",
+      "sha256": "3127a80d09a40de354471d3119ac6859084073aadf7a3bfcab70b9945111e86e",
+      "size_bytes": 75812,
+      "validation": {
+        "cad_solid_count": 1,
+        "cad_valid": true,
+        "step_round_trip_valid": true,
+        "stl_binary": true,
+        "stl_closed_manifold": true,
+        "stl_component_count": 1
+      }
+    },
+    {
+      "dimensions_mm": {
+        "maximum_xyz": [
+          65.75575286112628,
+          75.0,
+          51.349999999999994
+        ],
+        "minimum_xyz": [
+          -65.75575286112627,
+          -75.0,
+          37.15
+        ],
+        "size_xyz": [
+          131.51150572225254,
+          150.0,
+          14.199999999999996
+        ]
+      },
+      "kind": "geometry",
+      "name": "generator_cover",
+      "path": "release/v5/step/generator_cover.step",
+      "physical_validation_verified": false,
+      "quantity": 1,
+      "role": "stationary",
+      "sha256": "b44352cf5242e994d8c489b36b0fdd803199199bfcfa7856701432f81d641868",
+      "size_bytes": 108347,
+      "validation": {
+        "cad_solid_count": 1,
+        "cad_valid": true,
+        "step_round_trip_valid": true,
+        "stl_binary": true,
+        "stl_closed_manifold": true,
+        "stl_component_count": 1
+      }
+    },
+    {
+      "dimensions_mm": {
+        "maximum_xyz": [
+          90.0,
+          90.0,
+          39.1500001
+        ],
+        "minimum_xyz": [
+          -90.0,
+          -90.0,
+          -1e-07
+        ],
+        "size_xyz": [
+          180.0,
+          180.0,
+          39.1500002
+        ]
+      },
+      "kind": "geometry",
+      "name": "generator_housing",
+      "path": "release/v5/step/generator_housing.step",
+      "physical_validation_verified": false,
+      "quantity": 1,
+      "role": "stationary",
+      "sha256": "ea4300f6907636bbc3bc13ce808a5db5d240949c7d369f401d1e7bd774e48881",
+      "size_bytes": 376612,
+      "validation": {
+        "cad_solid_count": 1,
+        "cad_valid": true,
+        "step_round_trip_valid": true,
+        "stl_binary": true,
+        "stl_closed_manifold": true,
+        "stl_component_count": 1
+      }
+    },
+    {
+      "dimensions_mm": {
+        "maximum_xyz": [
+          24.4596032513375,
+          24.4596032513375,
+          9.7
+        ],
+        "minimum_xyz": [
+          -24.4596032513375,
+          -24.4596032513375,
+          0.0
+        ],
+        "size_xyz": [
+          48.919206502675,
+          48.919206502675,
+          9.7
+        ]
+      },
+      "kind": "geometry",
+      "name": "joint_female",
+      "path": "release/v5/step/joint_female.step",
+      "physical_validation_verified": false,
+      "quantity": 1,
+      "role": "coupon",
+      "sha256": "13005ecdf55e7771d3c5da95ed7b350a1293a5f5b44ed293461611491dc534f7",
+      "size_bytes": 1036976,
+      "validation": {
+        "cad_solid_count": 1,
+        "cad_valid": true,
+        "step_round_trip_valid": true,
+        "stl_binary": true,
+        "stl_closed_manifold": true,
+        "stl_component_count": 1
+      }
+    },
+    {
+      "dimensions_mm": {
+        "maximum_xyz": [
+          21.4596032513375,
+          19.637495373796554,
+          12.7
+        ],
+        "minimum_xyz": [
+          -17.0,
+          -19.63749537379655,
+          3.2499999999999996
+        ],
+        "size_xyz": [
+          38.4596032513375,
+          39.27499074759311,
+          9.45
+        ]
+      },
+      "kind": "geometry",
+      "name": "joint_male",
+      "path": "release/v5/step/joint_male.step",
+      "physical_validation_verified": false,
+      "quantity": 1,
+      "role": "coupon",
+      "sha256": "a0c6c7385d15ac7fb54fbe9409bc0de03fa1e5fe6153d02de6db7a84de105f07",
+      "size_bytes": 311389,
+      "validation": {
+        "cad_solid_count": 1,
+        "cad_valid": true,
+        "step_round_trip_valid": true,
+        "stl_binary": true,
+        "stl_closed_manifold": true,
+        "stl_component_count": 1
+      }
+    },
+    {
+      "dimensions_mm": {
+        "maximum_xyz": [
+          53.0,
+          53.0,
+          -27.0
+        ],
+        "minimum_xyz": [
+          -53.0,
+          -53.0,
+          -37.0
+        ],
+        "size_xyz": [
+          106.0,
+          106.0,
+          10.0
+        ]
+      },
+      "kind": "geometry",
+      "name": "lower_magnet_rotor",
+      "path": "release/v5/step/lower_magnet_rotor.step",
+      "physical_validation_verified": false,
+      "quantity": 1,
+      "role": "rotating",
+      "sha256": "d8c3b496f562b9670ba15b929dbde8e11a5e43b247ecaa32d23791fb2f4e74cf",
+      "size_bytes": 226407,
+      "validation": {
+        "cad_solid_count": 1,
+        "cad_valid": true,
+        "step_round_trip_valid": true,
+        "stl_binary": true,
+        "stl_closed_manifold": true,
+        "stl_component_count": 1
+      }
+    },
+    {
+      "dimensions_mm": {
+        "maximum_xyz": [
+          27.0,
+          9.0,
+          5.0
+        ],
+        "minimum_xyz": [
+          -27.0,
+          -9.0,
+          0.0
+        ],
+        "size_xyz": [
+          54.0,
+          18.0,
+          5.0
+        ]
+      },
+      "kind": "geometry",
+      "name": "magnet_pocket_coupon",
+      "path": "release/v5/step/magnet_pocket_coupon.step",
+      "physical_validation_verified": false,
+      "quantity": 1,
+      "role": "coupon",
+      "sha256": "5e872463d8c378055aee2d2a18c28381d34d3494c9c7edb48be75a44e6452f0e",
+      "size_bytes": 28665,
+      "validation": {
+        "cad_solid_count": 1,
+        "cad_valid": true,
+        "step_round_trip_valid": true,
+        "stl_binary": true,
+        "stl_closed_manifold": true,
+        "stl_component_count": 1
+      }
+    },
+    {
+      "dimensions_mm": {
+        "maximum_xyz": [
+          60.99383991918252,
+          60.68442975357124,
+          70.80000010000029
+        ],
+        "minimum_xyz": [
+          -60.99383991918253,
+          -60.68442975357124,
+          -9.450000099999999
+        ],
+        "size_xyz": [
+          121.98767983836504,
+          121.36885950714247,
+          80.25000020000029
+        ]
+      },
+      "kind": "geometry",
+      "name": "standard_rotor_module",
+      "path": "release/v5/step/standard_rotor_module.step",
+      "physical_validation_verified": false,
+      "quantity": 5,
+      "role": "rotating",
+      "sha256": "108142ba6c4a16ded5dd91bf66ff1a864ee2894470b7fa8ed5ba91d41ad56d45",
+      "size_bytes": 2299942,
+      "validation": {
+        "cad_solid_count": 1,
+        "cad_valid": true,
+        "step_round_trip_valid": true,
+        "stl_binary": true,
+        "stl_closed_manifold": true,
+        "stl_component_count": 1
+      }
+    },
+    {
+      "dimensions_mm": {
+        "maximum_xyz": [
+          60.99383991918252,
+          60.68442975357124,
+          70.00000010000028
+        ],
+        "minimum_xyz": [
+          -60.99383991918253,
+          -60.68442975357124,
+          -9.450000099999999
+        ],
+        "size_xyz": [
+          121.98767983836504,
+          121.36885950714247,
+          79.45000020000028
+        ]
+      },
+      "kind": "geometry",
+      "name": "top_rotor_module",
+      "path": "release/v5/step/top_rotor_module.step",
+      "physical_validation_verified": false,
+      "quantity": 1,
+      "role": "rotating",
+      "sha256": "deee3fe393c18ba70350a6aee75e09b441159d4b4a5d5562d387bc42f2ba9f27",
+      "size_bytes": 1026264,
+      "validation": {
+        "cad_solid_count": 1,
+        "cad_valid": true,
+        "step_round_trip_valid": true,
+        "stl_binary": true,
+        "stl_closed_manifold": true,
+        "stl_component_count": 1
+      }
+    },
+    {
+      "dimensions_mm": {
+        "maximum_xyz": [
+          40.0,
+          25.0,
+          12.0
+        ],
+        "minimum_xyz": [
+          -40.0,
+          -25.0,
+          0.0
+        ],
+        "size_xyz": [
+          80.0,
+          50.0,
+          12.0
+        ]
+      },
+      "kind": "geometry",
+      "name": "top_support",
+      "path": "release/v5/step/top_support.step",
+      "physical_validation_verified": false,
+      "quantity": 1,
+      "role": "stationary",
+      "sha256": "4c0465be708f22b400ff717ff162467d8ce56a433c130c3d53f468c87a8889f2",
+      "size_bytes": 53156,
+      "validation": {
+        "cad_solid_count": 1,
+        "cad_valid": true,
+        "step_round_trip_valid": true,
+        "stl_binary": true,
+        "stl_closed_manifold": true,
+        "stl_component_count": 1
+      }
+    },
+    {
+      "dimensions_mm": {
+        "maximum_xyz": [
+          61.000000100000776,
+          60.68442975357152,
+          70.80000010000029
+        ],
+        "minimum_xyz": [
+          -61.000000100000776,
+          -60.68442975357152,
+          -13.0000001
+        ],
+        "size_xyz": [
+          122.00000020000155,
+          121.36885950714304,
+          83.80000020000028
+        ]
+      },
+      "kind": "geometry",
+      "name": "base_rotor_module",
+      "path": "release/v5/stl/base_rotor_module.stl",
+      "physical_validation_verified": false,
+      "quantity": 1,
+      "role": "rotating",
+      "sha256": "006e8396344526d2c295b4f61a93894ba8b44513d9189c589d74da75054b7ee5",
+      "size_bytes": 1597884,
+      "validation": {
+        "cad_solid_count": 1,
+        "cad_valid": true,
+        "step_round_trip_valid": true,
+        "stl_binary": true,
+        "stl_closed_manifold": true,
+        "stl_component_count": 1
+      }
+    },
+    {
+      "dimensions_mm": {
+        "maximum_xyz": [
+          59.0000001,
+          59.0000001,
+          39.0000001
+        ],
+        "minimum_xyz": [
+          -60.0,
+          -59.0000001,
+          26.9999999
+        ],
+        "size_xyz": [
+          119.0000001,
+          118.0000002,
+          12.000000200000002
+        ]
+      },
+      "kind": "geometry",
+      "name": "coil_cassette",
+      "path": "release/v5/stl/coil_cassette.stl",
+      "physical_validation_verified": false,
+      "quantity": 1,
+      "role": "stationary",
+      "sha256": "015ea4b4ec9a3e448d8532d26feeafd8f480ddedcbc4482a2df60efbd40c050c",
+      "size_bytes": 113184,
+      "validation": {
+        "cad_solid_count": 1,
+        "cad_valid": true,
+        "step_round_trip_valid": true,
+        "stl_binary": true,
+        "stl_closed_manifold": true,
+        "stl_component_count": 1
+      }
+    },
+    {
+      "dimensions_mm": {
+        "maximum_xyz": [
+          65.75575286112628,
+          75.0,
+          51.349999999999994
+        ],
+        "minimum_xyz": [
+          -65.75575286112627,
+          -75.0,
+          37.15
+        ],
+        "size_xyz": [
+          131.51150572225254,
+          150.0,
+          14.199999999999996
+        ]
+      },
+      "kind": "geometry",
+      "name": "generator_cover",
+      "path": "release/v5/stl/generator_cover.stl",
+      "physical_validation_verified": false,
+      "quantity": 1,
+      "role": "stationary",
+      "sha256": "59c90ba5e0cb536845048a29f8402fde092cf410f155ff9aebc30de97e3aa005",
+      "size_bytes": 345084,
+      "validation": {
+        "cad_solid_count": 1,
+        "cad_valid": true,
+        "step_round_trip_valid": true,
+        "stl_binary": true,
+        "stl_closed_manifold": true,
+        "stl_component_count": 1
+      }
+    },
+    {
+      "dimensions_mm": {
+        "maximum_xyz": [
+          90.0,
+          90.0,
+          39.1500001
+        ],
+        "minimum_xyz": [
+          -90.0,
+          -90.0,
+          -1e-07
+        ],
+        "size_xyz": [
+          180.0,
+          180.0,
+          39.1500002
+        ]
+      },
+      "kind": "geometry",
+      "name": "generator_housing",
+      "path": "release/v5/stl/generator_housing.stl",
+      "physical_validation_verified": false,
+      "quantity": 1,
+      "role": "stationary",
+      "sha256": "358e86c90d72212a5256fe939b578e01ac497cc0598026c96d26bf4d2df2ed39",
+      "size_bytes": 447884,
+      "validation": {
+        "cad_solid_count": 1,
+        "cad_valid": true,
+        "step_round_trip_valid": true,
+        "stl_binary": true,
+        "stl_closed_manifold": true,
+        "stl_component_count": 1
+      }
+    },
+    {
+      "dimensions_mm": {
+        "maximum_xyz": [
+          53.0,
+          53.0,
+          -27.0
+        ],
+        "minimum_xyz": [
+          -53.0,
+          -53.0,
+          -37.0
+        ],
+        "size_xyz": [
+          106.0,
+          106.0,
+          10.0
+        ]
+      },
+      "kind": "geometry",
+      "name": "lower_magnet_rotor",
+      "path": "release/v5/stl/lower_magnet_rotor.stl",
+      "physical_validation_verified": false,
+      "quantity": 1,
+      "role": "rotating",
+      "sha256": "c120c0c55ed12da6c64cebfd988a60c31f6dca1fb75a09dc11e7b769d4b4a649",
+      "size_bytes": 442884,
+      "validation": {
+        "cad_solid_count": 1,
+        "cad_valid": true,
+        "step_round_trip_valid": true,
+        "stl_binary": true,
+        "stl_closed_manifold": true,
+        "stl_component_count": 1
+      }
+    },
+    {
+      "dimensions_mm": {
+        "maximum_xyz": [
+          60.99383991918252,
+          60.68442975357124,
+          70.80000010000029
+        ],
+        "minimum_xyz": [
+          -60.99383991918253,
+          -60.68442975357124,
+          -9.450000099999999
+        ],
+        "size_xyz": [
+          121.98767983836504,
+          121.36885950714247,
+          80.25000020000029
+        ]
+      },
+      "kind": "geometry",
+      "name": "standard_rotor_module",
+      "path": "release/v5/stl/standard_rotor_module.stl",
+      "physical_validation_verified": false,
+      "quantity": 5,
+      "role": "rotating",
+      "sha256": "f357084129a22dce4970e7284dfd47776bf2cdeb354050e0e2045b157668e38a",
+      "size_bytes": 1178184,
+      "validation": {
+        "cad_solid_count": 1,
+        "cad_valid": true,
+        "step_round_trip_valid": true,
+        "stl_binary": true,
+        "stl_closed_manifold": true,
+        "stl_component_count": 1
+      }
+    },
+    {
+      "dimensions_mm": {
+        "maximum_xyz": [
+          60.99383991918252,
+          60.68442975357124,
+          70.00000010000028
+        ],
+        "minimum_xyz": [
+          -60.99383991918253,
+          -60.68442975357124,
+          -9.450000099999999
+        ],
+        "size_xyz": [
+          121.98767983836504,
+          121.36885950714247,
+          79.45000020000028
+        ]
+      },
+      "kind": "geometry",
+      "name": "top_rotor_module",
+      "path": "release/v5/stl/top_rotor_module.stl",
+      "physical_validation_verified": false,
+      "quantity": 1,
+      "role": "rotating",
+      "sha256": "5b86525a023280e71d24cc5d364409242a3a3f29d0771a293b6d0ac1208f9e26",
+      "size_bytes": 975084,
+      "validation": {
+        "cad_solid_count": 1,
+        "cad_valid": true,
+        "step_round_trip_valid": true,
+        "stl_binary": true,
+        "stl_closed_manifold": true,
+        "stl_component_count": 1
+      }
+    },
+    {
+      "dimensions_mm": {
+        "maximum_xyz": [
+          40.0,
+          25.0,
+          12.0
+        ],
+        "minimum_xyz": [
+          -40.0,
+          -25.0,
+          0.0
+        ],
+        "size_xyz": [
+          80.0,
+          50.0,
+          12.0
+        ]
+      },
+      "kind": "geometry",
+      "name": "top_support",
+      "path": "release/v5/stl/top_support.stl",
+      "physical_validation_verified": false,
+      "quantity": 1,
+      "role": "stationary",
+      "sha256": "f03400dc805ab0850cf655df34b87313fa0a4187bdd0817ddb35ccfdc6411055",
+      "size_bytes": 233284,
+      "validation": {
+        "cad_solid_count": 1,
+        "cad_valid": true,
+        "step_round_trip_valid": true,
+        "stl_binary": true,
+        "stl_closed_manifold": true,
+        "stl_component_count": 1
+      }
+    }
+  ],
+  "geometry_manifest": "release/v5/manifest.json",
+  "known_limitations": [
+    "The user reported that the printed V4.3 bayonet coupon fits and closes; no measured assembly-force or durability approval follows.",
+    "Lifted module motion has nonzero rigid-body overlap at pawls and lug roofs; elastic assembly remains unverified.",
+    "Magnet retention, winding performance, strength, outdoor operation and printed bearing fits require physical validation.",
+    "DOCX rendered-page review and PDF output remain blocked by the absent bundled LibreOffice executable."
+  ],
+  "physical_validation_verified": false,
+  "release": "v5",
+  "schema_version": 1
+}

@@ -2,7 +2,7 @@
 
 Installed solids must not overlap. Named bearing contacts and inherited joint
 axial float are measured separately. Permanent bayonet
-tooth/pawl interference during locking is reported as an unverified elastic fit;
+joint interference during the lifted lock path is reported as an unverified elastic fit;
 neither rigid motion samples nor this audit establish print readiness.
 """
 
@@ -56,7 +56,8 @@ def _joint_paths(a: RotorAssembly) -> dict:
         lower, upper = a.local_modules[lower_name], a.local_modules[upper_name]
         phase = p.blade.twist_deg
         # Tongues are lowered into their matching groove only at final phase.
-        # The intermediate rigid sweep still encounters the permanent pawls.
+        # The rigid sweep encounters both pawls and the lug roof when lifted.
+        # These measurements do not prove an elastic assembly path.
         lift = 1.0
         insertion = [intersection_volume(lower, place(upper, phase-travel, height+step))
                      for step in range(1, ceil(depth)+3)]

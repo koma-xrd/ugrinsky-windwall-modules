@@ -17,11 +17,11 @@ class BladeProfileTests(unittest.TestCase):
     def setUpClass(cls):
         cls.stage = build_blade_stage(DEFAULT_PARAMETERS).val()
 
-    def test_stage_matches_reference_envelope(self):
+    def test_two_mm_stage_retains_the_122_mm_diameter_and_70_mm_height(self):
         shape = self.stage
         box = shape.BoundingBox()
-        self.assertAlmostEqual(box.xlen, 121.5, delta=0.6)
-        self.assertAlmostEqual(box.ylen, 120.732, delta=0.6)
+        self.assertAlmostEqual(box.xlen, 122.0, delta=0.1)
+        self.assertAlmostEqual(box.ylen, 121.37, delta=0.1)
         self.assertAlmostEqual(box.zlen, 70.0, delta=0.1)
 
     def test_stage_is_single_valid_solid(self):
@@ -37,18 +37,19 @@ class BladeProfileTests(unittest.TestCase):
     def test_top_section_retains_reference_sixty_degree_twist(self):
         top = cq.Workplane(obj=self.stage).section(69.9).val().BoundingBox()
         bottom = cq.Workplane(obj=self.stage).section(0.1).val().BoundingBox()
-        self.assertAlmostEqual(bottom.xlen, 121.5, delta=0.6)
+        self.assertAlmostEqual(bottom.xlen, 122.0, delta=0.1)
         self.assertAlmostEqual(top.xlen, 73.603, delta=0.6)
         self.assertGreater(bottom.xlen - top.xlen, 45)
 
     def test_reinforcement_is_confined_to_central_twenty_mm_radius(self):
-        # Two 24/60 mm arc pairs with a 1.5 mm wall have this clipped area.
-        # A widened blade or oversized hub changes the active material area.
+        # Two 2 mm-wide 24/60 mm arc pairs, clipped outside radius 20 mm.
+        # V4.3 leaves two separate section wires in the open middle.
+        # Independent annular-sector minus circle-overlap calculation: 455.19897 mm2.
         section = cq.Workplane(obj=self.stage).section(35).val()
-        face = cq.Face.makeFromWires(section.Wires()[0])
+        self.assertEqual(len(section.Wires()), 2)
         exclusion = cq.Face.makeFromWires(cq.Workplane("XY").circle(20).val()).translate((0, 0, 35))
-        active = face.cut(exclusion)
-        self.assertAlmostEqual(active.Area(), 341.36, delta=0.5)
+        area = sum(cq.Face.makeFromWires(wire).cut(exclusion).Area() for wire in section.Wires())
+        self.assertAlmostEqual(area, 455.20, delta=0.5)
 
     def test_invalid_hub_cannot_encroach_on_active_blade(self):
         oversized_hub = replace(DEFAULT_PARAMETERS.blade, hub_blend_radius_mm=21)

@@ -3,7 +3,8 @@
 Use scripts/run_geometry.py for CLI execution. This exports local geometry and
 does not send a print job or certify fit/load capacity. Keeping the full ring
 preserves its stiffness; the pair includes three permanent-locking bayonet
-lugs and one top-accessible M8 nut calibration pocket.
+lugs and a 4.2 mm-deep open-spoke M8 hex calibration recess. It is not a
+full-depth nut socket and has no continuous hexagonal load floor.
 """
 
 import argparse
@@ -58,6 +59,7 @@ def export_coupon(parameters: DesignParameters, output_dir: Path) -> dict:
               'view': 'from +Z looking down', 'insertion_orientation_deg': -parameters.bayonet.insertion_offset_deg,
               'locked_orientation_deg': 0, 'lug_count': 3,
               'elastic_snap_fit_verified': False, 'disassembly_supported': False,
+              'nut_calibration_recess_depth_mm': coupon.nut_calibration_recess_depth_mm,
               'locked_intersection_mm3': locked,
               'maximum_motion_intersection_mm3': max(sample['intersection_mm3'] for sample in motion),
               'maximum_insertion_intersection_mm3': max(insertion),

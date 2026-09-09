@@ -1,7 +1,8 @@
 # Windwall
 
 Parametric CadQuery source for a seven-stage Ugrinsky wind-wall rotor. The
-current tracked release is `release/v5/`; its manifest is the inventory authority.
+current tracked release is `release/v5/`; `release-index.json` covers the complete
+release and `manifest.json` remains the geometry inventory authority.
 Exploratory and historical generated output belongs in the local `build/` directory.
 
 ## Current V5 manual and release
@@ -16,6 +17,22 @@ housing below the coil. V5 uses a 51105 axial bearing (25 × 42 × 11 mm), a 608
 radial bearing (8 × 22 × 7 mm), six M4 cover fasteners with captive nuts, four
 bottom mounting tabs and four wood screws for the upper support. The fence
 assembly includes the extended M8 shaft.
+
+The [final release index](release/v5/release-index.json) binds geometry, all 15
+drawings, the DOCX and their inventories to repository-relative paths, SHA-256
+hashes, file sizes, roles, quantities, dimensions and available validation evidence.
+`scripts/index_v5.py` regenerates it after validating the geometry/drawing source
+binding and the hash-bound [manual inspection](release/v5/audits/manual.json).
+Changed or unlisted files invalidate the index; it does not imply physical approval.
+
+The user reported that the printed V4.3 bayonet coupon fits and closes. Its
+assembly force and durability remain unmeasured. Rigid CAD sweeps encounter
+the permanent pawls and, when lifted to clear the blade tongue, the lug roof;
+the motion audit reports these overlaps and leaves elastic assembly unverified.
+Installed geometry remains collision-free within the stated numeric tolerance.
+The joint coupon retains the approved 4.2 mm open-spoke hex calibration recess;
+it is not a full-depth M8 nut socket and has no continuous hexagonal load floor.
+Running-clearance measurements exclude intentional snap-pawl and stop faces.
 
 The manual includes all E01–E15 figures, nine coupon files, the three assembly
 STEP references, PLA/Bambu P2S 0.4 mm nozzle guidance, later ASA trials, actual
@@ -87,7 +104,7 @@ write files only and never send a print job:
 ```powershell
 $env:PYTHONPATH = "$PWD;$PWD\src"
 # Optional: enables the measured-source comparison; the STL stays external.
-$env:WINDWALL_REFERENCE_BLADE = "C:\Users\fi87roy\Downloads\Ugrinsky Wind Wall Module - 6236759\files\7 Ugrinsky_Blade.stl"
+$env:WINDWALL_REFERENCE_BLADE = "<external-reference-directory>/7 Ugrinsky_Blade.stl"
 & .\.venv\Scripts\python.exe scripts/run_geometry.py -m unittest discover -s tests -v
 $testExit = $LASTEXITCODE
 & .\.venv\Scripts\python.exe scripts/run_geometry.py scripts/build_all.py --inspect
@@ -465,78 +482,15 @@ integration now provides the printed axial seating path and unloaded-to-loaded
 retainer relief; physical preload capacity remains unverified. The combined
 coupon below includes transition-adjacent drivers and reverse retainers.
 
-## Transition-adjacent drivers and radial retention coupon
+## Historical joint driver experiment
 
-`src/windwall/drivers.py` consumes the same `DesignParameters` and the existing
-bayonet frame. Its public builders are `build_drivers`, `build_driver_pockets`,
-`build_screw_pilots`, and `build_joint_coupon`. The first three return two-solid
-Workplanes for integration; the coupon returns connected `male` and `female`
-print parts, `driver_centers`, `screw_axes`, registration metadata, and the same
-`male_at_travel` motion helper as the bayonet. Translate/rotate both members
-explicitly when registering a module interface.
-
-The true blade transitions `(12, 0)` and `(-12, 0)` lie inside the receiver.
-Exactly two rounded trapezoidal drivers therefore sit at nearby small-arc
-stations `(22.234, 19.660)` and its 180-degree copy (radius approximately 29.68 mm).
-They use 6 mm radial length, 8/6 mm inner/outer widths, 0.8 mm corner radii,
-4 mm engagement and 3 mm shoulder thickness. Short local bridges connect them
-to the hub and receiver. These are transition-adjacent interface fittings;
-their intrusion stays local to the ends and they are not continuous blade-skin
-tabs. The source blade geometry and external reference-STL policy are unchanged.
-
-The open-top pocket cutters cover the -18-to-zero-degree rotation and the
-0.45 mm axial rise. Their one-degree envelope includes the configured 0.30 mm
-radial clearance plus an explicit between-sample displacement allowance
-(approximately 0.29 mm), and 0.25 mm axial clearance. This conservative envelope
-has more play than the nominal clearance alone. Leading trapezoid flats meet
-solid CCW stops at zero; clockwise release is clear. Local receiving pads extend
-3 mm beyond the swept pocket boundary and retain a floor below it.
-
-Two 3 mm × 12 mm screw envelopes at 70 and 180 degrees pass through 3.3 mm outer
-clearance holes into 2.3 mm blind PLA pilots. Three-millimeter solid annuli around
-the holes are tested away from the intentional radial openings. Six-millimeter
-screwdriver corridors extend outward beyond the rotor radius and are clear of
-the isolated coupon. Full seven-stage blade/tool access remains a module and
-assembly integration check. Dimensions and angles are in `DriverParameters`;
-fastener and manufacturing defaults remain in `ManufacturingParameters`.
-
-The combined coupon keeps the complete three-lug ring and both driver/screw
-features to preserve ring stiffness during calibration, rather than cutting out
-a single lug sector. Its male also includes a top-accessible 13.30 mm across-flats,
-6.8 mm deep M8 nut sample. This coupon-only pocket does not imply captive nuts
-in every rotor stage. Exported male/female envelopes are approximately
-52.44 × 47.31 × 12.50 mm and 69.10 × 54.48 × 13.44 mm.
-
-```powershell
-$env:PYTHONPATH = "$PWD;$PWD\src"
-& .\.venv\Scripts\python.exe scripts/run_geometry.py scripts/preview_joint_coupon.py
-$exportExit = $LASTEXITCODE
-& .\.venv\Scripts\python.exe scripts/run_geometry.py -m unittest tests.test_drivers tests.test_preview_joint_coupon -v
-$testExit = $LASTEXITCODE
-```
-
-Outputs under `build/coupons/`: `joint_male.stl`, `joint_female.stl`,
-`joint_locked.step`, top/isometric SVGs, and `joint_fit.json`. Each mesh is one
-closed manifold component with no degenerate faces and bottom at Z=0. Tests
-re-import the STEP as two solids. The exporter checks insertion at 1 mm intervals,
-the locking path at 0.5-degree intervals, directional driver stops, and radial
-tool access. A static actual-solid inspection is available locally as
-`joint-inspection.png`; interactive CQ-editor rendering remains unverified.
-
-Both parts use a zero-angle locked joint frame. Registration metadata preserves
-the measured +60-degree blade twist and zero nominal module rotation, and marks
-`module_end_registration_verified=false`. Identical nominal transforms do not
-make the lower stage's +60-degree top blade section continuous with the next
-stage's zero-degree bottom. Module construction below explicitly sets the fitting
-phase, local end supports, and blade/tool clearance. The pocket sweep does not
-absorb the 60-degree mismatch.
-
-No physical coupon has been printed. Record pilot engagement, nut fit, insertion
-and locking force, reverse retention and cracks before full-stage printing.
-Strength, print support/bridging and screw-head fit remain unverified. Assembled
-blade/tool access is checked by the module geometry below. CLI assertion/export
-completion still precedes the known native
-runtime shutdown failure; record the nonzero exit separately.
+The transition-adjacent radial drivers and retaining screws were replaced by
+the permanent V4.3 bayonet. Their unused builders and tests have been removed.
+The previous implementation is retained in Git history before `cdd1c2d`.
+The current `windwall.drivers` module keeps its import path and exposes only
+`build_joint_interface`, `build_joint_coupon` and `joint_interface_height_mm`.
+Use the current V5 instructions above for the open-spoke calibration recess and
+the unverified elastic assembly behavior.
 
 ## Base, standard and top rotor modules
 
