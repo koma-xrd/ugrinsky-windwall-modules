@@ -365,6 +365,36 @@ def _draw_parallel_meter(
             fontsize=6.3, fontweight='bold', color=color)
 
 
+def _draw_bridge_rectifier(ax, x: float, y: float, width: float, height: float, color):
+    """Draw a four-terminal bridge and return its named terminal coordinates."""
+
+    from matplotlib.patches import Rectangle
+
+    terminals = {
+        'ac_1': (x, y + height * 0.75),
+        'ac_2': (x, y + height * 0.25),
+        'dc_positive': (x + width, y + height * 0.75),
+        'dc_negative': (x + width, y + height * 0.25),
+    }
+    ax.add_patch(Rectangle(
+        (x, y), width, height,
+        facecolor=_PANEL, edgecolor=color, linewidth=1.5, zorder=3,
+    ))
+    ax.text(x + width / 2, y + height / 2, 'H12\nBRÜCKE',
+            ha='center', va='center', fontsize=7.0, fontweight='bold', color=color)
+    terminal_labels = (
+        ('AC~1', terminals['ac_1'], 'left', 0.09),
+        ('AC~2', terminals['ac_2'], 'left', 0.09),
+        ('DC +', terminals['dc_positive'], 'right', -0.09),
+        ('DC -', terminals['dc_negative'], 'right', -0.09),
+    )
+    for label, terminal, alignment, offset in terminal_labels:
+        ax.scatter(*terminal, s=22, color=color, zorder=5)
+        ax.text(terminal[0] + offset, terminal[1], label, ha=alignment, va='center',
+                fontsize=5.7, fontweight='bold', color=color, zorder=6)
+    return terminals
+
+
 def _render_e10(path: Path, drawing_id: str, drawing: dict, data: dict) -> None:
     fig, ax = _new_sheet(drawing_id, drawing)
     _box(ax, 0.15, 5.25, 1.35, 0.95, 'TACHOMETER', ('n = ____ min⁻¹',), color=_SAFE)
@@ -402,15 +432,16 @@ def _render_e10(path: Path, drawing_id: str, drawing: dict, data: dict) -> None:
 
     # DC configuration: rectification exists only in this separately wired
     # branch; series-current and parallel-voltage topology stays explicit.
-    dc_y, dc_return_y = 2.45, 0.88
+    dc_y, dc_return_y = 2.45, 0.82
     ax.text(1.82, 3.55, 'DC-KONFIGURATION · optional · separate Messung',
             fontsize=8.0, fontweight='bold', color=_SOUTH)
     _box(ax, 1.82, 1.35, 1.30, 1.55, 'TESTSPULE', ('H08', 'Isolation H09'), color=_SOUTH)
     _box(ax, 3.30, 2.08, 0.68, 0.72, 'H13', ('Schutz',), color=_PROVISIONAL)
-    _box(ax, 4.18, 1.98, 1.12, 0.92, 'H12', ('Gleichrichter',), color=_SOUTH)
+    bridge = _draw_bridge_rectifier(ax, 4.18, 1.175, 1.25, 1.70, _SOUTH)
     _wire(ax, ((3.12, dc_y), (3.30, dc_y)), _SOUTH)
-    _wire(ax, ((3.98, dc_y), (4.18, dc_y)), _SOUTH)
-    _wire(ax, ((5.30, dc_y), (5.57, dc_y)), _SOUTH)
+    _wire(ax, ((3.98, dc_y), bridge['ac_1']), _SOUTH)
+    _wire(ax, ((3.12, 1.60), bridge['ac_2']), _SOUTH)
+    _wire(ax, (bridge['dc_positive'], (5.58, dc_y)), _SOUTH)
     _meter_symbol(ax, (5.90, dc_y), 'A DC', _SOUTH)
     ax.text(5.90, 2.96, 'A DC IN REIHE', ha='center', va='center', fontsize=6.5,
             fontweight='bold', color=_SOUTH)
@@ -419,7 +450,7 @@ def _render_e10(path: Path, drawing_id: str, drawing: dict, data: dict) -> None:
     _wire(
         ax,
         ((8.85, dc_y), (9.08, dc_y), (9.08, dc_return_y),
-         (3.12, dc_return_y), (3.12, 1.35)),
+         (bridge['dc_negative'][0], dc_return_y), bridge['dc_negative']),
         _SOUTH,
     )
     _draw_parallel_meter(
@@ -431,6 +462,7 @@ def _render_e10(path: Path, drawing_id: str, drawing: dict, data: dict) -> None:
         'Windungen 20 / 40 / 80',
         'n ____ min⁻¹',
         'V~ ____ V   I~ ____ A',
+        'V DC ____ V   I DC ____ A',
         'RSpule ____ Ω',
         'RTEST ____ Ω',
         'T₀/T₁ ____ / ____ °C',

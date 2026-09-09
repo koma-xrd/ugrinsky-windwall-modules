@@ -39,6 +39,17 @@ class ManualElectricalFigureTests(unittest.TestCase):
             )
         return plt.gcf(), data, drawing
 
+    @staticmethod
+    def _wire_edges(figure):
+        edges = set()
+        for line in figure.axes[0].lines:
+            points = [
+                (round(float(x), 2), round(float(y), 2))
+                for x, y in zip(line.get_xdata(), line.get_ydata())
+            ]
+            edges.update(zip(points, points[1:]))
+        return edges
+
     def test_polarity_alternates_and_opposed_faces_attract(self):
         top, bottom = magnet_polarities(18)
 
@@ -108,7 +119,41 @@ class ManualElectricalFigureTests(unittest.TestCase):
                 self.assertIn(label, rendered_text)
         self.assertGreaterEqual(rendered_text.count('RTEST = ____ Ω'), 2)
         self.assertIn((3.12, 4.55), wire_vertices)
-        self.assertIn((3.12, 1.35), wire_vertices)
+        self.assertIn((3.12, 1.60), wire_vertices)
+
+    def test_e10_bridge_rectifier_has_four_terminal_topology(self):
+        figure, _data, _drawing = self._draw_without_saving('E10')
+        try:
+            rendered_text = '\n'.join(
+                text.get_text() for text in figure.findobj(match=plt.Text)
+            )
+            wire_edges = self._wire_edges(figure)
+        finally:
+            plt.close(figure)
+
+        for terminal in ('AC~1', 'AC~2', 'DC +', 'DC -'):
+            with self.subTest(terminal=terminal):
+                self.assertIn(terminal, rendered_text)
+        for edge in (
+            ((3.98, 2.45), (4.18, 2.45)),
+            ((3.12, 1.60), (4.18, 1.60)),
+            ((5.43, 2.45), (5.58, 2.45)),
+            ((5.43, 0.82), (5.43, 1.60)),
+        ):
+            with self.subTest(edge=edge):
+                self.assertIn(edge, wire_edges)
+
+    def test_e10_comparison_panel_has_blank_dc_voltage_and_current_fields(self):
+        figure, _data, _drawing = self._draw_without_saving('E10')
+        try:
+            rendered_text = '\n'.join(
+                text.get_text() for text in figure.findobj(match=plt.Text)
+            )
+        finally:
+            plt.close(figure)
+
+        self.assertIn('V DC ____ V', rendered_text)
+        self.assertIn('I DC ____ A', rendered_text)
 
     def test_e08_direction_arrow_uses_one_adjacent_path_segment(self):
         data = load_manual_data(PROJECT_ROOT)
