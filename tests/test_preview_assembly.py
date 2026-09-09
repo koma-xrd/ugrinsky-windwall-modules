@@ -39,7 +39,8 @@ class AssemblyExportTests(unittest.TestCase):
             report = export_assembly(DEFAULT_PARAMETERS,destination)
             self.assertEqual(report['export_order'][0],'magnet_pocket_coupon')
             self.assertFalse(report['print_ready'])
-            for name in ('base_module','standard_module','top_module','top_closure','lower_magnet_rotor'):
+            for name in ('base_module','standard_module','top_module','lower_magnet_rotor',
+                         'generator_housing','coil_cassette','generator_cover'):
                 mesh = report['exports'][name]['mesh']
                 self.assertEqual(mesh['component_count'],1)
                 self.assertEqual(mesh['boundary_edge_count'],0)
@@ -52,8 +53,9 @@ class AssemblyExportTests(unittest.TestCase):
             for name in ('rotor_locked','rotor_exploded'):
                 solid = cq.importers.importStep(str(destination / f'{name}.step')).val()
                 self.assertTrue(solid.isValid())
-                self.assertEqual(len(solid.Solids()),34)
-            for name in ('assembly_fit.json','assembly_inspection.png','top_closure_section.svg'):
+                self.assertEqual(len(solid.Solids()),69)
+            self.assertTrue(report['aerodynamic_seam_continuous'])
+            for name in ('assembly_fit.json','assembly_inspection.png','top_clamp_section.svg'):
                 self.assertTrue((destination/name).is_file())
 
 

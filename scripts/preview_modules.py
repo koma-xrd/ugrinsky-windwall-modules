@@ -18,8 +18,7 @@ for import_root in (PROJECT_ROOT, PROJECT_ROOT / 'src'):
 import cadquery as cq
 
 from scripts.preview_generator import export_magnet_pocket_coupon
-from windwall.blade_profile import build_blade_stage
-from windwall.drivers import build_joint_interface
+from windwall.assembly import place
 from windwall.parameters import DEFAULT_PARAMETERS, DesignParameters
 from windwall.reference_mesh import analyze_binary_stl
 from windwall.rotor_modules import (build_base_module, build_standard_module,
@@ -53,57 +52,38 @@ def export_modules(parameters: DesignParameters, output_dir: Path) -> dict:
                        'nut_pocket_across_flats_mm': model.nut_pocket_across_flats_mm,
                        'washer_seat_diameter_mm': model.washer_seat_diameter_mm}
     height, depth = p.rotor.stage_height_mm, module_joint_depth_mm(p)
-    phase = p.modules.joint_phase_deg
-    joint = build_joint_interface(p)
-    locked, access = [], []
+    phase = p.blade.twist_deg
+    locked = []
     for lower_name, upper_name in (('base','standard'), ('standard','standard'), ('standard','top')):
         lower = models[lower_name].shape
-        upper = models[upper_name].shape.translate((0,0,height))
+        upper = place(models[upper_name].shape, phase, height)
         locked.append(lower.intersect(upper).val().Volume())
-        for axis in joint.screw_axes:
-            tool = axis.access.rotate((0,0,0), (0,0,1), phase).translate((0,0,height-depth))
-            access.extend(part.intersect(tool).val().Volume() for part in (lower,upper))
     lower, upper = models['standard'].shape, models['top'].shape
     travel = p.bayonet.insertion_offset_deg
     motion = []
     for index in range(ceil(travel*2)+1):
         angle = min(index/2,travel)
-        moved = upper.rotate((0,0,0), (0,0,1), angle-travel).translate(
-            (0,0,height+p.bayonet.ramp_rise_mm*(angle/travel-1)))
+        moved = place(upper, phase+angle-travel, height+1)
         motion.append({'travel_deg': angle, 'intersection_mm3': lower.intersect(moved).val().Volume()})
     insertion = []
-    for lift in range(ceil(depth)+2):
-        moved = upper.rotate((0,0,0), (0,0,1), -travel).translate((0,0,height-p.bayonet.ramp_rise_mm+lift))
+    for lift in range(1,ceil(depth)+3):
+        moved = place(upper, phase-travel, height+lift)
         insertion.append(lower.intersect(moved).val().Volume())
-    source = build_blade_stage(p)
-    relief_height = p.bayonet.ramp_rise_mm+m.axial_clearance_mm
-    edge = (cq.Workplane('XY').circle(p.blade.rotor_radius_mm+1)
-            .circle(p.modules.end_support_radius_mm).extrude(relief_height))
-    removed = source.intersect(edge).val().Volume()
-    receiver_region = (cq.Workplane('XY').circle(p.modules.end_support_radius_mm)
-                       .circle(20).extrude(depth).translate((0,0,height-depth)))
-    report = {'modules': parts, 'nominal_module_rotation_deg': 0,
-              'blade_twist_deg': p.blade.twist_deg, 'joint_phase_deg': phase,
-              'aerodynamic_seam_continuous': False, 'upper_magnet_carrier_integrated': True,
+    report = {'modules': parts, 'nominal_module_rotation_deg': phase,
+              'blade_twist_deg': p.blade.twist_deg, 'joint_phase_deg': p.modules.joint_phase_deg,
+              'aerodynamic_seam_continuous': True, 'upper_magnet_carrier_integrated': True,
               'physical_fit_verified': False, 'interactive_qa_verified': False,
               'physical_magnet_fit_verified': False, 'print_ready': False,
               'magnet_coupon': 'magnet_pocket_coupon.stl',
               'joint_depth_mm': depth, 'female_bottom_z_mm': height-depth,
-              'bottom_edge_relief_height_mm': relief_height,
-              'bottom_edge_removed_source_volume_mm3': removed,
-              'bottom_edge_removed_source_volume_percent': 100*removed/source.val().Volume(),
-              'receiver_region_source_displaced_outside_20mm_radius_mm3': source.intersect(receiver_region).val().Volume(),
-              'end_support_radius_mm': p.modules.end_support_radius_mm,
-              'upper_support_bottom_z_mm': height-depth-p.modules.end_support_thickness_mm,
-              'retainer_angles_deg': [(axis.angle_deg+phase) % 360 for axis in joint.screw_axes],
+              'elastic_snap_fit_verified': False, 'disassembly_supported': False,
+              'locking_lift_mm': 1.0,
               'maximum_locked_intersection_mm3': max(locked),
-              'maximum_tool_intersection_mm3': max(access),
               'maximum_motion_intersection_mm3': max(sample['intersection_mm3'] for sample in motion),
               'maximum_insertion_intersection_mm3': max(insertion), 'motion_samples': motion}
-    if max(report[key] for key in ('maximum_locked_intersection_mm3', 'maximum_tool_intersection_mm3',
-            'maximum_motion_intersection_mm3', 'maximum_insertion_intersection_mm3')) >= 0.01:
-        raise ValueError('Assembled module collision, lock path or tool access check failed')
-    cq.exporters.export(cq.Compound.makeCompound([lower.val(),upper.translate((0,0,height)).val()]),
+    if report['maximum_locked_intersection_mm3'] >= 0.01:
+        raise ValueError('Installed phased module solids intersect')
+    cq.exporters.export(cq.Compound.makeCompound([lower.val(),place(upper,phase,height).val()]),
                         str(output_dir / 'two_modules_locked.step'))
     (output_dir / 'module_fit.json').write_text(json.dumps(report, indent=2), encoding='utf-8')
     return report

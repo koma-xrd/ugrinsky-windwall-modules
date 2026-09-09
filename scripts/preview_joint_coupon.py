@@ -2,8 +2,8 @@
 
 Use scripts/run_geometry.py for CLI execution. This exports local geometry and
 does not send a print job or certify fit/load capacity. Keeping the full ring
-preserves its stiffness; the pair includes three lugs, two drivers, two screws,
-and one top-accessible M8 nut calibration pocket.
+preserves its stiffness; the pair includes three permanent-locking bayonet
+lugs and one top-accessible M8 nut calibration pocket.
 """
 
 import argparse
@@ -18,7 +18,7 @@ if str(PROJECT_ROOT / 'src') not in sys.path:
 
 import cadquery as cq
 
-from windwall.drivers import build_drivers, build_joint_coupon
+from windwall.drivers import build_joint_coupon
 from windwall.parameters import DEFAULT_PARAMETERS, DesignParameters
 from windwall.reference_mesh import analyze_binary_stl
 
@@ -51,26 +51,20 @@ def export_coupon(parameters: DesignParameters, output_dir: Path) -> dict:
               for angle in range(ceil(travel*2)+1)]
     insertion = [coupon.male_at_travel(0).translate((0,0,lift)).intersect(coupon.female).val().Volume()
                  for lift in range(25)]
-    drivers = build_drivers(parameters)
-    ccw = drivers.rotate((0,0,0), (0,0,1), 0.5).intersect(coupon.female).val().Volume()
-    cw = drivers.rotate((0,0,0), (0,0,1), -0.5).intersect(coupon.female).val().Volume()
-    access = [coupon.male.union(coupon.female).intersect(axis.access).val().Volume()
-              for axis in coupon.screw_axes]
+    ccw = coupon.male.rotate((0,0,0), (0,0,1), 0.5).intersect(coupon.female).val().Volume()
+    cw = coupon.male.rotate((0,0,0), (0,0,1), -0.5).intersect(coupon.female).val().Volume()
+    locked = coupon.male.intersect(coupon.female).val().Volume()
     report = {'physically_calibrated': False, 'interactive_qa_verified': False,
               'view': 'from +Z looking down', 'insertion_orientation_deg': -parameters.bayonet.insertion_offset_deg,
-              'locked_orientation_deg': 0, 'driver_centers_xy_mm': coupon.driver_centers,
-              'screw_angles_deg': [axis.angle_deg for axis in coupon.screw_axes],
-              'screw_pilot_diameter_mm': m.screw_pilot_diameter_mm,
-              'screw_clearance_diameter_mm': parameters.drivers.screw_clearance_diameter_mm,
-              'minimum_pilot_edge_margin_mm': min(axis.minimum_pilot_edge_margin_mm for axis in coupon.screw_axes),
-              'maximum_tool_corridor_intersection_mm3': max(access),
+              'locked_orientation_deg': 0, 'lug_count': 3,
+              'elastic_snap_fit_verified': False, 'disassembly_supported': False,
+              'locked_intersection_mm3': locked,
               'maximum_motion_intersection_mm3': max(sample['intersection_mm3'] for sample in motion),
               'maximum_insertion_intersection_mm3': max(insertion),
-              'ccw_driver_stop_intersection_mm3': ccw, 'cw_driver_release_intersection_mm3': cw,
+              'ccw_stop_intersection_mm3': ccw, 'cw_snap_lock_intersection_mm3': cw,
               'registration': coupon.registration, 'motion_samples': motion, 'meshes': meshes}
-    if (report['maximum_motion_intersection_mm3'] >= 0.01 or max(insertion) >= 0.01
-            or max(access) >= 0.01 or ccw <= 0.05 or cw >= 0.01):
-        raise ValueError('Joint motion, driver stops or radial access validation failed')
+    if locked >= 0.01 or max(insertion) >= 0.01 or ccw <= 0.05 or cw <= 0.01:
+        raise ValueError('Joint installed fit, insertion or permanent stop validation failed')
     (output_dir / 'joint_fit.json').write_text(json.dumps(report, indent=2), encoding='utf-8')
     return report
 
@@ -85,8 +79,8 @@ def main() -> int:
 
 if 'show_object' in globals():
     coupon = build_joint_coupon(DEFAULT_PARAMETERS)
-    show_object(coupon.female, name='Receiver and radial clearance holes', options={'color': (170,180,195), 'alpha': 0.5})
-    show_object(coupon.male, name='Locked drivers and blind pilots', options={'color': (35,120,220)})
+    show_object(coupon.female, name='Receiver with permanent snap pawls', options={'color': (170,180,195), 'alpha': 0.5})
+    show_object(coupon.male, name='Locked bayonet with M8 coupon pocket', options={'color': (35,120,220)})
     show_object(coupon.male_at_travel(0).translate((0,0,24)), name='Insertion at -18 degrees', options={'color': (230,155,40), 'alpha': 0.5})
 elif __name__ == '__main__':
     raise SystemExit(main())

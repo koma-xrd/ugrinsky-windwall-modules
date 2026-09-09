@@ -24,9 +24,10 @@ class ModuleExportTests(unittest.TestCase):
                 self.assertTrue(shape.isValid())
                 self.assertEqual(len(shape.Solids()), 1)
                 self.assertTrue((destination / f'{name}_module.svg').is_file())
-            self.assertFalse(report['aerodynamic_seam_continuous'])
+            self.assertTrue(report['aerodynamic_seam_continuous'])
             self.assertTrue(report['upper_magnet_carrier_integrated'])
-            self.assertLess(report['maximum_tool_intersection_mm3'], 0.01)
+            self.assertEqual(report['nominal_module_rotation_deg'], 60)
+            self.assertFalse(report['elastic_snap_fit_verified'])
             self.assertLess(report['maximum_locked_intersection_mm3'], 0.01)
             self.assertTrue((destination / 'module_fit.json').is_file())
 
