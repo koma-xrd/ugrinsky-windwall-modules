@@ -240,19 +240,21 @@ class GeneratorAssembly:
         """Every moving/stationary pair, without blanket bearing exclusions.
 
         Intended bearing support contacts are measured separately at zero
-        distance; their penetration volumes still count as collisions.
+        distance using the supplied installed rotating parts; their penetration
+        volumes still count as collisions.
         """
         moving = self.rotating_parts if rotating_parts is None else rotating_parts
         pairs = {f'{name}/{other}': intersection_volume(shape, stationary)
                  for name, shape in moving.items()
                  for other, stationary in self.stationary_parts.items()}
         bearing = self.bearings['51105'].parts
+        shaft_washer = moving['51105_shaft_washer']
         contacts = {}
         for name, first, second in (
                 ('cover/51105_housing_washer', self.cover, bearing['housing_washer']),
-                ('base/51105_shaft_washer', moving['base'], bearing['shaft_washer']),
+                ('base/51105_shaft_washer', moving['base'], shaft_washer),
                 ('51105_housing_washer/51105_rolling_envelope', bearing['housing_washer'], bearing['rolling_envelope']),
-                ('51105_rolling_envelope/51105_shaft_washer', bearing['rolling_envelope'], bearing['shaft_washer'])):
+                ('51105_rolling_envelope/51105_shaft_washer', bearing['rolling_envelope'], shaft_washer)):
             contacts[name] = {'distance_mm': first.val().distance(second.val()),
                               'intersection_mm3': intersection_volume(first, second)}
         rolling = bearing['rolling_envelope']

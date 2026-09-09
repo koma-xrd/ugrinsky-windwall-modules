@@ -80,6 +80,23 @@ class GeneratorTests(unittest.TestCase):
         self.assertGreater(report['intended_bearing_contacts']['base/51105_shaft_washer']['intersection_mm3'], 0.05)
         self.assertGreater(report['unintended_intersection_mm3'], 0.05)
 
+    def test_supplied_shaft_washer_controls_support_penetration_and_rolling_contact(self):
+        a = self.assembly
+        moving = dict(a.rotating_parts)
+        moving['51105_shaft_washer'] = moving['51105_shaft_washer'].translate((0, 0, 0.2))
+        report = a.collision_report(moving)
+        contacts = report['intended_bearing_contacts']
+        actual_penetration = a.base_module.shape.intersect(moving['51105_shaft_washer']).val().Volume()
+        self.assertAlmostEqual(actual_penetration, 178.9137016, places=4)
+        with self.subTest(contact='Base support penetration'):
+            self.assertAlmostEqual(contacts['base/51105_shaft_washer']['intersection_mm3'],
+                                   actual_penetration, places=5)
+        with self.subTest(contact='Rolling envelope gap'):
+            self.assertAlmostEqual(contacts['51105_rolling_envelope/51105_shaft_washer']['distance_mm'],
+                                   0.2, places=5)
+        with self.subTest(contact='Aggregate collision'):
+            self.assertAlmostEqual(report['unintended_intersection_mm3'], actual_penetration, places=5)
+
     def test_51105_pilot_and_both_axial_support_surfaces_carry_load(self):
         a = self.assembly
         self.assertTrue(hasattr(a, 'bearings'), 'V5 requires a placed 51105 reference')
