@@ -4,6 +4,31 @@ Parametric CadQuery source for a seven-stage Ugrinsky wind-wall rotor. The
 source files are authoritative; generated STEP and STL output belongs in the
 local `build/` directory.
 
+## Illustrated German prototype manual
+
+The editable manual is generated at
+`output/Ugrinsky-Wind-Wall-Bauanleitung.docx`; its intended verified print
+release is `output/pdf/Ugrinsky-Wind-Wall-Bauanleitung.pdf`. Both paths are
+generated outputs and remain untracked. The eleven versioned E01-E11 drawing
+assets and their release manifest are under `assets/manual/release/`.
+
+This is a prototype construction and measurement guide, not a certification of
+physical fit, PLA strength, magnet or bearing retention, outdoor service, or
+electrical performance. It deliberately leaves final winding and protection
+ratings open until measurements exist and prohibits a direct generator-to-
+battery connection.
+
+Build the DOCX by running `scripts/manual/build_manual.py` with the bundled
+document Python. A PDF may be released only after an authorized LibreOffice
+render, complete page-image inspection, and a successful run of
+`scripts/manual/verify_manual.py`. Use `--docx`, `--pdf`, and `--render-dir` to
+provide the three release paths shown above.
+
+The verifier compares the DOCX and PDF chapter, warning, BOM and drawing
+coverage, renders every PDF page afresh with Poppler, and rejects missing,
+blank, or implausibly small pages. A successful automated report complements
+but does not replace inspection of every rendered page at full size.
+
 ## Rebuild and inspect the release candidates
 
 Use the existing project-local environment from the repository root. All CLI
