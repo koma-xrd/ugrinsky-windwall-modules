@@ -129,6 +129,20 @@ class TopSupportTests(unittest.TestCase):
         self.assertEqual(s.required_shaft_extension_mm, 0)
         self.assertAlmostEqual(s.required_shaft_reference.val().BoundingBox().zmax, 553.3)
 
+    def test_support_clears_top_when_recessed_clamp_is_below_module_face(self):
+        p = replace(DEFAULT_PARAMETERS,
+                    modules=replace(DEFAULT_PARAMETERS.modules, washer_seat_depth_mm=3),
+                    manufacturing=replace(DEFAULT_PARAMETERS.manufacturing, nut_pocket_depth_mm=0.2),
+                    generator=replace(DEFAULT_PARAMETERS.generator, clamp_washer_thickness_mm=0.2))
+        s = build_top_support(p)
+        rotor = build_locked_rotor_assembly(p)
+        rotating_top = [rotor.parts[name] for name in ('top', 'top_washer', 'top_nut')]
+        highest_face = max(shape.val().BoundingBox().zmax for shape in rotating_top)
+        self.assertAlmostEqual(s.shape.val().BoundingBox().zmin - highest_face, 2, places=5)
+        for shape in rotating_top:
+            for shift in (0, 1):
+                self.assert_clear(s.shape, shape.translate((0, 0, shift)))
+
     def test_rejects_impossible_capture_or_mismatched_shaft(self):
         variants = [
             replace(DEFAULT_PARAMETERS, bearings=replace(DEFAULT_PARAMETERS.bearings,

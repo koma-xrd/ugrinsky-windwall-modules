@@ -50,11 +50,13 @@ def _cylinder(radius: float, bottom: float, height: float) -> cq.Workplane:
 
 
 def build_top_support(p: DesignParameters) -> TopSupport:
-    """Build an 80x50x12 plate 2 mm above the installed exposed top nut.
+    """Build an 80x50x12 plate 2 mm above the highest Top or clamp face.
 
     Top's face is the nominal stack height; the washer sits in its shallow
-    recess and the nut sits on the washer, as in assembly.py. The screws have
-    4 mm shanks, 40 mm overall envelopes and provisional 8 mm/90-degree heads.
+    recess and the nut sits on the washer, as in assembly.py. A recessed clamp
+    can end below Top, so all three upper faces determine the safe height.
+    The screws have 4 mm shanks, 40 mm overall envelopes and provisional
+    8 mm/90-degree heads.
     Plate holes are 4.5 mm with 8.5 mm/90-degree bottom countersinks. Actual
     screw heads and wood pilot/engagement requirements must be checked on site.
     The 100x70x30 wood block is only a local existing-frame closure reference.
@@ -82,9 +84,11 @@ def build_top_support(p: DesignParameters) -> TopSupport:
     if b.radial_housing_seat_diameter_mm / 2 + m.minimum_loaded_wall_mm >= 25:
         raise ValueError('608 seat must retain the side wall of the support plate')
 
-    nut_top = (p.rotor.nominal_stack_height_mm - p.modules.washer_seat_depth_mm
-               + p.generator.clamp_washer_thickness_mm + m.nut_pocket_depth_mm)
-    bottom = nut_top + 2.0
+    module_top = p.rotor.nominal_stack_height_mm
+    washer_top = (module_top - p.modules.washer_seat_depth_mm
+                  + p.generator.clamp_washer_thickness_mm)
+    nut_top = washer_top + m.nut_pocket_depth_mm
+    bottom = max(module_top, washer_top, nut_top) + 2.0
     floor = bottom + shoulder
     frame_bottom = bottom + 12.0
     # Retain full engagement even with the bearing against the wood closure
