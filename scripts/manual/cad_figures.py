@@ -174,13 +174,17 @@ def _draw_geometry(
     parts: Sequence[_RenderPart],
     *,
     horizontal_margin: float = 0.62,
+    top_view: bool = False,
 ) -> tuple[float, float, float, float]:
     """Tessellate real solids, globally depth-sort triangles, and draw them."""
 
     from matplotlib.collections import PolyCollection
     from matplotlib.colors import to_rgb
 
-    view, right, up = _projection_basis()
+    if top_view:
+        right, up, view = np.eye(3)
+    else:
+        view, right, up = _projection_basis()
     polygons: list[np.ndarray] = []
     depths: list[np.ndarray] = []
     colors: list[np.ndarray] = []
@@ -595,6 +599,40 @@ def _add_sheet_text(fig, drawing_id: str, drawing: dict, notes: Sequence[str]) -
     )
 
 
+def _draw_e04_top_view(fig, parts: Sequence[_RenderPart]) -> None:
+    """Project the same two CAD states along +Z with positive CCW in XY."""
+
+    from matplotlib.patches import Arc
+
+    ax = fig.add_axes((0.12, 0.555, 0.76, 0.325))
+    ax.set_gid('E04-top-plan')
+    ax.set_facecolor('#f7f7f4')
+    _draw_geometry(ax, parts, horizontal_margin=0.12, top_view=True)
+    ax.set_ylim(-48, 57)
+    ax.set_title('Draufsicht von oben (+Z)', fontsize=10, fontweight='bold', pad=5)
+    angle = DEFAULT_PARAMETERS.bayonet.insertion_offset_deg
+    for center_x, rotation, label in (
+        (-43.0, -angle, f'Einsetzen -{angle:g}°'),
+        (43.0, 0.0, 'Verriegelt 0°'),
+    ):
+        # The +Y marker denotes the same locked-frame zero in both panels.
+        ax.plot([center_x, center_x], [0, 34], '--', color='#344149', linewidth=1.0)
+        theta = radians(90 + rotation)
+        ax.plot([center_x, center_x + 34 * cos(theta)], [0, 34 * sin(theta)],
+                color=_ROTATING, linewidth=2.0)
+        ax.text(center_x, -40, label, ha='center', va='top', fontsize=9, fontweight='bold')
+    ax.text(-48, 31, '0°', ha='right', va='center', fontsize=8)
+    center_x, radius = -43.0, 40.0
+    ax.add_patch(Arc((center_x, 0), 2 * radius, 2 * radius,
+                     theta1=90 - angle, theta2=90, color='#1f654b', linewidth=1.8))
+    before_tip = radians(87)
+    ax.annotate('', xy=(center_x, radius),
+                xytext=(center_x + radius * cos(before_tip), radius * sin(before_tip)),
+                arrowprops={'arrowstyle': '-|>', 'color': '#1f654b', 'lw': 1.8})
+    ax.text(center_x + 7, 49, 'CCW verriegeln', ha='center', fontsize=8,
+            fontweight='bold', color='#1f654b')
+
+
 def _save_standard_figure(path: Path, drawing_id: str, drawing: dict, parts, leaders, notes) -> None:
     import matplotlib.pyplot as plt
 
@@ -612,7 +650,12 @@ def _save_standard_figure(path: Path, drawing_id: str, drawing: dict, parts, lea
         grow_inward=drawing_id in {'E04', 'E05'},
     )
     _add_sheet_text(fig, drawing_id, drawing, notes)
-    fig.subplots_adjust(left=0.035, right=0.965, top=0.895, bottom=0.11)
+    if drawing_id == 'E04':
+        fig.subplots_adjust(left=0.035, right=0.965, top=0.50, bottom=0.13)
+        ax.set_title('Isometrisches Detail des Eingriffs', fontsize=9, pad=5)
+        _draw_e04_top_view(fig, parts)
+    else:
+        fig.subplots_adjust(left=0.035, right=0.965, top=0.895, bottom=0.11)
     fig.savefig(path, dpi=200, facecolor=fig.get_facecolor(), metadata={'Software': 'Windwall CAD manual renderer'})
     plt.close(fig)
 

@@ -256,7 +256,7 @@ def _generator(doc, data, paths):
     ])
     _page(doc, '7 Magnete montieren und Polung prüfen', level=1)
     _figure(doc, 'E03', data, paths)
-    _paragraph(doc, 'P01 trägt den oberen Magnetring integriert; P05 ist der untere separate Rotor. Insgesamt werden 36 nominal 10 x 2 mm große Scheibenmagnete H10 benötigt, 18 je Rotor. Jede Scheibe vor Einbau auf Ausbrüche, Beschichtungsschäden, Durchmesser und Dicke prüfen.')
+    _paragraph(doc, 'Bauteile nach E03 trocken zuordnen: P01 trägt den oberen Magnetring integriert; P05 ist der untere separate Rotor. Insgesamt werden 36 nominal 10 x 2 mm große Scheibenmagnete H10 benötigt, 18 je Rotor. Jede Scheibe vor Einbau auf Ausbrüche, Beschichtungsschäden, Durchmesser und Dicke prüfen.')
     _paragraph(doc, 'Die modellierten Taschen sind 11 mm weit und 2 mm tief. Ein Magnetnennmaß von 10 mm garantiert weder einen geeigneten Klebespalt noch ausreichende Rückhaltung. Mit dem Coupon 10,8 / 11,0 / 11,2 mm die echte Druckpassung ermitteln und magnetischen Überstand mit Tiefenmaß dokumentieren.')
     _paragraph(doc, 'Neodym-Magnete können Finger einklemmen und beim Zusammenprall splittern. Schutzbrille tragen, einzelne Magnete mit nichtmagnetischen Abstandhaltern führen und Werkzeug sowie lose Metallteile fernhalten. Abstand zu empfindlicher Elektronik und medizinischen Implantaten gemäß Magnet- und Gerätehinweisen einhalten.', lead='Starke Magnete:')
     _paragraph(doc, 'H11 ist noch zu entwickeln: Kleber allein ist kein nachgewiesener Schutz gegen Ablösung und Fliehkraft. Klebstoffverträglichkeit, Aushärtung und eine formschlüssige Rückhaltung am Coupon prüfen; dabei einen vollständig abgeschirmten Versuch verwenden.', lead='Vor Rotation:')
@@ -315,12 +315,28 @@ def _winding(doc, data, paths):
     doc.add_heading('Längen und Widerstände vergleichbar erfassen', 2)
     _paragraph(doc, 'Für jede passende Spule Drahtlänge in Metern, gleich behandelte Anschlusslänge, DC-Widerstand und Messtemperatur erfassen. Bei kurzen dünnen Wicklungen den Messleitungswiderstand korrigieren. Werden Anschlussenden aus der Längenangabe ausgeschlossen, muss auch deren Widerstandsanteil getrennt behandelt werden.')
     _paragraph(doc, 'Spulennummer __________________  Drahtcharge __________________\nNennmaß ______ mm  Gemessen über Emaille ______ mm\nDrahtlänge gesamt ______ m  Davon Anschlussenden ______ m\nLängenmessverfahren __________________________________________\nPassungsbefund und Abbruchgrund _______________________________\n______________________________________________________________')
+    _page(doc, 'Testspule in den realen Wicklungsträger einsetzen')
+    _steps(doc, [
+        'Den realen Wicklungsträger reinigen und seine Kanten glätten. Seine Referenzhülle ist noch keine validierte Statorbefestigung. Geeignete Isolierfolie oder Isolierpapier zwischen gedruckte Kontaktflächen und Draht legen; die zusätzliche Dicke bei der Passung berücksichtigen.',
+        'Die gebundene Spule trocken und ohne Kraft einlegen. Bindung beibehalten und die Wicklung mit einer lösbaren Halterung gegen Wandern sichern. A1 und A2 zugentlasten und so ausführen, dass Leitungen, Bindung und Anschlüsse keine rotierenden Teile erreichen können.',
+        'Durchgang, DC-Widerstand und Isolation vor und nach dem Einsetzen prüfen und vergleichen. Eine zur Drahtisolation geeignete Isolationsprüfung gegen erreichbare leitfähige Trägerteile durchführen; Prüfspannung aus Material- und Messgerätedaten ableiten. Ein Multimeter-Durchgangstest allein weist keine Isolationsfestigkeit nach.',
+        'Maximale Einbauhöhe und beide realen Luftspalte nach E06 messen. Rotor gesichert eine volle Umdrehung von Hand bewegen und den kleinsten Freigang notieren. Bei Kontakt, Drahtquetschung oder Widerstandsänderung ausbauen und die Ursache beheben.',
+    ])
+    _paragraph(doc, 'Erste elektrische Versuche bleiben unvergossen. Die lösbare Fixierung muss die Testspule bereits sicher halten; fehlende Rückhaltung nicht durch einen frühen Verguss überdecken.', lead='Testzustand:')
+    doc.add_heading('Vergussversuch erst nach der Spulenauswahl', 2)
+    _steps(doc, [
+        'Ein elektrisch isolierendes Material mit geringer Reaktionswärme wählen, dessen Herstellerdaten Emaille, Druckwerkstoff und spätere Temperaturbelastung zulassen. Datenblatt und Sicherheitsdatenblatt beachten; Mischverhältnis, zulässige Füllmenge und Aushärtung nicht schätzen. Hinweise zu Reaktionswärme und Lufteinschlüssen siehe [S3].',
+        'Zuerst einen kleinen ausgehärteten Coupon mit demselben Druckwerkstoff, Draht und Isoliermaterial prüfen. Höchsttemperatur beim Härten und danach Verzug, Verträglichkeit und Isolation erfassen. Ein kleiner Coupon allein validiert keinen größeren Vergussblock.',
+        'Für den ersten Spulenversuch Rotoren ausbauen oder vollständig vom Füllraum trennen. Wicklung fixieren, Lager und Freigänge abdecken und die Füllhöhe markieren. Langsam kontrolliert füllen, Lufttaschen vermeiden und Füllvolumen/Temperatur protokollieren. Keine Harznase darf in den Rotorraum ragen.',
+        'Den Verguss vollständig nach Herstellerangaben aushärten lassen. Danach Maße, Isolation und Lasttemperatur erneut prüfen, einschließlich beider Luftspalte bei voller Handumdrehung. Erst nach bestandenem Vergleich einen weiteren strombegrenzten Lastversuch erlauben.',
+    ])
+    _paragraph(doc, 'Ein Vergussversuch ist keine nachgewiesene Magnet- oder Wicklungsrückhaltung. Er ersetzt weder Festigkeits- und Dauertests noch Lager-, Magnet- oder Außenbetriebsvalidierung. Eine bewährte Testspule bleibt ein Prototyp, bis diese Prüfungen separat abgeschlossen sind.')
 
 
 def _measurements(doc, data, paths):
     _page(doc, '9 Testspulen vergleichbar messen', level=1)
     _figure(doc, 'E10', data, paths)
-    _paragraph(doc, 'Alle Varianten bei gleicher Drehzahl, Magnetanordnung, Luftspalt und vergleichbarer Ausgangstemperatur messen. Spulennummer, tatsächliche Windungszahl, Drahtdurchmesser über Emaille, Messgerät und Messbereich aufzeichnen. Ein Leerlaufspannungswert allein ist kein Leistungsnachweis.')
+    _paragraph(doc, 'Messleitungen und Geräte nach E10 zuordnen. Alle Varianten bei gleicher Drehzahl, Magnetanordnung, Luftspalt und vergleichbarer Ausgangstemperatur messen. Spulennummer, tatsächliche Windungszahl, Drahtdurchmesser über Emaille, Messgerät und Messbereich aufzeichnen. Ein Leerlaufspannungswert allein ist kein Leistungsnachweis.')
     _steps(doc, [
         'Bei stillgesetztem Rotor isolierte Messleitungen verlegen und sichern. Drehzahlmarker befestigen, Schutzhaube schließen. Im Leerlauf das True-RMS-Voltmeter zwischen A1 und A2 anschließen; keine Batterie verwenden.',
         'Langsam auf eine vorher begrenzte Prüfdrehzahl bringen. Drehzahl, AC-Leerlaufspannung und elektrische Frequenz gemeinsam aufnehmen. Rotor mechanisch stillsetzen, bevor Leitungen oder Messbereiche umgesteckt werden.',
@@ -354,7 +370,7 @@ def _measurements(doc, data, paths):
 def _rotor(doc, data, paths):
     _page(doc, '10 Sieben Stufen montieren', level=1)
     _figure(doc, 'E01', data, paths)
-    _paragraph(doc, 'Von unten nach oben folgen Basis P01, fünf identische P02 und Top P03. P04 schließt oben ab. Vor dem Stapeln alle sechs Nahtstellen mit Coupons erproben; nur saubere, unbeschädigte Fügeteile verwenden.')
+    _paragraph(doc, 'Nach E01 folgen von unten nach oben Basis P01, fünf identische P02 und Top P03. P04 schließt oben ab. Vor dem Stapeln alle sechs Nahtstellen mit Coupons erproben; nur saubere, unbeschädigte Fügeteile verwenden.')
     _steps(doc, [
         'Die Basis auf der geraden M8-Stange und einer stabilen Montagehilfe ausrichten. Generatorteile gegen unkontrollierte Magnetkräfte sichern. Blätter nicht als Schraubstockflächen oder Hebel verwenden.',
         'Ein P02 auf die Welle führen, Einsetzstellung gemäß E04 wählen, bis zum vollständigen Eingriff absenken und gegen den Uhrzeigersinn verriegeln. Nach jeder Stufe Sitz und Freigang prüfen.',
@@ -375,7 +391,7 @@ def _rotor(doc, data, paths):
     _page(doc, '11 Top Klemmung und Abschluss', level=1)
     _figure(doc, 'E05', data, paths)
     _steps(doc, [
-        'Vor P04 die obere H03-Scheibe eben auf ihre vorgesehene Auflage setzen. H02 zugänglich aufschrauben und mit passendem Werkzeug gegenhalten. Die Kraft darf nicht über Blattkanten oder Abdeckung laufen.',
+        'Klemmteile nach E05 zuordnen. Vor P04 die obere H03-Scheibe eben auf ihre vorgesehene Auflage setzen. H02 zugänglich aufschrauben und mit passendem Werkzeug gegenhalten. Die Kraft darf nicht über Blattkanten oder Abdeckung laufen.',
         'Den vollständig gesetzten Stack vorsichtig mit M8 klemmen. Es gibt kein validiertes Anzugsdrehmoment für diese PLA-Konstruktion. Nicht nach einem Stahl-Schraubentabellenwert anziehen; bei Verformung, Knacken oder blockiertem Lager sofort lösen und untersuchen.',
         'Rundlauf an Welle, Magnetflächen und Rotorumfang messen. Welle über eine volle Umdrehung von Hand bewegen und kleinsten Spalt protokollieren. Nach der Klemmung muss die Lagerung weiterhin frei laufen.',
         'P04 aufsetzen und mit zwei H05 lösbar befestigen. Die Abdeckung übernimmt keine M8-Klemmkraft. Werkzeugzugang und spätere Demontage kontrollieren; die M8-Stange darf nicht gegen den Deckel drücken.',
@@ -496,6 +512,9 @@ def _records_and_sources(doc, data):
     doc.add_heading('S2 Morningstar Corporation', 2)
     _paragraph(doc, 'Diversion Charge Control Manual, besonders Abschnitte 6.4.4 und 6.4.5. Die Last muss Quellenenergie aufnehmen können und gleichzeitig innerhalb der Reglergrenzen bleiben. Die dortigen TriStar-Beispiele sind gerätespezifisch und dürfen nicht ungeprüft auf dieses System übertragen werden.')
     _paragraph(doc, 'https://www.morningstarcorp.com/wp-content/uploads/technical-doc-diversion-manual-en.pdf')
+    doc.add_heading('S3 MG Chemicals', 2)
+    _paragraph(doc, 'Epoxy Encapsulating and Potting Compounds. Herstellerhinweise zu langsamem Einfüllen, Vermeidung von Lufteinschlüssen und Reaktionswärme. Produktbezogene Misch- oder Härtetemperaturen werden für diesen PLA-Prototyp nicht übernommen; das konkrete Datenblatt und der Coupon entscheiden.')
+    _paragraph(doc, 'https://mgchemicals.com/downloads/pdf/epoxy-catalog.pdf')
     doc.add_heading('Vor der ersten Batterieverbindung ergänzen', 2)
     _paragraph(doc, 'Batteriehersteller und Typ ________________________________________\nBatteriehandbuch und Revision ___________________________________\nReglermodell und Handbuch ______________________________________\nGleichrichter und Kühlkonzept ____________________________________\nSchutzorgane und Leitungsbemessung _____________________________\nDump Load und sichere Wärmeabfuhr ______________________________\nGeprüfter Anschlussplan ________________________________________')
     _paragraph(doc, 'Solange diese Auswahl und die mechanischen Prüfungen offen sind, bleibt die Entwicklung beim geschützten Messaufbau mit definierter Last. Generator nicht direkt mit dem Akku verbinden.')

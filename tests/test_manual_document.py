@@ -167,6 +167,25 @@ class ManualDocumentTests(unittest.TestCase):
                        'Stromgrenze vor dem Drehen dokumentieren'):
             self.assertTrue(phrase in self.text, f'Missing current-limit instruction: {phrase}')
 
+    def test_coil_placement_and_later_potting_have_separate_validation_gates(self):
+        for phrase in ('Testspule in den realen Wicklungsträger einsetzen',
+                       'gebundene Spule trocken und ohne Kraft',
+                       'A1 und A2 zugentlasten',
+                       'vor und nach dem Einsetzen',
+                       'eine volle Umdrehung von Hand',
+                       'Erste elektrische Versuche bleiben unvergossen',
+                       'Vergussversuch erst nach der Spulenauswahl',
+                       'geringer Reaktionswärme', 'kleinen ausgehärteten Coupon',
+                       'vollständig nach Herstellerangaben aushärten',
+                       'Maße, Isolation und Lasttemperatur erneut prüfen',
+                       'keine nachgewiesene Magnet- oder Wicklungsrückhaltung'):
+            self.assertTrue(phrase in self.text, f'Missing winding workflow gate: {phrase}')
+
+    def test_every_drawing_is_referenced_in_instructional_prose(self):
+        prose = '\n'.join(p.text for p in self.doc.paragraphs if p.style.name == 'Normal')
+        for number in range(1, 12):
+            self.assertIn(f'E{number:02}', prose)
+
     def test_tables_have_borders_repeating_headers_and_no_fixed_height(self):
         self.assertGreaterEqual(len(self.doc.tables), 4)
         for table in self.doc.tables:
