@@ -70,6 +70,17 @@ class ExportTests(unittest.TestCase):
             self.assertLess(abs(part.mesh.signed_volume - part.cad_volume_mm3),
                             part.cad_volume_mm3 * 0.005)
 
+    def test_joint_blade_coupon_is_manifold_with_absolute_release_tessellation(self):
+        from windwall.drivers import build_joint_coupon
+
+        pair = build_joint_coupon(DEFAULT_PARAMETERS)
+        with temporary_build_directory() as destination:
+            for name, shape in (('joint_male', pair.male), ('joint_female', pair.female)):
+                part = export_part(name, shape, destination, coupon=True)
+                self.assertEqual(part.mesh.boundary_edge_count, 0)
+                self.assertEqual(part.mesh.nonmanifold_edge_count, 0)
+                self.assertEqual(part.mesh.component_count, 1)
+
     def test_all_unique_parts_export_as_valid_step_and_stl(self):
         with temporary_build_directory() as destination:
             manifest = export_all(destination)

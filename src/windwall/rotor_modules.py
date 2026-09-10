@@ -1,7 +1,7 @@
 """Load-bearing base, standard and top stages in a common nominal blade frame.
 
 The source blade frame spans z=0 to stage_height_mm with its +60-degree twist;
-only its outer bottom edge is relieved for the axial locking motion. The upper
+two inset outer blade-wall seams retain the exterior skin. The upper
 receiver is recessed into a local end-support region;
 the next stage's male extends below zero into it. The support plate bridges
 the phase difference structurally. Successive modules rotate by the blade twist
@@ -21,6 +21,7 @@ from OCP.HLRBRep import HLRBRep_Algo, HLRBRep_HLRToShape
 from OCP.gp import gp_Ax2, gp_Dir, gp_Pnt
 
 from windwall.blade_profile import build_blade_stage
+from windwall.blade_seam import BladeSeamInterface, build_blade_seam
 from windwall.drivers import build_joint_interface, joint_interface_height_mm
 from windwall.generator import base_bearing_interface, build_upper_magnet_carrier
 from windwall.parameters import DesignParameters
@@ -77,18 +78,6 @@ def _validate(p: DesignParameters) -> None:
 
 def _disc(radius: float, bottom: float, depth: float) -> cq.Workplane:
     return cq.Workplane('XY').circle(radius).extrude(depth).translate((0,0,bottom))
-
-
-def _outer_blade_key(source: cq.Workplane, height: float, depth: float, top: bool) -> cq.Workplane:
-    target_z = height if top else 0
-    faces = [face for face in source.val().Faces()
-             if abs(face.Center().z-target_z) < 0.01 and abs(face.normalAt().z) > 0.9]
-    solids = [cq.Solid.extrudeLinear(face.outerWire(),face.innerWires(),cq.Vector(0,0,depth))
-              for face in faces]
-    key = cq.Workplane(obj=cq.Compound.makeCompound(solids))
-    outer = (cq.Workplane('XY').circle(62).circle(24).extrude(depth+0.2)
-             .translate((0,0,target_z)))
-    return key.intersect(outer)
 
 
 def _end_guide(p: DesignParameters, bottom: float, angle_deg: float) -> cq.Workplane:
@@ -170,9 +159,9 @@ def _build(parameters: DesignParameters, kind: str) -> RotorModuleModel:
     depth = module_joint_depth_mm(p)
     joint_z = height-depth
     joint = build_joint_interface(p)
+    seam = build_blade_seam(p)
     body = build_blade_stage(p)
-    # The upper stage starts below its locked height and rises during locking.
-    # Relieve the outer bottom edge for its lower insertion/early-travel poses.
+    # Rotate the upper stage with tongues clear, then seat axially at +60 degrees.
     if kind == 'base':
         plate_bottom = -end.base_shaft_flange_depth_mm-p.generator.carrier_height_mm
         support = _base_blade_support(
@@ -231,13 +220,10 @@ def _build(parameters: DesignParameters, kind: str) -> RotorModuleModel:
         body = body.cut(_disc(p.shaft.clearance_hole_diameter_mm/2,
                               shaft_bottom, height-shaft_bottom+1)).clean()
     if kind != 'top':
-        body = body.union(_outer_blade_key(body,height,0.8,True))
+        body = body.union(seam.tongues.rotate((0,0,0),(0,0,1),p.blade.twist_deg)
+                          .translate((0,0,height)))
     if kind != 'base':
-        groove = _outer_blade_key(build_blade_stage(p),height,0.95,False)
-        clearance = groove
-        for dx,dy in ((0.12,0),(-0.12,0),(0,0.12),(0,-0.12)):
-            clearance = clearance.union(groove.translate((dx,dy,0)))
-        body = body.cut(clearance)
+        body = body.cut(seam.groove_clearance)
     if not body.val().isValid() or len(body.val().Solids()) != 1:
         raise ValueError(f'{kind.capitalize()} module must be one valid connected solid')
     return RotorModuleModel(body, (p.shaft.clearance_hole_diameter_mm-p.shaft.nominal_diameter_mm)/2,

@@ -1,7 +1,7 @@
 """Solid-envelope audit of the phased stack and generator bearing load path.
 
-Installed solids must not overlap. Named bearing contacts and inherited joint
-axial float are measured separately. Permanent bayonet
+Installed solids must not overlap. Named bearing contacts and joint compression
+probes are measured separately. Permanent bayonet
 joint interference during the lifted lock path is reported as an unverified elastic fit;
 neither rigid motion samples nor this audit establish print readiness.
 """
@@ -56,9 +56,9 @@ def _joint_paths(a: RotorAssembly) -> dict:
         lower, upper = a.local_modules[lower_name], a.local_modules[upper_name]
         phase = p.blade.twist_deg
         # Tongues are lowered into their matching groove only at final phase.
-        # The rigid sweep encounters both pawls and the lug roof when lifted.
-        # These measurements do not prove an elastic assembly path.
-        lift = 1.0
+        # Added receiver headroom clears the rigid lug roof; snap-pawl contact
+        # remains an unverified elastic fit.
+        lift = p.bayonet.seating_headroom_mm
         insertion = [intersection_volume(lower, place(upper, phase-travel, height+step))
                      for step in range(1, ceil(depth)+3)]
         lock = [intersection_volume(lower, place(upper, phase-travel+min(index/2, travel), height+lift))
@@ -110,7 +110,7 @@ def audit_rotor_assembly(a: RotorAssembly) -> dict:
             'nominal_stage_pitch_mm': p.rotor.stage_height_mm,
             'maximum_installed_joint_intersection_mm3': max(installed),
             'joint_axial_float': axial_float,
-            'axial_float_note': 'Nominal pitch is preserved; compressed-stack height and physical load transfer are unverified',
+            'axial_float_note': 'Blade skins meet at nominal pitch; compression probes do not establish physical load capacity',
             'maximum_stage_angle_error_deg': a.maximum_stage_angle_error_deg(),
             'internal_blade_twist_deg': p.blade.twist_deg, 'seam_phase_jump_deg': 0,
             'aerodynamic_seam_continuous': a.maximum_stage_angle_error_deg() < 0.01,
@@ -136,7 +136,7 @@ def audit_rotor_assembly(a: RotorAssembly) -> dict:
             'electrical_design_finalized': False,
             'motion_sampling': {'locking_step_deg': 0.5, 'insertion_step_mm': 1,
                                 'continuous_collision_proof': False, 'elastic_snap_fit_verified': False},
-            'contact_semantics': 'Named 51105 washer/support contacts; permanent bayonet stops; inherited joint axial float',
+            'contact_semantics': 'Named 51105 washer/support contacts; permanent bayonet stops; flush blade skins and inset seams',
             'hardware_envelopes': {'nut_height_mm': m.nut_pocket_depth_mm,
                 'washer_diameter_mm': m.washer_outer_diameter_mm,
                 'washer_thickness_mm': p.generator.clamp_washer_thickness_mm,

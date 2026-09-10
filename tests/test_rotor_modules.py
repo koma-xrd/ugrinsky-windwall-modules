@@ -10,8 +10,50 @@ from windwall.blade_profile import build_blade_stage
 from windwall.drivers import build_joint_interface
 from windwall.generator import base_bearing_interface, upper_magnet_face_z_mm
 from windwall.parameters import DEFAULT_PARAMETERS
+from windwall import rotor_modules
 from windwall.rotor_modules import (build_base_module, build_standard_module,
                                     build_top_module, module_joint_depth_mm)
+
+
+class BladeSeamTests(unittest.TestCase):
+    def test_two_blade_regions_have_transverse_clearance_and_no_central_features(self):
+        self.assertTrue(hasattr(rotor_modules, 'build_blade_seam'),
+                        'A dedicated aerodynamic blade seam builder is required')
+        seam = rotor_modules.build_blade_seam(DEFAULT_PARAMETERS)
+        self.assertEqual((seam.tongue_count, seam.groove_count), (2, 2))
+        for shape in (seam.tongues, seam.groove_clearance):
+            self.assertTrue(shape.val().isValid())
+            self.assertEqual(len(shape.val().Solids()), 2)
+            centre = cq.Workplane('XY').circle(25).extrude(2)
+            self.assertLess(shape.intersect(centre).val().Volume(), 0.01)
+        self.assertLess(seam.tongues.cut(seam.groove_clearance).val().Volume(), 0.01)
+        for dx, dy in ((.119, 0), (-.119, 0), (0, .119), (0, -.119)):
+            moved = seam.tongues.translate((dx, dy, 0))
+            self.assertLess(moved.cut(seam.groove_clearance).val().Volume(), 0.01)
+        self.assertAlmostEqual(seam.tongues.val().BoundingBox().zmax, .8)
+        self.assertGreater(seam.groove_clearance.val().BoundingBox().zmax, .8)
+        source = build_blade_stage(DEFAULT_PARAMETERS)
+        self.assertLess(seam.groove_clearance.cut(source).val().Volume(), .01)
+        for z in (.01, .25, .5, .75, 1.04):
+            groove_section = seam.groove_clearance.section(z).val()
+            blade_section = source.section(z).val()
+            for groove_wire in groove_section.Wires():
+                self.assertGreater(min(groove_wire.distance(wire) for wire in blade_section.Wires()), .3)
+
+    def test_invalid_seam_dimensions_fail_before_geometry(self):
+        p = DEFAULT_PARAMETERS
+        self.assertTrue(hasattr(p, 'blade_seam'), 'Blade seam fit must be configurable')
+        for changes in ({'tongue_height_mm': 0}, {'tongue_height_mm': float('nan')},
+                        {'groove_depth_mm': .8}, {'transverse_clearance_mm': 0},
+                        {'transverse_clearance_mm': .7}, {'skin_thickness_mm': 1.1}):
+            with self.subTest(changes=changes), self.assertRaises(ValueError):
+                rotor_modules.build_blade_seam(replace(p, blade_seam=replace(p.blade_seam, **changes)))
+
+    def test_seam_rejects_nonfinite_or_insufficient_locking_headroom(self):
+        p = DEFAULT_PARAMETERS
+        for headroom in (.8, float('nan'), float('inf')):
+            with self.subTest(headroom=headroom), self.assertRaises(ValueError):
+                rotor_modules.build_blade_seam(replace(p, bayonet=replace(p.bayonet, seating_headroom_mm=headroom)))
 
 
 class RotorModuleTests(unittest.TestCase):
@@ -61,9 +103,10 @@ class RotorModuleTests(unittest.TestCase):
 
     def test_outer_skin_is_retained_and_added_pads_stay_in_the_end_fitting_envelope(self):
         source = build_blade_stage(DEFAULT_PARAMETERS)
-        # V4.3's lower 0.95 mm is the mating groove; intact skin begins above it.
-        outer = cq.Workplane('XY').circle(62).circle(36.001).extrude(69.0498).translate((0,0,0.9501))
-        outside_fittings = cq.Workplane('XY').circle(62).circle(36.4).extrude(69.0498).translate((0,0,0.9501))
+        # Full wall thickness resumes above the inset groove; its surrounding
+        # aerodynamic skin is checked separately through the entire groove.
+        outer = cq.Workplane('XY').circle(62).circle(36.001).extrude(68.9498).translate((0,0,1.0501))
+        outside_fittings = cq.Workplane('XY').circle(62).circle(36.4).extrude(68.9498).translate((0,0,1.0501))
         for name, model in self.modules.items():
             with self.subTest(module=name):
                 self.assertLess(source.cut(model.shape).intersect(outer).val().Volume(), 0.01)
@@ -196,16 +239,45 @@ class RotorModuleTests(unittest.TestCase):
             cq.Workplane('XY').circle(62).circle(20).extrude(.05).translate((0,0,70)))
         self.assertAlmostEqual(lower_tip.val().Volume(), upper_root.val().Volume(), places=2)
 
-    def test_installed_joint_is_clear_but_rigid_lock_path_requires_physical_validation(self):
+    def test_blade_seams_preserve_skin_and_share_counterclockwise_torque(self):
+        self.assertTrue(hasattr(rotor_modules, 'build_blade_seam'))
+        seam = rotor_modules.build_blade_seam(DEFAULT_PARAMETERS)
+        lower = self.modules['standard'].shape
+        upper = self.modules['top'].shape.rotate((0,0,0),(0,0,1),60).translate((0,0,70))
+        tongue_zone = cq.Workplane('XY').circle(62).extrude(.79).translate((0,0,70.005))
+        self.assertEqual(len(lower.intersect(tongue_zone).val().Solids()), 2)
+        groove_zone = cq.Workplane('XY').circle(62).circle(25).extrude(1.04).translate((0,0,.005))
+        removed = build_blade_stage(DEFAULT_PARAMETERS).cut(self.modules['top'].shape).intersect(groove_zone)
+        self.assertEqual(len(removed.val().Solids()), 2)
+        for tongue in seam.tongues.val().Solids():
+            installed = tongue.rotate((0,0,0),(0,0,1),60).translate((0,0,70))
+            self.assertLess(installed.cut(lower.val()).Volume(), .01)
+            self.assertLess(installed.intersect(upper.val()).Volume(), .01)
+            ccw = installed.rotate((0,0,0),(0,0,1), .5)
+            self.assertGreater(ccw.intersect(upper.val()).Volume(), .01)
+        # The outer tip surface on both blades reaches the nominal seam plane;
+        # these probes caught the former full-wall groove and its axial gap.
+        for phase in (60, 240):
+            x = 59.5*cos(pi*phase/180)-.5*sin(pi*phase/180)
+            y = 59.5*sin(pi*phase/180)+.5*cos(pi*phase/180)
+            self.assertTrue(lower.val().isInside((x,y,69.999)))
+            self.assertTrue(upper.val().isInside((x,y,70.001)))
+
+    def test_raised_ccw_locking_then_axial_seating_only_meets_elastic_latch(self):
         lower = self.modules['standard'].shape
         upper = self.modules['top'].shape
-        overlaps = []
-        for travel in (0, 0.5, 6, 12, 17.5):
+        snap = (cq.Workplane('XY').circle(22).circle(20.4).extrude(3)
+                .translate((0,0,70-module_joint_depth_mm(DEFAULT_PARAMETERS)+3.9)))
+        for travel in (0, .5, 3, 6, 9, 12, 15, 17.5, 18):
             moving = upper.rotate((0,0,0), (0,0,1), 42+travel).translate((0,0,71))
-            overlaps.append(lower.intersect(moving).val().Volume())
-        # The tongue-clearing lift also meets the lug roof. This is an observed
-        # rigid-envelope limitation, not a simulated elastic insertion proof.
-        self.assertGreater(max(overlaps), 0.01)
+            collision = lower.intersect(moving).val()
+            if collision.Volume() >= .01:
+                self.assertLess(collision.cut(snap.val()).Volume(), .01, travel)
+        for lift in (1, .8, .5, .25, 0):
+            moving = upper.rotate((0,0,0),(0,0,1),60).translate((0,0,70+lift))
+            collision = lower.intersect(moving).val()
+            if collision.Volume() >= .01:
+                self.assertLess(collision.cut(snap.val()).Volume(), .01, lift)
         locked = upper.rotate((0,0,0), (0,0,1), 60).translate((0,0,70))
         self.assertLess(lower.intersect(locked).val().Volume(), 0.01)
         for lift in (1,4,8,16,24):

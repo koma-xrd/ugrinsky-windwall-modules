@@ -17,7 +17,7 @@ class AssemblyTests(unittest.TestCase):
         cls.assembly = build_locked_rotor_assembly(DEFAULT_PARAMETERS)
         cls.audit = audit_rotor_assembly(cls.assembly)
 
-    def test_locked_seven_stage_stack_preserves_registration_and_reports_axial_float(self):
+    def test_locked_seven_stage_stack_preserves_registration_and_has_no_axial_blade_gap(self):
         a = self.assembly
         self.assertEqual((a.base_count, a.standard_count, a.top_count), (1, 5, 1))
         self.assertEqual([round(s.z_mm, 2) for s in a.stages], [0, 70, 140, 210, 280, 350, 420])
@@ -28,9 +28,9 @@ class AssemblyTests(unittest.TestCase):
         self.assertIn('joint_axial_float', self.audit)
         self.assertEqual(len(self.audit['joint_axial_float']), 6)
         for joint in self.audit['joint_axial_float']:
-            self.assertLess(joint['compression_0_10_mm_intersection_mm3'], 0.01)
+            self.assertGreater(joint['compression_0_10_mm_intersection_mm3'], 0.05)
             self.assertGreater(joint['compression_0_20_mm_intersection_mm3'], 0.05)
-            self.assertEqual(joint['contact_probe_bracket_mm'], [0.1, 0.2])
+            self.assertIsNone(joint['contact_probe_bracket_mm'])
             self.assertFalse(joint['physical_load_capacity_verified'])
         self.assertEqual(self.audit['seam_phase_jump_deg'], 0)
         self.assertTrue(self.audit['aerodynamic_seam_continuous'])
