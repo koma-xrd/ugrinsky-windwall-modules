@@ -55,6 +55,23 @@ class ReleaseIndexTests(unittest.TestCase):
                                                      for item in drawings},
                       'physical_validation_verified': False}
         self.save('release/v5/audits/manual.json', self.audit)
+        self.translations = {'documents': {}}
+        for locale, name in {'en-GB': 'English', 'zh-CN': 'Chinese-Simplified', 'hi-IN': 'Hindi',
+                             'es-ES': 'Spanish', 'fr-FR': 'French'}.items():
+            path = f'release/v5/docs/Ugrinsky-Wind-Wall-V5-Manual-{name}.docx'
+            catalog_path = f'scripts/manual/locales/{locale}.json'
+            self.write(path, ('reviewed ' + locale).encode())
+            self.save(catalog_path, {'locale': locale, 'source_sha256': self.audit['artifact_sha256']})
+            self.translations['documents'][locale] = {
+                **self.audit, 'artifact_path': path, 'artifact_sha256': self.digest(path),
+                'locale': locale, 'size_bytes': (self.root / path).stat().st_size,
+                'source_manual_sha256': self.audit['artifact_sha256'],
+                'catalog_path': catalog_path, 'catalog_sha256': self.digest(catalog_path),
+                'chapter_count': 13, 'figure_count': 15, 'table_count': 11,
+                'embedded_images_match_release': 15,
+                'image_binding_sha256_by_id': {d['drawing_id']: self.digest('release/v5/drawings/' + d['filename'])
+                                               for d in drawings}}
+        self.save('release/v5/audits/manual-translations.json', self.translations)
 
     def write(self, relative, payload):
         path = self.root / relative
@@ -157,6 +174,39 @@ class ReleaseIndexTests(unittest.TestCase):
         self.write('release/v5/stl/obsolete.stl', b'obsolete')
         with self.assertRaisesRegex(ValueError, 'Unlisted'):
             self.build(self.root)
+
+    def test_all_five_translations_are_indexed_with_locale_and_review(self):
+        records = [r for r in self.build(self.root)['artifacts'] if r['kind'] == 'document']
+        self.assertEqual({r['language'] for r in records}, {'de-DE', 'en-GB', 'zh-CN', 'hi-IN', 'es-ES', 'fr-FR'})
+
+    def test_tampered_translation_is_rejected(self):
+        self.write(self.translations['documents']['en-GB']['artifact_path'], b'tampered translation')
+        with self.assertRaisesRegex(ValueError, 'hash'):
+            self.build(self.root)
+
+    def test_changed_translation_catalog_cannot_reuse_review(self):
+        self.write(self.translations['documents']['hi-IN']['catalog_path'], b'changed catalogue')
+        with self.assertRaisesRegex(ValueError, 'catalog'):
+            self.build(self.root)
+
+    def test_missing_locale_and_stale_translation_source_are_rejected(self):
+        for change in ('missing', 'source', 'drawing', 'structural', 'path'):
+            with self.subTest(change=change):
+                audit = json.loads(json.dumps(self.translations))
+                record = audit['documents']['fr-FR']
+                if change == 'missing':
+                    audit['documents'].pop('zh-CN')
+                elif change == 'source':
+                    record['source_manual_sha256'] = '0' * 64
+                elif change == 'drawing':
+                    record['image_binding_sha256_by_id']['E01'] = '0' * 64
+                elif change == 'structural':
+                    record['structural_checks_passed'] = False
+                else:
+                    record['catalog_path'] = '../outside.json'
+                self.save('release/v5/audits/manual-translations.json', audit)
+                with self.assertRaisesRegex(ValueError, 'Translation|translation'):
+                    self.build(self.root)
 
 
 if __name__ == '__main__':

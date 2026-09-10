@@ -17,6 +17,48 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parents[1]
 PREFIX = PurePosixPath('release/v5')
 MANUAL = 'release/v5/docs/Ugrinsky-Wind-Wall-V5-Bauanleitung.docx'
+TRANSLATIONS = {'en-GB': 'English', 'zh-CN': 'Chinese-Simplified', 'hi-IN': 'Hindi',
+                'es-ES': 'Spanish', 'fr-FR': 'French'}
+
+
+def _translation_records(root, asset, german_audit, geometry_hash, figures_hash, drawings, figures):
+    """Require all translated packages and the exact catalogues reviewed with them."""
+    path, _ = asset('release/v5/audits/manual-translations.json', 'translation-audit', role='validation-evidence')
+    translations = json.loads(path.read_bytes())['documents']
+    if set(translations) != set(TRANSLATIONS):
+        raise ValueError('Translation audit must contain exactly five required locales')
+    image_bindings = {d['drawing_id']: drawings[d['filename']] for d in figures['figures']}
+    for locale, language in TRANSLATIONS.items():
+        audit = translations[locale]
+        expected_path = f'release/v5/docs/Ugrinsky-Wind-Wall-V5-Manual-{language}.docx'
+        catalog_path = f'scripts/manual/locales/{locale}.json'
+        if audit['artifact_path'] != expected_path or audit['locale'] != locale or audit['catalog_path'] != catalog_path:
+            raise ValueError('Translation paths and locales do not match the required inventory')
+        catalog_local = (root / catalog_path).resolve()
+        if not catalog_local.is_relative_to((root / 'scripts/manual/locales').resolve()):
+            raise ValueError('Translation catalogue escapes its source directory')
+        catalog_raw = catalog_local.read_bytes()
+        if hashlib.sha256(catalog_raw).hexdigest() != audit['catalog_sha256']:
+            raise ValueError('Translation catalogue hash differs from its reviewed source')
+        catalog = json.loads(catalog_raw)
+        if (catalog['locale'] != locale or catalog['source_sha256'] != german_audit['artifact_sha256']
+                or audit['source_manual_sha256'] != german_audit['artifact_sha256']
+                or audit['geometry_manifest_sha256'] != geometry_hash
+                or audit['figures_manifest_sha256'] != figures_hash
+                or audit['drawing_sha256_by_filename'] != drawings
+                or audit['image_binding_sha256_by_id'] != image_bindings):
+            raise ValueError('Translation source or drawing evidence is stale')
+        if (not audit['structural_checks_passed'] or not audit['canonical_zip_verified']
+                or any(audit['accessibility_findings'].values())
+                or audit['chapter_count'] != 13 or audit['figure_count'] != 15
+                or audit['table_count'] != 11 or audit['embedded_images_match_release'] != 15
+                or audit['physical_validation_verified']):
+            raise ValueError('Translation structural and accessibility evidence has not passed')
+        _, record = asset(expected_path, 'document', expected_hash=audit['artifact_sha256'],
+                          role='documentation', quantity=1, language=locale, locale=locale,
+                          validation=audit, physical_validation_verified=False)
+        if record['size_bytes'] != audit['size_bytes']:
+            raise ValueError('Translation reviewed size differs from the artifact')
 
 
 def build_release_index(project_root: Path) -> dict:
@@ -87,6 +129,8 @@ def build_release_index(project_root: Path) -> dict:
         raise ValueError('Manual structural and accessibility evidence has not passed')
     asset(MANUAL, 'document', expected_hash=audit['artifact_sha256'], role='documentation', quantity=1,
           language='de-DE', validation=audit, physical_validation_verified=False)
+    _translation_records(root, asset, audit, geometry_record['sha256'], figures_record['sha256'],
+                         drawing_hashes, figures)
     actual = {p.relative_to(root).as_posix() for p in release.rglob('*') if p.is_file()}
     if actual != set(records):
         raise ValueError(f'Unlisted release artifacts require review: {sorted(actual - set(records))}')
