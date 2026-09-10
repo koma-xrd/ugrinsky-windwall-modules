@@ -11,6 +11,35 @@ from PIL import Image
 from tests.support import temporary_build_directory
 
 
+class PresentationMediaTests(unittest.TestCase):
+    """Released media stays presentation-ready and traceable to its supplied source."""
+
+    def setUp(self):
+        self.project_root = Path(__file__).resolve().parents[1]
+        self.media = self.project_root / 'release/v5/media'
+        self.supplied_gif = Path('C:/Users/fi87roy/Downloads/ugrinsky_windwall_10_rotors.gif')
+
+    def test_hero_is_a_landscape_png_suitable_for_readme_and_a4_use(self):
+        hero = self.media / 'windwall-fence-hero.png'
+        self.assertTrue(hero.is_file(), 'The release hero image is missing')
+        with Image.open(hero) as image:
+            self.assertEqual(image.format, 'PNG')
+            self.assertGreaterEqual(image.width, 1600)
+            self.assertGreaterEqual(image.height, 900)
+            self.assertGreater(image.width, image.height)
+
+    def test_tracked_rotor_animation_is_byte_identical_to_the_supplied_gif(self):
+        tracked_gif = self.media / 'ugrinsky_windwall_10_rotors.gif'
+        self.assertTrue(tracked_gif.is_file(), 'The supplied rotor animation is missing from the release')
+        self.assertTrue(self.supplied_gif.is_file(), 'The supplied rotor animation fixture is unavailable')
+        with Image.open(tracked_gif) as image:
+            self.assertEqual(image.format, 'GIF')
+            self.assertGreater(image.width, image.height)
+            self.assertGreaterEqual(getattr(image, 'n_frames', 1), 2)
+        self.assertEqual(hashlib.sha256(tracked_gif.read_bytes()).digest(),
+                         hashlib.sha256(self.supplied_gif.read_bytes()).digest())
+
+
 class ReleaseIndexTests(unittest.TestCase):
     def setUp(self):
         self.assertIsNotNone(importlib.util.find_spec('scripts.index_v5'),
