@@ -14,6 +14,27 @@ from tests.support import temporary_build_directory
 
 
 class V5FigureTests(unittest.TestCase):
+    def test_scene_copy_and_manifest_use_canonical_english(self):
+        from scripts.manual.v5_figures import build_v5_scenes
+
+        scenes, _ = build_v5_scenes()
+        rendered_copy = []
+        for scene in scenes:
+            rendered_copy.extend((scene.title, scene.caption, scene.note))
+            for panel in scene.panels:
+                rendered_copy.append(panel.title)
+                rendered_copy.extend(callout.label for callout in panel.callouts)
+                rendered_copy.extend(part.record.reference_note for part in panel.parts)
+        forbidden = ('rotierend', 'stationär', 'gehäuse', 'wicklung', 'mutter', 'schraube',
+                     'oben', 'unten', 'prüf', 'nicht drucken', 'montage', 'stufe', 'blatt')
+        joined = ' '.join(rendered_copy).casefold()
+        self.assertFalse([word for word in forbidden if word in joined])
+        self.assertEqual(len(scenes), 15)
+
+        root = Path(__file__).resolve().parents[1]
+        inventory = json.loads((root / 'release/v5/drawings/figures.json').read_text(encoding='utf-8'))
+        self.assertEqual(inventory['raster_language'], 'en-GB')
+        self.assertEqual(len(inventory['figures']), 15)
     def test_feature_anchors_and_complete_frame_installation(self):
         from scripts.manual.v5_figures import build_v5_scenes
 
@@ -88,9 +109,9 @@ class V5FigureTests(unittest.TestCase):
                     floor = parts['housing'].source_bounds_mm[0][2]
                     self.assertAlmostEqual(maximum[2]-floor, 8, places=5)
                     self.assertAlmostEqual(floor-minimum[2], 22, places=5)
-                self.assertTrue(any('von oben' in c.label for p in scenes[drawing_id].panels
+                self.assertTrue(any('from above' in c.label for p in scenes[drawing_id].panels
                                     for c in p.callouts))
-                self.assertTrue(any('von unten' in c.label for p in scenes[drawing_id].panels
+                self.assertTrue(any('from below' in c.label for p in scenes[drawing_id].panels
                                     for c in p.callouts))
 
     def test_tracked_51105_drawing_uses_the_two_release_coupon_parts(self):
@@ -120,6 +141,7 @@ class V5FigureTests(unittest.TestCase):
         from matplotlib.figure import Figure
 
         observed_poles = {}
+        observed_text = {}
         close_figure = plt.close
 
         def inspect_then_close(figure=None):
@@ -128,6 +150,9 @@ class V5FigureTests(unittest.TestCase):
                 observed_poles[drawing_id] = [text.get_text() for axes in figure.axes
                                               for text in axes.texts
                                               if text.get_text() in ('N', 'S')]
+                observed_text[drawing_id] = [text.get_text() for text in figure.texts]
+                observed_text[drawing_id].extend(text.get_text() for axes in figure.axes
+                                                 for text in axes.texts)
             close_figure(figure)
 
         with temporary_build_directory() as output:
@@ -139,6 +164,13 @@ class V5FigureTests(unittest.TestCase):
             tracked_index = Path(__file__).resolve().parents[1] / 'release/v5/drawings/figures.json'
             self.assertEqual((output / 'figures.json').read_bytes(), tracked_index.read_bytes())
             self.assertEqual(len(exported['figures']), 15)
+            self.assertEqual(exported['raster_language'], 'en-GB')
+            forbidden_raster_copy = ('rotierend', 'stationär', 'gehäuse', 'wicklung',
+                                     'mutter', 'schraube', 'prüf', 'quelle:', 'oben', 'unten')
+            for drawing_id, labels in observed_text.items():
+                raster_copy = ' '.join(labels).casefold()
+                self.assertFalse([word for word in forbidden_raster_copy if word in raster_copy],
+                                 f'{drawing_id} contains non-English raster copy')
             for record in records:
                 tracked = Path(__file__).resolve().parents[1] / 'release/v5/drawings' / record.filename
                 self.assertEqual(hashlib.sha256(record.path.read_bytes()).hexdigest(),
@@ -151,9 +183,9 @@ class V5FigureTests(unittest.TestCase):
                     self.assertEqual(picture.info['Description'], record.alt_text)
                 self.assertEqual(record.filename, record.path.name)
                 self.assertTrue(record.caption and record.alt_text and record.callout_labels)
-                self.assertEqual(record.language, 'de')
-                self.assertTrue(any('ROTIEREND' in label for label in record.rotation_state_legend))
-                self.assertTrue(any('STATIONÄR' in label for label in record.rotation_state_legend))
+                self.assertEqual(record.language, 'en-GB')
+                self.assertTrue(any('ROTATING' in label for label in record.rotation_state_legend))
+                self.assertTrue(any('STATIONARY' in label for label in record.rotation_state_legend))
                 self.assertTrue(record.parts)
                 self.assertTrue(all(part.source_builder for part in record.parts))
                 self.assertNotIn('top_closure', {part.name for part in record.parts})
@@ -177,7 +209,7 @@ class V5FigureTests(unittest.TestCase):
             cover_fasteners = next(r for r in records if r.drawing_id == 'E09')
             self.assertTrue(any('4 × M4' in label for label in cover_fasteners.callout_labels))
             upper = next(r for r in records if r.drawing_id == 'E13')
-            self.assertTrue(any('von unten' in label for label in upper.callout_labels))
+            self.assertTrue(any('from below' in label for label in upper.callout_labels))
             self.assertTrue(any(part.name == 'upper_wood_frame_reference' for part in upper.parts))
             for drawing_id in ('E08', 'E09', 'E10', 'E14', 'E15'):
                 serialized = next(r for r in exported['figures'] if r['drawing_id'] == drawing_id)

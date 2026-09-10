@@ -1,4 +1,4 @@
-"""Deterministic German V5 drawings from current CadQuery builders.
+"""Deterministic English V5 drawings from current CadQuery builders.
 
 The release manifest supplies component provenance and motion ownership. Solid
 triangles are orthographically projected with a global depth sort; sections
@@ -16,6 +16,7 @@ import json
 from math import cos, pi, sin
 import os
 from pathlib import Path
+import re
 import sys
 import textwrap
 
@@ -32,6 +33,7 @@ import matplotlib.pyplot as plt
 from matplotlib.collections import PolyCollection
 from matplotlib.colors import to_rgb
 import numpy as np
+from OCP.Standard import Standard_Failure
 
 from windwall.assembly import build_exploded_rotor_assembly, build_locked_rotor_assembly
 from windwall.bearings import build_51105_fit_coupon, build_608_fit_coupon
@@ -42,10 +44,168 @@ from windwall.top_support import build_top_support
 
 COLORS = {'rotating': '#d79732', 'stationary': '#258e91',
           'bearing': '#9576b4', 'reference': '#89939e'}
-LEGEND = ('ROTIEREND · Rotor, Welle, M8-Klemmung (Ocker)',
-          'STATIONÄR · Gehäuse, Kassette, Deckel, Halter (Türkis)',
-          'LAGER · Wälzkörper / unaufgelöste 608-Kinematik (Violett)',
-          'REFERENZEN · Prüfkörper / Freiraumhüllen (Grau)')
+ENGLISH_LABEL_CATALOGUE = {
+    'legend.rotating': 'ROTATING · rotor, shaft, M8 clamp (ochre)',
+    'legend.stationary': 'STATIONARY · housing, cassette, cover, support (teal)',
+    'legend.bearing': 'BEARING · rolling elements / unresolved 608 kinematics (violet)',
+    'legend.reference': 'REFERENCES · test pieces / clearance envelopes (grey)',
+    'polarity.title': 'Polarity towards the winding · same +Z projection for both rings',
+    'polarity.upper': 'UPPER\nFace ↓',
+    'polarity.lower': 'LOWER\nFace ↑',
+    'polarity.count': '18 magnets each · alternating N / S',
+    'polarity.opposed': 'Same angle: opposite poles N ↔ S',
+    'polarity.zero': '0° right: upper N / lower S · 20°: upper S / lower N',
+    'polarity.direction': 'Upper ring at 90° · arrows point axially towards the stationary winding',
+    'source': 'Source: current V5 CAD builders + release/v5/manifest.json · nominal dimensions in mm · not to scale',
+    'polarity.alt': (' Both rings have 18 poles facing the winding, alternating N and S on the upper ring and S and N on the lower ring. '
+                     'Equal angles in the same +Z projection carry opposite poles; upper N and lower S at 0 degrees, '
+                     'upper S and lower N at 20 degrees.'),
+}
+
+LEGEND = tuple(ENGLISH_LABEL_CATALOGUE[f'legend.{key}']
+               for key in ('rotating', 'stationary', 'bearing', 'reference'))
+
+# All scene copy passes through this single catalogue.  Keeping the catalogue
+# separate from the geometry branches makes the raster-language contract easy
+# to audit and prevents a rarely used view from retaining untranslated text.
+ENGLISH_TEXT_CATALOGUE = {
+    'Sieben Rotorstufen · Vormontage': 'Seven rotor stages · pre-assembly',
+    'Ein Base-Modul, fünf gleiche Standard-Module und ein Top-Modul bilden den Rotor.': 'One base module, five identical standard modules and one top module form the rotor.',
+    'Einfügepositionen auseinandergezogen; dauerhafte Rastung nach dem Verriegeln.': 'Insertion positions are exploded; the latch is permanent after locking.',
+    'Drei Druckmodultypen': 'Three printable module types',
+    'Die sieben Stufen bestehen aus drei unterschiedlichen, einteiligen CAD-Modultypen.': 'The seven stages use three distinct, one-piece CAD module types.',
+    'Alle dargestellten Modulkörper drehen gemeinsam mit der M8-Welle.': 'All shown module bodies rotate together with the M8 shaft.',
+    'Bajonett und Nut-Feder-Blattnaht': 'Bayonet and tongue-and-groove blade seam',
+    'Drei Bajonettklauen verriegeln die Stufen; Nut und Feder führen die Blattnaht.': 'Three bayonet lugs lock the stages; tongue and groove guide the blade seam.',
+    'Vormontage: einführen und verriegeln; elastische Rastung zuerst am Coupon prüfen.': 'Pre-assembly: insert and lock; test the elastic latch on the coupon first.',
+    'Base und Axiallager 51105 · Schnitt': 'Base and 51105 thrust bearing · section',
+    'Die Base-Schulter trägt auf der rotierenden Wellenscheibe; die Gehäusescheibe sitzt im Deckel.': 'The base shoulder bears on the rotating shaft washer; the housing washer sits in the cover.',
+    '51105: 25 × 42 × 11 mm. Wälzbereich als Hülle; tatsächliche Lagerpassung prüfen.': '51105: 25 × 42 × 11 mm. Rolling region shown as an envelope; verify the actual bearing fit.',
+    'Unterer Magnetrotor im Gehäuse': 'Lower magnet rotor inside the housing',
+    'Der untere Magnetträger läuft im Gehäuse; seine integrierte Hülse reicht durch die stationäre Mitte.': 'The lower magnet carrier runs inside the housing; its integral sleeve passes through the stationary centre.',
+    'Gehäuse vorn aufgeschnitten; Kassette und Deckel zur Einsicht ausgeblendet.': 'Housing cut away at the front; cassette and cover hidden for clarity.',
+    'Generator · Explosionsdarstellung': 'Generator · exploded view',
+    'Kassette, Deckel und Base sind angehoben; der untere Magnetrotor bleibt im aufgeschnittenen Gehäuse.': 'Cassette, cover and base are raised; the lower magnet rotor remains in the cut-away housing.',
+    'Unterer Rotor unter der stationären Wicklung. Base-Blätter zur Lesbarkeit gekürzt.': 'Lower rotor below the stationary winding. The complete V5.2 base blades are shown.',
+    'Generator · montierter Mittelschnitt': 'Generator · assembled centre section',
+    'Zwei rotierende Magnetträger umschließen die stationäre Wicklung; der untere Rotor sitzt im Gehäuse.': 'Two rotating magnet carriers enclose the stationary winding; the lower rotor sits inside the housing.',
+    'Spulenkassette · Führung und Rückhaltung': 'Coil cassette · guidance and retention',
+    'Die Kassette sitzt auf der Gehäuseschulter; der Deckel begrenzt den Hub nach oben.': 'The cassette seats on the housing shoulder; the cover limits upward travel.',
+    'Der einzelne Schlüssel bei −X sperrt die Verdrehung. Passung am Segment-Coupon prüfen.': 'The single key at −X prevents rotation. Verify fit with the segment coupon.',
+    'Deckel · vier M4-Verschraubungen': 'Cover · four M4 fasteners',
+    'Vier M4-Schrauben befestigen den stationären Deckel; separate äußere Bohrungen befestigen das Gehäuse am Rahmen.': 'Four M4 screws secure the stationary cover; separate outer holes secure the housing to the frame.',
+    'Boss und Rahmenbohrung liegen auf derselben radialen Achse. Zugang von oben; reales Werkzeug prüfen.': 'Boss and frame hole share one radial axis. Access is from above; verify tool clearance.',
+    'Seitlicher Kabelausgang · 45°': 'Side cable outlet · 45°',
+    'Die seitlichen Öffnungen von Kassette und Gehäuse fluchten bei korrekt eingesetztem Schlüssel.': 'The cassette and housing side openings align when the key is seated correctly.',
+    'Graue Hülle = freier Kabeldurchgang Ø6 mm; kein montiertes Kabel, keine Abdichtung.': 'Grey envelope = clear Ø6 mm cable passage; no installed cable or seal.',
+    'Passungsprobe · Axiallager 51105': 'Fit coupon · 51105 thrust bearing',
+    'Drei Gehäusesitze und drei Pilotdurchmesser erlauben die Auswahl mit dem realen 51105-Lager.': 'Three housing seats and three pilot diameters permit selection using the actual 51105 bearing.',
+    'Zwei getrennte Druckproben gemäß V5-Release. Prüflager 51105: 25 × 42 × 11 mm.': 'Two separate print samples from the V5 release. Test bearing 51105: 25 × 42 × 11 mm.',
+    'Passungsprobe · Radiallager 608': 'Fit coupon · 608 radial bearing',
+    'Drei Sitzdurchmesser prüfen die Passung des realen 608-Lagers für den oberen Halter.': 'Three seat diameters test the fit of the actual 608 bearing in the upper support.',
+    '608: 8 × 22 × 7 mm. Passung auf M8-Gewinde und Beweglichkeit bleiben praktisch zu prüfen.': '608: 8 × 22 × 7 mm. Fit on the M8 thread and free movement still require physical verification.',
+    'Oberer 608-Halter · Montage von unten': 'Upper 608 support · installation from below',
+    'Der stationäre Halter wird von unten an den Holzrahmen geschraubt; das Holz schließt den Lagersitz.': 'The stationary support is screwed to the timber frame from below; the timber closes the bearing seat.',
+    'M8-Klemmung zuerst anziehen. Vier Holzschrauben 4 × 40 mm sind ungeprüfte Nennhüllen.': 'Tighten the M8 clamp first. Four 4 × 40 mm wood screws are unverified nominal envelopes.',
+    'Einbau am vorhandenen Holzrahmen': 'Installation on an existing timber frame',
+    'Zwischen zwei Holzriegeln: Gehäuse von oben befestigt, oberer 608-Halter von unten angeschraubt.': 'Between two timber rails: housing secured from above, upper 608 support screwed on from below.',
+    'Holz und Holzschrauben: Referenzen, nicht drucken. Querschnitte und Befestigung vor Ort auslegen; keine Lastfreigabe.': 'Timber and wood screws are references, not printable parts. Size sections and fasteners on site; no load approval is implied.',
+    'Gesamtbaugruppe · Betriebsanordnung im CAD': 'Complete assembly · operating arrangement in CAD',
+    'Sieben Rotorstufen und Generator sind zwischen unterem und oberem Holzriegel montiert.': 'Seven rotor stages and the generator are installed between lower and upper timber rails.',
+    'Holz / Holzschrauben: nicht drucken, vor Ort auslegen. CAD V5; Passung, Elektrik und Betrieb sind unvalidiert.': 'Timber / wood screws: do not print; size on site. CAD V5; fit, electrical system and operation are unvalidated.',
+    # Reusable panel, callout and reference phrases.
+    'rotierend': 'rotating', 'stationär': 'stationary', 'Stationäre': 'Stationary', 'Stufe': 'Stage', 'Modul': 'module',
+    'Oberer': 'Upper', 'Unterer': 'Lower', 'obere': 'upper', 'untere': 'lower',
+    'oben': 'above', 'unten': 'below', 'Gehäuse': 'housing', 'Deckel': 'cover',
+    'Wicklung': 'winding', 'Spule': 'coil', 'Kassette': 'cassette', 'Mutter': 'nut', 'mutter': ' nut',
+    'Schraube': 'screw', 'Schrauben': 'screws', 'schraube': ' screw', 'schrauben': ' screws',
+    'Holz': 'timber', 'Rahmen': 'frame',
+    'nicht drucken': 'do not print', 'prüfen': 'verify', 'Prüf': 'test ', 'Schnitt': 'section',
+    'Montierte': 'Assembled', 'Montierter': 'Assembled', 'Montage': 'installation',
+    'Führung': 'guidance', 'Rückhaltung': 'retention', 'Blatt': 'blade', 'Magnete': 'magnets',
+    'Magnetträger': 'magnet carrier', 'Bajonett': 'bayonet', 'Aufnahme': 'receiver',
+    'geschlossenem': 'closed', 'Geschlossener': 'Closed', 'offenem': 'open', 'Offener': 'Open',
+    'Passung': 'fit', 'Hülle': 'envelope', 'Nennhüllen': 'nominal envelopes', 'Nennhülle': 'nominal envelope',
+    'ungeprüfte': 'unverified', 'Gefangene': 'Captive', 'gefangen': 'captive',
+    'Rückentasche': 'rear pocket', 'verdeckt': 'hidden', 'flacher Kopf': 'flat head',
+    'gezeigt': 'shown', 'Vier': 'Four', 'Drei': 'Three', 'Zwei': 'Two', 'Ein': 'One',
+    'von': 'from', 'nach': 'to', 'und': 'and', 'mit': 'with', 'für': 'for',
+}
+
+ENGLISH_TEXT_CATALOGUE.update({
+    'Axial getrennte Stufen': 'Axially separated stages',
+    'M8-Mutter und Scheibe · rotierend': 'M8 nut and washer · rotating',
+    'Base · 1 Stück': 'Base · 1 piece', 'Standard · 5 Stück': 'Standard · 5 pieces',
+    'Top · 1 Stück': 'Top · 1 piece', 'Oberer Magnetträger integriert': 'Integral upper magnet carrier',
+    'Zentrierbund für 51105': 'Locating collar for 51105', 'Unterer Bajonettzapfen': 'Lower bayonet spigot',
+    'Obere Aufnahme und Blattnaht': 'Upper receiver and blade seam', 'Kompakte Kraftplatte': 'Compact torque plate',
+    'Offener M8-Muttersitz': 'Open M8 nut seat', 'Bajonett · getrennte Einfügeposition': 'Bayonet · separated insertion position',
+    'Reale Naht · Halbschnitt': 'Actual seam · half section', 'Drei Klauen + dauerhafte Rastzähne': 'Three lugs + permanent latch teeth',
+    'Aufnahme mit Rampen und Sperrklinken': 'Receiver with ramps and locking pawls',
+    'Standard: untere Nut / Bajonett': 'Standard: lower groove / bayonet', 'Base: obere Feder / Aufnahme': 'Base: upper tongue / receiver',
+    'Mittelschnitt X–Z · oberer Blattbereich abgeschnitten': 'Centre section X–Z · upper blade region clipped',
+    'Base-Schulter und 25-mm-Pilot · rotierend': 'Base shoulder and 25 mm pilot · rotating',
+    '51105 Wellenscheibe · rotierend': '51105 shaft washer · rotating',
+    '51105 Wälzbereich · eigene Bewegung': '51105 rolling region · independent motion',
+    '51105 Gehäusescheibe · stationär': '51105 housing washer · stationary',
+    'Deckel mit Lagersitz · stationär': 'Cover with bearing seat · stationary',
+    'Gefangene M8-Drehmomentmutter': 'Captive M8 torque nut', 'Montierte Lage · Gehäuse als Halbschnitt': 'Assembled position · housing half section',
+    'Geschlossener Gehäuseboden · stationär': 'Closed housing floor · stationary',
+    'Unterer Träger · rotierend': 'Lower carrier · rotating', 'Magnete nach oben zur Spule · rotierend': 'Magnets facing up towards the coil · rotating',
+    'M8-Drehmomentmutter in Rückentasche (verdeckt)': 'M8 torque nut in rear pocket (hidden)', 'Integrierte Distanzhülse · rotierend': 'Integral spacer sleeve · rotating',
+    'Montagereihenfolge entlang der gemeinsamen Wellenachse': 'Assembly order along the common shaft axis',
+    'Base mit oberem Magnetträger · rotierend': 'Base with upper magnet carrier · rotating', 'Deckel und 51105-Aufnahme · stationär': 'Cover and 51105 seat · stationary',
+    'Spulenkassette · stationär': 'Coil cassette · stationary', 'Aktiver Wicklungsraum · stationär': 'Active winding volume · stationary',
+    'Unterer Magnetrotor im Gehäuse · rotierend': 'Lower magnet rotor inside housing · rotating', 'Gehäuse / Bodenlaschen · stationär': 'Housing / bottom tabs · stationary',
+    '4 × M4-Deckelschraube (1 gezeigt)': '4 × M4 cover screw (1 shown)', '4 × gefangene M4-Mutter (1 gezeigt)': '4 × captive M4 nut (1 shown)',
+    'X–Z · reale Höhen, keine Explosion': 'X–Z · actual heights, not exploded', 'Base / oberer Magnetträger · rotierend': 'Base / upper magnet carrier · rotating',
+    'Deckel über der Wicklung · stationär': 'Cover above winding · stationary', 'Wicklungsraum · stationär': 'Winding volume · stationary',
+    'Spulenkassette / Boden · stationär': 'Coil cassette / floor · stationary', 'Unterer Magnetrotor · rotierend': 'Lower magnet rotor · rotating',
+    'Gehäuse mit geschlossenem Boden · stationär': 'Housing with closed floor · stationary', 'M8-Mutter im unteren Rotor': 'M8 nut in lower rotor',
+    'Stationäre Teile · axial getrennt': 'Stationary parts · axially separated', 'Deckel hält die Kassette axial zurück': 'Cover retains the cassette axially',
+    'Kassette mit 18 abgerundeten Führungskörpern': 'Cassette with 18 rounded winding guides', 'Gehäuseschulter und passende Schlüsselnut': 'Housing shoulder and matching keyway',
+    'Hardware axial abgesetzt': 'Hardware axially separated', '4 × M4-Schraube · stationär': '4 × M4 screw · stationary',
+    'Deckel mit vier Durchgangsbohrungen': 'Cover with four through holes', 'Verstärkte Boss-Laschen-Achsen': 'Reinforced boss/tab axes',
+    '4 × gefangene M4-Mutter · stationär': '4 × captive M4 nut · stationary', 'Gehäuse und angehobene Kassette': 'Housing and raised cassette',
+    'Gehäuseöffnung bei 45°': 'Housing opening at 45°', 'Kassettenöffnung bei 45°': 'Cassette opening at 45°', 'Ø6-mm-Durchgang · Referenzvolumen': 'Ø6 mm passage · reference volume',
+    '51105-Außensitz-Coupon': '51105 outer-seat coupon', '25-mm-Pilot-Coupon': '25 mm pilot coupon', 'Drei abgestufte Sitze': 'Three stepped seats',
+    'Explosion · Ansicht leicht von unten': 'Exploded view · viewed slightly from below', 'Montierter Mittelschnitt': 'Assembled centre section',
+    'Vorhandener Holzrahmen · stationär': 'Existing timber frame · stationary', '608-Lager in nach oben offenem Sitz': '608 bearing in upward-open seat',
+    'Halter 80 × 50 × 12 mm · stationär': 'Support 80 × 50 × 12 mm · stationary', '4 × Holzschraube von unten nach oben': '4 × wood screw from below',
+    'Holz hält Lager nach oben zurück': 'Timber retains bearing upwards', '608 führt radial; 0,2 mm Sitzspiel': '608 provides radial guidance; 0.2 mm seat clearance',
+    'Untere Schulter hält Lager nach unten': 'Lower shoulder retains bearing downwards', 'Durchgehende verlängerte M8-Welle': 'Continuous extended M8 shaft',
+    'Vollständige Einbaulage zwischen zwei Riegeln': 'Complete installed position between two rails', 'Unterer Anschluss · Schnitt durch zwei Laschen': 'Lower connection · section through two tabs',
+    'Oberer Holzriegel · Referenz, nicht drucken': 'Upper timber rail · reference, do not print', '608-Halter · 4 Holzschrauben von unten': '608 support · 4 wood screws from below',
+    'Unterer Holzriegel · Referenz, nicht drucken': 'Lower timber rail · reference, do not print', 'Bodenlaschen · 4 Holzschrauben von oben': 'Bottom tabs · 4 wood screws from above',
+    'Gehäuseboden und vier Bodenlaschen': 'Housing floor and four bottom tabs', '4 × 30 mm von oben nach unten; Nennhüllen': '4 × 30 mm from above; nominal envelopes',
+    'Laschen-Unterseite liegt auf dem Holz': 'Tab underside rests on the timber', 'Holz / Schrauben: nicht drucken': 'Timber / screws: do not print',
+    'Gesamtansicht mit beiden Rahmenanschlüssen': 'Overall view with both frame connections', 'Generator · aufgeschnittenes Einbaudetail': 'Generator · cut-away installation detail',
+    'Oberer Holzriegel · nicht drucken': 'Upper timber rail · do not print', '608-Halter · 4 Schrauben von unten': '608 support · 4 screws from below',
+    'Rotor · 1 Base + 5 Standard + 1 Top': 'Rotor · 1 base + 5 standard + 1 top', 'Bodenlaschen · 4 Schrauben von oben': 'Bottom tabs · 4 screws from above',
+    'Unterer Holzriegel · nicht drucken': 'Lower timber rail · do not print', 'Wicklung / Kassette · stationär': 'Winding / cassette · stationary',
+    'Gehäuse / Deckel · stationär': 'Housing / cover · stationary',
+    'Holzriegel 260 × 190 × 30 mm; nicht drucken; Beispielquerschnitt, vor Ort auslegen': 'Timber rail 260 × 190 × 30 mm; do not print; example section, size on site',
+    'Holzriegel 260 × 70 × 30 mm; nicht drucken; Beispielquerschnitt, vor Ort auslegen': 'Timber rail 260 × 70 × 30 mm; do not print; example section, size on site',
+    'Holzschraube 4 × 30 mm, flacher Kopf Ø9; nicht drucken; ungeprüfte Nennhülle': 'Wood screw 4 × 30 mm, flat head Ø9; do not print; unverified nominal envelope',
+    'Holzschraube 4 × 40 mm; nicht drucken; V5-Nennhülle': 'Wood screw 4 × 40 mm; do not print; V5 nominal envelope',
+})
+
+
+def _english_text(value: str) -> str:
+    """Translate every display string through the audited English catalogue."""
+    stage = re.fullmatch(r'Stufe (\d+): (Base|Standard|Top)-Modul · rotierend', value)
+    if stage:
+        return f'Stage {stage.group(1)}: {stage.group(2).lower()} module · rotating'
+    fit = re.fullmatch(r'(Sitz|Pilot) (\d+): Ø ([0-9,]+) mm', value)
+    if fit:
+        noun = 'Seat' if fit.group(1) == 'Sitz' else 'Pilot'
+        return f'{noun} {fit.group(2)}: Ø {fit.group(3).replace(",", ".")} mm'
+    if value in ENGLISH_TEXT_CATALOGUE:
+        return ENGLISH_TEXT_CATALOGUE[value]
+    translated = value
+    for source in sorted(ENGLISH_TEXT_CATALOGUE, key=len, reverse=True):
+        translated = translated.replace(source, ENGLISH_TEXT_CATALOGUE[source])
+    return translated
 
 
 @dataclass(frozen=True)
@@ -173,11 +333,17 @@ class _Model:
             raise ValueError(f'Missing source builder for {name}')
         display = original.translate(offset)
         if cut is not None:
-            display = display.intersect(cut)
+            try:
+                display = display.intersect(cut)
+            except Standard_Failure:
+                # V5.2's projected base supports can leave coincident section
+                # edges that OpenCascade refuses to clean.  The raw boolean is
+                # still a valid drawing solid and avoids changing production CAD.
+                display = cq.Workplane(obj=display.val().intersect(cut.val()))
         if not display.val().Solids():
             return None
         return RenderPart(PartRecord(name, state, provenance, _bounds(original), _bounds(display),
-                                     metadata.get('printable', False if reference_note else None), reference_note,
+                                     metadata.get('printable', False if reference_note else None), _english_text(reference_note),
                                      installation_direction), display)
 
     def parts(self, names, **options):
@@ -190,7 +356,7 @@ def _cut_box(zmin=-100, zmax=700, *, section=False):
 
 
 def _call(name, label, target=None, marker_offset_mm=(0, 0)):
-    return Callout(name, label, target, marker_offset_mm)
+    return Callout(name, _english_text(label), target, marker_offset_mm)
 
 
 def _frame_references(model):
@@ -236,10 +402,11 @@ def build_v5_scenes(p=DEFAULT_PARAMETERS):
     scenes = []
 
     def add(number, slug, title, caption, note, *panels, magnet_poles=()):
-        scenes.append(Scene(f'E{number:02d}', slug, title, caption, note, tuple(panels), magnet_poles))
+        scenes.append(Scene(f'E{number:02d}', slug, _english_text(title), _english_text(caption),
+                            _english_text(note), tuple(panels), magnet_poles))
 
     def panel(title, parts, *callouts, view=(1, -1.8, .7)):
-        return Panel(title, tuple(parts), tuple(callouts), view)
+        return Panel(_english_text(title), tuple(parts), tuple(callouts), view)
 
     stage_parts = tuple(m.part(stage.name, shape=m.exploded.parts[stage.name]) for stage in m.exploded.stages)
     add(1, 'rotorstapel', 'Sieben Rotorstufen · Vormontage',
@@ -314,7 +481,11 @@ def build_v5_scenes(p=DEFAULT_PARAMETERS):
     explosion += list(m.parts(('lower_magnet_rotor', 'lower_magnets', 'lower_nut')))
     explosion += list(m.parts(('coil_cassette', 'winding_volume'), offset=(0, 0, 40)))
     explosion += list(m.parts(('cover', '51105_housing_washer', '51105_rolling_envelope', '51105_shaft_washer'), offset=(0, 0, 70)))
-    explosion += list(m.parts(('base', 'upper_magnets', 'upper_nut'), offset=(0, 0, 100), cut=_cut_box(-100, 112)))
+    # Keep the complete V5.2 base body.  Cleaning a boolean section through the
+    # projected blade-root supports is not reliable in OpenCascade, while the
+    # uncut exploded position remains legible and more faithfully represents
+    # the printable part.
+    explosion += list(m.parts(('base', 'upper_magnets', 'upper_nut'), offset=(0, 0, 100)))
     explosion += list(m.parts(('cover_screw_1', 'cover_nut_1'), offset=(0, 0, 90)))
     gaps = g.air_gap_report()
     magnet_poles = tuple(
@@ -344,8 +515,8 @@ def build_v5_scenes(p=DEFAULT_PARAMETERS):
     all_generator = tuple({**g.rotating_parts, **g.stationary_parts, **g.bearing_parts})
     add(7, 'generator-schnitt', 'Generator · montierter Mittelschnitt',
         'Zwei rotierende Magnetträger umschließen die stationäre Wicklung; der untere Rotor sitzt im Gehäuse.',
-        f'Magnetfläche–aktive Wicklung: oben {g.upper_air_gap_mm():.1f} mm / unten {g.lower_air_gap_mm():.1f} mm, einschließlich Kunststoff. '
-        'Mechanisch: Magnet–Deckel 0,35 mm; Magnet–Kassettenboden 0,50 mm.',
+        f'Magnet face–active winding: upper {g.upper_air_gap_mm():.1f} mm / lower {g.lower_air_gap_mm():.1f} mm, including plastic. '
+        'Mechanical: magnet–cover 0.35 mm; magnet–cassette floor 0.50 mm.',
         panel('X–Z · reale Höhen, keine Explosion', m.parts(all_generator, cut=_cut_box(-60, 8, section=True)),
               C('base', 'Base / oberer Magnetträger · rotierend'),
               C('cover', 'Deckel über der Wicklung · stationär'),
@@ -594,10 +765,10 @@ def _draw_panel(fig, panel, rectangle, *, compact=False):
 
 def _draw_magnet_polarity(fig, poles):
     """Show both winding faces in a common projection, avoiding a mirrored ring."""
-    fig.text(.045, .335, 'Polung zur Wicklung · gleiche +Z-Projektion beider Ringe',
+    fig.text(.045, .335, ENGLISH_LABEL_CATALOGUE['polarity.title'],
              fontsize=11, fontweight='bold', color='#263745')
-    for name, x, label in (('upper_magnets', .045, 'OBEN\nFläche ↓'),
-                            ('lower_magnets', .275, 'UNTEN\nFläche ↑')):
+    for name, x, label in (('upper_magnets', .045, ENGLISH_LABEL_CATALOGUE['polarity.upper']),
+                            ('lower_magnets', .275, ENGLISH_LABEL_CATALOGUE['polarity.lower'])):
         ax = fig.add_axes((x, .19, .21, .135))
         ax.set_aspect('equal')
         ax.axis('off')
@@ -611,10 +782,10 @@ def _draw_magnet_polarity(fig, poles):
         ax.text(0, 0, label, ha='center', va='center', fontsize=8, color='#263745')
         ax.set_xlim(-radius*1.2, radius*1.2)
         ax.set_ylim(-radius*1.2, radius*1.2)
-    fig.text(.515, .301, 'Je 18 Magnete · abwechselnd N / S', fontsize=11, color='#263745')
-    fig.text(.515, .267, 'Gleicher Winkel: gegenüberliegende Pole N ↔ S', fontsize=11, color='#263745')
-    fig.text(.515, .233, '0° rechts: oben N / unten S · 20°: oben S / unten N', fontsize=10, color='#263745')
-    fig.text(.515, .200, '90° oben · Pfeile zeigen axial zur stationären Wicklung', fontsize=10, color='#263745')
+    fig.text(.515, .301, ENGLISH_LABEL_CATALOGUE['polarity.count'], fontsize=11, color='#263745')
+    fig.text(.515, .267, ENGLISH_LABEL_CATALOGUE['polarity.opposed'], fontsize=11, color='#263745')
+    fig.text(.515, .233, ENGLISH_LABEL_CATALOGUE['polarity.zero'], fontsize=10, color='#263745')
+    fig.text(.515, .200, ENGLISH_LABEL_CATALOGUE['polarity.direction'], fontsize=10, color='#263745')
 
 
 def _render_scene(scene, output_dir):
@@ -639,23 +810,21 @@ def _render_scene(scene, output_dir):
         x, y = .045+(index % 2)*.49, .110-(index//2)*.032
         fig.text(x, y, '■', fontsize=16, color=COLORS[state])
         fig.text(x+.019, y+.001, label, fontsize=10, color='#3d5261')
-    fig.text(.045, .038, 'Quelle: aktuelle V5-CAD-Builder + release/v5/manifest.json · Nennmaße in mm · keine Maßstabszeichnung',
+    fig.text(.045, .038, ENGLISH_LABEL_CATALOGUE['source'],
              fontsize=9, color='#61717c')
     filename = f'{scene.drawing_id}-{scene.slug}.png'
     path = output_dir / filename
     labels = tuple(callout.label for panel in scene.panels for callout in panel.callouts)
     alt = f'{scene.drawing_id}. {scene.caption} {scene.note} ' + ' '.join(labels)
     if scene.magnet_poles:
-        alt += (' Beide Ringe haben 18 zur Wicklung weisende Pole, oben N S im Wechsel, unten S N. '
-                'Gleiche Winkel in derselben +Z-Projektion tragen gegenüberliegende Pole; '
-                'bei 0 Grad oben N und unten S, bei 20 Grad oben S und unten N.')
+        alt += ENGLISH_LABEL_CATALOGUE['polarity.alt']
     fig.savefig(path, dpi=150, metadata={'Title': f'{scene.drawing_id} {scene.title}', 'Description': alt,
                                         'Software': 'Windwall V5 deterministic CadQuery/Matplotlib renderer'})
     plt.close(fig)
     parts = tuple(part.record for panel in scene.panels for part in panel.parts)
     callouts = tuple(callout for panel in scene.panels for callout in panel.callouts)
     return FigureRecord(scene.drawing_id, path, filename, scene.caption, alt, labels, LEGEND,
-                        2400, 1680, 'de', parts, callouts, scene.magnet_poles)
+                        2400, 1680, 'en-GB', parts, callouts, scene.magnet_poles)
 
 
 def render_v5_figures(output_dir: Path, p=DEFAULT_PARAMETERS) -> tuple[FigureRecord, ...]:
@@ -670,7 +839,8 @@ def render_v5_figures(output_dir: Path, p=DEFAULT_PARAMETERS) -> tuple[FigureRec
                                       ('rod_projection_mm', 'shaft_bottom_projection_mm', 'exploded_joint_lift_mm')}
     parameters['modules'].pop('closure_pilot_depth_mm')
     parameters['modules'].pop('closure_screw_radius_mm')
-    payload = {'release': 'v5', 'source_manifest': 'release/v5/manifest.json',
+    payload = {'release': 'v5', 'raster_language': 'en-GB',
+               'source_manifest': 'release/v5/manifest.json',
                'source_manifest_sha256': hashlib.sha256(manifest_path.read_bytes()).hexdigest(),
                'render_parameters': parameters, 'physical_validation_verified': False,
                'figures': [{key: value for key, value in asdict(record).items() if key != 'path'}
