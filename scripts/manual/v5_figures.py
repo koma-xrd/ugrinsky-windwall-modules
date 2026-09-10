@@ -299,18 +299,19 @@ def build_v5_scenes(p=DEFAULT_PARAMETERS):
               C('upper_nut', 'Gefangene M8-Drehmomentmutter'), view=(0, -1, 0)))
 
     add(5, 'unterer-magnetrotor', 'Unterer Magnetrotor im Gehäuse',
-        'Der separate untere Magnetrotor läuft vollständig innerhalb des Gehäuses unter der Spulenkassette.',
+        'Der untere Magnetträger läuft im Gehäuse; seine integrierte Hülse reicht durch die stationäre Mitte.',
         'Gehäuse vorn aufgeschnitten; Kassette und Deckel zur Einsicht ausgeblendet.',
         panel('Montierte Lage · Gehäuse als Halbschnitt',
-              m.parts(('housing',), cut=_cut_box()) + m.parts(('lower_magnet_rotor', 'lower_magnets', 'lower_nut', 'spacer')),
+              m.parts(('housing',), cut=_cut_box()) + m.parts(('lower_magnet_rotor', 'lower_magnets', 'lower_nut')),
               C('housing', 'Geschlossener Gehäuseboden · stationär'),
               C('lower_magnet_rotor', 'Unterer Träger · rotierend'),
               C('lower_magnets', 'Magnete nach oben zur Spule · rotierend'),
               C('lower_nut', 'M8-Drehmomentmutter in Rückentasche (verdeckt)'),
-              C('spacer', 'Distanzhülse auf der M8-Welle · rotierend'), view=(1, -1.8, 1.2)))
+              C('lower_magnet_rotor', 'Integrierte Distanzhülse · rotierend',
+                (0, 0, g.lower_rotor.val().BoundingBox().zmax-2)), view=(1, -1.8, 1.2)))
 
     explosion = list(m.parts(('housing',), cut=_cut_box()))
-    explosion += list(m.parts(('lower_magnet_rotor', 'lower_magnets', 'lower_nut', 'spacer')))
+    explosion += list(m.parts(('lower_magnet_rotor', 'lower_magnets', 'lower_nut')))
     explosion += list(m.parts(('coil_cassette', 'winding_volume'), offset=(0, 0, 40)))
     explosion += list(m.parts(('cover', '51105_housing_washer', '51105_rolling_envelope', '51105_shaft_washer'), offset=(0, 0, 70)))
     explosion += list(m.parts(('base', 'upper_magnets', 'upper_nut'), offset=(0, 0, 100), cut=_cut_box(-100, 112)))
@@ -336,8 +337,8 @@ def build_v5_scenes(p=DEFAULT_PARAMETERS):
               C('winding_volume', 'Aktiver Wicklungsraum · stationär'),
               C('lower_magnet_rotor', 'Unterer Magnetrotor im Gehäuse · rotierend'),
               C('housing', 'Gehäuse / Bodenlaschen · stationär'),
-              C('cover_screw_1', '6 × M4-Deckelschraube (1 gezeigt)'),
-              C('cover_nut_1', '6 × gefangene M4-Mutter (1 gezeigt)'), view=(1, -2, .35)),
+              C('cover_screw_1', '4 × M4-Deckelschraube (1 gezeigt)'),
+              C('cover_nut_1', '4 × gefangene M4-Mutter (1 gezeigt)'), view=(1, -2, .35)),
         magnet_poles=magnet_poles)
 
     all_generator = tuple({**g.rotating_parts, **g.stationary_parts, **g.bearing_parts})
@@ -361,7 +362,7 @@ def build_v5_scenes(p=DEFAULT_PARAMETERS):
         'Der einzelne Schlüssel bei −X sperrt die Verdrehung. Passung am Segment-Coupon prüfen.',
         panel('Stationäre Teile · axial getrennt', retention,
               C('cover', 'Deckel hält die Kassette axial zurück'),
-              C('coil_cassette', 'Kassette mit einzelnem Verdrehsicherungssteg',
+              C('coil_cassette', 'Kassette mit 18 abgerundeten Führungskörpern',
                 (-59, 0, 58+g.housing_offset_z_mm)),
               C('housing', 'Gehäuseschulter und passende Schlüsselnut',
                 (-g.housing_parts.metadata['cassette_radius_mm']-1.35, 0,
@@ -369,18 +370,18 @@ def build_v5_scenes(p=DEFAULT_PARAMETERS):
                 marker_offset_mm=(14, -5)), view=(-1, -1.8, .7)))
 
     hardware = m.parts(('housing',), cut=_cut_box()) + m.parts(('cover',), offset=(0, 0, 32))
-    hardware += tuple(m.part(f'cover_screw_{i}', offset=(0, 0, 55)) for i in range(1, 7))
-    hardware += tuple(m.part(f'cover_nut_{i}', offset=(0, 0, -35)) for i in range(1, 7))
-    add(9, 'deckelverschraubung', 'Deckel · sechs M4-Verschraubungen',
-        'Sechs M4-Schrauben befestigen den stationären Deckel in gefangenen Muttern der Gehäuseaugen.',
-        'Schrauben und Muttern sind Nennhüllen. Zugang von oben; reales Werkzeug prüfen.',
+    hardware += tuple(m.part(f'cover_screw_{i}', offset=(0, 0, 55)) for i in range(1, 5))
+    hardware += tuple(m.part(f'cover_nut_{i}', offset=(0, 0, -35)) for i in range(1, 5))
+    add(9, 'deckelverschraubung', 'Deckel · vier M4-Verschraubungen',
+        'Vier M4-Schrauben befestigen den stationären Deckel; separate äußere Bohrungen befestigen das Gehäuse am Rahmen.',
+        'Boss und Rahmenbohrung liegen auf derselben radialen Achse. Zugang von oben; reales Werkzeug prüfen.',
         panel('Hardware axial abgesetzt', hardware,
-              C('cover_screw_1', '6 × M4-Schraube · stationär'),
-              C('cover', 'Deckel mit sechs Durchgangsbohrungen'),
-              C('housing', 'Gehäuseaugen mit Sechskanttaschen',
+              C('cover_screw_1', '4 × M4-Schraube · stationär'),
+              C('cover', 'Deckel mit vier Durchgangsbohrungen'),
+              C('housing', 'Verstärkte Boss-Laschen-Achsen',
                 (*g.housing_parts.cover_fasteners[0].axis_xy_mm, g.housing_offset_z_mm+3.4),
                 marker_offset_mm=(13, 5)),
-              C('cover_nut_1', '6 × gefangene M4-Mutter · stationär')))
+              C('cover_nut_1', '4 × gefangene M4-Mutter · stationär')))
 
     cable = g.housing_parts.cable_passage.translate((0, 0, g.housing_offset_z_mm))
     cable_part = m.part('cable_passage', shape=cable, motion='reference',

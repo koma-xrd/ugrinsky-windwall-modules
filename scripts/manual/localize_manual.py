@@ -23,7 +23,7 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 SOURCE_MANUAL = "release/v5/docs/Ugrinsky-Wind-Wall-V5-Bauanleitung.docx"
-SOURCE_SHA256 = "0914e2e2d97f996f1338bcc5eff62d805a033c26ac0ea9f4925f4c0dd7fcc317"
+SOURCE_SHA256 = "eecdace0e859b82a434b0a1e1ad3fa747cdb411297721b3d15de3b57a00e64f3"
 LOCALES = {
     "en-GB": ("English", "Arial"),
     "zh-CN": ("Chinese-Simplified", "Microsoft YaHei"),
@@ -42,16 +42,16 @@ NS = {
 TECHNICAL = {"PLA", "ASA", "M8", "M4", "51105", "608", "ID", "STL", "STEP", "N S N S"}
 SHARED_LABELS = {"Base", "Generator"} | {f"E{i:02d}" for i in range(1, 16)}
 LANGUAGE_CHECKS = {
-    "en-GB": {"s008": "Do not connect", "s006": "not waterproof", "s132": "no final turn count",
-              "s159": "active winding face", "s170": "strain relief"},
-    "zh-CN": {"s008": "不得", "s006": "不防水", "s132": "没有最终匝数",
-              "s159": "有效绕组表面", "s170": "应力释放"},
-    "hi-IN": {"s008": "न जोड़ें", "s006": "जलरोधी नहीं", "s132": "कोई अंतिम टर्न संख्या",
-              "s159": "सक्रिय वाइंडिंग सतह", "s170": "खिंचाव राहत"},
-    "es-ES": {"s008": "No conecte", "s006": "no son impermeables", "s132": "No existe un número final",
-              "s159": "superficie activa del bobinado", "s170": "alivio real de tracción"},
-    "fr-FR": {"s008": "Ne raccordez pas", "s006": "ne sont pas étanches", "s132": "ni nombre définitif",
-              "s159": "surface active du bobinage", "s170": "décharge de traction"},
+    "en-GB": {"s008": "Do not connect", "s006": "not waterproof", "s130": "no final turn count",
+              "s157": "active winding face", "s168": "strain relief"},
+    "zh-CN": {"s008": "不得", "s006": "不防水", "s130": "没有最终匝数",
+              "s157": "有效绕组表面", "s168": "应力释放"},
+    "hi-IN": {"s008": "न जोड़ें", "s006": "जलरोधी नहीं", "s130": "कोई अंतिम टर्न संख्या",
+              "s157": "सक्रिय वाइंडिंग सतह", "s168": "खिंचाव राहत"},
+    "es-ES": {"s008": "No conecte", "s006": "no son impermeables", "s130": "No existe un número final",
+              "s157": "superficie activa del bobinado", "s168": "alivio real de tracción"},
+    "fr-FR": {"s008": "Ne raccordez pas", "s006": "ne sont pas étanches", "s130": "ni nombre définitif",
+              "s157": "surface active du bobinage", "s168": "décharge de traction"},
 }
 
 
@@ -114,7 +114,7 @@ def validate_catalog(source, catalog):
     for key, phrase in LANGUAGE_CHECKS[catalog["locale"]].items():
         if phrase not in translations[key]:
             raise ValueError(f"Required safety or technical translation missing: {key}")
-    if LANGUAGE_CHECKS[catalog["locale"]]["s008"] not in translations["s235"]:
+    if LANGUAGE_CHECKS[catalog["locale"]]["s008"] not in translations["s233"]:
         raise ValueError("Required battery safety prohibition missing in commissioning")
     prose = "\n".join(translations.values())
     for german in ("Wälzkörper", "Drehzahl", "Wicklung", "Bauanleitung", "Gehäusescheibe", "nicht wasserdicht"):

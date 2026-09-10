@@ -101,6 +101,8 @@ def audit_rotor_assembly(a: RotorAssembly) -> dict:
                                     ('top_nut', 'top_washer')) for lift in (0, 0.5, 2, 5, 10, 20, 30))
     collisions = a.generator.collision_report(a.rotating_parts)
     gaps = a.generator.air_gap_report()
+    sleeve_height = (a.generator.clamp_hardware['upper_nut'].val().BoundingBox().zmin
+                     - gaps['lower_magnet_face_z_mm'])
     return {'stage_count': a.aerodynamic_stage_count, 'base_count': a.base_count,
             'standard_count': a.standard_count, 'top_count': a.top_count,
             'part_count': len(a.parts), 'nominal_stage_z_mm': [s.z_mm for s in a.stages],
@@ -121,6 +123,12 @@ def audit_rotor_assembly(a: RotorAssembly) -> dict:
             'upper_generator_air_gap_mm': gaps['upper_air_gap_mm'],
             'lower_generator_air_gap_mm': gaps['lower_air_gap_mm'],
             'generator_air_gap_report': gaps, 'generator_collision_report': collisions,
+            'integral_lower_rotor_sleeve': {
+                'outer_diameter_mm': p.generator.spacer_outer_diameter_mm,
+                'inner_diameter_mm': p.shaft.clearance_hole_diameter_mm,
+                'height_mm': round(sleeve_height, 6),
+                'separate_part_required': False,
+            },
             'generator_rotating_stationary_intersection_mm3': collisions['unintended_intersection_mm3'],
             'physical_fit_verified': False, 'interactive_qa_verified': False, 'print_ready': False,
             'physical_magnet_fit_verified': False, 'physical_bearing_fit_verified': False,

@@ -257,7 +257,7 @@ def _winding(doc, data):
         ("Rückhaltung prüfen", "Magnete vollständig setzen und Befestigung nach dem konkreten Produkt aushärten lassen. Beide Ringe zuerst einzeln prüfen. Die Magnetrückhaltung ist vor jeder Drehprobe ein eigenständiges offenes Prüfkriterium."),
     ])
     doc.add_heading("Serpentinenwicklung als Versuch", 2)
-    _paragraph(doc, "Lege den isolierten Draht in wiederholten, zusammenhängenden Serpentinen durch die aktiven Polbereiche der stationären Kassette. Markiere Anfang A, Ende B und den Weg einer vollständigen Wiederholung. Für diese Versuchsreihe zählt eine vollständige Wiederholung derselben Serpentine als eine Windung. Alle drei Testspulen müssen denselben Verlauf und dieselbe Wickelrichtung verwenden.")
+    _paragraph(doc, "Lege den isolierten Draht als durchgehende Serpentine um die 18 abgerundeten Führungskörper der stationären Kassette. Führe ihn abwechselnd an der Innen- und Außenseite der nächsten Führung vorbei. Markiere Anfang A, Ende B und den Weg einer vollständigen Wiederholung. Für diese Versuchsreihe zählt eine vollständige Runde um alle 18 Führungen als eine Windung. Alle Testspulen müssen denselben Verlauf und dieselbe Wickelrichtung verwenden.")
     _paragraph(doc, "Prüfe den Verlauf zuerst mit wenigen Wiederholungen bei Handdrehung: Die Beiträge aufeinanderfolgender aktiver Abschnitte sollen sich addieren. Veränderte Polfolge, umgekehrte Teilstücke oder andere Drahtwege können Spannung aufheben. Dokumentiere den realen Verlauf mit Foto oder Skizze; die Kassette legt keine abschließend geprüfte elektrische Wicklung fest.")
     _table(doc, ["Draht", "Windungen", "Vergleich und Messung"], [
         ("0,18 mm, real messen", "20", "Widerstand, Bauhöhe, Leerlaufspannung und Lastmessung bei gleicher Drehzahl"),
@@ -270,18 +270,19 @@ def _winding(doc, data):
 
 def _generator(doc, data):
     _page(doc, "7 Generator montieren", level=1)
-    _paragraph(doc, "Arbeite bei gesichertem Stillstand mit einer Montagehilfe, die die Anziehung der Magnetringe kontrolliert. Der Gehäusetopf öffnet nach oben. Prüfe vorab Muttertaschen, Schulter, Schlüssel und Kabelweg. Setze die sechs gefangenen M4-Muttern vor dem Verschließen vollständig ein.")
+    _paragraph(doc, "Arbeite bei gesichertem Stillstand mit einer Montagehilfe, die die Anziehung der Magnetringe kontrolliert. Der Gehäusetopf öffnet nach oben. Prüfe vorab Muttertaschen, Schulter, Schlüssel und Kabelweg. Setze die vier gefangenen M4-Muttern vor dem Verschließen vollständig ein.")
     _steps(doc, [
-        ("Unteren Magnetrotor einsetzen", "M8-Drehmomentmutter in die Rückentasche setzen. Unteren Rotor mit Welle und Distanzhülse in den Topf einsetzen, Magnetflächen nach oben. Der komplette Rotor bleibt innerhalb des Gehäuses; Mutter und Wellenende dürfen den geschlossenen Boden nicht berühren."),
+        ("Unteren Magnetrotor einsetzen", "M8-Drehmomentmutter in die Rückentasche setzen. Unteren Rotor mit Welle und integrierter Distanzhülse in den Topf einsetzen, Magnetflächen nach oben. Der Magnetträger bleibt im Gehäuse; die Hülse läuft frei durch die stationäre Mitte. Mutter und Wellenende dürfen den geschlossenen Boden nicht berühren."),
         ("Spulenkassette einsetzen", "Die Wicklung zuvor auf Passung und Isolation prüfen. Kassette über die Welle absenken, auf der Gehäuseschulter absetzen und den einzelnen Schlüssel in die Verdrehsicherung führen. Die seitlichen Kabelöffnungen müssen fluchten."),
-        ("Stationären Deckel montieren", "Kabel aus dem seitlichen Ausgang führen und entlasten. Deckel plan aufsetzen und die sechs M4-Schrauben in gefangene Muttern einschrauben. Gleichmäßig und schrittweise über Kreuz anziehen; bei Spalt oder Verformung stoppen. Für PLA liegt kein geprüftes Anziehdrehmoment vor."),
+        ("Stationären Deckel montieren", "Kabel aus dem seitlichen Ausgang führen und entlasten. Deckel plan aufsetzen und die vier M4-Schrauben in gefangene Muttern einschrauben. Gleichmäßig und schrittweise über Kreuz anziehen; bei Spalt oder Verformung stoppen. Die getrennten äußeren Rahmenbohrungen bleiben dabei unberührt. Für PLA liegt kein geprüftes Anziehdrehmoment vor."),
         ("51105 einsetzen", "Stationäre Gehäusescheibe auf den Deckelbund setzen, dann Wälzkörper und rotierende Wellenscheibe mit einander zugewandten Laufbahnen einsetzen. Lager sauber halten; den Zentrierbund der Base mit der realen Wellenscheibe abgleichen."),
         ("Base aufsetzen", "Obere Drehmomentmutter einsetzen, Base auf Welle und Lager absenken. Ihre Magnetflächen zeigen zur Spule nach unten. Die Base-Schulter trägt auf der rotierenden Wellenscheibe. Magnetanziehung durch die Montagehilfe begrenzen und Finger aus dem Spalt halten."),
         ("Laufspalte messen", "Welle von Hand vollständig drehen. Jeden Winkel auf Kontakt, Kabelzug und sichtbaren Schlag prüfen. Tatsächliche Magnetflächen, Wicklung und Klebstoff bestimmen die Freigänge. Erst nach erfolgreicher Prüfung mit dem Rotorstapel fortfahren."),
     ])
     _page(doc, "Unterer Rotor im Gehäuse")
     _figure(doc, "E05", data)
-    _paragraph(doc, "Die Rückentasche überträgt Drehmoment über die M8-Mutter. Die Distanzhülse dreht mit der Welle; die Spule darf sie nicht berühren. Die im CAD reservierte Hülse misst " + dimensions(data["components"]["spacer"]["dimensions_mm"]["size_xyz"][::2]) + " als Außendurchmesser und Länge. Reale Klemmung und Bodenabstand vor einem Zuschnitt trocken prüfen.")
+    sleeve = data["manifest"]["assembly_audit"]["integral_lower_rotor_sleeve"]
+    _paragraph(doc, "Die Rückentasche überträgt Drehmoment über die M8-Mutter. Die integrierte Distanzhülse ist Teil des unteren Magnetrotors und dreht mit ihm; die stationäre Spule darf sie nicht berühren. Die CAD-Hülse misst " + dimensions((sleeve["outer_diameter_mm"], sleeve["height_mm"])) + " als Außendurchmesser und Höhe, mit " + mm(sleeve["inner_diameter_mm"]) + " mm M8-Durchgang. Reale Klemmung und Bodenabstand trocken prüfen.")
     _page(doc, "Generator in Einbaureihenfolge")
     _figure(doc, "E06", data)
     _paragraph(doc, "Die angehobenen Teile zeigen den Zugang von oben. Die Wicklung bleibt zwischen den beiden rotierenden Magnetträgern stationär. Den unteren Magnetrotor vor Kassette und Deckel einsetzen; nach dem Verschließen ist der Topfboden kein Montagezugang.")
@@ -299,7 +300,7 @@ def _generator(doc, data):
     _paragraph(doc, "Die Gehäuseschulter hält die Kassette nach unten, der Passring zentriert radial und der Schlüssel verhindert Verdrehung. Der verschraubte Deckel begrenzt den Weg nach oben. Alle vier Funktionen müssen bei der Trockenmontage vorhanden sein; ein nur lose eingelegter Wicklungsträger ist nicht betriebsbereit.")
     _page(doc, "Deckelschrauben kontrollieren")
     _figure(doc, "E09", data)
-    _paragraph(doc, "Sechs M4-Schrauben und sechs gefangene Sechskantmuttern verbinden Deckel und Gehäuse. Der Schraubenzugang erfolgt von oben. Nach dem Anziehen muss der Deckel plan sitzen und die Welle weiterhin frei laufen. Markiere die Schraubenstellung für spätere Sichtkontrollen.")
+    _paragraph(doc, "Vier M4-Schrauben und vier gefangene Sechskantmuttern verbinden Deckel und Gehäuse. Sie liegen auf denselben radialen Achsen wie die vier getrennten Rahmenbohrungen; die durchgehenden Bosse verstärken dabei die unteren Laschen. Der Schraubenzugang erfolgt von oben. Nach dem Anziehen muss der Deckel plan sitzen und die Welle weiterhin frei laufen.")
     _page(doc, "Seitliches Kabel herausführen")
     _figure(doc, "E10", data)
     _paragraph(doc, "Führe die isolierten Anschlusslitzen durch die fluchtenden seitlichen Öffnungen. Die Leitung braucht eine reale Zugentlastung und Kantenschutz; die graue Hülle zeigt lediglich den Kabeldurchgang. Sie ist keine montierte Durchführung und keine Abdichtung. Der Ausgang ist nicht wasserdicht. Halte das freie Kabel vollständig außerhalb der drehenden Teile.")
@@ -378,13 +379,13 @@ def _service(doc):
     _steps(doc, [
         ("Stillsetzen und abstützen", "Rotor mechanisch gegen Bewegung sichern und elektrische Leitungen spannungsfrei trennen. Den Rotorstapel als Einheit abstützen. Magnetkräfte und Gewicht beim Ausbau kontrollieren."),
         ("Oberen Zugang freimachen", "Oberen Lagerhalter bei gesichertem Stapel lösen und Welle freiführen. Die untere rotierende Baugruppe mit einer Montagehilfe halten. Base und oberen Rotorstrang soweit entlasten und abheben, dass das 51105 und der Deckel zugänglich werden. Erforderliche M8-Verbindungen im Stillstand lösen, ohne die Stufenrastungen zu trennen."),
-        ("Deckel abnehmen", "Lagerteile nach ihrer Orientierung getrennt ablegen. Sechs Deckelschrauben lösen, Deckel abheben und Kabelzugentlastung freigeben. Der untere Magnetrotor bleibt gesichert im Gehäuse."),
+        ("Deckel abnehmen", "Lagerteile nach ihrer Orientierung getrennt ablegen. Vier Deckelschrauben lösen, Deckel abheben und Kabelzugentlastung freigeben. Die getrennten Rahmenbefestigungen bleiben montiert; der untere Magnetrotor bleibt gesichert im Gehäuse."),
         ("Kassette nach oben herausheben", "Kabel vorsichtig nachführen, Schlüssel aus der Nut heben und Kassette nach oben über die freigegebene Welle entnehmen. Nicht am Draht ziehen. Der reale Serviceweg ist bei der Trockenmontage zu prüfen."),
         ("Wieder montieren", "Nach Kapitel 7 in Reihenfolge montieren, oberen Halter wieder ausrichten und alle Freigänge erneut messen. Ein Spulenwechsel kann Wicklungshöhe und Luftspalte verändern."),
     ])
     _paragraph(doc, "Vor jeder Versuchssitzung und nach Transport, Materialwechsel oder Spulenwechsel Risse, Verzug, Spiel, Schraubenmarkierungen, Magnetbefestigung und Isolation prüfen. Verschleiß oder gelöste Teile ersetzen und die betroffene Passprüfung wiederholen.")
     _table(doc, ["Beobachtung", "Prüfung bei Stillstand"], [
-        ("Rotor schleift", "Magnetüberstand, Spulenhöhe, beide Luftspalte, Distanzhülse und axialen Versatz messen."),
+        ("Rotor schleift", "Magnetüberstand, Spulenhöhe, beide Luftspalte, integrierte Rotorhülse und axialen Versatz messen."),
         ("Schwergängiges Lager", "Scheibenorientierung, verkantete Sitze, obere Achsausrichtung und axiale Verspannung kontrollieren."),
         ("Kassette bewegt sich", "Schulter, Schlüssel, Passring und plan sitzenden Deckel auf Druckfehler prüfen."),
         ("Geringe oder keine Spannung", "Drehzahl, Drahtdurchgang, Lötstellen, Polfolge und additive Verschaltung des Serpentinenwegs prüfen."),

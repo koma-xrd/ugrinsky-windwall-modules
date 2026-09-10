@@ -114,7 +114,6 @@ if 'show_object' in globals():
     for name,part in model.stationary_parts.items():
         show_object(part,name=f'Stationary reference: {name}',options={'color':(70,160,220),'alpha':0.4})
     show_object(model.shaft,name='Nominal M8 rod',options={'color':(170,175,180)})
-    show_object(model.spacer,name='Adjustable central spacer envelope',options={'color':(80,180,100)})
     for name,part in model.clamp_hardware.items():
         show_object(part,name=f'Nominal clamp envelope: {name}',options={'color':(170,175,180)})
 elif __name__ == '__main__':

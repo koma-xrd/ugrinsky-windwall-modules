@@ -118,10 +118,11 @@ class ExportTests(unittest.TestCase):
                     self.assertFalse(Path(record[f'{suffix}_path']).is_absolute())
                     self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(), record[f'{suffix}_sha256'])
             for assembly in data['assemblies']:
-                groups, solids = {'rotor_locked': (35, 69), 'generator': (27, 61),
-                                  'fence_assembly': (42, 76)}[assembly['name']]
+                groups, solids = {'rotor_locked': (30, 64), 'generator': (22, 56),
+                                  'fence_assembly': (37, 71)}[assembly['name']]
                 self.assertEqual(assembly['component_count'], groups)
                 self.assertEqual(len(assembly['components']), groups)
+                self.assertNotIn('spacer', {item['name'] for item in assembly['components']})
                 self.assertTrue(all(component['cad_valid'] for component in assembly['components']))
                 path = destination / assembly['step_path']
                 imported = cq.importers.importStep(str(path)).val()

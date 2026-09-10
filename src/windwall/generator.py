@@ -156,13 +156,18 @@ def build_upper_magnet_carrier(parameters: DesignParameters) -> cq.Workplane:
 
 
 def build_lower_magnet_rotor(parameters: DesignParameters) -> cq.Workplane:
-    """Separate up-facing rotor with a rear-open captive M8 torque-nut pocket."""
+    """Up-facing rotor with captive M8 pocket and integral rotating sleeve."""
     p = parameters
     face = lower_magnet_face_z_mm(p)
     body = _carrier(p).mirror('XY').translate((0,0,face))
     rear = face-p.generator.carrier_height_mm
-    return body.cut(_hex(p.manufacturing.nut_pocket_across_flats_mm,
-                         rear,p.manufacturing.nut_pocket_depth_mm)).clean()
+    sleeve_top = base_bearing_interface(p)['nut_bottom_z_mm']
+    sleeve = _ring(p.generator.spacer_outer_diameter_mm/2,
+                   p.shaft.clearance_hole_diameter_mm/2,
+                   face, sleeve_top-face)
+    return (body.union(sleeve)
+            .cut(_hex(p.manufacturing.nut_pocket_across_flats_mm,
+                      rear,p.manufacturing.nut_pocket_depth_mm)).clean())
 
 
 @dataclass(frozen=True)
@@ -178,7 +183,6 @@ class GeneratorAssembly:
     bearings: dict[str,BearingReference]
     magnets: dict[str,cq.Workplane]
     shaft: cq.Workplane
-    spacer: cq.Workplane
     clamp_hardware: dict[str,cq.Workplane]
     rotating_axis_diameter_mm: float
     lower_rotor_nut_pocket_across_flats_mm: float
@@ -202,7 +206,7 @@ class GeneratorAssembly:
     @property
     def rotating_parts(self) -> dict[str,cq.Workplane]:
         return {'base': self.base_module.shape, 'lower_magnet_rotor': self.lower_rotor,
-                'shaft': self.shaft, 'spacer': self.spacer, **self.clamp_hardware,
+                'shaft': self.shaft, **self.clamp_hardware,
                 'upper_magnets': self.magnets['upper'], 'lower_magnets': self.magnets['lower'],
                 '51105_shaft_washer': self.bearings['51105'].parts['shaft_washer']}
 
@@ -320,8 +324,6 @@ def build_generator_assembly(parameters: DesignParameters) -> GeneratorAssembly:
     bottom = rear-p.closure.shaft_bottom_projection_mm
     shaft = cq.Workplane('XY').circle(p.shaft.nominal_diameter_mm/2).extrude(p.rotor.stage_height_mm+15-bottom).translate((0,0,bottom))
     upper_nut_bottom = base_bearing_interface(p)['nut_bottom_z_mm']
-    spacer = _ring(g.spacer_outer_diameter_mm/2,p.shaft.clearance_hole_diameter_mm/2,
-                   lower_face,upper_nut_bottom-lower_face)
     hardware = {'upper_nut':_hex(g.clamp_nut_across_flats_mm,upper_nut_bottom,m.nut_pocket_depth_mm),
                 'lower_nut':_hex(g.clamp_nut_across_flats_mm,rear,m.nut_pocket_depth_mm)}
     for name in ('upper_nut','lower_nut'):
@@ -329,7 +331,7 @@ def build_generator_assembly(parameters: DesignParameters) -> GeneratorAssembly:
     magnets = {'upper': _magnet_envelope(p, upper_face, True),
                'lower': _magnet_envelope(p, lower_face, False)}
     return GeneratorAssembly(build_base_module(p),build_upper_magnet_carrier(p),build_lower_magnet_rotor(p),
-                             housing,offset,stationary,{'51105': bearing},magnets,shaft,spacer,hardware,
+                             housing,offset,stationary,{'51105': bearing},magnets,shaft,hardware,
                              p.shaft.nominal_diameter_mm,m.nut_pocket_across_flats_mm)
 
 

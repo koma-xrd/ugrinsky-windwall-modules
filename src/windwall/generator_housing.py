@@ -1,7 +1,8 @@
 """Stationary V5 cup, removable winding cassette, and 51105-bearing cover.
 
 All bodies use cup-bottom Z=0; the later generator assembly translates this
-package as a unit. The cassette reserves winding space, not individual wires.
+package as a unit. The cassette provides open rounded islands for an
+experimental serpentine winding; the winding solid is not individual wires.
 The thin cover diaphragm occupies part of the upper magnetic gap; callers must
 measure magnet-to-coil gaps independently. Fits, strength, and the open side
 cable outlet remain unvalidated, non-waterproof prototype features.
@@ -128,8 +129,8 @@ def _layout(p: DesignParameters) -> tuple[HousingDimensions, float, float, float
 
 
 def _fastener_axes(d: HousingDimensions) -> tuple[tuple[float, float], ...]:
-    return tuple((d.fastener_radius_mm * cos(pi / 6 + i * pi / 3),
-                  d.fastener_radius_mm * sin(pi / 6 + i * pi / 3)) for i in range(6))
+    return tuple((d.fastener_radius_mm * cos(i * pi / 2),
+                  d.fastener_radius_mm * sin(i * pi / 2)) for i in range(4))
 
 
 def _cable_passage(d: HousingDimensions) -> cq.Workplane:
@@ -143,13 +144,35 @@ def _key(d: HousingDimensions, radius: float, height: float) -> cq.Workplane:
             .translate((-radius - 1, 0, d.cassette_bottom_mm + 1)))
 
 
+def _serpentine_guides(d: HousingDimensions, top: float) -> cq.Workplane:
+    """Return 18 radial capsules matching the reference former's guide layout."""
+    pitch_radius = 44.5
+    half_straight = 3.5
+    guide_radius = 4.0
+    height = top - d.cassette_bottom_mm
+    capsule = _cylinder(guide_radius, d.cassette_bottom_mm, height).translate(
+        (pitch_radius - half_straight, 0, 0))
+    capsule = capsule.union(
+        _cylinder(guide_radius, d.cassette_bottom_mm, height).translate(
+            (pitch_radius + half_straight, 0, 0)))
+    capsule = capsule.union(
+        cq.Workplane('XY').box(2 * half_straight, 2 * guide_radius, height,
+                               centered=(True, True, False))
+        .translate((pitch_radius, 0, d.cassette_bottom_mm)))
+    guides = capsule
+    for index in range(1, 18):
+        guides = guides.union(capsule.rotate((0, 0, 0), (0, 0, 1), 20 * index))
+    return guides
+
+
 def build_coil_cassette(p: DesignParameters) -> cq.Workplane:
-    """Open-top annular spool with a single -X key and 45-degree cable passage."""
+    """Open-top 18-island serpentine former with key and cable passage."""
     d, radius, top, _ = _layout(p)
     bottom = d.cassette_bottom_mm
     body = _ring(radius, 25, bottom, 1)
     body = body.union(_ring(radius, radius - 3, bottom, top - bottom))
     body = body.union(_ring(28, 25, bottom, top - bottom))
+    body = body.union(_serpentine_guides(d, top))
     body = body.union(_key(d, radius, top - bottom)).cut(_cable_passage(d))
     return _valid(body, 'Coil cassette')
 
@@ -222,8 +245,9 @@ def build_generator_housing(p: DesignParameters) -> GeneratorHousingParts:
     body = _valid(body.union(boss).cut(passage), 'Generator housing')
     seat_floor = cover_bottom + d.diaphragm_mm
     washer = build_51105_reference(p).parts['housing_washer'].translate((0, 0, seat_floor))
-    winding = _ring(radius - 3, 28, d.cassette_bottom_mm + 1,
-                    top - d.cassette_bottom_mm - 1)
+    winding = (_ring(radius - 3, 28, d.cassette_bottom_mm + 1,
+                     top - d.cassette_bottom_mm - 1)
+               .cut(_serpentine_guides(d, top)))
     metadata = {
         'role': 'stationary', 'waterproof': False, 'physically_calibrated': False,
         'cable_outlet': 'Open side cable passage; prototype, non-waterproof',
@@ -242,6 +266,10 @@ def build_generator_housing(p: DesignParameters) -> GeneratorHousingParts:
         'cover_fastener_clearance_diameter_mm': d.m4_clearance_diameter_mm,
         'nut_insertion': 'From underside before attaching cup to frame',
         'air_gap_reference': 'Magnet face to coil active face; diaphragm consumes part of upper gap',
+        'serpentine_guide_count': 18,
+        'serpentine_guide_pitch_radius_mm': 44.5,
+        'serpentine_guide_size_mm': [15.0, 8.0],
+        'serpentine_winding': 'Open experimental path around rounded guide islands',
     }
     return GeneratorHousingParts(body, build_coil_cassette(p), build_generator_cover(p),
                                  washer, tuple(tabs), tuple(fasteners), winding, passage,

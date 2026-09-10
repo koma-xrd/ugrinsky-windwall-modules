@@ -24,10 +24,10 @@
       "physical_validation_verified": false,
       "quantity": 1,
       "role": "hardware-reference",
-      "sha256": "d9bfe0de8c6311b2570b39a46675b430d2b74e96ceed0247370bd38d8abad060",
-      "size_bytes": 16572712,
+      "sha256": "2b232dd9ca6ec1e23188b6b1128cc010f81b95a38ead0b5c2e7b9857c5e5a1a0",
+      "size_bytes": 17054364,
       "validation": {
-        "cad_solid_count": 76,
+        "cad_solid_count": 71,
         "cad_valid": true,
         "step_round_trip_valid": true,
         "stl_required": false
@@ -57,10 +57,10 @@
       "physical_validation_verified": false,
       "quantity": 1,
       "role": "hardware-reference",
-      "sha256": "89bde7cc6f8f0339f1d3e99fbb3165de3e868391c8a426bffe4945ae462da233",
-      "size_bytes": 3376065,
+      "sha256": "91d66d4cf8f0b1392a96fb2fc8b92156c60d7b78a0f429541675d931d64d851b",
+      "size_bytes": 3839908,
       "validation": {
-        "cad_solid_count": 61,
+        "cad_solid_count": 56,
         "cad_valid": true,
         "step_round_trip_valid": true,
         "stl_required": false
@@ -90,10 +90,10 @@
       "physical_validation_verified": false,
       "quantity": 1,
       "role": "hardware-reference",
-      "sha256": "4a32c720d82e5244eb25a6f45a9c06410324edfaa0256d76b547de51496a6ae7",
-      "size_bytes": 16441730,
+      "sha256": "c7430ccd50076bcb8e2211d0e987031fb8955b5dc47c6c7593dc21050391b17a",
+      "size_bytes": 16923397,
       "validation": {
-        "cad_solid_count": 69,
+        "cad_solid_count": 64,
         "cad_valid": true,
         "step_round_trip_valid": true,
         "stl_required": false
@@ -103,14 +103,14 @@
       "kind": "translation-audit",
       "path": "release/v5/audits/manual-translations.json",
       "role": "validation-evidence",
-      "sha256": "8b8fb8c0c454bdf2bc33d88be72906a00b79625389971d423750d0c4a6d5dbee",
+      "sha256": "dc4b3c5acb8f6bd9edc05f3fe9328ebd93d009aea67608e62475418f18ae4842",
       "size_bytes": 22734
     },
     {
       "kind": "manual-audit",
       "path": "release/v5/audits/manual.json",
       "role": "validation-evidence",
-      "sha256": "f8513720a781ab70b61d05a133b4a4be3f59fe92aa73ccfab636af4ade93421a",
+      "sha256": "4221b915036fff327d4d2ad385554aa7a2cbccd96cfbbad1b31f6096709a0d60",
       "size_bytes": 2493
     },
     {
@@ -435,8 +435,8 @@
       "physical_validation_verified": false,
       "quantity": 1,
       "role": "documentation",
-      "sha256": "0914e2e2d97f996f1338bcc5eff62d805a033c26ac0ea9f4925f4c0dd7fcc317",
-      "size_bytes": 4907415,
+      "sha256": "eecdace0e859b82a434b0a1e1ad3fa747cdb411297721b3d15de3b57a00e64f3",
+      "size_bytes": 4941799,
       "validation": {
         "accessibility_findings": {
           "high": 0,
@@ -444,30 +444,30 @@
           "medium": 0
         },
         "artifact_path": "release/v5/docs/Ugrinsky-Wind-Wall-V5-Bauanleitung.docx",
-        "artifact_sha256": "0914e2e2d97f996f1338bcc5eff62d805a033c26ac0ea9f4925f4c0dd7fcc317",
+        "artifact_sha256": "eecdace0e859b82a434b0a1e1ad3fa747cdb411297721b3d15de3b57a00e64f3",
         "canonical_zip_verified": true,
         "chapter_count": 13,
         "drawing_sha256_by_filename": {
           "E01-rotorstapel.png": "3bd83cac16ae79558b44aeb1df920c27e4df04aa093053a2f459d68a09d657ab",
           "E02-modultypen.png": "b47f5e27529aacbc93fd76b4d1301cd0d59a24210c17baf40ed47657ad396c9f",
           "E03-bajonett-blattnaht.png": "b27c5a451bb714dda736b67f47587a06440bd0e284ce8a6c6c888d0b5a06fae4",
-          "E04-base-51105-schnitt.png": "ecb47bee8580934d0453b5b8f5c3a32cf78c223cc8a418e29bc7f714a388c979",
-          "E05-unterer-magnetrotor.png": "689f533572c2e8327d424c0965b639a2683031f366bf8c545447869d5b5f77be",
-          "E06-generator-explosion.png": "d5fd542d0378f892b00a3223c68dc60d4c46185a18f4a965c768e314e71ef9cc",
-          "E07-generator-schnitt.png": "3addb41af307f4fa0ce28e94eec1b056410f0ad4977d272d2928980bb47188d1",
-          "E08-kassettenrueckhaltung.png": "6afaee92f6673ad20a4ed74e7fafe33f11ae109aa6e94930cc99d210a35b94cc",
-          "E09-deckelverschraubung.png": "0414cc5b007db059eb8c3c2257beff3073b1c13537c93fe4e31dbc5b4ba07591",
-          "E10-seitlicher-kabelausgang.png": "fc5b7c715da3e191536a53310082dec3352fa7f2a0eeb270789628d10104d7cb",
+          "E04-base-51105-schnitt.png": "65963560a6e596212e5d2d95281e9741435abe2ffcaa7c69dbaf8cc8de54372d",
+          "E05-unterer-magnetrotor.png": "528bf7b416a1f49f922e3c4b918513e27f21067ba31e4b20db34254269831903",
+          "E06-generator-explosion.png": "88c775d807602e3ff427b25894310a3d2d9f910964c3c91f69f74cec56ca5d29",
+          "E07-generator-schnitt.png": "2356d3f7e717c530034054942e0844a579902635597d71b4f436da72610fd259",
+          "E08-kassettenrueckhaltung.png": "2dc47e9850c412bc98c938c46f7be7241b386d67067f63ed5b3ab8b3360d04fc",
+          "E09-deckelverschraubung.png": "3086897c40deddd98d41b7034ae3893cc437e23c49c6fc4936155a4937d84607",
+          "E10-seitlicher-kabelausgang.png": "cb01060ea015d76cca22a30570671b1c689e5419105de8832e72403bf39256d5",
           "E11-51105-passungsprobe.png": "84e81865f2a47921660c44451fba2962fbd0c4482954a69bf3f5f30554c6d9fd",
           "E12-608-passungsprobe.png": "58115e3a87cf9dc27baac4c45eade4c7ee418d5d19a11c23d7637c82599e5ee6",
           "E13-oberer-halter.png": "069747a9c501da37d8cb50da3c1869ff60cf35ff609c3835db69537ad6a0afb3",
-          "E14-zaunmontage.png": "175464bfa97cb4f41c604e25c13f4f87d33eaf34b1fbd9a8f41fd61a6793a2e9",
-          "E15-gesamtbaugruppe.png": "746afb69e71385efac18a400760b8447677f5eedfaf64857e786940acaa39d37"
+          "E14-zaunmontage.png": "4cb6fedd0c23104659da538a269b80d0b9e3ba125ff714949ae1c1b4219791b9",
+          "E15-gesamtbaugruppe.png": "ec1d1c780e981cc1b666e881018c2ccd1e8912b003b2a2bf47b0a32e49e5b1f4"
         },
         "embedded_images_match_release": 15,
-        "figures_manifest_sha256": "1a72e4993c9b47cc13d5b5983f219c5f7c8394095624749b75e0fce33ad99f6b",
+        "figures_manifest_sha256": "f5e8b57b622a5512a5324960043b27f3980464163f444e33672f2bd127b78d55",
         "full_rebuild_determinism": "verified_in_final_review_fix_with_bundled_document_python",
-        "geometry_manifest_sha256": "14f4fe404dc1e6df3f2e6a6c4a094d514bb6a8831f2a3018b1de873023508152",
+        "geometry_manifest_sha256": "d3ebcf774223300d5ab6d6ef4bd0229eebcfdc656b214923bb572568f2c84414",
         "inspection_runtime": "bundled_codex_document_python",
         "margins_mm": [
           18,
@@ -482,7 +482,7 @@
         ],
         "physical_validation_verified": false,
         "structural_checks_passed": true,
-        "structural_test_count": 10
+        "structural_test_count": 11
       }
     },
     {
@@ -493,8 +493,8 @@
       "physical_validation_verified": false,
       "quantity": 1,
       "role": "documentation",
-      "sha256": "71c172b1f148279526ead428e3c2cb4047339e7e53a6174ede31a945c72a9793",
-      "size_bytes": 4905490,
+      "sha256": "d38b4a1ec2d70e0e2801af81dc2d160a2e749be47fab4299097c33cfb160a811",
+      "size_bytes": 4939818,
       "validation": {
         "accessibility_findings": {
           "high": 0,
@@ -502,48 +502,48 @@
           "medium": 0
         },
         "artifact_path": "release/v5/docs/Ugrinsky-Wind-Wall-V5-Manual-Chinese-Simplified.docx",
-        "artifact_sha256": "71c172b1f148279526ead428e3c2cb4047339e7e53a6174ede31a945c72a9793",
+        "artifact_sha256": "d38b4a1ec2d70e0e2801af81dc2d160a2e749be47fab4299097c33cfb160a811",
         "canonical_zip_verified": true,
         "catalog_path": "scripts/manual/locales/zh-CN.json",
-        "catalog_sha256": "1dab1600f034db8281a95790ae6875cdf0f742a38f183fa1b25e091d8d83056f",
+        "catalog_sha256": "4348119f4d3387c3439e372e5f3af139bde8f414665a708442f912414550523f",
         "chapter_count": 13,
         "drawing_sha256_by_filename": {
           "E01-rotorstapel.png": "3bd83cac16ae79558b44aeb1df920c27e4df04aa093053a2f459d68a09d657ab",
           "E02-modultypen.png": "b47f5e27529aacbc93fd76b4d1301cd0d59a24210c17baf40ed47657ad396c9f",
           "E03-bajonett-blattnaht.png": "b27c5a451bb714dda736b67f47587a06440bd0e284ce8a6c6c888d0b5a06fae4",
-          "E04-base-51105-schnitt.png": "ecb47bee8580934d0453b5b8f5c3a32cf78c223cc8a418e29bc7f714a388c979",
-          "E05-unterer-magnetrotor.png": "689f533572c2e8327d424c0965b639a2683031f366bf8c545447869d5b5f77be",
-          "E06-generator-explosion.png": "d5fd542d0378f892b00a3223c68dc60d4c46185a18f4a965c768e314e71ef9cc",
-          "E07-generator-schnitt.png": "3addb41af307f4fa0ce28e94eec1b056410f0ad4977d272d2928980bb47188d1",
-          "E08-kassettenrueckhaltung.png": "6afaee92f6673ad20a4ed74e7fafe33f11ae109aa6e94930cc99d210a35b94cc",
-          "E09-deckelverschraubung.png": "0414cc5b007db059eb8c3c2257beff3073b1c13537c93fe4e31dbc5b4ba07591",
-          "E10-seitlicher-kabelausgang.png": "fc5b7c715da3e191536a53310082dec3352fa7f2a0eeb270789628d10104d7cb",
+          "E04-base-51105-schnitt.png": "65963560a6e596212e5d2d95281e9741435abe2ffcaa7c69dbaf8cc8de54372d",
+          "E05-unterer-magnetrotor.png": "528bf7b416a1f49f922e3c4b918513e27f21067ba31e4b20db34254269831903",
+          "E06-generator-explosion.png": "88c775d807602e3ff427b25894310a3d2d9f910964c3c91f69f74cec56ca5d29",
+          "E07-generator-schnitt.png": "2356d3f7e717c530034054942e0844a579902635597d71b4f436da72610fd259",
+          "E08-kassettenrueckhaltung.png": "2dc47e9850c412bc98c938c46f7be7241b386d67067f63ed5b3ab8b3360d04fc",
+          "E09-deckelverschraubung.png": "3086897c40deddd98d41b7034ae3893cc437e23c49c6fc4936155a4937d84607",
+          "E10-seitlicher-kabelausgang.png": "cb01060ea015d76cca22a30570671b1c689e5419105de8832e72403bf39256d5",
           "E11-51105-passungsprobe.png": "84e81865f2a47921660c44451fba2962fbd0c4482954a69bf3f5f30554c6d9fd",
           "E12-608-passungsprobe.png": "58115e3a87cf9dc27baac4c45eade4c7ee418d5d19a11c23d7637c82599e5ee6",
           "E13-oberer-halter.png": "069747a9c501da37d8cb50da3c1869ff60cf35ff609c3835db69537ad6a0afb3",
-          "E14-zaunmontage.png": "175464bfa97cb4f41c604e25c13f4f87d33eaf34b1fbd9a8f41fd61a6793a2e9",
-          "E15-gesamtbaugruppe.png": "746afb69e71385efac18a400760b8447677f5eedfaf64857e786940acaa39d37"
+          "E14-zaunmontage.png": "4cb6fedd0c23104659da538a269b80d0b9e3ba125ff714949ae1c1b4219791b9",
+          "E15-gesamtbaugruppe.png": "ec1d1c780e981cc1b666e881018c2ccd1e8912b003b2a2bf47b0a32e49e5b1f4"
         },
         "embedded_images_match_release": 15,
         "figure_count": 15,
-        "figures_manifest_sha256": "1a72e4993c9b47cc13d5b5983f219c5f7c8394095624749b75e0fce33ad99f6b",
-        "geometry_manifest_sha256": "14f4fe404dc1e6df3f2e6a6c4a094d514bb6a8831f2a3018b1de873023508152",
+        "figures_manifest_sha256": "f5e8b57b622a5512a5324960043b27f3980464163f444e33672f2bd127b78d55",
+        "geometry_manifest_sha256": "d3ebcf774223300d5ab6d6ef4bd0229eebcfdc656b214923bb572568f2c84414",
         "image_binding_sha256_by_id": {
           "E01": "3bd83cac16ae79558b44aeb1df920c27e4df04aa093053a2f459d68a09d657ab",
           "E02": "b47f5e27529aacbc93fd76b4d1301cd0d59a24210c17baf40ed47657ad396c9f",
           "E03": "b27c5a451bb714dda736b67f47587a06440bd0e284ce8a6c6c888d0b5a06fae4",
-          "E04": "ecb47bee8580934d0453b5b8f5c3a32cf78c223cc8a418e29bc7f714a388c979",
-          "E05": "689f533572c2e8327d424c0965b639a2683031f366bf8c545447869d5b5f77be",
-          "E06": "d5fd542d0378f892b00a3223c68dc60d4c46185a18f4a965c768e314e71ef9cc",
-          "E07": "3addb41af307f4fa0ce28e94eec1b056410f0ad4977d272d2928980bb47188d1",
-          "E08": "6afaee92f6673ad20a4ed74e7fafe33f11ae109aa6e94930cc99d210a35b94cc",
-          "E09": "0414cc5b007db059eb8c3c2257beff3073b1c13537c93fe4e31dbc5b4ba07591",
-          "E10": "fc5b7c715da3e191536a53310082dec3352fa7f2a0eeb270789628d10104d7cb",
+          "E04": "65963560a6e596212e5d2d95281e9741435abe2ffcaa7c69dbaf8cc8de54372d",
+          "E05": "528bf7b416a1f49f922e3c4b918513e27f21067ba31e4b20db34254269831903",
+          "E06": "88c775d807602e3ff427b25894310a3d2d9f910964c3c91f69f74cec56ca5d29",
+          "E07": "2356d3f7e717c530034054942e0844a579902635597d71b4f436da72610fd259",
+          "E08": "2dc47e9850c412bc98c938c46f7be7241b386d67067f63ed5b3ab8b3360d04fc",
+          "E09": "3086897c40deddd98d41b7034ae3893cc437e23c49c6fc4936155a4937d84607",
+          "E10": "cb01060ea015d76cca22a30570671b1c689e5419105de8832e72403bf39256d5",
           "E11": "84e81865f2a47921660c44451fba2962fbd0c4482954a69bf3f5f30554c6d9fd",
           "E12": "58115e3a87cf9dc27baac4c45eade4c7ee418d5d19a11c23d7637c82599e5ee6",
           "E13": "069747a9c501da37d8cb50da3c1869ff60cf35ff609c3835db69537ad6a0afb3",
-          "E14": "175464bfa97cb4f41c604e25c13f4f87d33eaf34b1fbd9a8f41fd61a6793a2e9",
-          "E15": "746afb69e71385efac18a400760b8447677f5eedfaf64857e786940acaa39d37"
+          "E14": "4cb6fedd0c23104659da538a269b80d0b9e3ba125ff714949ae1c1b4219791b9",
+          "E15": "ec1d1c780e981cc1b666e881018c2ccd1e8912b003b2a2bf47b0a32e49e5b1f4"
         },
         "locale": "zh-CN",
         "margins_mm": [
@@ -562,9 +562,9 @@
         "render_exit_code": 1,
         "render_limitations": "Page layout, glyph rendering, pagination and PDF output remain unverified.",
         "rendered_page_count": 0,
-        "segment_count": 312,
-        "size_bytes": 4905490,
-        "source_manual_sha256": "0914e2e2d97f996f1338bcc5eff62d805a033c26ac0ea9f4925f4c0dd7fcc317",
+        "segment_count": 310,
+        "size_bytes": 4939818,
+        "source_manual_sha256": "eecdace0e859b82a434b0a1e1ad3fa747cdb411297721b3d15de3b57a00e64f3",
         "structural_checks_passed": true,
         "table_count": 11
       }
@@ -577,8 +577,8 @@
       "physical_validation_verified": false,
       "quantity": 1,
       "role": "documentation",
-      "sha256": "80dfaa245b8dc03c73da6c3d062608d564b9ee0910b7c333cea13996fe88ad4b",
-      "size_bytes": 4904598,
+      "sha256": "3549f85171dff9e6eb2cbe257aa1526ad26120198f25105592bad19c68b32091",
+      "size_bytes": 4938984,
       "validation": {
         "accessibility_findings": {
           "high": 0,
@@ -586,48 +586,48 @@
           "medium": 0
         },
         "artifact_path": "release/v5/docs/Ugrinsky-Wind-Wall-V5-Manual-English.docx",
-        "artifact_sha256": "80dfaa245b8dc03c73da6c3d062608d564b9ee0910b7c333cea13996fe88ad4b",
+        "artifact_sha256": "3549f85171dff9e6eb2cbe257aa1526ad26120198f25105592bad19c68b32091",
         "canonical_zip_verified": true,
         "catalog_path": "scripts/manual/locales/en-GB.json",
-        "catalog_sha256": "7818eb80c1c84ab9a1357a03b455836be4171123d4677e588b0ef1c5696aa397",
+        "catalog_sha256": "7a140611550f7a3e33c3a9afd2e8b24bfaf35ecf31333a661fd2f57b51ba2efc",
         "chapter_count": 13,
         "drawing_sha256_by_filename": {
           "E01-rotorstapel.png": "3bd83cac16ae79558b44aeb1df920c27e4df04aa093053a2f459d68a09d657ab",
           "E02-modultypen.png": "b47f5e27529aacbc93fd76b4d1301cd0d59a24210c17baf40ed47657ad396c9f",
           "E03-bajonett-blattnaht.png": "b27c5a451bb714dda736b67f47587a06440bd0e284ce8a6c6c888d0b5a06fae4",
-          "E04-base-51105-schnitt.png": "ecb47bee8580934d0453b5b8f5c3a32cf78c223cc8a418e29bc7f714a388c979",
-          "E05-unterer-magnetrotor.png": "689f533572c2e8327d424c0965b639a2683031f366bf8c545447869d5b5f77be",
-          "E06-generator-explosion.png": "d5fd542d0378f892b00a3223c68dc60d4c46185a18f4a965c768e314e71ef9cc",
-          "E07-generator-schnitt.png": "3addb41af307f4fa0ce28e94eec1b056410f0ad4977d272d2928980bb47188d1",
-          "E08-kassettenrueckhaltung.png": "6afaee92f6673ad20a4ed74e7fafe33f11ae109aa6e94930cc99d210a35b94cc",
-          "E09-deckelverschraubung.png": "0414cc5b007db059eb8c3c2257beff3073b1c13537c93fe4e31dbc5b4ba07591",
-          "E10-seitlicher-kabelausgang.png": "fc5b7c715da3e191536a53310082dec3352fa7f2a0eeb270789628d10104d7cb",
+          "E04-base-51105-schnitt.png": "65963560a6e596212e5d2d95281e9741435abe2ffcaa7c69dbaf8cc8de54372d",
+          "E05-unterer-magnetrotor.png": "528bf7b416a1f49f922e3c4b918513e27f21067ba31e4b20db34254269831903",
+          "E06-generator-explosion.png": "88c775d807602e3ff427b25894310a3d2d9f910964c3c91f69f74cec56ca5d29",
+          "E07-generator-schnitt.png": "2356d3f7e717c530034054942e0844a579902635597d71b4f436da72610fd259",
+          "E08-kassettenrueckhaltung.png": "2dc47e9850c412bc98c938c46f7be7241b386d67067f63ed5b3ab8b3360d04fc",
+          "E09-deckelverschraubung.png": "3086897c40deddd98d41b7034ae3893cc437e23c49c6fc4936155a4937d84607",
+          "E10-seitlicher-kabelausgang.png": "cb01060ea015d76cca22a30570671b1c689e5419105de8832e72403bf39256d5",
           "E11-51105-passungsprobe.png": "84e81865f2a47921660c44451fba2962fbd0c4482954a69bf3f5f30554c6d9fd",
           "E12-608-passungsprobe.png": "58115e3a87cf9dc27baac4c45eade4c7ee418d5d19a11c23d7637c82599e5ee6",
           "E13-oberer-halter.png": "069747a9c501da37d8cb50da3c1869ff60cf35ff609c3835db69537ad6a0afb3",
-          "E14-zaunmontage.png": "175464bfa97cb4f41c604e25c13f4f87d33eaf34b1fbd9a8f41fd61a6793a2e9",
-          "E15-gesamtbaugruppe.png": "746afb69e71385efac18a400760b8447677f5eedfaf64857e786940acaa39d37"
+          "E14-zaunmontage.png": "4cb6fedd0c23104659da538a269b80d0b9e3ba125ff714949ae1c1b4219791b9",
+          "E15-gesamtbaugruppe.png": "ec1d1c780e981cc1b666e881018c2ccd1e8912b003b2a2bf47b0a32e49e5b1f4"
         },
         "embedded_images_match_release": 15,
         "figure_count": 15,
-        "figures_manifest_sha256": "1a72e4993c9b47cc13d5b5983f219c5f7c8394095624749b75e0fce33ad99f6b",
-        "geometry_manifest_sha256": "14f4fe404dc1e6df3f2e6a6c4a094d514bb6a8831f2a3018b1de873023508152",
+        "figures_manifest_sha256": "f5e8b57b622a5512a5324960043b27f3980464163f444e33672f2bd127b78d55",
+        "geometry_manifest_sha256": "d3ebcf774223300d5ab6d6ef4bd0229eebcfdc656b214923bb572568f2c84414",
         "image_binding_sha256_by_id": {
           "E01": "3bd83cac16ae79558b44aeb1df920c27e4df04aa093053a2f459d68a09d657ab",
           "E02": "b47f5e27529aacbc93fd76b4d1301cd0d59a24210c17baf40ed47657ad396c9f",
           "E03": "b27c5a451bb714dda736b67f47587a06440bd0e284ce8a6c6c888d0b5a06fae4",
-          "E04": "ecb47bee8580934d0453b5b8f5c3a32cf78c223cc8a418e29bc7f714a388c979",
-          "E05": "689f533572c2e8327d424c0965b639a2683031f366bf8c545447869d5b5f77be",
-          "E06": "d5fd542d0378f892b00a3223c68dc60d4c46185a18f4a965c768e314e71ef9cc",
-          "E07": "3addb41af307f4fa0ce28e94eec1b056410f0ad4977d272d2928980bb47188d1",
-          "E08": "6afaee92f6673ad20a4ed74e7fafe33f11ae109aa6e94930cc99d210a35b94cc",
-          "E09": "0414cc5b007db059eb8c3c2257beff3073b1c13537c93fe4e31dbc5b4ba07591",
-          "E10": "fc5b7c715da3e191536a53310082dec3352fa7f2a0eeb270789628d10104d7cb",
+          "E04": "65963560a6e596212e5d2d95281e9741435abe2ffcaa7c69dbaf8cc8de54372d",
+          "E05": "528bf7b416a1f49f922e3c4b918513e27f21067ba31e4b20db34254269831903",
+          "E06": "88c775d807602e3ff427b25894310a3d2d9f910964c3c91f69f74cec56ca5d29",
+          "E07": "2356d3f7e717c530034054942e0844a579902635597d71b4f436da72610fd259",
+          "E08": "2dc47e9850c412bc98c938c46f7be7241b386d67067f63ed5b3ab8b3360d04fc",
+          "E09": "3086897c40deddd98d41b7034ae3893cc437e23c49c6fc4936155a4937d84607",
+          "E10": "cb01060ea015d76cca22a30570671b1c689e5419105de8832e72403bf39256d5",
           "E11": "84e81865f2a47921660c44451fba2962fbd0c4482954a69bf3f5f30554c6d9fd",
           "E12": "58115e3a87cf9dc27baac4c45eade4c7ee418d5d19a11c23d7637c82599e5ee6",
           "E13": "069747a9c501da37d8cb50da3c1869ff60cf35ff609c3835db69537ad6a0afb3",
-          "E14": "175464bfa97cb4f41c604e25c13f4f87d33eaf34b1fbd9a8f41fd61a6793a2e9",
-          "E15": "746afb69e71385efac18a400760b8447677f5eedfaf64857e786940acaa39d37"
+          "E14": "4cb6fedd0c23104659da538a269b80d0b9e3ba125ff714949ae1c1b4219791b9",
+          "E15": "ec1d1c780e981cc1b666e881018c2ccd1e8912b003b2a2bf47b0a32e49e5b1f4"
         },
         "locale": "en-GB",
         "margins_mm": [
@@ -646,9 +646,9 @@
         "render_exit_code": 1,
         "render_limitations": "Page layout, glyph rendering, pagination and PDF output remain unverified.",
         "rendered_page_count": 0,
-        "segment_count": 312,
-        "size_bytes": 4904598,
-        "source_manual_sha256": "0914e2e2d97f996f1338bcc5eff62d805a033c26ac0ea9f4925f4c0dd7fcc317",
+        "segment_count": 310,
+        "size_bytes": 4938984,
+        "source_manual_sha256": "eecdace0e859b82a434b0a1e1ad3fa747cdb411297721b3d15de3b57a00e64f3",
         "structural_checks_passed": true,
         "table_count": 11
       }
@@ -661,8 +661,8 @@
       "physical_validation_verified": false,
       "quantity": 1,
       "role": "documentation",
-      "sha256": "03c5ab6a44e776c92621dd1adab731494203193807f1c160a3db7235034eb82a",
-      "size_bytes": 4905746,
+      "sha256": "85f2c707810b71f144b18d6ed7bca5300535c939b8eebbb9b33e04d64126cd04",
+      "size_bytes": 4940037,
       "validation": {
         "accessibility_findings": {
           "high": 0,
@@ -670,48 +670,48 @@
           "medium": 0
         },
         "artifact_path": "release/v5/docs/Ugrinsky-Wind-Wall-V5-Manual-French.docx",
-        "artifact_sha256": "03c5ab6a44e776c92621dd1adab731494203193807f1c160a3db7235034eb82a",
+        "artifact_sha256": "85f2c707810b71f144b18d6ed7bca5300535c939b8eebbb9b33e04d64126cd04",
         "canonical_zip_verified": true,
         "catalog_path": "scripts/manual/locales/fr-FR.json",
-        "catalog_sha256": "c44c27f6a07f4adad29df5d4528c26bdd83328a6b9cade035f8cced1881aeb21",
+        "catalog_sha256": "6c97de58d8c06831b72062857488b1624790f4d77956b6aaa9856d4d299b176f",
         "chapter_count": 13,
         "drawing_sha256_by_filename": {
           "E01-rotorstapel.png": "3bd83cac16ae79558b44aeb1df920c27e4df04aa093053a2f459d68a09d657ab",
           "E02-modultypen.png": "b47f5e27529aacbc93fd76b4d1301cd0d59a24210c17baf40ed47657ad396c9f",
           "E03-bajonett-blattnaht.png": "b27c5a451bb714dda736b67f47587a06440bd0e284ce8a6c6c888d0b5a06fae4",
-          "E04-base-51105-schnitt.png": "ecb47bee8580934d0453b5b8f5c3a32cf78c223cc8a418e29bc7f714a388c979",
-          "E05-unterer-magnetrotor.png": "689f533572c2e8327d424c0965b639a2683031f366bf8c545447869d5b5f77be",
-          "E06-generator-explosion.png": "d5fd542d0378f892b00a3223c68dc60d4c46185a18f4a965c768e314e71ef9cc",
-          "E07-generator-schnitt.png": "3addb41af307f4fa0ce28e94eec1b056410f0ad4977d272d2928980bb47188d1",
-          "E08-kassettenrueckhaltung.png": "6afaee92f6673ad20a4ed74e7fafe33f11ae109aa6e94930cc99d210a35b94cc",
-          "E09-deckelverschraubung.png": "0414cc5b007db059eb8c3c2257beff3073b1c13537c93fe4e31dbc5b4ba07591",
-          "E10-seitlicher-kabelausgang.png": "fc5b7c715da3e191536a53310082dec3352fa7f2a0eeb270789628d10104d7cb",
+          "E04-base-51105-schnitt.png": "65963560a6e596212e5d2d95281e9741435abe2ffcaa7c69dbaf8cc8de54372d",
+          "E05-unterer-magnetrotor.png": "528bf7b416a1f49f922e3c4b918513e27f21067ba31e4b20db34254269831903",
+          "E06-generator-explosion.png": "88c775d807602e3ff427b25894310a3d2d9f910964c3c91f69f74cec56ca5d29",
+          "E07-generator-schnitt.png": "2356d3f7e717c530034054942e0844a579902635597d71b4f436da72610fd259",
+          "E08-kassettenrueckhaltung.png": "2dc47e9850c412bc98c938c46f7be7241b386d67067f63ed5b3ab8b3360d04fc",
+          "E09-deckelverschraubung.png": "3086897c40deddd98d41b7034ae3893cc437e23c49c6fc4936155a4937d84607",
+          "E10-seitlicher-kabelausgang.png": "cb01060ea015d76cca22a30570671b1c689e5419105de8832e72403bf39256d5",
           "E11-51105-passungsprobe.png": "84e81865f2a47921660c44451fba2962fbd0c4482954a69bf3f5f30554c6d9fd",
           "E12-608-passungsprobe.png": "58115e3a87cf9dc27baac4c45eade4c7ee418d5d19a11c23d7637c82599e5ee6",
           "E13-oberer-halter.png": "069747a9c501da37d8cb50da3c1869ff60cf35ff609c3835db69537ad6a0afb3",
-          "E14-zaunmontage.png": "175464bfa97cb4f41c604e25c13f4f87d33eaf34b1fbd9a8f41fd61a6793a2e9",
-          "E15-gesamtbaugruppe.png": "746afb69e71385efac18a400760b8447677f5eedfaf64857e786940acaa39d37"
+          "E14-zaunmontage.png": "4cb6fedd0c23104659da538a269b80d0b9e3ba125ff714949ae1c1b4219791b9",
+          "E15-gesamtbaugruppe.png": "ec1d1c780e981cc1b666e881018c2ccd1e8912b003b2a2bf47b0a32e49e5b1f4"
         },
         "embedded_images_match_release": 15,
         "figure_count": 15,
-        "figures_manifest_sha256": "1a72e4993c9b47cc13d5b5983f219c5f7c8394095624749b75e0fce33ad99f6b",
-        "geometry_manifest_sha256": "14f4fe404dc1e6df3f2e6a6c4a094d514bb6a8831f2a3018b1de873023508152",
+        "figures_manifest_sha256": "f5e8b57b622a5512a5324960043b27f3980464163f444e33672f2bd127b78d55",
+        "geometry_manifest_sha256": "d3ebcf774223300d5ab6d6ef4bd0229eebcfdc656b214923bb572568f2c84414",
         "image_binding_sha256_by_id": {
           "E01": "3bd83cac16ae79558b44aeb1df920c27e4df04aa093053a2f459d68a09d657ab",
           "E02": "b47f5e27529aacbc93fd76b4d1301cd0d59a24210c17baf40ed47657ad396c9f",
           "E03": "b27c5a451bb714dda736b67f47587a06440bd0e284ce8a6c6c888d0b5a06fae4",
-          "E04": "ecb47bee8580934d0453b5b8f5c3a32cf78c223cc8a418e29bc7f714a388c979",
-          "E05": "689f533572c2e8327d424c0965b639a2683031f366bf8c545447869d5b5f77be",
-          "E06": "d5fd542d0378f892b00a3223c68dc60d4c46185a18f4a965c768e314e71ef9cc",
-          "E07": "3addb41af307f4fa0ce28e94eec1b056410f0ad4977d272d2928980bb47188d1",
-          "E08": "6afaee92f6673ad20a4ed74e7fafe33f11ae109aa6e94930cc99d210a35b94cc",
-          "E09": "0414cc5b007db059eb8c3c2257beff3073b1c13537c93fe4e31dbc5b4ba07591",
-          "E10": "fc5b7c715da3e191536a53310082dec3352fa7f2a0eeb270789628d10104d7cb",
+          "E04": "65963560a6e596212e5d2d95281e9741435abe2ffcaa7c69dbaf8cc8de54372d",
+          "E05": "528bf7b416a1f49f922e3c4b918513e27f21067ba31e4b20db34254269831903",
+          "E06": "88c775d807602e3ff427b25894310a3d2d9f910964c3c91f69f74cec56ca5d29",
+          "E07": "2356d3f7e717c530034054942e0844a579902635597d71b4f436da72610fd259",
+          "E08": "2dc47e9850c412bc98c938c46f7be7241b386d67067f63ed5b3ab8b3360d04fc",
+          "E09": "3086897c40deddd98d41b7034ae3893cc437e23c49c6fc4936155a4937d84607",
+          "E10": "cb01060ea015d76cca22a30570671b1c689e5419105de8832e72403bf39256d5",
           "E11": "84e81865f2a47921660c44451fba2962fbd0c4482954a69bf3f5f30554c6d9fd",
           "E12": "58115e3a87cf9dc27baac4c45eade4c7ee418d5d19a11c23d7637c82599e5ee6",
           "E13": "069747a9c501da37d8cb50da3c1869ff60cf35ff609c3835db69537ad6a0afb3",
-          "E14": "175464bfa97cb4f41c604e25c13f4f87d33eaf34b1fbd9a8f41fd61a6793a2e9",
-          "E15": "746afb69e71385efac18a400760b8447677f5eedfaf64857e786940acaa39d37"
+          "E14": "4cb6fedd0c23104659da538a269b80d0b9e3ba125ff714949ae1c1b4219791b9",
+          "E15": "ec1d1c780e981cc1b666e881018c2ccd1e8912b003b2a2bf47b0a32e49e5b1f4"
         },
         "locale": "fr-FR",
         "margins_mm": [
@@ -730,9 +730,9 @@
         "render_exit_code": 1,
         "render_limitations": "Page layout, glyph rendering, pagination and PDF output remain unverified.",
         "rendered_page_count": 0,
-        "segment_count": 312,
-        "size_bytes": 4905746,
-        "source_manual_sha256": "0914e2e2d97f996f1338bcc5eff62d805a033c26ac0ea9f4925f4c0dd7fcc317",
+        "segment_count": 310,
+        "size_bytes": 4940037,
+        "source_manual_sha256": "eecdace0e859b82a434b0a1e1ad3fa747cdb411297721b3d15de3b57a00e64f3",
         "structural_checks_passed": true,
         "table_count": 11
       }
@@ -745,8 +745,8 @@
       "physical_validation_verified": false,
       "quantity": 1,
       "role": "documentation",
-      "sha256": "bfe119fa8c172ec8afe5149d7471537b57282b362349213ee28ff361299eccc4",
-      "size_bytes": 4907412,
+      "sha256": "64cf50997db96f616432d69f97481207fec102063453a612d6677fbf1345738b",
+      "size_bytes": 4941728,
       "validation": {
         "accessibility_findings": {
           "high": 0,
@@ -754,48 +754,48 @@
           "medium": 0
         },
         "artifact_path": "release/v5/docs/Ugrinsky-Wind-Wall-V5-Manual-Hindi.docx",
-        "artifact_sha256": "bfe119fa8c172ec8afe5149d7471537b57282b362349213ee28ff361299eccc4",
+        "artifact_sha256": "64cf50997db96f616432d69f97481207fec102063453a612d6677fbf1345738b",
         "canonical_zip_verified": true,
         "catalog_path": "scripts/manual/locales/hi-IN.json",
-        "catalog_sha256": "969a164e08c497faa70e6219717c73a513df0226a260ab7f00f7cc0e2dfe6802",
+        "catalog_sha256": "21aaa395706732ae9210c10d56d8a06e62c027ef7aa31f0fc3376e320fda671e",
         "chapter_count": 13,
         "drawing_sha256_by_filename": {
           "E01-rotorstapel.png": "3bd83cac16ae79558b44aeb1df920c27e4df04aa093053a2f459d68a09d657ab",
           "E02-modultypen.png": "b47f5e27529aacbc93fd76b4d1301cd0d59a24210c17baf40ed47657ad396c9f",
           "E03-bajonett-blattnaht.png": "b27c5a451bb714dda736b67f47587a06440bd0e284ce8a6c6c888d0b5a06fae4",
-          "E04-base-51105-schnitt.png": "ecb47bee8580934d0453b5b8f5c3a32cf78c223cc8a418e29bc7f714a388c979",
-          "E05-unterer-magnetrotor.png": "689f533572c2e8327d424c0965b639a2683031f366bf8c545447869d5b5f77be",
-          "E06-generator-explosion.png": "d5fd542d0378f892b00a3223c68dc60d4c46185a18f4a965c768e314e71ef9cc",
-          "E07-generator-schnitt.png": "3addb41af307f4fa0ce28e94eec1b056410f0ad4977d272d2928980bb47188d1",
-          "E08-kassettenrueckhaltung.png": "6afaee92f6673ad20a4ed74e7fafe33f11ae109aa6e94930cc99d210a35b94cc",
-          "E09-deckelverschraubung.png": "0414cc5b007db059eb8c3c2257beff3073b1c13537c93fe4e31dbc5b4ba07591",
-          "E10-seitlicher-kabelausgang.png": "fc5b7c715da3e191536a53310082dec3352fa7f2a0eeb270789628d10104d7cb",
+          "E04-base-51105-schnitt.png": "65963560a6e596212e5d2d95281e9741435abe2ffcaa7c69dbaf8cc8de54372d",
+          "E05-unterer-magnetrotor.png": "528bf7b416a1f49f922e3c4b918513e27f21067ba31e4b20db34254269831903",
+          "E06-generator-explosion.png": "88c775d807602e3ff427b25894310a3d2d9f910964c3c91f69f74cec56ca5d29",
+          "E07-generator-schnitt.png": "2356d3f7e717c530034054942e0844a579902635597d71b4f436da72610fd259",
+          "E08-kassettenrueckhaltung.png": "2dc47e9850c412bc98c938c46f7be7241b386d67067f63ed5b3ab8b3360d04fc",
+          "E09-deckelverschraubung.png": "3086897c40deddd98d41b7034ae3893cc437e23c49c6fc4936155a4937d84607",
+          "E10-seitlicher-kabelausgang.png": "cb01060ea015d76cca22a30570671b1c689e5419105de8832e72403bf39256d5",
           "E11-51105-passungsprobe.png": "84e81865f2a47921660c44451fba2962fbd0c4482954a69bf3f5f30554c6d9fd",
           "E12-608-passungsprobe.png": "58115e3a87cf9dc27baac4c45eade4c7ee418d5d19a11c23d7637c82599e5ee6",
           "E13-oberer-halter.png": "069747a9c501da37d8cb50da3c1869ff60cf35ff609c3835db69537ad6a0afb3",
-          "E14-zaunmontage.png": "175464bfa97cb4f41c604e25c13f4f87d33eaf34b1fbd9a8f41fd61a6793a2e9",
-          "E15-gesamtbaugruppe.png": "746afb69e71385efac18a400760b8447677f5eedfaf64857e786940acaa39d37"
+          "E14-zaunmontage.png": "4cb6fedd0c23104659da538a269b80d0b9e3ba125ff714949ae1c1b4219791b9",
+          "E15-gesamtbaugruppe.png": "ec1d1c780e981cc1b666e881018c2ccd1e8912b003b2a2bf47b0a32e49e5b1f4"
         },
         "embedded_images_match_release": 15,
         "figure_count": 15,
-        "figures_manifest_sha256": "1a72e4993c9b47cc13d5b5983f219c5f7c8394095624749b75e0fce33ad99f6b",
-        "geometry_manifest_sha256": "14f4fe404dc1e6df3f2e6a6c4a094d514bb6a8831f2a3018b1de873023508152",
+        "figures_manifest_sha256": "f5e8b57b622a5512a5324960043b27f3980464163f444e33672f2bd127b78d55",
+        "geometry_manifest_sha256": "d3ebcf774223300d5ab6d6ef4bd0229eebcfdc656b214923bb572568f2c84414",
         "image_binding_sha256_by_id": {
           "E01": "3bd83cac16ae79558b44aeb1df920c27e4df04aa093053a2f459d68a09d657ab",
           "E02": "b47f5e27529aacbc93fd76b4d1301cd0d59a24210c17baf40ed47657ad396c9f",
           "E03": "b27c5a451bb714dda736b67f47587a06440bd0e284ce8a6c6c888d0b5a06fae4",
-          "E04": "ecb47bee8580934d0453b5b8f5c3a32cf78c223cc8a418e29bc7f714a388c979",
-          "E05": "689f533572c2e8327d424c0965b639a2683031f366bf8c545447869d5b5f77be",
-          "E06": "d5fd542d0378f892b00a3223c68dc60d4c46185a18f4a965c768e314e71ef9cc",
-          "E07": "3addb41af307f4fa0ce28e94eec1b056410f0ad4977d272d2928980bb47188d1",
-          "E08": "6afaee92f6673ad20a4ed74e7fafe33f11ae109aa6e94930cc99d210a35b94cc",
-          "E09": "0414cc5b007db059eb8c3c2257beff3073b1c13537c93fe4e31dbc5b4ba07591",
-          "E10": "fc5b7c715da3e191536a53310082dec3352fa7f2a0eeb270789628d10104d7cb",
+          "E04": "65963560a6e596212e5d2d95281e9741435abe2ffcaa7c69dbaf8cc8de54372d",
+          "E05": "528bf7b416a1f49f922e3c4b918513e27f21067ba31e4b20db34254269831903",
+          "E06": "88c775d807602e3ff427b25894310a3d2d9f910964c3c91f69f74cec56ca5d29",
+          "E07": "2356d3f7e717c530034054942e0844a579902635597d71b4f436da72610fd259",
+          "E08": "2dc47e9850c412bc98c938c46f7be7241b386d67067f63ed5b3ab8b3360d04fc",
+          "E09": "3086897c40deddd98d41b7034ae3893cc437e23c49c6fc4936155a4937d84607",
+          "E10": "cb01060ea015d76cca22a30570671b1c689e5419105de8832e72403bf39256d5",
           "E11": "84e81865f2a47921660c44451fba2962fbd0c4482954a69bf3f5f30554c6d9fd",
           "E12": "58115e3a87cf9dc27baac4c45eade4c7ee418d5d19a11c23d7637c82599e5ee6",
           "E13": "069747a9c501da37d8cb50da3c1869ff60cf35ff609c3835db69537ad6a0afb3",
-          "E14": "175464bfa97cb4f41c604e25c13f4f87d33eaf34b1fbd9a8f41fd61a6793a2e9",
-          "E15": "746afb69e71385efac18a400760b8447677f5eedfaf64857e786940acaa39d37"
+          "E14": "4cb6fedd0c23104659da538a269b80d0b9e3ba125ff714949ae1c1b4219791b9",
+          "E15": "ec1d1c780e981cc1b666e881018c2ccd1e8912b003b2a2bf47b0a32e49e5b1f4"
         },
         "locale": "hi-IN",
         "margins_mm": [
@@ -814,9 +814,9 @@
         "render_exit_code": 1,
         "render_limitations": "Page layout, glyph rendering, pagination and PDF output remain unverified.",
         "rendered_page_count": 0,
-        "segment_count": 312,
-        "size_bytes": 4907412,
-        "source_manual_sha256": "0914e2e2d97f996f1338bcc5eff62d805a033c26ac0ea9f4925f4c0dd7fcc317",
+        "segment_count": 310,
+        "size_bytes": 4941728,
+        "source_manual_sha256": "eecdace0e859b82a434b0a1e1ad3fa747cdb411297721b3d15de3b57a00e64f3",
         "structural_checks_passed": true,
         "table_count": 11
       }
@@ -829,8 +829,8 @@
       "physical_validation_verified": false,
       "quantity": 1,
       "role": "documentation",
-      "sha256": "fd8b4b9e698d5a7a35b97a190432a3c07b223f1a752e5eac4960351589156eb3",
-      "size_bytes": 4905495,
+      "sha256": "096f6b600925ce2d747707f458f927279e5f3b731ece2dc4c07cb5025da89156",
+      "size_bytes": 4939735,
       "validation": {
         "accessibility_findings": {
           "high": 0,
@@ -838,48 +838,48 @@
           "medium": 0
         },
         "artifact_path": "release/v5/docs/Ugrinsky-Wind-Wall-V5-Manual-Spanish.docx",
-        "artifact_sha256": "fd8b4b9e698d5a7a35b97a190432a3c07b223f1a752e5eac4960351589156eb3",
+        "artifact_sha256": "096f6b600925ce2d747707f458f927279e5f3b731ece2dc4c07cb5025da89156",
         "canonical_zip_verified": true,
         "catalog_path": "scripts/manual/locales/es-ES.json",
-        "catalog_sha256": "8b6b55000dae91576b5c844f0d845db82130e99f0ff095721f27c4a432a6f052",
+        "catalog_sha256": "62db0b963ead40ce907d23d0d979b6f4012b26c454d8e972f545cb0d1c09c7ff",
         "chapter_count": 13,
         "drawing_sha256_by_filename": {
           "E01-rotorstapel.png": "3bd83cac16ae79558b44aeb1df920c27e4df04aa093053a2f459d68a09d657ab",
           "E02-modultypen.png": "b47f5e27529aacbc93fd76b4d1301cd0d59a24210c17baf40ed47657ad396c9f",
           "E03-bajonett-blattnaht.png": "b27c5a451bb714dda736b67f47587a06440bd0e284ce8a6c6c888d0b5a06fae4",
-          "E04-base-51105-schnitt.png": "ecb47bee8580934d0453b5b8f5c3a32cf78c223cc8a418e29bc7f714a388c979",
-          "E05-unterer-magnetrotor.png": "689f533572c2e8327d424c0965b639a2683031f366bf8c545447869d5b5f77be",
-          "E06-generator-explosion.png": "d5fd542d0378f892b00a3223c68dc60d4c46185a18f4a965c768e314e71ef9cc",
-          "E07-generator-schnitt.png": "3addb41af307f4fa0ce28e94eec1b056410f0ad4977d272d2928980bb47188d1",
-          "E08-kassettenrueckhaltung.png": "6afaee92f6673ad20a4ed74e7fafe33f11ae109aa6e94930cc99d210a35b94cc",
-          "E09-deckelverschraubung.png": "0414cc5b007db059eb8c3c2257beff3073b1c13537c93fe4e31dbc5b4ba07591",
-          "E10-seitlicher-kabelausgang.png": "fc5b7c715da3e191536a53310082dec3352fa7f2a0eeb270789628d10104d7cb",
+          "E04-base-51105-schnitt.png": "65963560a6e596212e5d2d95281e9741435abe2ffcaa7c69dbaf8cc8de54372d",
+          "E05-unterer-magnetrotor.png": "528bf7b416a1f49f922e3c4b918513e27f21067ba31e4b20db34254269831903",
+          "E06-generator-explosion.png": "88c775d807602e3ff427b25894310a3d2d9f910964c3c91f69f74cec56ca5d29",
+          "E07-generator-schnitt.png": "2356d3f7e717c530034054942e0844a579902635597d71b4f436da72610fd259",
+          "E08-kassettenrueckhaltung.png": "2dc47e9850c412bc98c938c46f7be7241b386d67067f63ed5b3ab8b3360d04fc",
+          "E09-deckelverschraubung.png": "3086897c40deddd98d41b7034ae3893cc437e23c49c6fc4936155a4937d84607",
+          "E10-seitlicher-kabelausgang.png": "cb01060ea015d76cca22a30570671b1c689e5419105de8832e72403bf39256d5",
           "E11-51105-passungsprobe.png": "84e81865f2a47921660c44451fba2962fbd0c4482954a69bf3f5f30554c6d9fd",
           "E12-608-passungsprobe.png": "58115e3a87cf9dc27baac4c45eade4c7ee418d5d19a11c23d7637c82599e5ee6",
           "E13-oberer-halter.png": "069747a9c501da37d8cb50da3c1869ff60cf35ff609c3835db69537ad6a0afb3",
-          "E14-zaunmontage.png": "175464bfa97cb4f41c604e25c13f4f87d33eaf34b1fbd9a8f41fd61a6793a2e9",
-          "E15-gesamtbaugruppe.png": "746afb69e71385efac18a400760b8447677f5eedfaf64857e786940acaa39d37"
+          "E14-zaunmontage.png": "4cb6fedd0c23104659da538a269b80d0b9e3ba125ff714949ae1c1b4219791b9",
+          "E15-gesamtbaugruppe.png": "ec1d1c780e981cc1b666e881018c2ccd1e8912b003b2a2bf47b0a32e49e5b1f4"
         },
         "embedded_images_match_release": 15,
         "figure_count": 15,
-        "figures_manifest_sha256": "1a72e4993c9b47cc13d5b5983f219c5f7c8394095624749b75e0fce33ad99f6b",
-        "geometry_manifest_sha256": "14f4fe404dc1e6df3f2e6a6c4a094d514bb6a8831f2a3018b1de873023508152",
+        "figures_manifest_sha256": "f5e8b57b622a5512a5324960043b27f3980464163f444e33672f2bd127b78d55",
+        "geometry_manifest_sha256": "d3ebcf774223300d5ab6d6ef4bd0229eebcfdc656b214923bb572568f2c84414",
         "image_binding_sha256_by_id": {
           "E01": "3bd83cac16ae79558b44aeb1df920c27e4df04aa093053a2f459d68a09d657ab",
           "E02": "b47f5e27529aacbc93fd76b4d1301cd0d59a24210c17baf40ed47657ad396c9f",
           "E03": "b27c5a451bb714dda736b67f47587a06440bd0e284ce8a6c6c888d0b5a06fae4",
-          "E04": "ecb47bee8580934d0453b5b8f5c3a32cf78c223cc8a418e29bc7f714a388c979",
-          "E05": "689f533572c2e8327d424c0965b639a2683031f366bf8c545447869d5b5f77be",
-          "E06": "d5fd542d0378f892b00a3223c68dc60d4c46185a18f4a965c768e314e71ef9cc",
-          "E07": "3addb41af307f4fa0ce28e94eec1b056410f0ad4977d272d2928980bb47188d1",
-          "E08": "6afaee92f6673ad20a4ed74e7fafe33f11ae109aa6e94930cc99d210a35b94cc",
-          "E09": "0414cc5b007db059eb8c3c2257beff3073b1c13537c93fe4e31dbc5b4ba07591",
-          "E10": "fc5b7c715da3e191536a53310082dec3352fa7f2a0eeb270789628d10104d7cb",
+          "E04": "65963560a6e596212e5d2d95281e9741435abe2ffcaa7c69dbaf8cc8de54372d",
+          "E05": "528bf7b416a1f49f922e3c4b918513e27f21067ba31e4b20db34254269831903",
+          "E06": "88c775d807602e3ff427b25894310a3d2d9f910964c3c91f69f74cec56ca5d29",
+          "E07": "2356d3f7e717c530034054942e0844a579902635597d71b4f436da72610fd259",
+          "E08": "2dc47e9850c412bc98c938c46f7be7241b386d67067f63ed5b3ab8b3360d04fc",
+          "E09": "3086897c40deddd98d41b7034ae3893cc437e23c49c6fc4936155a4937d84607",
+          "E10": "cb01060ea015d76cca22a30570671b1c689e5419105de8832e72403bf39256d5",
           "E11": "84e81865f2a47921660c44451fba2962fbd0c4482954a69bf3f5f30554c6d9fd",
           "E12": "58115e3a87cf9dc27baac4c45eade4c7ee418d5d19a11c23d7637c82599e5ee6",
           "E13": "069747a9c501da37d8cb50da3c1869ff60cf35ff609c3835db69537ad6a0afb3",
-          "E14": "175464bfa97cb4f41c604e25c13f4f87d33eaf34b1fbd9a8f41fd61a6793a2e9",
-          "E15": "746afb69e71385efac18a400760b8447677f5eedfaf64857e786940acaa39d37"
+          "E14": "4cb6fedd0c23104659da538a269b80d0b9e3ba125ff714949ae1c1b4219791b9",
+          "E15": "ec1d1c780e981cc1b666e881018c2ccd1e8912b003b2a2bf47b0a32e49e5b1f4"
         },
         "locale": "es-ES",
         "margins_mm": [
@@ -898,9 +898,9 @@
         "render_exit_code": 1,
         "render_limitations": "Page layout, glyph rendering, pagination and PDF output remain unverified.",
         "rendered_page_count": 0,
-        "segment_count": 312,
-        "size_bytes": 4905495,
-        "source_manual_sha256": "0914e2e2d97f996f1338bcc5eff62d805a033c26ac0ea9f4925f4c0dd7fcc317",
+        "segment_count": 310,
+        "size_bytes": 4939735,
+        "source_manual_sha256": "eecdace0e859b82a434b0a1e1ad3fa747cdb411297721b3d15de3b57a00e64f3",
         "structural_checks_passed": true,
         "table_count": 11
       }
@@ -974,15 +974,15 @@
       "path": "release/v5/drawings/E04-base-51105-schnitt.png",
       "quantity": 1,
       "role": "documentation",
-      "sha256": "ecb47bee8580934d0453b5b8f5c3a32cf78c223cc8a418e29bc7f714a388c979",
-      "size_bytes": 190082,
+      "sha256": "65963560a6e596212e5d2d95281e9741435abe2ffcaa7c69dbaf8cc8de54372d",
+      "size_bytes": 188462,
       "validation": {
         "inventory_dimensions_match": true,
         "png_decodes": true
       }
     },
     {
-      "caption": "Der separate untere Magnetrotor läuft vollständig innerhalb des Gehäuses unter der Spulenkassette.",
+      "caption": "Der untere Magnetträger läuft im Gehäuse; seine integrierte Hülse reicht durch die stationäre Mitte.",
       "dimensions_px": [
         2400,
         1680
@@ -993,8 +993,8 @@
       "path": "release/v5/drawings/E05-unterer-magnetrotor.png",
       "quantity": 1,
       "role": "documentation",
-      "sha256": "689f533572c2e8327d424c0965b639a2683031f366bf8c545447869d5b5f77be",
-      "size_bytes": 372973,
+      "sha256": "528bf7b416a1f49f922e3c4b918513e27f21067ba31e4b20db34254269831903",
+      "size_bytes": 370006,
       "validation": {
         "inventory_dimensions_match": true,
         "png_decodes": true
@@ -1012,8 +1012,8 @@
       "path": "release/v5/drawings/E06-generator-explosion.png",
       "quantity": 1,
       "role": "documentation",
-      "sha256": "d5fd542d0378f892b00a3223c68dc60d4c46185a18f4a965c768e314e71ef9cc",
-      "size_bytes": 435703,
+      "sha256": "88c775d807602e3ff427b25894310a3d2d9f910964c3c91f69f74cec56ca5d29",
+      "size_bytes": 440869,
       "validation": {
         "inventory_dimensions_match": true,
         "png_decodes": true
@@ -1031,8 +1031,8 @@
       "path": "release/v5/drawings/E07-generator-schnitt.png",
       "quantity": 1,
       "role": "documentation",
-      "sha256": "3addb41af307f4fa0ce28e94eec1b056410f0ad4977d272d2928980bb47188d1",
-      "size_bytes": 294600,
+      "sha256": "2356d3f7e717c530034054942e0844a579902635597d71b4f436da72610fd259",
+      "size_bytes": 302025,
       "validation": {
         "inventory_dimensions_match": true,
         "png_decodes": true
@@ -1050,15 +1050,15 @@
       "path": "release/v5/drawings/E08-kassettenrueckhaltung.png",
       "quantity": 1,
       "role": "documentation",
-      "sha256": "6afaee92f6673ad20a4ed74e7fafe33f11ae109aa6e94930cc99d210a35b94cc",
-      "size_bytes": 301084,
+      "sha256": "2dc47e9850c412bc98c938c46f7be7241b386d67067f63ed5b3ab8b3360d04fc",
+      "size_bytes": 314983,
       "validation": {
         "inventory_dimensions_match": true,
         "png_decodes": true
       }
     },
     {
-      "caption": "Sechs M4-Schrauben befestigen den stationären Deckel in gefangenen Muttern der Gehäuseaugen.",
+      "caption": "Vier M4-Schrauben befestigen den stationären Deckel; separate äußere Bohrungen befestigen das Gehäuse am Rahmen.",
       "dimensions_px": [
         2400,
         1680
@@ -1069,8 +1069,8 @@
       "path": "release/v5/drawings/E09-deckelverschraubung.png",
       "quantity": 1,
       "role": "documentation",
-      "sha256": "0414cc5b007db059eb8c3c2257beff3073b1c13537c93fe4e31dbc5b4ba07591",
-      "size_bytes": 285343,
+      "sha256": "3086897c40deddd98d41b7034ae3893cc437e23c49c6fc4936155a4937d84607",
+      "size_bytes": 275965,
       "validation": {
         "inventory_dimensions_match": true,
         "png_decodes": true
@@ -1088,8 +1088,8 @@
       "path": "release/v5/drawings/E10-seitlicher-kabelausgang.png",
       "quantity": 1,
       "role": "documentation",
-      "sha256": "fc5b7c715da3e191536a53310082dec3352fa7f2a0eeb270789628d10104d7cb",
-      "size_bytes": 289979,
+      "sha256": "cb01060ea015d76cca22a30570671b1c689e5419105de8832e72403bf39256d5",
+      "size_bytes": 313304,
       "validation": {
         "inventory_dimensions_match": true,
         "png_decodes": true
@@ -1164,8 +1164,8 @@
       "path": "release/v5/drawings/E14-zaunmontage.png",
       "quantity": 1,
       "role": "documentation",
-      "sha256": "175464bfa97cb4f41c604e25c13f4f87d33eaf34b1fbd9a8f41fd61a6793a2e9",
-      "size_bytes": 348132,
+      "sha256": "4cb6fedd0c23104659da538a269b80d0b9e3ba125ff714949ae1c1b4219791b9",
+      "size_bytes": 349060,
       "validation": {
         "inventory_dimensions_match": true,
         "png_decodes": true
@@ -1183,8 +1183,8 @@
       "path": "release/v5/drawings/E15-gesamtbaugruppe.png",
       "quantity": 1,
       "role": "documentation",
-      "sha256": "746afb69e71385efac18a400760b8447677f5eedfaf64857e786940acaa39d37",
-      "size_bytes": 419673,
+      "sha256": "ec1d1c780e981cc1b666e881018c2ccd1e8912b003b2a2bf47b0a32e49e5b1f4",
+      "size_bytes": 419676,
       "validation": {
         "inventory_dimensions_match": true,
         "png_decodes": true
@@ -1201,15 +1201,15 @@
       "kind": "drawing-manifest",
       "path": "release/v5/drawings/figures.json",
       "role": "inventory",
-      "sha256": "1a72e4993c9b47cc13d5b5983f219c5f7c8394095624749b75e0fce33ad99f6b",
-      "size_bytes": 240569
+      "sha256": "f5e8b57b622a5512a5324960043b27f3980464163f444e33672f2bd127b78d55",
+      "size_bytes": 228398
     },
     {
       "kind": "geometry-manifest",
       "path": "release/v5/manifest.json",
       "role": "inventory",
-      "sha256": "14f4fe404dc1e6df3f2e6a6c4a094d514bb6a8831f2a3018b1de873023508152",
-      "size_bytes": 306216
+      "sha256": "d3ebcf774223300d5ab6d6ef4bd0229eebcfdc656b214923bb572568f2c84414",
+      "size_bytes": 269219
     },
     {
       "dimensions_mm": {
@@ -1445,8 +1445,8 @@
       "physical_validation_verified": false,
       "quantity": 1,
       "role": "stationary",
-      "sha256": "15ba46b8d8a868e761dafcb443a3825a0850f9fa0bbef2e83bb6c28a8b99d4bb",
-      "size_bytes": 65905,
+      "sha256": "6c60d2c27c8f13189653c2be1d12c4a252ccd7b622b257cd0a584b858141d854",
+      "size_bytes": 387979,
       "validation": {
         "cad_solid_count": 1,
         "cad_valid": true,
@@ -1494,17 +1494,17 @@
     {
       "dimensions_mm": {
         "maximum_xyz": [
-          65.75575286112628,
+          75.0,
           75.0,
           51.349999999999994
         ],
         "minimum_xyz": [
-          -65.75575286112627,
+          -75.0,
           -75.0,
           37.15
         ],
         "size_xyz": [
-          131.51150572225254,
+          150.0,
           150.0,
           14.199999999999996
         ]
@@ -1515,8 +1515,8 @@
       "physical_validation_verified": false,
       "quantity": 1,
       "role": "stationary",
-      "sha256": "b44352cf5242e994d8c489b36b0fdd803199199bfcfa7856701432f81d641868",
-      "size_bytes": 108347,
+      "sha256": "3ec2d9dbf4c6f28a0dff5b8efdfb9d5366f3faf61b608251149426abd0c5fafb",
+      "size_bytes": 78210,
       "validation": {
         "cad_solid_count": 1,
         "cad_valid": true,
@@ -1550,8 +1550,8 @@
       "physical_validation_verified": false,
       "quantity": 1,
       "role": "stationary",
-      "sha256": "ea4300f6907636bbc3bc13ce808a5db5d240949c7d369f401d1e7bd774e48881",
-      "size_bytes": 376612,
+      "sha256": "f23fb084143892670e6930635b406058e0415bb25c67746a0447e0619737e4b5",
+      "size_bytes": 299859,
       "validation": {
         "cad_solid_count": 1,
         "cad_valid": true,
@@ -1636,7 +1636,7 @@
         "maximum_xyz": [
           53.0,
           53.0,
-          -27.0
+          -9.149999999999999
         ],
         "minimum_xyz": [
           -53.0,
@@ -1646,7 +1646,7 @@
         "size_xyz": [
           106.0,
           106.0,
-          10.0
+          27.85
         ]
       },
       "kind": "geometry",
@@ -1655,8 +1655,8 @@
       "physical_validation_verified": false,
       "quantity": 1,
       "role": "rotating",
-      "sha256": "d8c3b496f562b9670ba15b929dbde8e11a5e43b247ecaa32d23791fb2f4e74cf",
-      "size_bytes": 226407,
+      "sha256": "37e564fd0d59513cf51e83a81229a04b97069bdb070b6d960470fc59d6fff3ff",
+      "size_bytes": 231124,
       "validation": {
         "cad_solid_count": 1,
         "cad_valid": true,
@@ -1865,8 +1865,8 @@
       "physical_validation_verified": false,
       "quantity": 1,
       "role": "stationary",
-      "sha256": "015ea4b4ec9a3e448d8532d26feeafd8f480ddedcbc4482a2df60efbd40c050c",
-      "size_bytes": 113184,
+      "sha256": "3ee4a622c4a9aa37a7f50003b3ba76da71cf4ad32ee17db1af9d8f610d219a57",
+      "size_bytes": 501984,
       "validation": {
         "cad_solid_count": 1,
         "cad_valid": true,
@@ -1879,17 +1879,17 @@
     {
       "dimensions_mm": {
         "maximum_xyz": [
-          65.75575286112628,
+          75.0,
           75.0,
           51.349999999999994
         ],
         "minimum_xyz": [
-          -65.75575286112627,
+          -75.0,
           -75.0,
           37.15
         ],
         "size_xyz": [
-          131.51150572225254,
+          150.0,
           150.0,
           14.199999999999996
         ]
@@ -1900,8 +1900,8 @@
       "physical_validation_verified": false,
       "quantity": 1,
       "role": "stationary",
-      "sha256": "59c90ba5e0cb536845048a29f8402fde092cf410f155ff9aebc30de97e3aa005",
-      "size_bytes": 345084,
+      "sha256": "278de7f69071cf6f04adc1bff9e410b3d608635694773aedf353657ba9e82a97",
+      "size_bytes": 271484,
       "validation": {
         "cad_solid_count": 1,
         "cad_valid": true,
@@ -1935,8 +1935,8 @@
       "physical_validation_verified": false,
       "quantity": 1,
       "role": "stationary",
-      "sha256": "358e86c90d72212a5256fe939b578e01ac497cc0598026c96d26bf4d2df2ed39",
-      "size_bytes": 447884,
+      "sha256": "1af5d49ed84d493408d31dbf25b02ad529fcc019b94abac6c770271d4ad091aa",
+      "size_bytes": 372484,
       "validation": {
         "cad_solid_count": 1,
         "cad_valid": true,
@@ -1951,7 +1951,7 @@
         "maximum_xyz": [
           53.0,
           53.0,
-          -27.0
+          -9.149999999999999
         ],
         "minimum_xyz": [
           -53.0,
@@ -1961,7 +1961,7 @@
         "size_xyz": [
           106.0,
           106.0,
-          10.0
+          27.85
         ]
       },
       "kind": "geometry",
@@ -1970,8 +1970,8 @@
       "physical_validation_verified": false,
       "quantity": 1,
       "role": "rotating",
-      "sha256": "c120c0c55ed12da6c64cebfd988a60c31f6dca1fb75a09dc11e7b769d4b4a649",
-      "size_bytes": 442884,
+      "sha256": "82f5b06efe66f74629aeff0b3c917c0e1599e89bbaad65d5f1dfe38658ff33e9",
+      "size_bytes": 463884,
       "validation": {
         "cad_solid_count": 1,
         "cad_valid": true,

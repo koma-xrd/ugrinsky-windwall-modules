@@ -53,7 +53,7 @@ class AssemblyExportTests(unittest.TestCase):
             for name in ('rotor_locked','rotor_exploded'):
                 solid = cq.importers.importStep(str(destination / f'{name}.step')).val()
                 self.assertTrue(solid.isValid())
-                self.assertEqual(len(solid.Solids()),69)
+                self.assertEqual(len(solid.Solids()), 64)
             self.assertTrue(report['aerodynamic_seam_continuous'])
             for name in ('assembly_fit.json','assembly_inspection.png','top_clamp_section.svg'):
                 self.assertTrue((destination/name).is_file())

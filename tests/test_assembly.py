@@ -86,6 +86,12 @@ class AssemblyTests(unittest.TestCase):
         self.assertAlmostEqual(self.audit['lower_generator_air_gap_mm'], 1.5, places=5)
         self.assertLess(self.audit['generator_rotating_stationary_intersection_mm3'], 0.01)
         self.assertEqual(self.audit['generator_collision_report']['rotating_part_count'], len(a.rotating_parts))
+        self.assertEqual(self.audit.get('integral_lower_rotor_sleeve'), {
+            'outer_diameter_mm': 12.0,
+            'inner_diameter_mm': 8.8,
+            'height_mm': 17.85,
+            'separate_part_required': False,
+        })
 
     def test_exploded_view_is_a_preassembly_view_with_phased_separate_modules(self):
         exploded = build_exploded_rotor_assembly(DEFAULT_PARAMETERS, locked=self.assembly)

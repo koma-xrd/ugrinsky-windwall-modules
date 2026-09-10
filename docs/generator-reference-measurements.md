@@ -9,7 +9,7 @@ No reference mesh enters production CadQuery geometry.
 | External file | Measured features, mm | Reconstruction decision |
 | --- | --- | --- |
 | `3 magnet_ring (2).stl` | Envelope 103.994 x 103.994 x 10; disc z=0..3, floor z=0.998; 18 pockets approximately 11.004 diameter on radius 44.5; shaft hole 8.205; rear boss about 20 diameter | Regularize pockets to 11 x 2. Increase OD to 106 and floor to 3 for loaded walls. Use common 8.8 shaft bore, 34 hub and ribs; total height 10. |
-| `2 Coil_Former.stl` | Envelope 118 x 118 x 12; floor 2; cavity diameter 114.005; center bore 12.405; upper center opening 42.505, center boss OD60 | Reserve full winding zone as 118/12.4 x 12 annulus. Do not infer windings or exact cover nesting. |
+| `2 Coil_Former.stl` | Envelope 118 x 118 x 12; floor 2; cavity diameter 114.005; center bore 12.405; upper center opening 42.505, center boss OD60; 18 rounded guide contours at mid-height | Reconstruct the functional 18-island open serpentine guide in the removable cassette while retaining the V5 housing interface. |
 | `4 Stator_Cover_PLate.stl` | 112 OD, 62.005 ID, thickness 2 | Separate 112/62 x 2 annulus above former, conservative 14 total. |
 | `1 Base.stl` | 120 OD, cavity 114.006, height 27, floor 3 | Keep cup envelope, add parameterized through-bore/boss for shaft bearing reference. |
 | `5 Top_Bearing.stl` | Central bore 12.305, upper boss OD20, overall height14; outer fitting is noncircular | Does not identify an 8 mm bearing product. Reserve provisional 12 OD, 8 ID, 6 long sleeve in 12.3 seat; axial retention remains open. |

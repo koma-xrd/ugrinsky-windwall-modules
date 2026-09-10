@@ -164,15 +164,18 @@ class V5FigureTests(unittest.TestCase):
                                  'The actual rendered figure must contain both full polarity rings')
                 self.assertEqual(len(record.magnet_poles), 36)
                 parts = {part.name: part for part in record.parts}
-                self.assertLess(parts['lower_magnet_rotor'].display_bounds_mm[1][2],
+                self.assertLess(parts['lower_magnets'].display_bounds_mm[1][2],
                                 parts['winding_volume'].display_bounds_mm[0][2])
                 self.assertLess(parts['housing'].display_bounds_mm[0][2],
                                 parts['lower_magnet_rotor'].display_bounds_mm[0][2])
                 self.assertGreater(parts['housing'].display_bounds_mm[1][2],
-                                   parts['lower_magnet_rotor'].display_bounds_mm[1][2])
+                                   parts['lower_magnets'].display_bounds_mm[1][2])
                 for name in ('housing', 'coil_cassette', 'cover', 'winding_volume'):
                     self.assertEqual(parts[name].motion, 'stationary')
                 self.assertEqual(parts['lower_magnet_rotor'].motion, 'rotating')
+                self.assertNotIn('spacer', parts)
+            cover_fasteners = next(r for r in records if r.drawing_id == 'E09')
+            self.assertTrue(any('4 × M4' in label for label in cover_fasteners.callout_labels))
             upper = next(r for r in records if r.drawing_id == 'E13')
             self.assertTrue(any('von unten' in label for label in upper.callout_labels))
             self.assertTrue(any(part.name == 'upper_wood_frame_reference' for part in upper.parts))

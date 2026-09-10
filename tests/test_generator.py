@@ -15,14 +15,14 @@ class GeneratorTests(unittest.TestCase):
     def setUpClass(cls):
         cls.assembly = build_generator_assembly(DEFAULT_PARAMETERS)
 
-    def test_lower_rotor_is_wholly_inside_housing_below_stationary_coil(self):
+    def test_lower_carrier_is_inside_housing_and_integral_sleeve_clears_stator(self):
         a = self.assembly
         self.assertTrue(hasattr(a, 'housing'), 'V5 must contain a real stationary housing')
         housing, lower, coil = (shape.val().BoundingBox() for shape in
                                 (a.housing, a.lower_rotor, a.coil_cassette))
-        self.assertLess(lower.zmax, coil.zmin)
+        self.assertLess(a.magnets['lower'].val().BoundingBox().zmax, coil.zmin)
         self.assertLess(housing.zmin, lower.zmin)
-        self.assertGreater(housing.zmax, lower.zmax)
+        self.assertGreater(housing.zmax, a.magnets['lower'].val().BoundingBox().zmax)
         self.assertLess(lower.xlen, 121)
         self.assertLess(a.housing.intersect(a.lower_rotor).val().Volume(), 0.01)
         self.assertGreater(lower.zmin - housing.zmin, 3)
@@ -33,8 +33,9 @@ class GeneratorTests(unittest.TestCase):
         a = self.assembly
         self.assertTrue(hasattr(a, 'rotating_parts'), 'V5 must declare motion ownership')
         self.assertTrue(set(a.rotating_parts).isdisjoint(a.stationary_parts))
-        self.assertTrue({'base', 'lower_magnet_rotor', 'shaft', 'spacer',
+        self.assertTrue({'base', 'lower_magnet_rotor', 'shaft',
                          'upper_nut', 'lower_nut', '51105_shaft_washer'} <= set(a.rotating_parts))
+        self.assertNotIn('spacer', a.rotating_parts)
         self.assertTrue({'housing', 'coil_cassette', 'cover', 'winding_volume',
                          '51105_housing_washer'} <= set(a.stationary_parts))
         for name, stationary in a.stationary_parts.items():
@@ -57,7 +58,7 @@ class GeneratorTests(unittest.TestCase):
         self.assertAlmostEqual(a.winding_volume.val().BoundingBox().zmin, -25.5, places=5)
         self.assertAlmostEqual(a.winding_volume.val().BoundingBox().zmax, -14.5, places=5)
         self.assertAlmostEqual(a.coil_cassette.val().BoundingBox().zmin -
-                               a.lower_rotor.val().BoundingBox().zmax, 0.5, places=5)
+                               a.magnets['lower'].val().BoundingBox().zmax, 0.5, places=5)
         p = DEFAULT_PARAMETERS
         changed = replace(p, generator=replace(p.generator, upper_air_gap_mm=2.25,
                                                 lower_air_gap_mm=3.0))
@@ -136,6 +137,20 @@ class GeneratorTests(unittest.TestCase):
         self.assertGreater(a.base_module.nut_pocket_bottom_z_mm,
                            a.base_module.bearing_seat_bottom_z_mm)
         self.assertEqual(a.lower_rotor_nut_pocket_across_flats_mm, 13.3)
+
+    def test_lower_rotor_integrates_the_full_rotating_spacer_sleeve(self):
+        a = self.assembly
+        lower_face = a.magnets['lower'].val().BoundingBox().zmax
+        upper_nut_bottom = a.clamp_hardware['upper_nut'].val().BoundingBox().zmin
+        sleeve = (cq.Workplane('XY').circle(5.9).circle(4.5)
+                  .extrude(upper_nut_bottom - lower_face)
+                  .translate((0, 0, lower_face)))
+        self.assertLess(sleeve.cut(a.lower_rotor).val().Volume(), 0.01)
+        self.assertEqual(len(a.lower_rotor.val().Solids()), 1)
+        self.assertAlmostEqual(a.lower_rotor.val().BoundingBox().zmax,
+                               upper_nut_bottom, places=5)
+        self.assertLess(a.lower_rotor.intersect(a.shaft).val().Volume(), 0.01)
+        self.assertFalse(hasattr(a, 'spacer'))
 
     def test_magnet_pockets_face_stator_with_loaded_blind_floors(self):
         for shape, opening, direction in ((self.assembly.upper_carrier, -13, 1),

@@ -1,7 +1,7 @@
 {
   "release": "v5",
   "source_manifest": "release/v5/manifest.json",
-  "source_manifest_sha256": "14f4fe404dc1e6df3f2e6a6c4a094d514bb6a8831f2a3018b1de873023508152",
+  "source_manifest_sha256": "d3ebcf774223300d5ab6d6ef4bd0229eebcfdc656b214923bb572568f2c84414",
   "render_parameters": {
     "manufacturing": {
       "radial_clearance_mm": 0.3,
@@ -1049,24 +1049,24 @@
           "source_builder": "windwall.generator_housing.build_generator_cover",
           "source_bounds_mm": [
             [
-              -65.75575286112627,
+              -75.0,
               -75.0,
               -16.35
             ],
             [
-              65.75575286112628,
+              75.0,
               75.0,
               -2.150000000000002
             ]
           ],
           "display_bounds_mm": [
             [
-              -65.0,
-              -0.1500000000000199,
+              -75.0,
+              -0.15000000000001318,
               -16.35
             ],
             [
-              65.00000000000001,
+              75.0,
               0.15000000000002017,
               -2.1500000000000057
             ]
@@ -1237,14 +1237,14 @@
     {
       "drawing_id": "E05",
       "filename": "E05-unterer-magnetrotor.png",
-      "caption": "Der separate untere Magnetrotor läuft vollständig innerhalb des Gehäuses unter der Spulenkassette.",
-      "alt_text": "E05. Der separate untere Magnetrotor läuft vollständig innerhalb des Gehäuses unter der Spulenkassette. Gehäuse vorn aufgeschnitten; Kassette und Deckel zur Einsicht ausgeblendet. Geschlossener Gehäuseboden · stationär Unterer Träger · rotierend Magnete nach oben zur Spule · rotierend M8-Drehmomentmutter in Rückentasche (verdeckt) Distanzhülse auf der M8-Welle · rotierend",
+      "caption": "Der untere Magnetträger läuft im Gehäuse; seine integrierte Hülse reicht durch die stationäre Mitte.",
+      "alt_text": "E05. Der untere Magnetträger läuft im Gehäuse; seine integrierte Hülse reicht durch die stationäre Mitte. Gehäuse vorn aufgeschnitten; Kassette und Deckel zur Einsicht ausgeblendet. Geschlossener Gehäuseboden · stationär Unterer Träger · rotierend Magnete nach oben zur Spule · rotierend M8-Drehmomentmutter in Rückentasche (verdeckt) Integrierte Distanzhülse · rotierend",
       "callout_labels": [
         "Geschlossener Gehäuseboden · stationär",
         "Unterer Träger · rotierend",
         "Magnete nach oben zur Spule · rotierend",
         "M8-Drehmomentmutter in Rückentasche (verdeckt)",
-        "Distanzhülse auf der M8-Welle · rotierend"
+        "Integrierte Distanzhülse · rotierend"
       ],
       "rotation_state_legend": [
         "ROTIEREND · Rotor, Welle, M8-Klemmung (Ocker)",
@@ -1301,7 +1301,7 @@
             [
               53.0,
               53.0,
-              -27.0
+              -9.149999999999999
             ]
           ],
           "display_bounds_mm": [
@@ -1313,7 +1313,7 @@
             [
               53.0,
               53.0,
-              -27.0
+              -9.149999999999999
             ]
           ],
           "printable": true,
@@ -1378,38 +1378,6 @@
               7.505553499465135,
               6.500000000000001,
               -30.2
-            ]
-          ],
-          "printable": false,
-          "reference_note": "",
-          "installation_direction": null
-        },
-        {
-          "name": "spacer",
-          "motion": "rotating",
-          "source_builder": "windwall.assembly.build_locked_rotor_assembly",
-          "source_bounds_mm": [
-            [
-              -6.0,
-              -6.0,
-              -27.0
-            ],
-            [
-              6.0,
-              6.0,
-              -9.149999999999999
-            ]
-          ],
-          "display_bounds_mm": [
-            [
-              -6.0,
-              -6.0,
-              -27.0
-            ],
-            [
-              6.0,
-              6.0,
-              -9.149999999999999
             ]
           ],
           "printable": false,
@@ -1455,9 +1423,13 @@
           ]
         },
         {
-          "name": "spacer",
-          "label": "Distanzhülse auf der M8-Welle · rotierend",
-          "target": null,
+          "name": "lower_magnet_rotor",
+          "label": "Integrierte Distanzhülse · rotierend",
+          "target": [
+            0,
+            0,
+            -11.149999999999999
+          ],
           "marker_offset_mm": [
             0,
             0
@@ -1470,7 +1442,7 @@
       "drawing_id": "E06",
       "filename": "E06-generator-explosion.png",
       "caption": "Kassette, Deckel und Base sind angehoben; der untere Magnetrotor bleibt im aufgeschnittenen Gehäuse.",
-      "alt_text": "E06. Kassette, Deckel und Base sind angehoben; der untere Magnetrotor bleibt im aufgeschnittenen Gehäuse. Unterer Rotor unter der stationären Wicklung. Base-Blätter zur Lesbarkeit gekürzt. Base mit oberem Magnetträger · rotierend Deckel und 51105-Aufnahme · stationär Spulenkassette · stationär Aktiver Wicklungsraum · stationär Unterer Magnetrotor im Gehäuse · rotierend Gehäuse / Bodenlaschen · stationär 6 × M4-Deckelschraube (1 gezeigt) 6 × gefangene M4-Mutter (1 gezeigt) Beide Ringe haben 18 zur Wicklung weisende Pole, oben N S im Wechsel, unten S N. Gleiche Winkel in derselben +Z-Projektion tragen gegenüberliegende Pole; bei 0 Grad oben N und unten S, bei 20 Grad oben S und unten N.",
+      "alt_text": "E06. Kassette, Deckel und Base sind angehoben; der untere Magnetrotor bleibt im aufgeschnittenen Gehäuse. Unterer Rotor unter der stationären Wicklung. Base-Blätter zur Lesbarkeit gekürzt. Base mit oberem Magnetträger · rotierend Deckel und 51105-Aufnahme · stationär Spulenkassette · stationär Aktiver Wicklungsraum · stationär Unterer Magnetrotor im Gehäuse · rotierend Gehäuse / Bodenlaschen · stationär 4 × M4-Deckelschraube (1 gezeigt) 4 × gefangene M4-Mutter (1 gezeigt) Beide Ringe haben 18 zur Wicklung weisende Pole, oben N S im Wechsel, unten S N. Gleiche Winkel in derselben +Z-Projektion tragen gegenüberliegende Pole; bei 0 Grad oben N und unten S, bei 20 Grad oben S und unten N.",
       "callout_labels": [
         "Base mit oberem Magnetträger · rotierend",
         "Deckel und 51105-Aufnahme · stationär",
@@ -1478,8 +1450,8 @@
         "Aktiver Wicklungsraum · stationär",
         "Unterer Magnetrotor im Gehäuse · rotierend",
         "Gehäuse / Bodenlaschen · stationär",
-        "6 × M4-Deckelschraube (1 gezeigt)",
-        "6 × gefangene M4-Mutter (1 gezeigt)"
+        "4 × M4-Deckelschraube (1 gezeigt)",
+        "4 × gefangene M4-Mutter (1 gezeigt)"
       ],
       "rotation_state_legend": [
         "ROTIEREND · Rotor, Welle, M8-Klemmung (Ocker)",
@@ -1536,7 +1508,7 @@
             [
               53.0,
               53.0,
-              -27.0
+              -9.149999999999999
             ]
           ],
           "display_bounds_mm": [
@@ -1548,7 +1520,7 @@
             [
               53.0,
               53.0,
-              -27.0
+              -9.149999999999999
             ]
           ],
           "printable": true,
@@ -1613,38 +1585,6 @@
               7.505553499465135,
               6.500000000000001,
               -30.2
-            ]
-          ],
-          "printable": false,
-          "reference_note": "",
-          "installation_direction": null
-        },
-        {
-          "name": "spacer",
-          "motion": "rotating",
-          "source_builder": "windwall.assembly.build_locked_rotor_assembly",
-          "source_bounds_mm": [
-            [
-              -6.0,
-              -6.0,
-              -27.0
-            ],
-            [
-              6.0,
-              6.0,
-              -9.149999999999999
-            ]
-          ],
-          "display_bounds_mm": [
-            [
-              -6.0,
-              -6.0,
-              -27.0
-            ],
-            [
-              6.0,
-              6.0,
-              -9.149999999999999
             ]
           ],
           "printable": false,
@@ -1721,24 +1661,24 @@
           "source_builder": "windwall.generator_housing.build_generator_cover",
           "source_bounds_mm": [
             [
-              -65.75575286112627,
+              -75.0,
               -75.0,
               -16.35
             ],
             [
-              65.75575286112628,
+              75.0,
               75.0,
               -2.150000000000002
             ]
           ],
           "display_bounds_mm": [
             [
-              -65.75575286112627,
+              -75.0,
               -75.0,
               53.65
             ],
             [
-              65.75575286112628,
+              75.0,
               75.0,
               67.85
             ]
@@ -1945,25 +1885,25 @@
           "source_builder": "windwall.assembly.build_locked_rotor_assembly",
           "source_bounds_mm": [
             [
-              56.25575286112627,
-              30.999999999999993,
+              65.5,
+              -3.5,
               -53.3
             ],
             [
-              63.25575286112627,
-              37.99999999999999,
+              72.5,
+              3.5,
               -7.350000000000001
             ]
           ],
           "display_bounds_mm": [
             [
-              56.25575286112627,
-              30.999999999999993,
+              65.5,
+              -3.5,
               36.7
             ],
             [
-              63.25575286112627,
-              37.99999999999999,
+              72.5,
+              3.5,
               82.65
             ]
           ],
@@ -1977,25 +1917,25 @@
           "source_builder": "windwall.assembly.build_locked_rotor_assembly",
           "source_bounds_mm": [
             [
-              55.71430097679889,
-              30.99999999999999,
+              64.95854811567261,
+              -3.5000000000000018,
               -53.4
             ],
             [
-              63.79720474545365,
-              37.99999999999999,
+              73.04145188432739,
+              3.5000000000000004,
               -50.199999999999996
             ]
           ],
           "display_bounds_mm": [
             [
-              55.71430097679889,
-              30.99999999999999,
+              64.95854811567261,
+              -3.5000000000000018,
               36.6
             ],
             [
-              63.79720474545365,
-              37.99999999999999,
+              73.04145188432739,
+              3.5000000000000004,
               39.800000000000004
             ]
           ],
@@ -2061,7 +2001,7 @@
         },
         {
           "name": "cover_screw_1",
-          "label": "6 × M4-Deckelschraube (1 gezeigt)",
+          "label": "4 × M4-Deckelschraube (1 gezeigt)",
           "target": null,
           "marker_offset_mm": [
             0,
@@ -2070,7 +2010,7 @@
         },
         {
           "name": "cover_nut_1",
-          "label": "6 × gefangene M4-Mutter (1 gezeigt)",
+          "label": "4 × gefangene M4-Mutter (1 gezeigt)",
           "target": null,
           "marker_offset_mm": [
             0,
@@ -2726,19 +2666,19 @@
             [
               53.0,
               53.0,
-              -27.0
+              -9.149999999999999
             ]
           ],
           "display_bounds_mm": [
             [
               -53.0,
-              -0.1500000000000017,
+              -0.15000000000000344,
               -37.0
             ],
             [
               53.0,
               0.15000000000001246,
-              -27.0
+              -9.149999999999999
             ]
           ],
           "printable": true,
@@ -2771,38 +2711,6 @@
               4.0,
               0.15000000000000083,
               8.0
-            ]
-          ],
-          "printable": false,
-          "reference_note": "",
-          "installation_direction": null
-        },
-        {
-          "name": "spacer",
-          "motion": "rotating",
-          "source_builder": "windwall.assembly.build_locked_rotor_assembly",
-          "source_bounds_mm": [
-            [
-              -6.0,
-              -6.0,
-              -27.0
-            ],
-            [
-              6.0,
-              6.0,
-              -9.149999999999999
-            ]
-          ],
-          "display_bounds_mm": [
-            [
-              -6.0,
-              -0.15000000000000344,
-              -27.0
-            ],
-            [
-              6.0,
-              0.15000000000000005,
-              -9.149999999999999
             ]
           ],
           "printable": false,
@@ -3039,24 +2947,24 @@
           "source_builder": "windwall.generator_housing.build_generator_cover",
           "source_bounds_mm": [
             [
-              -65.75575286112627,
+              -75.0,
               -75.0,
               -16.35
             ],
             [
-              65.75575286112628,
+              75.0,
               75.0,
               -2.150000000000002
             ]
           ],
           "display_bounds_mm": [
             [
-              -65.0,
-              -0.1500000000000199,
+              -75.0,
+              -0.15000000000001318,
               -16.35
             ],
             [
-              65.00000000000001,
+              75.0,
               0.15000000000002017,
               -2.1500000000000057
             ]
@@ -3123,6 +3031,134 @@
               21.0,
               0.15000000000000255,
               -12.350000000000001
+            ]
+          ],
+          "printable": false,
+          "reference_note": "",
+          "installation_direction": null
+        },
+        {
+          "name": "cover_screw_1",
+          "motion": "stationary",
+          "source_builder": "windwall.assembly.build_locked_rotor_assembly",
+          "source_bounds_mm": [
+            [
+              65.5,
+              -3.5,
+              -53.3
+            ],
+            [
+              72.5,
+              3.5,
+              -7.350000000000001
+            ]
+          ],
+          "display_bounds_mm": [
+            [
+              65.5,
+              -0.15000000000000133,
+              -53.3
+            ],
+            [
+              72.5,
+              0.1500000000000008,
+              -7.350000000000001
+            ]
+          ],
+          "printable": false,
+          "reference_note": "",
+          "installation_direction": null
+        },
+        {
+          "name": "cover_nut_1",
+          "motion": "stationary",
+          "source_builder": "windwall.assembly.build_locked_rotor_assembly",
+          "source_bounds_mm": [
+            [
+              64.95854811567261,
+              -3.5000000000000018,
+              -53.4
+            ],
+            [
+              73.04145188432739,
+              3.5000000000000004,
+              -50.199999999999996
+            ]
+          ],
+          "display_bounds_mm": [
+            [
+              64.95854811567261,
+              -0.15000000000000277,
+              -53.4
+            ],
+            [
+              73.04145188432739,
+              0.1500000000000029,
+              -50.199999999999996
+            ]
+          ],
+          "printable": false,
+          "reference_note": "",
+          "installation_direction": null
+        },
+        {
+          "name": "cover_screw_3",
+          "motion": "stationary",
+          "source_builder": "windwall.assembly.build_locked_rotor_assembly",
+          "source_bounds_mm": [
+            [
+              -72.5,
+              -3.4999999999999916,
+              -53.3
+            ],
+            [
+              -65.5,
+              3.5000000000000084,
+              -7.350000000000001
+            ]
+          ],
+          "display_bounds_mm": [
+            [
+              -72.5,
+              -0.1500000000000022,
+              -53.3
+            ],
+            [
+              -65.5,
+              0.15000000000000038,
+              -7.350000000000001
+            ]
+          ],
+          "printable": false,
+          "reference_note": "",
+          "installation_direction": null
+        },
+        {
+          "name": "cover_nut_3",
+          "motion": "stationary",
+          "source_builder": "windwall.assembly.build_locked_rotor_assembly",
+          "source_bounds_mm": [
+            [
+              -73.04145188432739,
+              -3.4999999999999933,
+              -53.4
+            ],
+            [
+              -64.95854811567261,
+              3.500000000000009,
+              -50.199999999999996
+            ]
+          ],
+          "display_bounds_mm": [
+            [
+              -73.04145188432739,
+              -0.15000000000000113,
+              -53.4
+            ],
+            [
+              -64.95854811567261,
+              0.15000000000000002,
+              -50.199999999999996
             ]
           ],
           "printable": false,
@@ -3810,10 +3846,10 @@
       "drawing_id": "E08",
       "filename": "E08-kassettenrueckhaltung.png",
       "caption": "Die Kassette sitzt auf der Gehäuseschulter; der Deckel begrenzt den Hub nach oben.",
-      "alt_text": "E08. Die Kassette sitzt auf der Gehäuseschulter; der Deckel begrenzt den Hub nach oben. Der einzelne Schlüssel bei −X sperrt die Verdrehung. Passung am Segment-Coupon prüfen. Deckel hält die Kassette axial zurück Kassette mit einzelnem Verdrehsicherungssteg Gehäuseschulter und passende Schlüsselnut",
+      "alt_text": "E08. Die Kassette sitzt auf der Gehäuseschulter; der Deckel begrenzt den Hub nach oben. Der einzelne Schlüssel bei −X sperrt die Verdrehung. Passung am Segment-Coupon prüfen. Deckel hält die Kassette axial zurück Kassette mit 18 abgerundeten Führungskörpern Gehäuseschulter und passende Schlüsselnut",
       "callout_labels": [
         "Deckel hält die Kassette axial zurück",
-        "Kassette mit einzelnem Verdrehsicherungssteg",
+        "Kassette mit 18 abgerundeten Führungskörpern",
         "Gehäuseschulter und passende Schlüsselnut"
       ],
       "rotation_state_legend": [
@@ -3896,24 +3932,24 @@
           "source_builder": "windwall.generator_housing.build_generator_cover",
           "source_bounds_mm": [
             [
-              -65.75575286112627,
+              -75.0,
               -75.0,
               -16.35
             ],
             [
-              65.75575286112628,
+              75.0,
               75.0,
               -2.150000000000002
             ]
           ],
           "display_bounds_mm": [
             [
-              -65.75575286112627,
+              -75.0,
               -75.0,
               33.65
             ],
             [
-              65.75575286112628,
+              75.0,
               75.0,
               47.849999999999994
             ]
@@ -3935,7 +3971,7 @@
         },
         {
           "name": "coil_cassette",
-          "label": "Kassette mit einzelnem Verdrehsicherungssteg",
+          "label": "Kassette mit 18 abgerundeten Führungskörpern",
           "target": [
             -59,
             0,
@@ -3965,13 +4001,13 @@
     {
       "drawing_id": "E09",
       "filename": "E09-deckelverschraubung.png",
-      "caption": "Sechs M4-Schrauben befestigen den stationären Deckel in gefangenen Muttern der Gehäuseaugen.",
-      "alt_text": "E09. Sechs M4-Schrauben befestigen den stationären Deckel in gefangenen Muttern der Gehäuseaugen. Schrauben und Muttern sind Nennhüllen. Zugang von oben; reales Werkzeug prüfen. 6 × M4-Schraube · stationär Deckel mit sechs Durchgangsbohrungen Gehäuseaugen mit Sechskanttaschen 6 × gefangene M4-Mutter · stationär",
+      "caption": "Vier M4-Schrauben befestigen den stationären Deckel; separate äußere Bohrungen befestigen das Gehäuse am Rahmen.",
+      "alt_text": "E09. Vier M4-Schrauben befestigen den stationären Deckel; separate äußere Bohrungen befestigen das Gehäuse am Rahmen. Boss und Rahmenbohrung liegen auf derselben radialen Achse. Zugang von oben; reales Werkzeug prüfen. 4 × M4-Schraube · stationär Deckel mit vier Durchgangsbohrungen Verstärkte Boss-Laschen-Achsen 4 × gefangene M4-Mutter · stationär",
       "callout_labels": [
-        "6 × M4-Schraube · stationär",
-        "Deckel mit sechs Durchgangsbohrungen",
-        "Gehäuseaugen mit Sechskanttaschen",
-        "6 × gefangene M4-Mutter · stationär"
+        "4 × M4-Schraube · stationär",
+        "Deckel mit vier Durchgangsbohrungen",
+        "Verstärkte Boss-Laschen-Achsen",
+        "4 × gefangene M4-Mutter · stationär"
       ],
       "rotation_state_legend": [
         "ROTIEREND · Rotor, Welle, M8-Klemmung (Ocker)",
@@ -4021,24 +4057,24 @@
           "source_builder": "windwall.generator_housing.build_generator_cover",
           "source_bounds_mm": [
             [
-              -65.75575286112627,
+              -75.0,
               -75.0,
               -16.35
             ],
             [
-              65.75575286112628,
+              75.0,
               75.0,
               -2.150000000000002
             ]
           ],
           "display_bounds_mm": [
             [
-              -65.75575286112627,
+              -75.0,
               -75.0,
               15.649999999999999
             ],
             [
-              65.75575286112628,
+              75.0,
               75.0,
               29.849999999999998
             ]
@@ -4053,25 +4089,25 @@
           "source_builder": "windwall.assembly.build_locked_rotor_assembly",
           "source_bounds_mm": [
             [
-              56.25575286112627,
-              30.999999999999993,
+              65.5,
+              -3.5,
               -53.3
             ],
             [
-              63.25575286112627,
-              37.99999999999999,
+              72.5,
+              3.5,
               -7.350000000000001
             ]
           ],
           "display_bounds_mm": [
             [
-              56.25575286112627,
-              30.999999999999993,
+              65.5,
+              -3.5,
               1.7000000000000028
             ],
             [
-              63.25575286112627,
-              37.99999999999999,
+              72.5,
+              3.5,
               47.65
             ]
           ],
@@ -4117,25 +4153,25 @@
           "source_builder": "windwall.assembly.build_locked_rotor_assembly",
           "source_bounds_mm": [
             [
-              -63.255752861126254,
-              31.00000000000002,
+              -72.5,
+              -3.4999999999999916,
               -53.3
             ],
             [
-              -56.255752861126254,
-              38.00000000000002,
+              -65.5,
+              3.5000000000000084,
               -7.350000000000001
             ]
           ],
           "display_bounds_mm": [
             [
-              -63.255752861126254,
-              31.00000000000002,
+              -72.5,
+              -3.4999999999999916,
               1.7000000000000028
             ],
             [
-              -56.255752861126254,
-              38.00000000000002,
+              -65.5,
+              3.5000000000000084,
               47.65
             ]
           ],
@@ -4149,38 +4185,6 @@
           "source_builder": "windwall.assembly.build_locked_rotor_assembly",
           "source_bounds_mm": [
             [
-              -63.255752861126275,
-              -37.99999999999998,
-              -53.3
-            ],
-            [
-              -56.255752861126275,
-              -30.99999999999998,
-              -7.350000000000001
-            ]
-          ],
-          "display_bounds_mm": [
-            [
-              -63.255752861126275,
-              -37.99999999999998,
-              1.7000000000000028
-            ],
-            [
-              -56.255752861126275,
-              -30.99999999999998,
-              47.65
-            ]
-          ],
-          "printable": false,
-          "reference_note": "",
-          "installation_direction": null
-        },
-        {
-          "name": "cover_screw_5",
-          "motion": "stationary",
-          "source_builder": "windwall.assembly.build_locked_rotor_assembly",
-          "source_bounds_mm": [
-            [
               -3.500000000000013,
               -72.5,
               -53.3
@@ -4200,38 +4204,6 @@
             [
               3.499999999999987,
               -65.5,
-              47.65
-            ]
-          ],
-          "printable": false,
-          "reference_note": "",
-          "installation_direction": null
-        },
-        {
-          "name": "cover_screw_6",
-          "motion": "stationary",
-          "source_builder": "windwall.assembly.build_locked_rotor_assembly",
-          "source_bounds_mm": [
-            [
-              56.255752861126275,
-              -37.99999999999998,
-              -53.3
-            ],
-            [
-              63.255752861126275,
-              -30.99999999999998,
-              -7.350000000000001
-            ]
-          ],
-          "display_bounds_mm": [
-            [
-              56.255752861126275,
-              -37.99999999999998,
-              1.7000000000000028
-            ],
-            [
-              63.255752861126275,
-              -30.99999999999998,
               47.65
             ]
           ],
@@ -4245,25 +4217,25 @@
           "source_builder": "windwall.assembly.build_locked_rotor_assembly",
           "source_bounds_mm": [
             [
-              55.71430097679889,
-              30.99999999999999,
+              64.95854811567261,
+              -3.5000000000000018,
               -53.4
             ],
             [
-              63.79720474545365,
-              37.99999999999999,
+              73.04145188432739,
+              3.5000000000000004,
               -50.199999999999996
             ]
           ],
           "display_bounds_mm": [
             [
-              55.71430097679889,
-              30.99999999999999,
+              64.95854811567261,
+              -3.5000000000000018,
               -88.4
             ],
             [
-              63.79720474545365,
-              37.99999999999999,
+              73.04145188432739,
+              3.5000000000000004,
               -85.2
             ]
           ],
@@ -4309,25 +4281,25 @@
           "source_builder": "windwall.assembly.build_locked_rotor_assembly",
           "source_bounds_mm": [
             [
-              -63.797204745453634,
-              31.000000000000018,
+              -73.04145188432739,
+              -3.4999999999999933,
               -53.4
             ],
             [
-              -55.714300976798874,
-              38.00000000000002,
+              -64.95854811567261,
+              3.500000000000009,
               -50.199999999999996
             ]
           ],
           "display_bounds_mm": [
             [
-              -63.797204745453634,
-              31.000000000000018,
+              -73.04145188432739,
+              -3.4999999999999933,
               -88.4
             ],
             [
-              -55.714300976798874,
-              38.00000000000002,
+              -64.95854811567261,
+              3.500000000000009,
               -85.2
             ]
           ],
@@ -4341,38 +4313,6 @@
           "source_builder": "windwall.assembly.build_locked_rotor_assembly",
           "source_bounds_mm": [
             [
-              -63.797204745453655,
-              -37.99999999999998,
-              -53.4
-            ],
-            [
-              -55.714300976798896,
-              -30.99999999999998,
-              -50.199999999999996
-            ]
-          ],
-          "display_bounds_mm": [
-            [
-              -63.797204745453655,
-              -37.99999999999998,
-              -88.4
-            ],
-            [
-              -55.714300976798896,
-              -30.99999999999998,
-              -85.2
-            ]
-          ],
-          "printable": false,
-          "reference_note": "",
-          "installation_direction": null
-        },
-        {
-          "name": "cover_nut_5",
-          "motion": "stationary",
-          "source_builder": "windwall.assembly.build_locked_rotor_assembly",
-          "source_bounds_mm": [
-            [
               -4.041451884327394,
               -72.5,
               -53.4
@@ -4392,38 +4332,6 @@
             [
               4.041451884327368,
               -65.5,
-              -85.2
-            ]
-          ],
-          "printable": false,
-          "reference_note": "",
-          "installation_direction": null
-        },
-        {
-          "name": "cover_nut_6",
-          "motion": "stationary",
-          "source_builder": "windwall.assembly.build_locked_rotor_assembly",
-          "source_bounds_mm": [
-            [
-              55.714300976798896,
-              -37.99999999999998,
-              -53.4
-            ],
-            [
-              63.797204745453655,
-              -30.99999999999998,
-              -50.199999999999996
-            ]
-          ],
-          "display_bounds_mm": [
-            [
-              55.714300976798896,
-              -37.99999999999998,
-              -88.4
-            ],
-            [
-              63.797204745453655,
-              -30.99999999999998,
               -85.2
             ]
           ],
@@ -4435,7 +4343,7 @@
       "callouts": [
         {
           "name": "cover_screw_1",
-          "label": "6 × M4-Schraube · stationär",
+          "label": "4 × M4-Schraube · stationär",
           "target": null,
           "marker_offset_mm": [
             0,
@@ -4444,7 +4352,7 @@
         },
         {
           "name": "cover",
-          "label": "Deckel mit sechs Durchgangsbohrungen",
+          "label": "Deckel mit vier Durchgangsbohrungen",
           "target": null,
           "marker_offset_mm": [
             0,
@@ -4453,10 +4361,10 @@
         },
         {
           "name": "housing",
-          "label": "Gehäuseaugen mit Sechskanttaschen",
+          "label": "Verstärkte Boss-Laschen-Achsen",
           "target": [
-            59.75575286112627,
-            34.49999999999999,
+            69.0,
+            0.0,
             -50.1
           ],
           "marker_offset_mm": [
@@ -4466,7 +4374,7 @@
         },
         {
           "name": "cover_nut_1",
-          "label": "6 × gefangene M4-Mutter · stationär",
+          "label": "4 × gefangene M4-Mutter · stationär",
           "target": null,
           "marker_offset_mm": [
             0,
@@ -5426,7 +5334,7 @@
             [
               53.0,
               53.0,
-              -27.0
+              -9.149999999999999
             ]
           ],
           "display_bounds_mm": [
@@ -5438,7 +5346,7 @@
             [
               53.0,
               53.0,
-              -27.0
+              -9.149999999999999
             ]
           ],
           "printable": true,
@@ -5471,38 +5379,6 @@
               4.0,
               4.0,
               513.3
-            ]
-          ],
-          "printable": false,
-          "reference_note": "",
-          "installation_direction": null
-        },
-        {
-          "name": "spacer",
-          "motion": "rotating",
-          "source_builder": "windwall.assembly.build_locked_rotor_assembly",
-          "source_bounds_mm": [
-            [
-              -6.0,
-              -6.0,
-              -27.0
-            ],
-            [
-              6.0,
-              6.0,
-              -9.149999999999999
-            ]
-          ],
-          "display_bounds_mm": [
-            [
-              -6.0,
-              -6.0,
-              -27.0
-            ],
-            [
-              6.0,
-              6.0,
-              -9.149999999999999
             ]
           ],
           "printable": false,
@@ -5739,24 +5615,24 @@
           "source_builder": "windwall.generator_housing.build_generator_cover",
           "source_bounds_mm": [
             [
-              -65.75575286112627,
+              -75.0,
               -75.0,
               -16.35
             ],
             [
-              65.75575286112628,
+              75.0,
               75.0,
               -2.150000000000002
             ]
           ],
           "display_bounds_mm": [
             [
-              -65.75575286112627,
+              -75.0,
               -75.0,
               -16.35
             ],
             [
-              65.75575286112628,
+              75.0,
               75.0,
               -2.150000000000002
             ]
@@ -5835,25 +5711,25 @@
           "source_builder": "windwall.assembly.build_locked_rotor_assembly",
           "source_bounds_mm": [
             [
-              56.25575286112627,
-              30.999999999999993,
+              65.5,
+              -3.5,
               -53.3
             ],
             [
-              63.25575286112627,
-              37.99999999999999,
+              72.5,
+              3.5,
               -7.350000000000001
             ]
           ],
           "display_bounds_mm": [
             [
-              56.25575286112627,
-              30.999999999999993,
+              65.5,
+              -3.5,
               -53.3
             ],
             [
-              63.25575286112627,
-              37.99999999999999,
+              72.5,
+              3.5,
               -7.350000000000001
             ]
           ],
@@ -5867,25 +5743,25 @@
           "source_builder": "windwall.assembly.build_locked_rotor_assembly",
           "source_bounds_mm": [
             [
-              55.71430097679889,
-              30.99999999999999,
+              64.95854811567261,
+              -3.5000000000000018,
               -53.4
             ],
             [
-              63.79720474545365,
-              37.99999999999999,
+              73.04145188432739,
+              3.5000000000000004,
               -50.199999999999996
             ]
           ],
           "display_bounds_mm": [
             [
-              55.71430097679889,
-              30.99999999999999,
+              64.95854811567261,
+              -3.5000000000000018,
               -53.4
             ],
             [
-              63.79720474545365,
-              37.99999999999999,
+              73.04145188432739,
+              3.5000000000000004,
               -50.199999999999996
             ]
           ],
@@ -5963,25 +5839,25 @@
           "source_builder": "windwall.assembly.build_locked_rotor_assembly",
           "source_bounds_mm": [
             [
-              -63.255752861126254,
-              31.00000000000002,
+              -72.5,
+              -3.4999999999999916,
               -53.3
             ],
             [
-              -56.255752861126254,
-              38.00000000000002,
+              -65.5,
+              3.5000000000000084,
               -7.350000000000001
             ]
           ],
           "display_bounds_mm": [
             [
-              -63.255752861126254,
-              31.00000000000002,
+              -72.5,
+              -3.4999999999999916,
               -53.3
             ],
             [
-              -56.255752861126254,
-              38.00000000000002,
+              -65.5,
+              3.5000000000000084,
               -7.350000000000001
             ]
           ],
@@ -5995,25 +5871,25 @@
           "source_builder": "windwall.assembly.build_locked_rotor_assembly",
           "source_bounds_mm": [
             [
-              -63.797204745453634,
-              31.000000000000018,
+              -73.04145188432739,
+              -3.4999999999999933,
               -53.4
             ],
             [
-              -55.714300976798874,
-              38.00000000000002,
+              -64.95854811567261,
+              3.500000000000009,
               -50.199999999999996
             ]
           ],
           "display_bounds_mm": [
             [
-              -63.797204745453634,
-              31.000000000000018,
+              -73.04145188432739,
+              -3.4999999999999933,
               -53.4
             ],
             [
-              -55.714300976798874,
-              38.00000000000002,
+              -64.95854811567261,
+              3.500000000000009,
               -50.199999999999996
             ]
           ],
@@ -6027,25 +5903,25 @@
           "source_builder": "windwall.assembly.build_locked_rotor_assembly",
           "source_bounds_mm": [
             [
-              -63.255752861126275,
-              -37.99999999999998,
+              -3.500000000000013,
+              -72.5,
               -53.3
             ],
             [
-              -56.255752861126275,
-              -30.99999999999998,
+              3.499999999999987,
+              -65.5,
               -7.350000000000001
             ]
           ],
           "display_bounds_mm": [
             [
-              -63.255752861126275,
-              -37.99999999999998,
+              -3.500000000000013,
+              -72.5,
               -53.3
             ],
             [
-              -56.255752861126275,
-              -30.99999999999998,
+              3.499999999999987,
+              -65.5,
               -7.350000000000001
             ]
           ],
@@ -6059,70 +5935,6 @@
           "source_builder": "windwall.assembly.build_locked_rotor_assembly",
           "source_bounds_mm": [
             [
-              -63.797204745453655,
-              -37.99999999999998,
-              -53.4
-            ],
-            [
-              -55.714300976798896,
-              -30.99999999999998,
-              -50.199999999999996
-            ]
-          ],
-          "display_bounds_mm": [
-            [
-              -63.797204745453655,
-              -37.99999999999998,
-              -53.4
-            ],
-            [
-              -55.714300976798896,
-              -30.99999999999998,
-              -50.199999999999996
-            ]
-          ],
-          "printable": false,
-          "reference_note": "",
-          "installation_direction": null
-        },
-        {
-          "name": "cover_screw_5",
-          "motion": "stationary",
-          "source_builder": "windwall.assembly.build_locked_rotor_assembly",
-          "source_bounds_mm": [
-            [
-              -3.500000000000013,
-              -72.5,
-              -53.3
-            ],
-            [
-              3.499999999999987,
-              -65.5,
-              -7.350000000000001
-            ]
-          ],
-          "display_bounds_mm": [
-            [
-              -3.500000000000013,
-              -72.5,
-              -53.3
-            ],
-            [
-              3.499999999999987,
-              -65.5,
-              -7.350000000000001
-            ]
-          ],
-          "printable": false,
-          "reference_note": "",
-          "installation_direction": null
-        },
-        {
-          "name": "cover_nut_5",
-          "motion": "stationary",
-          "source_builder": "windwall.assembly.build_locked_rotor_assembly",
-          "source_bounds_mm": [
-            [
               -4.041451884327394,
               -72.5,
               -53.4
@@ -6142,70 +5954,6 @@
             [
               4.041451884327368,
               -65.5,
-              -50.199999999999996
-            ]
-          ],
-          "printable": false,
-          "reference_note": "",
-          "installation_direction": null
-        },
-        {
-          "name": "cover_screw_6",
-          "motion": "stationary",
-          "source_builder": "windwall.assembly.build_locked_rotor_assembly",
-          "source_bounds_mm": [
-            [
-              56.255752861126275,
-              -37.99999999999998,
-              -53.3
-            ],
-            [
-              63.255752861126275,
-              -30.99999999999998,
-              -7.350000000000001
-            ]
-          ],
-          "display_bounds_mm": [
-            [
-              56.255752861126275,
-              -37.99999999999998,
-              -53.3
-            ],
-            [
-              63.255752861126275,
-              -30.99999999999998,
-              -7.350000000000001
-            ]
-          ],
-          "printable": false,
-          "reference_note": "",
-          "installation_direction": null
-        },
-        {
-          "name": "cover_nut_6",
-          "motion": "stationary",
-          "source_builder": "windwall.assembly.build_locked_rotor_assembly",
-          "source_bounds_mm": [
-            [
-              55.714300976798896,
-              -37.99999999999998,
-              -53.4
-            ],
-            [
-              63.797204745453655,
-              -30.99999999999998,
-              -50.199999999999996
-            ]
-          ],
-          "display_bounds_mm": [
-            [
-              55.714300976798896,
-              -37.99999999999998,
-              -53.4
-            ],
-            [
-              63.797204745453655,
-              -30.99999999999998,
               -50.199999999999996
             ]
           ],
@@ -7225,7 +6973,7 @@
             [
               53.0,
               53.0,
-              -27.0
+              -9.149999999999999
             ]
           ],
           "display_bounds_mm": [
@@ -7237,7 +6985,7 @@
             [
               53.0,
               53.0,
-              -27.0
+              -9.149999999999999
             ]
           ],
           "printable": true,
@@ -7270,38 +7018,6 @@
               4.0,
               4.0,
               513.3
-            ]
-          ],
-          "printable": false,
-          "reference_note": "",
-          "installation_direction": null
-        },
-        {
-          "name": "spacer",
-          "motion": "rotating",
-          "source_builder": "windwall.assembly.build_locked_rotor_assembly",
-          "source_bounds_mm": [
-            [
-              -6.0,
-              -6.0,
-              -27.0
-            ],
-            [
-              6.0,
-              6.0,
-              -9.149999999999999
-            ]
-          ],
-          "display_bounds_mm": [
-            [
-              -6.0,
-              -6.0,
-              -27.0
-            ],
-            [
-              6.0,
-              6.0,
-              -9.149999999999999
             ]
           ],
           "printable": false,
@@ -7538,24 +7254,24 @@
           "source_builder": "windwall.generator_housing.build_generator_cover",
           "source_bounds_mm": [
             [
-              -65.75575286112627,
+              -75.0,
               -75.0,
               -16.35
             ],
             [
-              65.75575286112628,
+              75.0,
               75.0,
               -2.150000000000002
             ]
           ],
           "display_bounds_mm": [
             [
-              -65.75575286112627,
+              -75.0,
               -75.0,
               -16.35
             ],
             [
-              65.75575286112628,
+              75.0,
               75.0,
               -2.150000000000002
             ]
@@ -7634,25 +7350,25 @@
           "source_builder": "windwall.assembly.build_locked_rotor_assembly",
           "source_bounds_mm": [
             [
-              56.25575286112627,
-              30.999999999999993,
+              65.5,
+              -3.5,
               -53.3
             ],
             [
-              63.25575286112627,
-              37.99999999999999,
+              72.5,
+              3.5,
               -7.350000000000001
             ]
           ],
           "display_bounds_mm": [
             [
-              56.25575286112627,
-              30.999999999999993,
+              65.5,
+              -3.5,
               -53.3
             ],
             [
-              63.25575286112627,
-              37.99999999999999,
+              72.5,
+              3.5,
               -7.350000000000001
             ]
           ],
@@ -7666,25 +7382,25 @@
           "source_builder": "windwall.assembly.build_locked_rotor_assembly",
           "source_bounds_mm": [
             [
-              55.71430097679889,
-              30.99999999999999,
+              64.95854811567261,
+              -3.5000000000000018,
               -53.4
             ],
             [
-              63.79720474545365,
-              37.99999999999999,
+              73.04145188432739,
+              3.5000000000000004,
               -50.199999999999996
             ]
           ],
           "display_bounds_mm": [
             [
-              55.71430097679889,
-              30.99999999999999,
+              64.95854811567261,
+              -3.5000000000000018,
               -53.4
             ],
             [
-              63.79720474545365,
-              37.99999999999999,
+              73.04145188432739,
+              3.5000000000000004,
               -50.199999999999996
             ]
           ],
@@ -7762,25 +7478,25 @@
           "source_builder": "windwall.assembly.build_locked_rotor_assembly",
           "source_bounds_mm": [
             [
-              -63.255752861126254,
-              31.00000000000002,
+              -72.5,
+              -3.4999999999999916,
               -53.3
             ],
             [
-              -56.255752861126254,
-              38.00000000000002,
+              -65.5,
+              3.5000000000000084,
               -7.350000000000001
             ]
           ],
           "display_bounds_mm": [
             [
-              -63.255752861126254,
-              31.00000000000002,
+              -72.5,
+              -3.4999999999999916,
               -53.3
             ],
             [
-              -56.255752861126254,
-              38.00000000000002,
+              -65.5,
+              3.5000000000000084,
               -7.350000000000001
             ]
           ],
@@ -7794,25 +7510,25 @@
           "source_builder": "windwall.assembly.build_locked_rotor_assembly",
           "source_bounds_mm": [
             [
-              -63.797204745453634,
-              31.000000000000018,
+              -73.04145188432739,
+              -3.4999999999999933,
               -53.4
             ],
             [
-              -55.714300976798874,
-              38.00000000000002,
+              -64.95854811567261,
+              3.500000000000009,
               -50.199999999999996
             ]
           ],
           "display_bounds_mm": [
             [
-              -63.797204745453634,
-              31.000000000000018,
+              -73.04145188432739,
+              -3.4999999999999933,
               -53.4
             ],
             [
-              -55.714300976798874,
-              38.00000000000002,
+              -64.95854811567261,
+              3.500000000000009,
               -50.199999999999996
             ]
           ],
@@ -7826,25 +7542,25 @@
           "source_builder": "windwall.assembly.build_locked_rotor_assembly",
           "source_bounds_mm": [
             [
-              -63.255752861126275,
-              -37.99999999999998,
+              -3.500000000000013,
+              -72.5,
               -53.3
             ],
             [
-              -56.255752861126275,
-              -30.99999999999998,
+              3.499999999999987,
+              -65.5,
               -7.350000000000001
             ]
           ],
           "display_bounds_mm": [
             [
-              -63.255752861126275,
-              -37.99999999999998,
+              -3.500000000000013,
+              -72.5,
               -53.3
             ],
             [
-              -56.255752861126275,
-              -30.99999999999998,
+              3.499999999999987,
+              -65.5,
               -7.350000000000001
             ]
           ],
@@ -7858,70 +7574,6 @@
           "source_builder": "windwall.assembly.build_locked_rotor_assembly",
           "source_bounds_mm": [
             [
-              -63.797204745453655,
-              -37.99999999999998,
-              -53.4
-            ],
-            [
-              -55.714300976798896,
-              -30.99999999999998,
-              -50.199999999999996
-            ]
-          ],
-          "display_bounds_mm": [
-            [
-              -63.797204745453655,
-              -37.99999999999998,
-              -53.4
-            ],
-            [
-              -55.714300976798896,
-              -30.99999999999998,
-              -50.199999999999996
-            ]
-          ],
-          "printable": false,
-          "reference_note": "",
-          "installation_direction": null
-        },
-        {
-          "name": "cover_screw_5",
-          "motion": "stationary",
-          "source_builder": "windwall.assembly.build_locked_rotor_assembly",
-          "source_bounds_mm": [
-            [
-              -3.500000000000013,
-              -72.5,
-              -53.3
-            ],
-            [
-              3.499999999999987,
-              -65.5,
-              -7.350000000000001
-            ]
-          ],
-          "display_bounds_mm": [
-            [
-              -3.500000000000013,
-              -72.5,
-              -53.3
-            ],
-            [
-              3.499999999999987,
-              -65.5,
-              -7.350000000000001
-            ]
-          ],
-          "printable": false,
-          "reference_note": "",
-          "installation_direction": null
-        },
-        {
-          "name": "cover_nut_5",
-          "motion": "stationary",
-          "source_builder": "windwall.assembly.build_locked_rotor_assembly",
-          "source_bounds_mm": [
-            [
               -4.041451884327394,
               -72.5,
               -53.4
@@ -7941,70 +7593,6 @@
             [
               4.041451884327368,
               -65.5,
-              -50.199999999999996
-            ]
-          ],
-          "printable": false,
-          "reference_note": "",
-          "installation_direction": null
-        },
-        {
-          "name": "cover_screw_6",
-          "motion": "stationary",
-          "source_builder": "windwall.assembly.build_locked_rotor_assembly",
-          "source_bounds_mm": [
-            [
-              56.255752861126275,
-              -37.99999999999998,
-              -53.3
-            ],
-            [
-              63.255752861126275,
-              -30.99999999999998,
-              -7.350000000000001
-            ]
-          ],
-          "display_bounds_mm": [
-            [
-              56.255752861126275,
-              -37.99999999999998,
-              -53.3
-            ],
-            [
-              63.255752861126275,
-              -30.99999999999998,
-              -7.350000000000001
-            ]
-          ],
-          "printable": false,
-          "reference_note": "",
-          "installation_direction": null
-        },
-        {
-          "name": "cover_nut_6",
-          "motion": "stationary",
-          "source_builder": "windwall.assembly.build_locked_rotor_assembly",
-          "source_bounds_mm": [
-            [
-              55.714300976798896,
-              -37.99999999999998,
-              -53.4
-            ],
-            [
-              63.797204745453655,
-              -30.99999999999998,
-              -50.199999999999996
-            ]
-          ],
-          "display_bounds_mm": [
-            [
-              55.714300976798896,
-              -37.99999999999998,
-              -53.4
-            ],
-            [
-              63.797204745453655,
-              -30.99999999999998,
               -50.199999999999996
             ]
           ],
@@ -8761,19 +8349,19 @@
             [
               53.0,
               53.0,
-              -27.0
+              -9.149999999999999
             ]
           ],
           "display_bounds_mm": [
             [
               -53.0,
-              0.0,
+              -2.074051346642918e-17,
               -37.0
             ],
             [
               53.0,
               53.0,
-              -27.0
+              -9.149999999999999
             ]
           ],
           "printable": true,
@@ -8806,38 +8394,6 @@
               4.0,
               4.0,
               8.0
-            ]
-          ],
-          "printable": false,
-          "reference_note": "",
-          "installation_direction": null
-        },
-        {
-          "name": "spacer",
-          "motion": "rotating",
-          "source_builder": "windwall.assembly.build_locked_rotor_assembly",
-          "source_bounds_mm": [
-            [
-              -6.0,
-              -6.0,
-              -27.0
-            ],
-            [
-              6.0,
-              6.0,
-              -9.149999999999999
-            ]
-          ],
-          "display_bounds_mm": [
-            [
-              -6.0,
-              0.0,
-              -27.0
-            ],
-            [
-              6.0,
-              6.0,
-              -9.149999999999999
             ]
           ],
           "printable": false,
@@ -9074,24 +8630,24 @@
           "source_builder": "windwall.generator_housing.build_generator_cover",
           "source_bounds_mm": [
             [
-              -65.75575286112627,
+              -75.0,
               -75.0,
               -16.35
             ],
             [
-              65.75575286112628,
+              75.0,
               75.0,
               -2.150000000000002
             ]
           ],
           "display_bounds_mm": [
             [
-              -65.75575286112625,
-              -2.4868995751603507e-14,
+              -75.0,
+              -3.72735956968889e-15,
               -16.35
             ],
             [
-              65.75575286112627,
+              75.0,
               75.0,
               -2.150000000000002
             ]
@@ -9119,7 +8675,7 @@
           "display_bounds_mm": [
             [
               -56.0,
-              0.0,
+              -3.669613375869051e-15,
               -25.5
             ],
             [
@@ -9170,25 +8726,25 @@
           "source_builder": "windwall.assembly.build_locked_rotor_assembly",
           "source_bounds_mm": [
             [
-              56.25575286112627,
-              30.999999999999993,
+              65.5,
+              -3.5,
               -53.3
             ],
             [
-              63.25575286112627,
-              37.99999999999999,
+              72.5,
+              3.5,
               -7.350000000000001
             ]
           ],
           "display_bounds_mm": [
             [
-              56.25575286112627,
-              30.999999999999993,
+              65.5,
+              0.0,
               -53.3
             ],
             [
-              63.25575286112627,
-              37.99999999999999,
+              72.5,
+              3.5,
               -7.350000000000001
             ]
           ],
@@ -9202,25 +8758,25 @@
           "source_builder": "windwall.assembly.build_locked_rotor_assembly",
           "source_bounds_mm": [
             [
-              55.71430097679889,
-              30.99999999999999,
+              64.95854811567261,
+              -3.5000000000000018,
               -53.4
             ],
             [
-              63.79720474545365,
-              37.99999999999999,
+              73.04145188432739,
+              3.5000000000000004,
               -50.199999999999996
             ]
           ],
           "display_bounds_mm": [
             [
-              55.71430097679889,
-              30.99999999999999,
+              64.95854811567261,
+              -2.571758278209442e-16,
               -53.4
             ],
             [
-              63.79720474545365,
-              37.99999999999999,
+              73.04145188432739,
+              3.5000000000000004,
               -50.199999999999996
             ]
           ],
@@ -9298,25 +8854,25 @@
           "source_builder": "windwall.assembly.build_locked_rotor_assembly",
           "source_bounds_mm": [
             [
-              -63.255752861126254,
-              31.00000000000002,
+              -72.5,
+              -3.4999999999999916,
               -53.3
             ],
             [
-              -56.255752861126254,
-              38.00000000000002,
+              -65.5,
+              3.5000000000000084,
               -7.350000000000001
             ]
           ],
           "display_bounds_mm": [
             [
-              -63.255752861126254,
-              31.00000000000002,
+              -72.5,
+              0.0,
               -53.3
             ],
             [
-              -56.255752861126254,
-              38.00000000000002,
+              -65.5,
+              3.5000000000000084,
               -7.350000000000001
             ]
           ],
@@ -9330,25 +8886,25 @@
           "source_builder": "windwall.assembly.build_locked_rotor_assembly",
           "source_bounds_mm": [
             [
-              -63.797204745453634,
-              31.000000000000018,
+              -73.04145188432739,
+              -3.4999999999999933,
               -53.4
             ],
             [
-              -55.714300976798874,
-              38.00000000000002,
+              -64.95854811567261,
+              3.500000000000009,
               -50.199999999999996
             ]
           ],
           "display_bounds_mm": [
             [
-              -63.797204745453634,
-              31.000000000000018,
+              -73.04145188432739,
+              0.0,
               -53.4
             ],
             [
-              -55.714300976798874,
-              38.00000000000002,
+              -64.95854811567261,
+              3.500000000000009,
               -50.199999999999996
             ]
           ],
@@ -9467,7 +9023,7 @@
           "target": [
             35,
             0,
-            -29.0
+            -11.149999999999999
           ],
           "marker_offset_mm": [
             0,
