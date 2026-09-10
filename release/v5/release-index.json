@@ -103,7 +103,7 @@
       "kind": "translation-audit",
       "path": "release/v5/audits/manual-translations.json",
       "role": "validation-evidence",
-      "sha256": "9508d1e71073a9af9ebb956f80fc815377977b3de9f94433959bd989531e15a1",
+      "sha256": "8b8fb8c0c454bdf2bc33d88be72906a00b79625389971d423750d0c4a6d5dbee",
       "size_bytes": 22734
     },
     {
@@ -577,8 +577,8 @@
       "physical_validation_verified": false,
       "quantity": 1,
       "role": "documentation",
-      "sha256": "7d342fd8b05dac5b63bfdd07afa61d0d3cf3500b01ea0d45bc01942f016ad3fd",
-      "size_bytes": 4904595,
+      "sha256": "80dfaa245b8dc03c73da6c3d062608d564b9ee0910b7c333cea13996fe88ad4b",
+      "size_bytes": 4904598,
       "validation": {
         "accessibility_findings": {
           "high": 0,
@@ -586,10 +586,10 @@
           "medium": 0
         },
         "artifact_path": "release/v5/docs/Ugrinsky-Wind-Wall-V5-Manual-English.docx",
-        "artifact_sha256": "7d342fd8b05dac5b63bfdd07afa61d0d3cf3500b01ea0d45bc01942f016ad3fd",
+        "artifact_sha256": "80dfaa245b8dc03c73da6c3d062608d564b9ee0910b7c333cea13996fe88ad4b",
         "canonical_zip_verified": true,
         "catalog_path": "scripts/manual/locales/en-GB.json",
-        "catalog_sha256": "202d2ff36ca0f26b20a2347948eb528ea4be5bcfdbaac1b21abd2ff49a394472",
+        "catalog_sha256": "7818eb80c1c84ab9a1357a03b455836be4171123d4677e588b0ef1c5696aa397",
         "chapter_count": 13,
         "drawing_sha256_by_filename": {
           "E01-rotorstapel.png": "3bd83cac16ae79558b44aeb1df920c27e4df04aa093053a2f459d68a09d657ab",
@@ -647,7 +647,7 @@
         "render_limitations": "Page layout, glyph rendering, pagination and PDF output remain unverified.",
         "rendered_page_count": 0,
         "segment_count": 312,
-        "size_bytes": 4904595,
+        "size_bytes": 4904598,
         "source_manual_sha256": "0914e2e2d97f996f1338bcc5eff62d805a033c26ac0ea9f4925f4c0dd7fcc317",
         "structural_checks_passed": true,
         "table_count": 11
@@ -745,8 +745,8 @@
       "physical_validation_verified": false,
       "quantity": 1,
       "role": "documentation",
-      "sha256": "b8b0b7639d56eee67d772fb92a073c93e2cbcc40cf137e97d3517f708cf96ce1",
-      "size_bytes": 4907394,
+      "sha256": "bfe119fa8c172ec8afe5149d7471537b57282b362349213ee28ff361299eccc4",
+      "size_bytes": 4907412,
       "validation": {
         "accessibility_findings": {
           "high": 0,
@@ -754,10 +754,10 @@
           "medium": 0
         },
         "artifact_path": "release/v5/docs/Ugrinsky-Wind-Wall-V5-Manual-Hindi.docx",
-        "artifact_sha256": "b8b0b7639d56eee67d772fb92a073c93e2cbcc40cf137e97d3517f708cf96ce1",
+        "artifact_sha256": "bfe119fa8c172ec8afe5149d7471537b57282b362349213ee28ff361299eccc4",
         "canonical_zip_verified": true,
         "catalog_path": "scripts/manual/locales/hi-IN.json",
-        "catalog_sha256": "f6a9ad6983c4153f4d1b3d0fb2a5b2a566c83390a694ae25a54609e6bdae5a0e",
+        "catalog_sha256": "969a164e08c497faa70e6219717c73a513df0226a260ab7f00f7cc0e2dfe6802",
         "chapter_count": 13,
         "drawing_sha256_by_filename": {
           "E01-rotorstapel.png": "3bd83cac16ae79558b44aeb1df920c27e4df04aa093053a2f459d68a09d657ab",
@@ -815,7 +815,7 @@
         "render_limitations": "Page layout, glyph rendering, pagination and PDF output remain unverified.",
         "rendered_page_count": 0,
         "segment_count": 312,
-        "size_bytes": 4907394,
+        "size_bytes": 4907412,
         "source_manual_sha256": "0914e2e2d97f996f1338bcc5eff62d805a033c26ac0ea9f4925f4c0dd7fcc317",
         "structural_checks_passed": true,
         "table_count": 11

@@ -206,7 +206,7 @@
     "s202": "The upper bearing support provides radial guidance. The lower 51105 is intended to carry axial load. After fastening, recheck free hand rotation, bearing noise, minimum air gaps and cable clearance. Only then prepare the guarded test stand for measurements.",
     "s203": "10 Measuring and comparing coils",
     "s204": "Compare each coil at the same recorded speeds and with the same load. The three turn counts form an experimental matrix. A higher open-circuit value alone does not identify the coil that performs usefully under load.",
-    "s205": "1. Check the stationary coil. ",
+    "s205": "1. Check the coil with the rotor stopped. ",
     "s206": "Record wire diameter, turn count, path, winding height, resistance and ambient temperature. Clearly mark conductor ends A and B. Check insulation from shaft and magnet carriers.",
     "s207": "2. Measure open-circuit voltage. ",
     "s208": "Drive slowly and controllably in the guarded setup. Record speed and AC open-circuit voltage simultaneously. Instrument bandwidth must suit the actual waveform. Do not interpret a disconnected measuring contact as low generator output.",
