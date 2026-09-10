@@ -1,12 +1,14 @@
 """Actual solids catch obstructed joints, lost blade shape, and false fit metadata."""
 
 from dataclasses import FrozenInstanceError, replace
+from math import cos, hypot, pi, sin, sqrt
 import unittest
 
 import cadquery as cq
 
 from windwall.blade_profile import build_blade_stage
 from windwall.drivers import build_joint_interface
+from windwall.generator import base_bearing_interface, upper_magnet_face_z_mm
 from windwall.parameters import DEFAULT_PARAMETERS
 from windwall.rotor_modules import (build_base_module, build_standard_module,
                                     build_top_module, module_joint_depth_mm)
@@ -101,6 +103,63 @@ class RotorModuleTests(unittest.TestCase):
         for x,y in ((-5,30),(0,-35),(0,35),(5,-30)):
             self.assertTrue(base.isInside((x,y,-7.9)),(x,y,'plate contact'))
             self.assertTrue(base.isInside((x,y,-4.0)),(x,y,'continuous wall'))
+
+    def test_base_blade_roots_are_supported_to_plate_print_plane(self):
+        """Catch a support that follows only the untwisted z=0 blade section."""
+        p = DEFAULT_PARAMETERS
+        source = build_blade_stage(p).val()
+        base = self.modules['base'].shape.val()
+        interface = base_bearing_interface(p)
+        plate_bottom = upper_magnet_face_z_mm(p)
+        plate_radius = p.generator.carrier_diameter_mm/2
+        protected_radius = interface['boss_clearance_radius_mm']
+        magnet_centers = tuple(
+            (p.generator.magnet_pitch_radius_mm*cos(2*pi*index/p.generator.magnet_pocket_count),
+             p.generator.magnet_pitch_radius_mm*sin(2*pi*index/p.generator.magnet_pocket_count))
+            for index in range(p.generator.magnet_pocket_count)
+        )
+
+        for source_z in (1, 9, 17.5, 26, 35, 44, 52.5, 61, 69):
+            section = cq.Workplane(obj=source).section(source_z).val()
+            sample = cq.Compound.makeCompound([
+                cq.Solid.extrudeLinear(face.outerWire(), face.innerWires(), cq.Vector(0,0,0.1))
+                for face in section.Faces()])
+            probes = []
+            for x in range(-50, 51, 5):
+                for y in range(-50, 51, 5):
+                    if not protected_radius + 1 < hypot(x, y) < plate_radius - 1:
+                        continue
+                    if any(hypot(x-center_x, y-center_y) < p.generator.magnet_pocket_diameter_mm/2+1
+                           for center_x,center_y in magnet_centers):
+                        continue
+                    if sample.isInside((x, y, source_z+0.05)):
+                        probes.append((x,y))
+            self.assertGreater(len(probes), 0, source_z)
+            for x,y in probes:
+                with self.subTest(source_z=source_z, point=(x,y)):
+                    for support_z in (plate_bottom+0.1, plate_bottom/2, -0.1):
+                        self.assertTrue(base.isInside((x,y,support_z)), support_z)
+
+        shaft = cq.Workplane('XY').circle(p.shaft.clearance_hole_diameter_mm/2).extrude(-plate_bottom+2).translate((0,0,plate_bottom-1))
+        nut = (cq.Workplane('XY').polygon(6,2*p.manufacturing.nut_pocket_across_flats_mm/sqrt(3))
+               .extrude(p.manufacturing.nut_pocket_depth_mm)
+               .translate((0,0,interface['nut_bottom_z_mm'])))
+        boss = (cq.Workplane('XY').circle(protected_radius)
+                .circle(p.bearings.thrust_rotating_pilot_diameter_mm/2)
+                .extrude(interface['shoulder_z_mm']-plate_bottom)
+                .translate((0,0,plate_bottom)))
+        boss = boss.union(cq.Workplane('XY').circle(protected_radius)
+                          .circle(p.bearings.thrust_outer_diameter_mm/2)
+                          .extrude(interface['boss_clearance_top_z_mm']-interface['shoulder_z_mm'])
+                          .translate((0,0,interface['shoulder_z_mm'])))
+        pockets = (cq.Workplane('XY').pushPoints(magnet_centers)
+                   .circle(p.generator.magnet_pocket_diameter_mm/2)
+                   .extrude(p.generator.magnet_pocket_depth_mm)
+                   .translate((0,0,plate_bottom)))
+        for name, protected_volume in (('shaft bore',shaft), ('nut pocket',nut),
+                                       ('bearing-boss keepout',boss), ('magnet pockets',pockets)):
+            with self.subTest(protected_volume=name):
+                self.assertLess(base.intersect(protected_volume.val()).Volume(), 0.01)
 
     def test_base_blade_reinforcement_reaches_the_central_carrier_ring(self):
         # The 51105 cover boss reserves radius 24.45; blade-form walls join
