@@ -10,6 +10,8 @@ power output, a safe maximum speed, fatigue life, weather resistance, or suitabi
 for unattended operation. Begin with fit coupons and a guarded workshop test rig.
 The generator must not be connected directly to a 48 V lead-acid battery.
 
+![Animated ten-module Ugrinsky wall concept in a fence context](release/v5/drawings/ugrinsky_windwall_10_rotors.gif)
+
 ![Complete V5 assembly between timber rails with rotating and stationary components distinguished](release/v5/drawings/E15-gesamtbaugruppe.png)
 
 ## Start here
