@@ -148,7 +148,7 @@ class RotorModuleTests(unittest.TestCase):
             self.assertTrue(base.isInside((x,y,-4.0)),(x,y,'continuous wall'))
 
     def test_base_blade_roots_are_supported_to_plate_print_plane(self):
-        """Catch a support that follows only the untwisted z=0 blade section."""
+        """The actual root contour reaches the print plane without broad ribs."""
         p = DEFAULT_PARAMETERS
         source = build_blade_stage(p).val()
         base = self.modules['base'].shape.val()
@@ -162,7 +162,7 @@ class RotorModuleTests(unittest.TestCase):
             for index in range(p.generator.magnet_pocket_count)
         )
 
-        for source_z in (1, 9, 17.5, 26, 35, 44, 52.5, 61, 69):
+        for source_z in (0.01,):
             section = cq.Workplane(obj=source).section(source_z).val()
             sample = cq.Compound.makeCompound([
                 cq.Solid.extrudeLinear(face.outerWire(), face.innerWires(), cq.Vector(0,0,0.1))
@@ -203,6 +203,24 @@ class RotorModuleTests(unittest.TestCase):
                                        ('bearing-boss keepout',boss), ('magnet pockets',pockets)):
             with self.subTest(protected_volume=name):
                 self.assertLess(base.intersect(protected_volume.val()).Volume(), 0.01)
+
+    def test_base_carrier_disc_keeps_its_nominal_axial_thickness(self):
+        """Catch a blade-support workaround that thickens the circular plate."""
+        p = DEFAULT_PARAMETERS
+        source = build_blade_stage(p).val()
+        base = self.modules['base'].shape.val()
+        plate_bottom = upper_magnet_face_z_mm(p)
+        plate_top = plate_bottom+p.generator.carrier_disc_thickness_mm
+        radius = p.generator.carrier_diameter_mm/2-1
+        probes = []
+        for angle in range(0,360,2):
+            x = radius*cos(angle*pi/180)
+            y = radius*sin(angle*pi/180)
+            if not source.isInside((x,y,0.01)):
+                probes.append((x,y))
+        self.assertTrue(probes)
+        self.assertTrue(any(base.isInside((x,y,plate_top-0.2)) for x,y in probes))
+        self.assertTrue(all(not base.isInside((x,y,plate_top+0.2)) for x,y in probes))
 
     def test_base_blade_reinforcement_reaches_the_central_carrier_ring(self):
         # The 51105 cover boss reserves radius 24.45; blade-form walls join

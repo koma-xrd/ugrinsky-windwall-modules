@@ -111,10 +111,6 @@ class ExportTests(unittest.TestCase):
                     self.assertEqual(len(imported.Solids()), 1)
                     self.assertAlmostEqual(imported.Volume(1e-6), part.cad_volume_mm3, delta=0.01)
                     if part.name == 'base_rotor_module':
-                        for x,y in ((-40,-25), (-10,30), (-15,30), (-25,-45), (-30,35)):
-                            for support_z in (-12.9, -6.5, -0.1):
-                                self.assertTrue(imported.isInside((x,y,support_z)),
-                                                (x,y,support_z))
                         self.assertLess(abs(part.mesh.signed_volume-part.cad_volume_mm3),
                                         part.cad_volume_mm3*0.005)
             data = json.loads((destination / 'manifest.json').read_text())

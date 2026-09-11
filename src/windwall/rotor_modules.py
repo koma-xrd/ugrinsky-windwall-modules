@@ -6,8 +6,8 @@ receiver is recessed into a local end-support region;
 the next stage's male extends below zero into it. The support plate bridges
 the phase difference structurally. Successive modules rotate by the blade twist
 to continue the aerodynamic surface. Base fuses the upper generator carrier and
-51105 pilot. Its clipped blade silhouette continues vertically below the root
-to the carrier print plane; protected generator volumes are cut after fusion.
+51105 pilot. Its blade-root extension reaches the original carrier top surface
+without changing the carrier disc thickness or entering the cover envelope.
 Top retains only the compact washer force plate and exposed nut.
 """
 
@@ -15,11 +15,6 @@ from dataclasses import dataclass
 from math import cos, hypot, isfinite, pi, sin
 
 import cadquery as cq
-from OCP.BRepLib import BRepLib
-from OCP.HLRAlgo import HLRAlgo_Projector
-from OCP.HLRBRep import HLRBRep_Algo, HLRBRep_HLRToShape
-from OCP.gp import gp_Ax2, gp_Dir, gp_Pnt
-
 from windwall.blade_profile import build_blade_stage
 from windwall.blade_seam import BladeSeamInterface, build_blade_seam
 from windwall.drivers import build_joint_interface, joint_interface_height_mm
@@ -90,56 +85,17 @@ def _end_guide(p: DesignParameters, bottom: float, angle_deg: float) -> cq.Workp
     return guide
 
 
-def _base_blade_support(source: cq.Workplane, plate_bottom_z: float,
-                        plate_radius: float, protected_radius: float) -> cq.Workplane:
-    """Continue the full blade silhouette from the print plane to the root.
-
-    The source is the bare blade stage in its nominal XY frame. Exact top-view
-    edges partition the carrier annulus; a vertical ray selects cells occupied
-    by either blade. The protected radius excludes the small source hub/bridges.
-    Only the retained planar faces are extruded, leaving the active blade intact.
-    """
-    source_shape = source.val()
-    # Bounding-box extrema include OCP tolerances, which are not section planes.
-    cap_heights = [face.Center().z for face in source_shape.Faces()
-                   if face.geomType() == 'PLANE' and abs(face.normalAt().z) > 0.99]
-    root_z, top_z = min(cap_heights), max(cap_heights)
-    support_height = root_z-plate_bottom_z
-    if support_height <= 0:
-        raise ValueError('Carrier plate bottom must lie below the blade root')
-
-    projection = HLRBRep_Algo()
-    projection.Add(source_shape.wrapped)
-    projection.Projector(HLRAlgo_Projector(gp_Ax2(gp_Pnt(), gp_Dir(0,0,1))))
-    projection.Update()
-    projection.Hide()
-    outline = HLRBRep_HLRToShape(projection)
-    edges = []
-    for projected in (outline.VCompound(), outline.OutLineVCompound()):
-        if not projected.IsNull():
-            # HLR returns 2D curves; Boolean splitting needs their 3D geometry.
-            BRepLib.BuildCurves3d_s(projected, 1e-7)
-            edges.extend(cq.Shape.cast(projected).Edges())
-    carrier_face = cq.Face.makeFromWires(cq.Workplane('XY').circle(plate_radius).val(),
-                                          [cq.Workplane('XY').circle(protected_radius).val()])
-    projected_faces = []
-    for face in carrier_face.split(*edges).Faces():
-        vertices, triangles = face.tessellate(0.1)
-        # A triangle centroid lies inside even a concave trimmed face, whereas
-        # the face's center of mass can fall outside its boundary.
-        triangle = max(triangles, key=lambda indices:
-                       (vertices[indices[1]]-vertices[indices[0]]).cross(
-                           vertices[indices[2]]-vertices[indices[0]]).Length)
-        point = sum((vertices[index] for index in triangle), cq.Vector())/3
-        ray = cq.Edge.makeLine((point.x,point.y,root_z-1), (point.x,point.y,top_z+1))
-        if ray.intersect(source_shape).Edges():
-            projected_faces.append(face)
-    if not projected_faces:
-        raise ValueError('Blade silhouette must overlap the carrier annulus')
-    footprint = projected_faces[0].fuse(*projected_faces[1:]).clean()
-    solids = [cq.Solid.extrudeLinear(face.outerWire(),face.innerWires(),cq.Vector(0,0,support_height))
-              for face in footprint.Faces()]
-    return cq.Workplane(obj=cq.Compound.makeCompound(solids).translate(cq.Vector(0,0,plate_bottom_z)))
+def _base_blade_extension(source: cq.Workplane, depth: float,
+                          inner_radius: float) -> cq.Workplane:
+    """Join the blade root to the unchanged top face of the carrier disc."""
+    faces = [face for face in source.val().Faces()
+             if abs(face.Center().z) < 0.01 and abs(face.normalAt().z) > 0.9]
+    solids = [cq.Solid.extrudeLinear(face.outerWire(),face.innerWires(),cq.Vector(0,0,-depth))
+              for face in faces]
+    extension = cq.Workplane(obj=cq.Compound.makeCompound(solids))
+    blade_zone = (cq.Workplane('XY').circle(62).circle(inner_radius)
+                  .extrude(depth).translate((0,0,-depth)))
+    return extension.intersect(blade_zone)
 
 
 def _base_magnet_pocket_volume(p: DesignParameters, plate_bottom_z: float) -> cq.Workplane:
@@ -164,9 +120,11 @@ def _build(parameters: DesignParameters, kind: str) -> RotorModuleModel:
     # Rotate the upper stage with tongues clear, then seat axially at +60 degrees.
     if kind == 'base':
         plate_bottom = -end.base_shaft_flange_depth_mm-p.generator.carrier_height_mm
-        support = _base_blade_support(
-            body,plate_bottom,p.generator.carrier_diameter_mm/2,
-            base_bearing_interface(p)['boss_clearance_radius_mm'])
+        carrier_disc_top_depth = (end.base_shaft_flange_depth_mm+p.generator.carrier_height_mm
+                                  -p.generator.carrier_disc_thickness_mm)
+        carrier_ring_radius = base_bearing_interface(p)['boss_clearance_radius_mm']
+        support = _base_blade_extension(
+            body,carrier_disc_top_depth+0.1,carrier_ring_radius-0.1)
         carrier = build_upper_magnet_carrier(p).union(support)
         body = body.union(carrier)
         body = body.union(_disc(p.bayonet.hub_outer_diameter_mm/2,

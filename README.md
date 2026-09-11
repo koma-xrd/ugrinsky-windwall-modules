@@ -1,5 +1,9 @@
 # Ugrinsky Wind Wall V5
 
+> **AI-assisted design:** This model and its documentation were developed with
+> generative AI assistance. They remain an unvalidated prototype and require
+> physical fit, strength, weather, rotation, and electrical testing before use.
+
 A parametric CadQuery project for a seven-stage vertical-axis rotor and an
 experimental axial-flux generator mounted between two timber rails. The repository
 contains editable CAD source, verified geometry exports, assembly drawings, and

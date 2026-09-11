@@ -41,7 +41,7 @@
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 121739.63955367784,
+          "cad_volume_mm3": 92054.4202490977,
           "dimensions_mm": {
             "maximum_xyz": [
               61.000000100000776,
@@ -1288,7 +1288,7 @@
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 52153.57631245559,
+          "cad_volume_mm3": 54654.941786632844,
           "dimensions_mm": {
             "maximum_xyz": [
               60.68442974986316,
@@ -1347,7 +1347,7 @@
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 52153.57631245578,
+          "cad_volume_mm3": 54654.941786633004,
           "dimensions_mm": {
             "maximum_xyz": [
               61.0000001,
@@ -1406,7 +1406,7 @@
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 52153.57631245553,
+          "cad_volume_mm3": 54654.94178663272,
           "dimensions_mm": {
             "maximum_xyz": [
               61.000000100000776,
@@ -1465,7 +1465,7 @@
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 52153.576312455494,
+          "cad_volume_mm3": 54654.94178663273,
           "dimensions_mm": {
             "maximum_xyz": [
               60.684429749863455,
@@ -1524,7 +1524,7 @@
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 52153.57631245606,
+          "cad_volume_mm3": 54654.94178663329,
           "dimensions_mm": {
             "maximum_xyz": [
               61.0000001,
@@ -1812,8 +1812,8 @@
       ],
       "step_path": "release/v5/assembly/rotor_locked.step",
       "step_round_trip_valid": true,
-      "step_sha256": "5dc62fc93901153234fc8e563e14d707736716b18c50ff8bc6e29786f421f89a",
-      "summed_component_volume_mm3": 793469.6355306902,
+      "step_sha256": "4ad39fce3473a7ee26ff4dceeb894cfe9350e46afa84a2440ea54223a16f9c01",
+      "summed_component_volume_mm3": 776291.2435969962,
       "topology_result": {
         "cad_solid_count": 64,
         "cad_valid": true,
@@ -1862,7 +1862,7 @@
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 121739.63955367784,
+          "cad_volume_mm3": 92054.4202490977,
           "dimensions_mm": {
             "maximum_xyz": [
               61.000000100000776,
@@ -3122,8 +3122,8 @@
       "source_builder": "windwall.generator.build_generator_assembly",
       "step_path": "release/v5/assembly/generator.step",
       "step_round_trip_valid": true,
-      "step_sha256": "fab31d79a28c7a6fdf342a15f7b17320c542be05cfc61a2840cba5ceeed23bf0",
-      "summed_component_volume_mm3": 462483.3738282278,
+      "step_sha256": "8ee59df1bb30b30f388546d3abaf9e17b72a0dea695b0924b721e908ab2b1386",
+      "summed_component_volume_mm3": 432798.1545236476,
       "topology_result": {
         "cad_solid_count": 56,
         "cad_valid": true,
@@ -3172,7 +3172,7 @@
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 121739.63955367784,
+          "cad_volume_mm3": 92054.4202490977,
           "dimensions_mm": {
             "maximum_xyz": [
               61.000000100000776,
@@ -4419,7 +4419,7 @@
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 52153.57631245559,
+          "cad_volume_mm3": 54654.941786632844,
           "dimensions_mm": {
             "maximum_xyz": [
               60.68442974986316,
@@ -4478,7 +4478,7 @@
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 52153.57631245578,
+          "cad_volume_mm3": 54654.941786633004,
           "dimensions_mm": {
             "maximum_xyz": [
               61.0000001,
@@ -4537,7 +4537,7 @@
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 52153.57631245553,
+          "cad_volume_mm3": 54654.94178663272,
           "dimensions_mm": {
             "maximum_xyz": [
               61.000000100000776,
@@ -4596,7 +4596,7 @@
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 52153.576312455494,
+          "cad_volume_mm3": 54654.94178663273,
           "dimensions_mm": {
             "maximum_xyz": [
               60.684429749863455,
@@ -4655,7 +4655,7 @@
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 52153.57631245606,
+          "cad_volume_mm3": 54654.94178663329,
           "dimensions_mm": {
             "maximum_xyz": [
               61.0000001,
@@ -5293,8 +5293,8 @@
       "source_builder": "windwall.assembly.build_locked_rotor_assembly",
       "step_path": "release/v5/assembly/fence_assembly.step",
       "step_round_trip_valid": true,
-      "step_sha256": "c1c2fedd6bb63d1f7cdb8dc8e3e3f2ebe9be7448126180b47042002734d927d2",
-      "summed_component_volume_mm3": 1050713.0143559994,
+      "step_sha256": "d796a2e80b871bf4d87eaf0d5a39f7d95b79a2aae2fdde34a002cac4a36288e4",
+      "summed_component_volume_mm3": 1033534.6224223054,
       "topology_result": {
         "cad_solid_count": 71,
         "cad_valid": true,
@@ -5603,43 +5603,43 @@
     "internal_blade_twist_deg": 60.0,
     "joint_axial_float": [
       {
-        "compression_0_10_mm_intersection_mm3": 30.771065966406137,
-        "compression_0_20_mm_intersection_mm3": 59.69400675508611,
+        "compression_0_10_mm_intersection_mm3": 37.56862140686572,
+        "compression_0_20_mm_intersection_mm3": 73.2918053304515,
         "contact_probe_bracket_mm": null,
         "joint": "base/standard_1",
         "physical_load_capacity_verified": false
       },
       {
-        "compression_0_10_mm_intersection_mm3": 30.77106614614749,
-        "compression_0_20_mm_intersection_mm3": 59.69400711534226,
+        "compression_0_10_mm_intersection_mm3": 37.56862158993403,
+        "compression_0_20_mm_intersection_mm3": 73.29180569614164,
         "contact_probe_bracket_mm": null,
         "joint": "standard_1/standard_2",
         "physical_load_capacity_verified": false
       },
       {
-        "compression_0_10_mm_intersection_mm3": 30.771066146119132,
-        "compression_0_20_mm_intersection_mm3": 59.69400711457278,
+        "compression_0_10_mm_intersection_mm3": 37.56862158990826,
+        "compression_0_20_mm_intersection_mm3": 73.2918056955898,
         "contact_probe_bracket_mm": null,
         "joint": "standard_2/standard_3",
         "physical_load_capacity_verified": false
       },
       {
-        "compression_0_10_mm_intersection_mm3": 30.77106614618677,
-        "compression_0_20_mm_intersection_mm3": 59.694007114696106,
+        "compression_0_10_mm_intersection_mm3": 37.568621589960394,
+        "compression_0_20_mm_intersection_mm3": 73.29180569570813,
         "contact_probe_bracket_mm": null,
         "joint": "standard_3/standard_4",
         "physical_load_capacity_verified": false
       },
       {
-        "compression_0_10_mm_intersection_mm3": 30.771066145825863,
-        "compression_0_20_mm_intersection_mm3": 59.69400711429354,
+        "compression_0_10_mm_intersection_mm3": 37.568621589614466,
+        "compression_0_20_mm_intersection_mm3": 73.29180569529431,
         "contact_probe_bracket_mm": null,
         "joint": "standard_4/standard_5",
         "physical_load_capacity_verified": false
       },
       {
-        "compression_0_10_mm_intersection_mm3": 30.77106614606315,
-        "compression_0_20_mm_intersection_mm3": 59.694007115049274,
+        "compression_0_10_mm_intersection_mm3": 37.56862158983796,
+        "compression_0_20_mm_intersection_mm3": 73.29180569584348,
         "contact_probe_bracket_mm": null,
         "joint": "standard_5/top",
         "physical_load_capacity_verified": false
@@ -5655,12 +5655,12 @@
         "locked_pull_intersection_mm3": 48.110900333146496,
         "locking_lift_mm": 1.0,
         "locking_sample_count": 37,
-        "maximum_insertion_intersection_mm3": 0.007560473645767856,
-        "maximum_locking_intersection_mm3": 0.2724138865921425
+        "maximum_insertion_intersection_mm3": 0.007560473645767426,
+        "maximum_locking_intersection_mm3": 0.2724138865921433
       },
       "standard/standard": {
-        "ccw_overtravel_intersection_mm3": 12.550523383484633,
-        "cw_reverse_intersection_mm3": 10.626736494489474,
+        "ccw_overtravel_intersection_mm3": 12.55052338348463,
+        "cw_reverse_intersection_mm3": 10.626736494489364,
         "disassembly_supported": false,
         "elastic_snap_fit_verified": false,
         "insertion_sample_count": 16,
@@ -5671,8 +5671,8 @@
         "maximum_locking_intersection_mm3": 0.2724138865921433
       },
       "standard/top": {
-        "ccw_overtravel_intersection_mm3": 12.550523383484633,
-        "cw_reverse_intersection_mm3": 10.626736494489474,
+        "ccw_overtravel_intersection_mm3": 12.55052338348463,
+        "cw_reverse_intersection_mm3": 10.626736494489364,
         "disassembly_supported": false,
         "elastic_snap_fit_verified": false,
         "insertion_sample_count": 16,
@@ -6751,7 +6751,7 @@
         "maximum_xyz": [
           24.4596032513375,
           24.4596032513375,
-          10.7
+          13.7
         ],
         "minimum_xyz": [
           -24.4596032513375,
@@ -6761,17 +6761,17 @@
         "size_xyz": [
           48.919206502675,
           48.919206502675,
-          10.7
+          13.7
         ]
       },
       "cad_solid_count": 1,
       "cad_valid": true,
-      "cad_volume_mm3": 8702.645154763093,
+      "cad_volume_mm3": 11204.010628914575,
       "dimensions_mm": {
         "maximum_xyz": [
           24.4596032513375,
           24.4596032513375,
-          10.7
+          13.7
         ],
         "minimum_xyz": [
           -24.4596032513375,
@@ -6781,7 +6781,7 @@
         "size_xyz": [
           48.919206502675,
           48.919206502675,
-          10.7
+          13.7
         ]
       },
       "expected_component_count": 1,
@@ -6798,7 +6798,7 @@
         "maximum_xyz": [
           24.45960235595703,
           24.456867218017578,
-          10.699999809265137
+          13.699999809265137
         ],
         "minimum_xyz": [
           -24.44865608215332,
@@ -6806,11 +6806,11 @@
           0.0
         ],
         "nonmanifold_edge_count": 0,
-        "signed_volume": 8694.470484628051,
+        "signed_volume": 11193.6932445548,
         "size_xyz": [
           48.90825843811035,
           48.913734436035156,
-          10.699999809265137
+          13.699999809265137
         ],
         "triangle_count": 3504,
         "unique_vertex_count": 1752
@@ -6823,9 +6823,9 @@
       "source_builder": "windwall.bayonet.build_bayonet_coupon",
       "step_path": "release/v5/step/bayonet_female.step",
       "step_round_trip_valid": true,
-      "step_sha256": "133e8aea4424453ea23aa7e810ee94bda9795783839c64f50f34ec30ab053ace",
+      "step_sha256": "137d148c9d6805c99622db748bb9c2365ef5c510629d940ccf8561be6f10e6a2",
       "stl_path": "release/v5/coupons/bayonet_female.stl",
-      "stl_sha256": "b76c7fa27a5196f792a8db753af307ea6cd92315d150a9677bf17552a671dc8d",
+      "stl_sha256": "2a2365ca5cab7a1282c706fedb66ba99568cd419a79c72bb456b8c5b74a23dee",
       "stl_translation_z_mm": -0.0,
       "topology_result": {
         "cad_solid_count": 1,
@@ -6946,7 +6946,7 @@
       },
       "cad_solid_count": 1,
       "cad_valid": true,
-      "cad_volume_mm3": 10709.96338057378,
+      "cad_volume_mm3": 13211.328854725236,
       "dimensions_mm": {
         "maximum_xyz": [
           52.57759995228321,
@@ -6986,14 +6986,14 @@
           0.0
         ],
         "nonmanifold_edge_count": 0,
-        "signed_volume": 10702.757428955423,
+        "signed_volume": 13200.175262457544,
         "size_xyz": [
           105.15364074707031,
           79.43264770507812,
           14.5
         ],
-        "triangle_count": 4834,
-        "unique_vertex_count": 2417
+        "triangle_count": 4852,
+        "unique_vertex_count": 2426
       },
       "name": "joint_female",
       "physical_validation_verified": false,
@@ -7003,9 +7003,9 @@
       "source_builder": "windwall.drivers.build_joint_coupon",
       "step_path": "release/v5/step/joint_female.step",
       "step_round_trip_valid": true,
-      "step_sha256": "8d491ff5cc7f7bbdd9e66536674061119dd20beed76f5a1da57b7bd797a0403c",
+      "step_sha256": "c583afcca2918481e2469f3239d1e2d272d61865dc4fcc03c80e68e4ec07ab09",
       "stl_path": "release/v5/coupons/joint_female.stl",
-      "stl_sha256": "1b9c672140973e5228f34dc93babfff4bc9198cd028fe70a5e86977e04324404",
+      "stl_sha256": "752825ffb412108d24dde3105ecc92186b614c83b19a981dfa6c39cc5c20b643",
       "stl_translation_z_mm": -0.0,
       "topology_result": {
         "cad_solid_count": 1,
@@ -7590,7 +7590,7 @@
       },
       "cad_solid_count": 1,
       "cad_valid": true,
-      "cad_volume_mm3": 121739.63955367784,
+      "cad_volume_mm3": 92054.4202490977,
       "dimensions_mm": {
         "maximum_xyz": [
           61.000000100000776,
@@ -7630,14 +7630,14 @@
           1.0000000116860974e-07
         ],
         "nonmanifold_edge_count": 0,
-        "signed_volume": 121613.38736397377,
+        "signed_volume": 91937.70047766915,
         "size_xyz": [
           122.0,
           121.28905487060547,
           83.80000295175782
         ],
-        "triangle_count": 30278,
-        "unique_vertex_count": 15119
+        "triangle_count": 31128,
+        "unique_vertex_count": 15544
       },
       "name": "base_rotor_module",
       "physical_validation_verified": false,
@@ -7647,9 +7647,9 @@
       "source_builder": "windwall.rotor_modules.build_base_module",
       "step_path": "release/v5/step/base_rotor_module.step",
       "step_round_trip_valid": true,
-      "step_sha256": "282e446899c82155574fe9cb3097d34ce5bef6dad92d7211d1afb9a6a5101b35",
+      "step_sha256": "cb2f8226bcfbcca3964cd04deec2a2d909b97ab64dfadda3eebf3f8f4f1c8731",
       "stl_path": "release/v5/stl/base_rotor_module.stl",
-      "stl_sha256": "412c8b4f680caa1719068d6653797e53ca4c3eba03d6ad58076b1774efd7bbc3",
+      "stl_sha256": "40cd5d10c6961603e5b48fdd8265458d8af80c9e4cd78dadb986d80c9389bff3",
       "stl_translation_z_mm": 13.0000001,
       "topology_result": {
         "cad_solid_count": 1,
@@ -7680,7 +7680,7 @@
       },
       "cad_solid_count": 1,
       "cad_valid": true,
-      "cad_volume_mm3": 52153.576312455734,
+      "cad_volume_mm3": 54654.94178663299,
       "dimensions_mm": {
         "maximum_xyz": [
           61.000000100000776,
@@ -7720,7 +7720,7 @@
           1.0000000116860974e-07
         ],
         "nonmanifold_edge_count": 0,
-        "signed_volume": 52061.86073263258,
+        "signed_volume": 54561.67731906572,
         "size_xyz": [
           122.0,
           121.28905487060547,
@@ -7737,9 +7737,9 @@
       "source_builder": "windwall.rotor_modules.build_standard_module",
       "step_path": "release/v5/step/standard_rotor_module.step",
       "step_round_trip_valid": true,
-      "step_sha256": "ba94249367e62d7f5308dcc39bd4d7cb9114606fd1245f590ec0ce32422f8f53",
+      "step_sha256": "cadada96321cfe0c58254fecc7bb54b3bb281cfc84f4f23ecdd1fcc12bbf563e",
       "stl_path": "release/v5/stl/standard_rotor_module.stl",
-      "stl_sha256": "8e2c19d8327205606b0c4041179d452c2e8c15646829fde8e9d196c8070b7233",
+      "stl_sha256": "ee71aa06a980c34e38b51130dd0c65efd0bf4497441647f2142de5721ab367fb",
       "stl_translation_z_mm": 10.450000099999999,
       "topology_result": {
         "cad_solid_count": 1,

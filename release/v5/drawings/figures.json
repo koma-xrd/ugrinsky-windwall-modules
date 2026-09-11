@@ -2,7 +2,7 @@
   "release": "v5",
   "raster_language": "en-GB",
   "source_manifest": "release/v5/manifest.json",
-  "source_manifest_sha256": "06d1c66d46d7f3ec648bdc6bb98287e1404163ef2e68ab72b1e09bae6f6fd1d1",
+  "source_manifest_sha256": "0c6664df4aeec9514c3c28032dbe54ae3bfa6ea4c126190b77cf9d3247599f62",
   "render_parameters": {
     "manufacturing": {
       "radial_clearance_mm": 0.3,
@@ -808,7 +808,7 @@
             [
               24.4596032513375,
               24.4596032513375,
-              10.7
+              13.7
             ]
           ],
           "display_bounds_mm": [
@@ -820,7 +820,7 @@
             [
               24.4596032513375,
               24.4596032513375,
-              10.7
+              13.7
             ]
           ],
           "printable": null,

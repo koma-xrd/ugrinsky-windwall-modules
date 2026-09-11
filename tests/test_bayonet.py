@@ -99,6 +99,13 @@ class BayonetTests(unittest.TestCase):
         for part in (self.coupon.male, self.coupon.female):
             self.assertLess(part.intersect(shaft).val().Volume(), 0.01)
 
+    def test_female_outer_ring_reaches_the_full_male_joint_height(self):
+        """Catch a receiver shell that ends below the adjacent blade seam."""
+        male_box = self.coupon.male.val().BoundingBox()
+        female_box = self.coupon.female.val().BoundingBox()
+        self.assertAlmostEqual(female_box.zmin, 0, places=5)
+        self.assertAlmostEqual(female_box.zmax, male_box.zmax, places=5)
+
     def test_male_center_is_open_except_for_small_shaft_guide_and_spokes(self):
         male = self.coupon.male.val()
         self.assertTrue(male.isInside((5.2, 0, 6)))

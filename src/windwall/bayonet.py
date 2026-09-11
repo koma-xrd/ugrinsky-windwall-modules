@@ -167,14 +167,15 @@ def _track(parameters: DesignParameters) -> cq.Workplane:
 
 
 def build_female_bayonet(parameters: DesignParameters, z_plane_mm: float = 0) -> cq.Workplane:
-    """Build a receiver ring with top insertion windows and three rising tracks."""
+    """Build a full-height receiver shell with insertion windows and tracks."""
     _validate(parameters, z_plane_mm)
     b, m = parameters.bayonet, parameters.manufacturing
     radius = b.hub_outer_diameter_mm/2
     height = _receiver_height(parameters)
+    shell_height = height + m.minimum_loaded_wall_mm
     body = (cq.Workplane("XY").circle(_lug_outer_radius(parameters)
             + m.radial_clearance_mm + m.minimum_loaded_wall_mm)
-            .circle(radius + m.radial_clearance_mm).extrude(height))
+            .circle(radius + m.radial_clearance_mm).extrude(shell_height))
     track = _track(parameters)
     # A vertical angular window includes all lug/root surfaces at insertion.
     # Follow the actual rounded male profile, offset in XY, to keep the window
@@ -187,7 +188,7 @@ def build_female_bayonet(parameters: DesignParameters, z_plane_mm: float = 0) ->
     offset = outline.offset2D(m.radial_clearance_mm)[0]
     rail_top = _insertion_height(parameters)-m.axial_clearance_mm
     window = (cq.Workplane(obj=cq.Solid.extrudeLinear(
-              offset, [], cq.Vector(0,0,height-rail_top+0.1)))
+              offset, [], cq.Vector(0,0,shell_height-rail_top+0.1)))
               .translate((0,0,rail_top-section_z))
               .rotate((0,0,0), (0,0,1), -b.insertion_offset_deg))
     for angle in (0, 120, 240):

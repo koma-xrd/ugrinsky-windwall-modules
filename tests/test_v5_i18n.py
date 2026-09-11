@@ -57,7 +57,7 @@ class V5TranslationTests(unittest.TestCase):
             self.assertEqual(other.read_bytes(), path.read_bytes())
         german = ROOT / self.module.SOURCE_MANUAL
         self.assertEqual(hashlib.sha256(german.read_bytes()).hexdigest(),
-                         "38c4575443e4e9ddfdc70ac1f40e1d22c608ee4640648f7a8cf4c872e14ecc7d")
+                         "6bb21130b4625c20ad41ce5ff981accc406d204b9ac7340eba9d97d1d5ba86ce")
 
     def test_coverage_is_exact_and_translations_preserve_numeric_invariants(self):
         for locale in LOCALES:
