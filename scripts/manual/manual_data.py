@@ -80,7 +80,6 @@ def load_manual_data(project_root: Path) -> dict:
         (components["shaft"]["quantity"], "M8 Gewindestange", "Verlängerte Welle für oberen 608; erst nach Trockenmontage ablängen"),
         (sum(components[name]["quantity"] for name in ("upper_nut", "lower_nut", "top_nut")), "M8 Muttern", "Zwei formschlüssige Drehmomentmuttern und eine obere Klemmmutter"),
         (components["top_washer"]["quantity"], "Obere M8 Scheibe", dimensions((manifest["assembly_audit"]["hardware_envelopes"]["washer_diameter_mm"], manifest["assembly_audit"]["hardware_envelopes"]["washer_thickness_mm"])) + "; Außenmaß und Dicke"),
-        (components["spacer"]["quantity"], "Distanzhülse", dimensions(components["spacer"]["dimensions_mm"]["size_xyz"][::2]) + "; Außendurchmesser und Länge; M8-Durchgang prüfen"),
         (sum(components[name]["quantity"] for name in ("upper_magnets", "lower_magnets")), "Magnete", "Zwei Ringe mit je " + str(components["upper_magnets"]["quantity"]) + " Magneten; Projektziel 10 × 2 mm, reale Maße und Halterung prüfen"),
         (components["51105_shaft_washer"]["quantity"], "Axiallager 51105 komplett", dimensions((bearings["thrust_bore_diameter_mm"], bearings["thrust_outer_diameter_mm"], bearings["thrust_height_mm"]))),
         (components["bearing_608"]["quantity"], "Radiallager 608", dimensions((bearings["radial_bore_diameter_mm"], bearings["radial_outer_diameter_mm"], bearings["radial_height_mm"]))),

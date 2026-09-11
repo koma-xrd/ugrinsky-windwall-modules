@@ -1,5 +1,6 @@
 import unittest
 from dataclasses import replace
+from math import cos, pi, sin
 
 import cadquery as cq
 
@@ -25,7 +26,7 @@ class GeneratorHousingTests(unittest.TestCase):
         self.assertGreater(audit['anti_rotation_contact_mm3'], 1)
         self.assertLessEqual(audit['upward_cover_clearance_mm'], 0.20)
         self.assertEqual(len(parts.bottom_mount_tabs), 4)
-        self.assertEqual(len(parts.cover_fasteners), 6)
+        self.assertEqual(len(parts.cover_fasteners), 4)
 
     def test_printable_parts_are_single_solids_and_assemble_without_interference(self):
         parts = self.parts
@@ -65,16 +66,33 @@ class GeneratorHousingTests(unittest.TestCase):
         self.assertGreater(parts.cover.intersect(parts.coil_cassette.translate(
             (0, 0, 0.25))).val().Volume(), 1)
 
-    def test_six_m4_paths_nut_pockets_and_external_mount_access_are_clear(self):
+    def test_four_m4_paths_align_with_separate_external_mount_axes(self):
         parts = self.parts
+        self.assertEqual(len(parts.cover_fasteners), 4)
+        self.assertEqual(len(parts.bottom_mount_tabs), 4)
         for fastener in parts.cover_fasteners:
             for reference in (fastener.screw, fastener.nut, fastener.driver_access):
                 self.assertLess(parts.housing.intersect(reference).val().Volume(), 1e-6)
                 self.assertLess(parts.cover.intersect(reference).val().Volume(), 1e-6)
             self.assertGreater((fastener.axis_xy_mm[0] ** 2 +
                                 fastener.axis_xy_mm[1] ** 2) ** 0.5 - 4.3, 60)
-        for tab in parts.bottom_mount_tabs:
+        for fastener, tab in zip(parts.cover_fasteners, parts.bottom_mount_tabs, strict=True):
+            fastener_radius = (fastener.axis_xy_mm[0] ** 2 + fastener.axis_xy_mm[1] ** 2) ** 0.5
+            tab_radius = (tab.axis_xy_mm[0] ** 2 + tab.axis_xy_mm[1] ** 2) ** 0.5
+            self.assertAlmostEqual(fastener.axis_xy_mm[0] / fastener_radius,
+                                   tab.axis_xy_mm[0] / tab_radius, places=6)
+            self.assertAlmostEqual(fastener.axis_xy_mm[1] / fastener_radius,
+                                   tab.axis_xy_mm[1] / tab_radius, places=6)
+            self.assertGreater(tab_radius - fastener_radius, 10)
             self.assertLess(parts.housing.intersect(tab.screw_access).val().Volume(), 1e-6)
+
+    def test_each_cardinal_fastener_boss_is_fused_to_its_bottom_tab(self):
+        parts = self.parts
+        for fastener, tab in zip(parts.cover_fasteners, parts.bottom_mount_tabs, strict=True):
+            x, y = fastener.axis_xy_mm
+            boss_envelope = (cq.Workplane('XY').circle(6).extrude(5)
+                             .translate((x, y, 0)))
+            self.assertGreater(tab.shape.intersect(boss_envelope).val().Volume(), 400)
 
     def test_bearing_seat_is_top_open_with_a_load_shoulder(self):
         parts = self.parts
@@ -96,6 +114,22 @@ class GeneratorHousingTests(unittest.TestCase):
         self.assertFalse(parts.metadata['waterproof'])
         self.assertEqual(parts.metadata['role'], 'stationary')
         self.assertGreaterEqual(parts.metadata['rotating_keepout_diameter_mm'], 120)
+
+    def test_cassette_has_eighteen_open_serpentine_guide_islands(self):
+        parts = self.parts
+        self.assertEqual(parts.metadata.get('serpentine_guide_count'), 18)
+        self.assertEqual(parts.metadata.get('serpentine_guide_pitch_radius_mm'), 44.5)
+        for index in range(18):
+            angle = 2 * pi * index / 18
+            guide_probe = (cq.Workplane('XY').circle(1).extrude(1)
+                           .translate((44.5 * cos(angle), 44.5 * sin(angle), 32)))
+            wire_angle = angle + pi / 18
+            wire_space = (cq.Workplane('XY').circle(1).extrude(1)
+                          .translate((44.5 * cos(wire_angle),
+                                      44.5 * sin(wire_angle), 32)))
+            self.assertGreater(parts.coil_cassette.intersect(guide_probe).val().Volume(), 2)
+            self.assertLess(parts.coil_cassette.intersect(wire_space).val().Volume(), 1e-6)
+        self.assertLess(parts.coil_cassette.intersect(parts.winding_volume).val().Volume(), 1e-6)
 
     def test_public_builders_and_segment_coupon(self):
         for shape in (build_coil_cassette(DEFAULT_PARAMETERS),

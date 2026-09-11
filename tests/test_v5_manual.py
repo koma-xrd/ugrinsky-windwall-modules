@@ -106,7 +106,7 @@ class V5ManualTests(unittest.TestCase):
             self.assertIn(Path(record["step_path"]).name, self.text)
         for assembly in self.manifest["assemblies"]:
             self.assertIn(assembly["step_path"], self.text)
-        for label, count in (("M4 Deckelschrauben", "6"), ("Gefangene M4 Muttern", "6"),
+        for label, count in (("M4 Deckelschrauben", "4"), ("Gefangene M4 Muttern", "4"),
                              ("Holzschrauben unten", "4"), ("Holzschrauben oben", "4"),
                              ("M8 Muttern", "3"), ("Magnete", "36")):
             records = [r for t in self.doc.tables for r in t.rows if label in [c.text for c in r.cells]]
@@ -117,7 +117,8 @@ class V5ManualTests(unittest.TestCase):
         for required in ("25 × 42 × 11 mm", "8 × 22 × 7 mm", "Wellenscheibe dreht",
                          "Gehäusescheibe bleibt stationär", "Innenring", "Wälzkörper",
                          "unterhalb der stationären Spule", "Gehäuseschulter", "Verdrehsicherung",
-                         "sechs M4", "vier Bodenlaschen", "von unten", "verlängerte M8",
+                         "vier M4", "vier Bodenlaschen", "von unten", "verlängerte M8",
+                         "18 abgerundeten Führungskörper", "integrierte Distanzhülse",
                          "555,3 mm", "nicht wasserdicht"):
             self.assertIn(required, self.text)
         assembly = self.text.split("7 Generator montieren")[1].split("8 Rotorstapel montieren")[0]
@@ -144,7 +145,8 @@ class V5ManualTests(unittest.TestCase):
     def test_no_obsolete_instructions_or_internal_placeholders(self):
         for forbidden in ("Top-Closure", "top_closure", "radiale Sicherungsschrauben",
                           "radialen Sicherungsschrauben", "provisional sleeve", "TODO", "TBD",
-                          "PLACEHOLDER", "turn0search", "[[", "assets/manual/release", "V4.1"):
+                          "PLACEHOLDER", "turn0search", "[[", "assets/manual/release", "V4.1",
+                          "separate Distanzhülse"):
             self.assertNotIn(forbidden, self.text)
         self.assertIn("physisch nicht validiert", self.text)
 

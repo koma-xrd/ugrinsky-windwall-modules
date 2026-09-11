@@ -12,6 +12,8 @@ from math import cos, isfinite, radians
 import cadquery as cq
 
 from windwall.bayonet import BayonetCoupon, build_bayonet_coupon
+from windwall.blade_profile import build_blade_section_faces
+from windwall.blade_seam import build_blade_seam
 from windwall.parameters import DesignParameters
 
 
@@ -43,7 +45,11 @@ def build_joint_interface(parameters: DesignParameters) -> JointCoupon:
 
 
 def build_joint_coupon(parameters: DesignParameters) -> JointCoupon:
-    """Preserve the V4.3 4.2 mm open-spoke hex recess; no full nut floor exists."""
+    """Short blade seam samples share the module's bayonet and assembly path.
+
+    Spokes below/above the seam join both blade samples to their respective
+    bayonet halves. The historical shallow open-spoke hex calibration remains.
+    """
     joint = build_joint_interface(parameters)
     m = parameters.manufacturing
     if any(not isfinite(value) or value <= 0
@@ -53,5 +59,36 @@ def build_joint_coupon(parameters: DesignParameters) -> JointCoupon:
     top = joint.male.val().BoundingBox().zmax
     nut = (cq.Workplane('XY').polygon(6, m.nut_pocket_across_flats_mm/cos(radians(30)))
            .extrude(m.nut_pocket_depth_mm+1).translate((0,0,top-recess_depth)))
-    return replace(joint, male=joint.male.cut(nut),
+    male, female = joint.male.cut(nut), joint.female
+    seam = build_blade_seam(parameters)
+    phase = parameters.blade.twist_deg-parameters.modules.joint_phase_deg
+    keepout = parameters.bayonet.hub_outer_diameter_mm/2+parameters.bayonet.lug_radial_depth_mm+2*m.minimum_loaded_wall_mm
+    annulus = cq.Face.makeFromWires(cq.Workplane('XY').circle(parameters.blade.rotor_radius_mm).val(),
+                                  [cq.Workplane('XY').circle(keepout).val()])
+    for index, face in enumerate(build_blade_section_faces(parameters)):
+        section = max(face.intersect(annulus).Faces(), key=lambda item: item.Area())
+        section = section.rotate((0,0,0),(0,0,1),phase)
+        lower_wall = cq.Workplane(obj=cq.Solid.extrudeLinear(
+            section.outerWire(),[],cq.Vector(0,0,6))).translate((0,0,top-6))
+        upper_wall = cq.Workplane(obj=cq.Solid.extrudeLinear(
+            section.outerWire(),[],cq.Vector(0,0,4))).translate((0,0,top))
+        # Tip-directed spokes stay clear of the three axial lug entry windows.
+        tip_radius = parameters.blade.small_arc_center_xy_mm[0]+parameters.blade.small_arc_radius_mm
+        male_radius = parameters.bayonet.hub_outer_diameter_mm/2-1
+        # Bury the spoke root in the ring wall. A root tangent to the bore
+        # creates split cylindrical edges that do not tessellate consistently.
+        female_radius = parameters.bayonet.hub_outer_diameter_mm/2+m.radial_clearance_mm+m.minimum_loaded_wall_mm/2
+        angle = 180*index+phase
+        spoke = (cq.Workplane('XY').box(tip_radius-male_radius,3,3,centered=(False,True,False))
+                 .translate((male_radius,0,0)).rotate((0,0,0),(0,0,1),angle))
+        lower_spoke = (cq.Workplane('XY').box(tip_radius-female_radius,3,3,centered=(False,True,False))
+                       .translate((female_radius,0,top-6))
+                       .rotate((0,0,0),(0,0,1),angle))
+        female = female.union(lower_spoke).union(lower_wall)
+        male = male.union(spoke.translate((0,0,top))).union(upper_wall)
+    female = female.union(seam.tongues.rotate((0,0,0),(0,0,1),phase).translate((0,0,top)))
+    male = male.cut(seam.groove_clearance.rotate((0,0,0),(0,0,1),phase).translate((0,0,top)))
+    if any(not part.val().isValid() or len(part.val().Solids()) != 1 for part in (male, female)):
+        raise ValueError('Each joint coupon half must be one valid connected solid')
+    return replace(joint, male=male, female=female,
                    nut_calibration_recess_depth_mm=recess_depth)

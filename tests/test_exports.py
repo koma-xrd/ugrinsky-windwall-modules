@@ -70,6 +70,17 @@ class ExportTests(unittest.TestCase):
             self.assertLess(abs(part.mesh.signed_volume - part.cad_volume_mm3),
                             part.cad_volume_mm3 * 0.005)
 
+    def test_joint_blade_coupon_is_manifold_with_absolute_release_tessellation(self):
+        from windwall.drivers import build_joint_coupon
+
+        pair = build_joint_coupon(DEFAULT_PARAMETERS)
+        with temporary_build_directory() as destination:
+            for name, shape in (('joint_male', pair.male), ('joint_female', pair.female)):
+                part = export_part(name, shape, destination, coupon=True)
+                self.assertEqual(part.mesh.boundary_edge_count, 0)
+                self.assertEqual(part.mesh.nonmanifold_edge_count, 0)
+                self.assertEqual(part.mesh.component_count, 1)
+
     def test_all_unique_parts_export_as_valid_step_and_stl(self):
         with temporary_build_directory() as destination:
             manifest = export_all(destination)
@@ -99,6 +110,13 @@ class ExportTests(unittest.TestCase):
                     self.assertTrue(imported.isValid())
                     self.assertEqual(len(imported.Solids()), 1)
                     self.assertAlmostEqual(imported.Volume(1e-6), part.cad_volume_mm3, delta=0.01)
+                    if part.name == 'base_rotor_module':
+                        for x,y in ((-40,-25), (-10,30), (-15,30), (-25,-45), (-30,35)):
+                            for support_z in (-12.9, -6.5, -0.1):
+                                self.assertTrue(imported.isInside((x,y,support_z)),
+                                                (x,y,support_z))
+                        self.assertLess(abs(part.mesh.signed_volume-part.cad_volume_mm3),
+                                        part.cad_volume_mm3*0.005)
             data = json.loads((destination / 'manifest.json').read_text())
             expected_parameters = json.loads(json.dumps(asdict(DEFAULT_PARAMETERS)))
             expected_parameters.pop('closure')
@@ -118,10 +136,11 @@ class ExportTests(unittest.TestCase):
                     self.assertFalse(Path(record[f'{suffix}_path']).is_absolute())
                     self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(), record[f'{suffix}_sha256'])
             for assembly in data['assemblies']:
-                groups, solids = {'rotor_locked': (35, 69), 'generator': (27, 61),
-                                  'fence_assembly': (42, 76)}[assembly['name']]
+                groups, solids = {'rotor_locked': (30, 64), 'generator': (22, 56),
+                                  'fence_assembly': (37, 71)}[assembly['name']]
                 self.assertEqual(assembly['component_count'], groups)
                 self.assertEqual(len(assembly['components']), groups)
+                self.assertNotIn('spacer', {item['name'] for item in assembly['components']})
                 self.assertTrue(all(component['cad_valid'] for component in assembly['components']))
                 path = destination / assembly['step_path']
                 imported = cq.importers.importStep(str(path)).val()

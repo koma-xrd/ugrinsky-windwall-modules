@@ -58,8 +58,8 @@ attached beneath the upper timber rail.
 | --- | --- | --- |
 | Base and integrated upper magnet carrier | Housing and mounting tabs | 51105 shaft washer rotates with the base |
 | Five standard modules and top module | Coil and keyed cassette | 51105 housing washer stays in the cover |
-| Lower magnet rotor and both magnet rings | Cover and its six M4 fasteners | 51105 rolling elements have their own motion |
-| M8 rod, three nuts, top washer and spacer | Upper support and timber frame | 608 inner ring follows the shaft; outer ring stays in its support |
+| Lower magnet rotor, integral spacer sleeve and both magnet rings | Cover and its four M4 fasteners | 51105 rolling elements have their own motion |
+| M8 rod, three nuts and top washer | Upper support and timber frame | 608 inner ring follows the shaft; outer ring stays in its support |
 
 Purple bearing envelopes do not resolve individual rolling-element motion. Grey
 timber and screw envelopes are references, not printable parts or structural approvals.
@@ -78,9 +78,9 @@ the best support strategy or printing orientation.
 | 1 | `base_rotor_module.stl` | Base, integrated upper magnet carrier and bearing pilot | Rotating |
 | 5 | `standard_rotor_module.stl` | Intermediate rotor stages | Rotating |
 | 1 | `top_rotor_module.stl` | Final stage and reinforced top clamp seat | Rotating |
-| 1 | `lower_magnet_rotor.stl` | Separate lower carrier inside the housing | Rotating |
+| 1 | `lower_magnet_rotor.stl` | Lower carrier with integral 12 × 17.85 mm shaft sleeve | Rotating |
 | 1 | `generator_housing.stl` | Closed cup, cassette shoulder, cable outlet and mounting tabs | Stationary |
-| 1 | `coil_cassette.stl` | Removable winding carrier and anti-rotation key | Stationary |
+| 1 | `coil_cassette.stl` | Removable carrier with 18 open serpentine guides and anti-rotation key | Stationary |
 | 1 | `generator_cover.stl` | Cassette retention and 51105 housing seat | Stationary |
 | 1 | `top_support.stl` | Upper 608 bearing support | Stationary |
 
@@ -95,11 +95,10 @@ Cut the male cassette arc free flush with its plate and deburr it before compari
 | 1 | M8 threaded rod | Extended shaft envelope 555.3 mm; establish actual cut length by dry assembly |
 | 3 | M8 nuts | Two torque-transmitting nuts and one upper clamping nut |
 | 1 | Top M8 washer | Nominal 24 mm outside diameter × 2 mm thickness |
-| 1 | Spacer sleeve | Nominal 12 mm outside diameter × 17.85 mm length; verify M8 passage and clamping |
 | 36 | Magnets | Two rings of 18; target 10 × 2 mm; measure coating and actual dimensions |
 | 1 | Complete 51105 thrust bearing | 25 × 42 × 11 mm, including both washers and rolling elements |
 | 1 | 608 radial bearing | 8 × 22 × 7 mm |
-| 6 each | M4 cover screws and captive hex nuts | Select actual length and head from grip, nut height and floor clearance |
+| 4 each | M4 cover screws and captive hex nuts | Separate from the four frame screws; select length and head from the real grip |
 | 4 | Lower timber screws | Reference 4 × 30 mm, flat head Ø9; site-specific selection required |
 | 4 | Upper timber screws | Reference 4 × 40 mm; site-specific selection required |
 
@@ -173,11 +172,11 @@ Use the full manual for tooling, checks and service. The essential order is:
 
 1. Measure hardware, validate coupons and check magnet retention and polarity.
    Prepare an insulated, removable test coil and lead strain relief.
-2. Seat six captive M4 nuts. Put the lower rotor, its M8 torque nut, shaft and spacer
-   inside the housing with magnet faces upwards. Keep nut and shaft clear of the floor.
+2. Seat four captive M4 nuts. Put the lower rotor, its M8 torque nut, shaft and
+   integral sleeve inside the housing with magnet faces upwards. Keep nut and shaft clear of the floor.
 3. Lower the cassette onto its shoulder, engage its key, align cable openings and
    route the protected cable.
-4. Fit the stationary cover and tighten six M4 screws evenly in a crossing sequence.
+4. Fit the stationary cover and tighten four M4 screws evenly in a crossing sequence.
    No PLA tightening torque is validated.
 5. Install the 51105 housing washer, rolling elements and shaft washer correctly.
    Lower the base and upper torque nut, magnet faces down, controlling attraction
@@ -201,9 +200,10 @@ changes should not require unlocking its six permanent stage joints.
 
 ## Serpentine coil experiments
 
-Route insulated wire through active pole regions in connected, repeated serpentines.
-For this series, **one complete repetition of the same serpentine is one turn**.
-Mark start A, end B and the path. With a few repetitions and hand rotation, verify
+Route insulated wire continuously around the cassette's 18 rounded open guide
+islands, alternating past the inner and outer side of each successive island.
+For this series, **one complete circuit of all 18 guides is one turn**. Mark start A,
+end B and the path. With a few repetitions and hand rotation, verify
 that successive active sections add voltage. Reversed sections or incorrect poles
 can cancel it; the cassette does not define a validated electrical winding.
 

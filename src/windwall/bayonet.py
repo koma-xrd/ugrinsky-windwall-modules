@@ -4,8 +4,9 @@ The female stays fixed. Male builders return the locked orientation (0 degrees);
 insertion starts at -18 degrees viewed from +Z. A common z_plane_mm translates
 the interface without changing its frame. Tracks rise along CCW travel and have
 solid terminal faces. Their finite-lug envelope leaves axial/radial running
-clearance; stop contact intentionally has zero tangential clearance. Permanent
-teeth and pawls require an unverified elastic snap during locking. Module
+clearance; stop contact intentionally has zero tangential clearance. Receiver
+headroom permits raised rotation before the blade tongues seat axially.
+Permanent teeth and pawls require an unverified elastic snap during locking. Module
 builders add the blade seams; this file owns the central bayonet primitive.
 """
 
@@ -22,6 +23,7 @@ def _validate(parameters: DesignParameters, z_plane_mm: float = 0) -> None:
     positive = (b.hub_outer_diameter_mm, b.lug_radial_depth_mm,
                 b.lug_tangential_width_mm, b.lug_axial_thickness_mm,
                 b.root_fillet_mm, m.radial_clearance_mm, m.axial_clearance_mm,
+                b.seating_headroom_mm,
                 m.minimum_loaded_wall_mm, parameters.shaft.clearance_hole_diameter_mm)
     if any(not isfinite(value) or value <= 0 for value in positive):
         raise ValueError("Bayonet dimensions and running clearances must be positive and finite")
@@ -64,7 +66,8 @@ def _receiver_height(parameters: DesignParameters) -> float:
     slope = b.ramp_rise_mm / b.insertion_offset_deg
     return (_insertion_height(parameters) + m.minimum_loaded_wall_mm
             + b.lug_axial_thickness_mm + b.ramp_rise_mm
-            + 2*slope*_track_half_span_deg(parameters) + m.axial_clearance_mm)
+            + 2*slope*_track_half_span_deg(parameters) + m.axial_clearance_mm
+            + b.seating_headroom_mm)
 
 
 def _insertion_height(parameters: DesignParameters) -> float:
@@ -147,7 +150,8 @@ def _track(parameters: DesignParameters) -> cq.Workplane:
         lower = (_insertion_height(parameters) + slope*(angle+b.insertion_offset_deg-half_span)
                  - m.axial_clearance_mm)
         upper = (_insertion_height(parameters) + b.lug_axial_thickness_mm
-                 + slope*(angle+b.insertion_offset_deg+half_span) + m.axial_clearance_mm)
+                 + slope*(angle+b.insertion_offset_deg+half_span) + m.axial_clearance_mm
+                 + b.seating_headroom_mm)
         sections.append(cq.Wire.makePolygon([
             cq.Vector(r*cos(phi), r*sin(phi), z)
             for r, z in ((inner, lower), (outer, lower), (outer, upper), (inner, upper))
@@ -193,7 +197,9 @@ def build_female_bayonet(parameters: DesignParameters, z_plane_mm: float = 0) ->
     notch_wire = cq.Wire.makePolygon([
         cq.Vector(tooth_radius-0.78,-1.08,0),cq.Vector(tooth_radius+0.40,0,0),
         cq.Vector(tooth_radius-0.78,1.08,0)],close=True)
-    notch = cq.Workplane(obj=cq.Solid.extrudeLinear(notch_wire,[],cq.Vector(0,0,1.8)))
+    # The permanent tooth follows the raised locking pose before seating.
+    notch = cq.Workplane(obj=cq.Solid.extrudeLinear(
+        notch_wire,[],cq.Vector(0,0,1.8+b.seating_headroom_mm)))
     notch = notch.translate((0,0,_insertion_height(parameters)+parameters.bayonet.ramp_rise_mm+0.7))
     for angle in (0,120,240):
         body = body.cut(notch.rotate((0,0,0),(0,0,1),angle))

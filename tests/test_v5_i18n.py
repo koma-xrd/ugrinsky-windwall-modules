@@ -56,7 +56,7 @@ class V5TranslationTests(unittest.TestCase):
             self.assertEqual(other.read_bytes(), path.read_bytes())
         german = ROOT / self.module.SOURCE_MANUAL
         self.assertEqual(hashlib.sha256(german.read_bytes()).hexdigest(),
-                         "0914e2e2d97f996f1338bcc5eff62d805a033c26ac0ea9f4925f4c0dd7fcc317")
+                         "eecdace0e859b82a434b0a1e1ad3fa747cdb411297721b3d15de3b57a00e64f3")
 
     def test_coverage_is_exact_and_translations_preserve_numeric_invariants(self):
         for locale in LOCALES:
@@ -87,8 +87,8 @@ class V5TranslationTests(unittest.TestCase):
                     self.assertEqual(str(doc.styles[name].font.color.rgb), "000000")
                 for table in doc.tables:
                     self.assertTrue(table.rows[0]._tr.xpath("./w:trPr/w:tblHeader"))
-                assembly = text.split(catalog["s134"])[1].split(catalog["s171"])[0]
-                order = [assembly.index(catalog[key]) for key in ("s136", "s138", "s140", "s142", "s144")]
+                assembly = text.split(catalog["s132"])[1].split(catalog["s169"])[0]
+                order = [assembly.index(catalog[key]) for key in ("s134", "s136", "s138", "s140", "s142")]
                 self.assertEqual(order, sorted(order))
                 captions = [p.text for p in doc.paragraphs if p.style.name == "Caption"]
                 self.assertEqual(len(captions), 15)
@@ -97,7 +97,7 @@ class V5TranslationTests(unittest.TestCase):
                     self.assertGreater(len(description), 40)
                     self.assertIn(description, catalog.values())
                 self.assertIn("N S N S", text)
-                for critical in ("s006", "s008", "s106", "s110", "s111", "s123", "s132", "s159", "s160", "s193", "s235", "s236", "s297"):
+                for critical in ("s006", "s008", "s104", "s108", "s109", "s121", "s130", "s157", "s158", "s191", "s233", "s234", "s295"):
                     self.assertIn(catalog[critical], text)
                 matrix = doc.tables[6]
                 self.assertEqual([r.cells[1].text for r in matrix.rows[1:]], ["20", "40", "80"])

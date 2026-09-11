@@ -113,8 +113,9 @@ class BuildV5Tests(unittest.TestCase):
         assemblies = {r['name']: r for r in self.manifest['assemblies']}
         total = assemblies['fence_assembly']
         components = {r['name']: r for r in total['components']}
-        self.assertEqual(total['component_count'], 42)
-        self.assertEqual(total['cad_solid_count'], 76)
+        self.assertEqual(total['component_count'], 37)
+        self.assertEqual(total['cad_solid_count'], 71)
+        self.assertNotIn('spacer', components)
         self.assertEqual(components['shaft']['quantity'], 1)
         self.assertEqual(components['shaft']['role'], 'hardware-reference')
         self.assertEqual(components['shaft']['motion'], 'rotating')
@@ -128,7 +129,7 @@ class BuildV5Tests(unittest.TestCase):
         self.assertEqual(components['upper_magnets']['quantity'], 18)
         self.assertEqual(components['upper_magnets']['cad_solid_count'], 18)
         self.assertEqual(assemblies['rotor_locked']['stage_count'], 7)
-        self.assertEqual(assemblies['generator']['component_count'], 27)
+        self.assertEqual(assemblies['generator']['component_count'], 22)
         for assembly in assemblies.values():
             imported = cq.importers.importStep(str(self.artifact(assembly, 'step'))).val()
             self.assertTrue(imported.isValid())

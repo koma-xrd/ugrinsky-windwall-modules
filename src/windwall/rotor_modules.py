@@ -1,20 +1,27 @@
 """Load-bearing base, standard and top stages in a common nominal blade frame.
 
 The source blade frame spans z=0 to stage_height_mm with its +60-degree twist;
-only its outer bottom edge is relieved for the axial locking motion. The upper
+two inset outer blade-wall seams retain the exterior skin. The upper
 receiver is recessed into a local end-support region;
 the next stage's male extends below zero into it. The support plate bridges
 the phase difference structurally. Successive modules rotate by the blade twist
 to continue the aerodynamic surface. Base fuses the upper generator carrier and
-51105 pilot; Top retains only the compact washer force plate and exposed nut.
+51105 pilot. Its clipped blade silhouette continues vertically below the root
+to the carrier print plane; protected generator volumes are cut after fusion.
+Top retains only the compact washer force plate and exposed nut.
 """
 
 from dataclasses import dataclass
-from math import hypot, isfinite
+from math import cos, hypot, isfinite, pi, sin
 
 import cadquery as cq
+from OCP.BRepLib import BRepLib
+from OCP.HLRAlgo import HLRAlgo_Projector
+from OCP.HLRBRep import HLRBRep_Algo, HLRBRep_HLRToShape
+from OCP.gp import gp_Ax2, gp_Dir, gp_Pnt
 
 from windwall.blade_profile import build_blade_stage
+from windwall.blade_seam import BladeSeamInterface, build_blade_seam
 from windwall.drivers import build_joint_interface, joint_interface_height_mm
 from windwall.generator import base_bearing_interface, build_upper_magnet_carrier
 from windwall.parameters import DesignParameters
@@ -73,18 +80,6 @@ def _disc(radius: float, bottom: float, depth: float) -> cq.Workplane:
     return cq.Workplane('XY').circle(radius).extrude(depth).translate((0,0,bottom))
 
 
-def _outer_blade_key(source: cq.Workplane, height: float, depth: float, top: bool) -> cq.Workplane:
-    target_z = height if top else 0
-    faces = [face for face in source.val().Faces()
-             if abs(face.Center().z-target_z) < 0.01 and abs(face.normalAt().z) > 0.9]
-    solids = [cq.Solid.extrudeLinear(face.outerWire(),face.innerWires(),cq.Vector(0,0,depth))
-              for face in faces]
-    key = cq.Workplane(obj=cq.Compound.makeCompound(solids))
-    outer = (cq.Workplane('XY').circle(62).circle(24).extrude(depth+0.2)
-             .translate((0,0,target_z)))
-    return key.intersect(outer)
-
-
 def _end_guide(p: DesignParameters, bottom: float, angle_deg: float) -> cq.Workplane:
     guide = (cq.Workplane('XY').circle(6).circle(p.shaft.clearance_hole_diameter_mm/2)
              .extrude(3).translate((0,0,bottom)))
@@ -95,16 +90,66 @@ def _end_guide(p: DesignParameters, bottom: float, angle_deg: float) -> cq.Workp
     return guide
 
 
-def _base_blade_extension(source: cq.Workplane, depth: float,
-                          inner_radius: float) -> cq.Workplane:
-    faces = [face for face in source.val().Faces()
-             if abs(face.Center().z) < 0.01 and abs(face.normalAt().z) > 0.9]
-    solids = [cq.Solid.extrudeLinear(face.outerWire(),face.innerWires(),cq.Vector(0,0,-depth))
-              for face in faces]
-    extension = cq.Workplane(obj=cq.Compound.makeCompound(solids))
-    blade_zone = (cq.Workplane('XY').circle(62).circle(inner_radius)
-                  .extrude(depth).translate((0,0,-depth)))
-    return extension.intersect(blade_zone)
+def _base_blade_support(source: cq.Workplane, plate_bottom_z: float,
+                        plate_radius: float, protected_radius: float) -> cq.Workplane:
+    """Continue the full blade silhouette from the print plane to the root.
+
+    The source is the bare blade stage in its nominal XY frame. Exact top-view
+    edges partition the carrier annulus; a vertical ray selects cells occupied
+    by either blade. The protected radius excludes the small source hub/bridges.
+    Only the retained planar faces are extruded, leaving the active blade intact.
+    """
+    source_shape = source.val()
+    # Bounding-box extrema include OCP tolerances, which are not section planes.
+    cap_heights = [face.Center().z for face in source_shape.Faces()
+                   if face.geomType() == 'PLANE' and abs(face.normalAt().z) > 0.99]
+    root_z, top_z = min(cap_heights), max(cap_heights)
+    support_height = root_z-plate_bottom_z
+    if support_height <= 0:
+        raise ValueError('Carrier plate bottom must lie below the blade root')
+
+    projection = HLRBRep_Algo()
+    projection.Add(source_shape.wrapped)
+    projection.Projector(HLRAlgo_Projector(gp_Ax2(gp_Pnt(), gp_Dir(0,0,1))))
+    projection.Update()
+    projection.Hide()
+    outline = HLRBRep_HLRToShape(projection)
+    edges = []
+    for projected in (outline.VCompound(), outline.OutLineVCompound()):
+        if not projected.IsNull():
+            # HLR returns 2D curves; Boolean splitting needs their 3D geometry.
+            BRepLib.BuildCurves3d_s(projected, 1e-7)
+            edges.extend(cq.Shape.cast(projected).Edges())
+    carrier_face = cq.Face.makeFromWires(cq.Workplane('XY').circle(plate_radius).val(),
+                                          [cq.Workplane('XY').circle(protected_radius).val()])
+    projected_faces = []
+    for face in carrier_face.split(*edges).Faces():
+        vertices, triangles = face.tessellate(0.1)
+        # A triangle centroid lies inside even a concave trimmed face, whereas
+        # the face's center of mass can fall outside its boundary.
+        triangle = max(triangles, key=lambda indices:
+                       (vertices[indices[1]]-vertices[indices[0]]).cross(
+                           vertices[indices[2]]-vertices[indices[0]]).Length)
+        point = sum((vertices[index] for index in triangle), cq.Vector())/3
+        ray = cq.Edge.makeLine((point.x,point.y,root_z-1), (point.x,point.y,top_z+1))
+        if ray.intersect(source_shape).Edges():
+            projected_faces.append(face)
+    if not projected_faces:
+        raise ValueError('Blade silhouette must overlap the carrier annulus')
+    footprint = projected_faces[0].fuse(*projected_faces[1:]).clean()
+    solids = [cq.Solid.extrudeLinear(face.outerWire(),face.innerWires(),cq.Vector(0,0,support_height))
+              for face in footprint.Faces()]
+    return cq.Workplane(obj=cq.Compound.makeCompound(solids).translate(cq.Vector(0,0,plate_bottom_z)))
+
+
+def _base_magnet_pocket_volume(p: DesignParameters, plate_bottom_z: float) -> cq.Workplane:
+    """Nominal upper-carrier pocket voids retained after blade-support fusion."""
+    g = p.generator
+    centers = [(g.magnet_pitch_radius_mm*cos(2*pi*index/g.magnet_pocket_count),
+                g.magnet_pitch_radius_mm*sin(2*pi*index/g.magnet_pocket_count))
+               for index in range(g.magnet_pocket_count)]
+    return (cq.Workplane('XY').pushPoints(centers).circle(g.magnet_pocket_diameter_mm/2)
+            .extrude(g.magnet_pocket_depth_mm).translate((0,0,plate_bottom_z)))
 
 
 def _build(parameters: DesignParameters, kind: str) -> RotorModuleModel:
@@ -114,19 +159,18 @@ def _build(parameters: DesignParameters, kind: str) -> RotorModuleModel:
     depth = module_joint_depth_mm(p)
     joint_z = height-depth
     joint = build_joint_interface(p)
+    seam = build_blade_seam(p)
     body = build_blade_stage(p)
-    # The upper stage starts below its locked height and rises during locking.
-    # Relieve the outer bottom edge for its lower insertion/early-travel poses.
+    # Rotate the upper stage with tongues clear, then seat axially at +60 degrees.
     if kind == 'base':
-        # The annular flange joins the carrier's rear clamping face to the blade.
-        carrier_disc_top_depth = (end.base_shaft_flange_depth_mm+p.generator.carrier_height_mm
-                                  -p.generator.carrier_disc_thickness_mm)
-        carrier_ring_radius = base_bearing_interface(p)['boss_clearance_radius_mm']
-        body = body.union(_base_blade_extension(
-            body,carrier_disc_top_depth+0.1,carrier_ring_radius-0.1))
+        plate_bottom = -end.base_shaft_flange_depth_mm-p.generator.carrier_height_mm
+        support = _base_blade_support(
+            body,plate_bottom,p.generator.carrier_diameter_mm/2,
+            base_bearing_interface(p)['boss_clearance_radius_mm'])
+        carrier = build_upper_magnet_carrier(p).union(support)
+        body = body.union(carrier)
         body = body.union(_disc(p.bayonet.hub_outer_diameter_mm/2,
                                 -end.base_shaft_flange_depth_mm, end.base_shaft_flange_depth_mm))
-        body = body.union(build_upper_magnet_carrier(p))
     else:
         body = body.union(joint.male.rotate((0,0,0), (0,0,1), end.joint_phase_deg-p.blade.twist_deg).translate((0,0,-depth)))
     if kind != 'top':
@@ -155,6 +199,7 @@ def _build(parameters: DesignParameters, kind: str) -> RotorModuleModel:
     bearing_bottom = nut_bottom = None
     if kind == 'base':
         interface = base_bearing_interface(p)
+        body = body.cut(_base_magnet_pocket_volume(p,plate_bottom))
         bearing_bottom = interface['bearing_floor_z_mm']
         nut_bottom = interface['nut_bottom_z_mm']
         pilot_bottom = interface['pilot_bottom_z_mm']
@@ -175,13 +220,10 @@ def _build(parameters: DesignParameters, kind: str) -> RotorModuleModel:
         body = body.cut(_disc(p.shaft.clearance_hole_diameter_mm/2,
                               shaft_bottom, height-shaft_bottom+1)).clean()
     if kind != 'top':
-        body = body.union(_outer_blade_key(body,height,0.8,True))
+        body = body.union(seam.tongues.rotate((0,0,0),(0,0,1),p.blade.twist_deg)
+                          .translate((0,0,height)))
     if kind != 'base':
-        groove = _outer_blade_key(build_blade_stage(p),height,0.95,False)
-        clearance = groove
-        for dx,dy in ((0.12,0),(-0.12,0),(0,0.12),(0,-0.12)):
-            clearance = clearance.union(groove.translate((dx,dy,0)))
-        body = body.cut(clearance)
+        body = body.cut(seam.groove_clearance)
     if not body.val().isValid() or len(body.val().Solids()) != 1:
         raise ValueError(f'{kind.capitalize()} module must be one valid connected solid')
     return RotorModuleModel(body, (p.shaft.clearance_hole_diameter_mm-p.shaft.nominal_diameter_mm)/2,

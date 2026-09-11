@@ -79,6 +79,11 @@ class BayonetTests(unittest.TestCase):
         point = (20*cos(radians(-36)), 20*sin(radians(-36)), 2.99)
         self.assertTrue(self.coupon.female.val().isInside(point))
 
+    def test_added_seating_headroom_preserves_three_mm_roof_above_locked_lug(self):
+        roof = (cq.Workplane('XY').box(.2,.5,2.9998,centered=(True,True,False))
+                .translate((20,0,7.7001)))
+        self.assertLess(roof.cut(self.coupon.female).val().Volume(), 1e-6)
+
     def test_lower_circular_rail_is_continuous_beneath_every_entry_window(self):
         for angle_deg in range(0,360,10):
             point = (20*cos(radians(angle_deg)),20*sin(radians(angle_deg)),2.9)

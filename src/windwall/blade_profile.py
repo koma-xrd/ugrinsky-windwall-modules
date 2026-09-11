@@ -84,6 +84,21 @@ def build_blade_profile(parameters: DesignParameters) -> cq.Wire:
     return face.Faces()[0].outerWire()
 
 
+def build_blade_section_faces(parameters: DesignParameters, z_mm: float = 0) -> tuple[cq.Face, cq.Face]:
+    """The two aerodynamic walls only, without hub, guide, bridges or fittings.
+
+    Sections share the analytic profile and helical phase used by the stage
+    loft. End-interface builders can consume them without inspecting fused caps.
+    """
+    _validate(parameters)
+    if not isfinite(z_mm) or not 0 <= z_mm <= parameters.rotor.stage_height_mm:
+        raise ValueError('Blade section height must lie within the stage')
+    phase = parameters.blade.twist_deg*z_mm/parameters.rotor.stage_height_mm
+    first = cq.Face.makeFromWires(_blade_wire(parameters.blade)).rotate(
+        (0,0,0), (0,0,1), phase).translate((0,0,z_mm))
+    return first, first.rotate((0,0,0), (0,0,1), 180)
+
+
 def build_blade_stage(parameters: DesignParameters) -> cq.Workplane:
     """Loft analytic sections through the measured twist and join a central hub."""
     _validate(parameters)
