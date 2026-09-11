@@ -21,13 +21,15 @@ TRANSLATIONS = {'en-GB': 'English', 'zh-CN': 'Chinese-Simplified', 'hi-IN': 'Hin
                 'es-ES': 'Spanish', 'fr-FR': 'French'}
 
 
-def _translation_records(root, asset, german_audit, geometry_hash, figures_hash, drawings, figures):
+def _translation_records(root, asset, german_audit, geometry_hash, figures_hash, drawings, figures,
+                         hero_hash):
     """Require all translated packages and the exact catalogues reviewed with them."""
     path, _ = asset('release/v5/audits/manual-translations.json', 'translation-audit', role='validation-evidence')
     translations = json.loads(path.read_bytes())['documents']
     if set(translations) != set(TRANSLATIONS):
         raise ValueError('Translation audit must contain exactly five required locales')
     image_bindings = {d['drawing_id']: drawings[d['filename']] for d in figures['figures']}
+    image_bindings['HERO'] = hero_hash
     for locale, language in TRANSLATIONS.items():
         audit = translations[locale]
         expected_path = f'release/v5/docs/Ugrinsky-Wind-Wall-V5-Manual-{language}.docx'
@@ -46,12 +48,13 @@ def _translation_records(root, asset, german_audit, geometry_hash, figures_hash,
                 or audit['geometry_manifest_sha256'] != geometry_hash
                 or audit['figures_manifest_sha256'] != figures_hash
                 or audit['drawing_sha256_by_filename'] != drawings
+                or audit['hero_sha256'] != hero_hash
                 or audit['image_binding_sha256_by_id'] != image_bindings):
             raise ValueError('Translation source or drawing evidence is stale')
         if (not audit['structural_checks_passed'] or not audit['canonical_zip_verified']
                 or any(audit['accessibility_findings'].values())
-                or audit['chapter_count'] != 13 or audit['figure_count'] != 15
-                or audit['table_count'] != 11 or audit['embedded_images_match_release'] != 15
+                or audit['chapter_count'] != 13 or audit['figure_count'] != 16
+                or audit['table_count'] != 11 or audit['embedded_images_match_release'] != 16
                 or audit['physical_validation_verified']):
             raise ValueError('Translation structural and accessibility evidence has not passed')
         _, record = asset(expected_path, 'document', expected_hash=audit['artifact_sha256'],
@@ -129,8 +132,23 @@ def build_release_index(project_root: Path) -> dict:
         raise ValueError('Manual structural and accessibility evidence has not passed')
     asset(MANUAL, 'document', expected_hash=audit['artifact_sha256'], role='documentation', quantity=1,
           language='de-DE', validation=audit, physical_validation_verified=False)
+    hero_path, hero_record = asset('release/v5/media/windwall-fence-hero.png', 'presentation-image',
+                                   expected_hash=audit['hero_sha256'], role='documentation', quantity=1)
+    with Image.open(hero_path) as picture:
+        hero_size = list(picture.size)
+    if hero_size[0] < 1600 or hero_size[1] < 900 or hero_size[0] <= hero_size[1]:
+        raise ValueError('Hero image is not suitable for README and A4 landscape use')
+    hero_record.update(dimensions_px=hero_size, validation={'png_decodes': True})
+    gif_path, gif_record = asset('release/v5/media/ugrinsky_windwall_10_rotors.gif',
+                                 'presentation-animation', role='documentation', quantity=1)
+    with Image.open(gif_path) as animation:
+        gif_record.update(dimensions_px=list(animation.size),
+                          frame_count=getattr(animation, 'n_frames', 1),
+                          validation={'gif_decodes': True})
+    if gif_record['frame_count'] < 2:
+        raise ValueError('Rotor animation must contain multiple frames')
     _translation_records(root, asset, audit, geometry_record['sha256'], figures_record['sha256'],
-                         drawing_hashes, figures)
+                         drawing_hashes, figures, hero_record['sha256'])
     actual = {p.relative_to(root).as_posix() for p in release.rglob('*') if p.is_file()}
     if actual != set(records):
         raise ValueError(f'Unlisted release artifacts require review: {sorted(actual - set(records))}')

@@ -19,12 +19,15 @@ class V5ReadmeTests(unittest.TestCase):
     def test_required_release_images_are_embedded_with_portable_paths(self):
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
         paths = re.findall(r"!\[[^\]]+\]\(([^)]+)\)", readme)
+        self.assertEqual(paths[:2], ["release/v5/media/windwall-fence-hero.png",
+                                    "release/v5/media/ugrinsky_windwall_10_rotors.gif"])
         for filename in ("E06-generator-explosion.png", "E07-generator-schnitt.png",
                          "E14-zaunmontage.png", "E15-gesamtbaugruppe.png"):
             self.assertIn("release/v5/drawings/" + filename, paths)
         for relative in paths:
             self.assertFalse(Path(relative).is_absolute())
             self.assertTrue((ROOT / relative).is_file())
+        self.assertNotIn("German annotations", readme)
 
 
 if __name__ == "__main__":

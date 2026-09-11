@@ -10,7 +10,9 @@ power output, a safe maximum speed, fatigue life, weather resistance, or suitabi
 for unattended operation. Begin with fit coupons and a guarded workshop test rig.
 The generator must not be connected directly to a 48 V lead-acid battery.
 
-![Animated ten-module Ugrinsky wall concept in a fence context](release/v5/drawings/ugrinsky_windwall_10_rotors.gif)
+![Realistic concept of a ten-rotor Ugrinsky fence beside a modern home and garden](release/v5/media/windwall-fence-hero.png)
+
+![Animated ten-module Ugrinsky wall concept in a fence context](release/v5/media/ugrinsky_windwall_10_rotors.gif)
 
 ![Complete V5 assembly between timber rails with rotating and stationary components distinguished](release/v5/drawings/E15-gesamtbaugruppe.png)
 
@@ -30,8 +32,8 @@ dimensions, roles, file hashes, and CAD validation results.
 | [Deutsche Bauanleitung](release/v5/docs/Ugrinsky-Wind-Wall-V5-Bauanleitung.docx) | German source · de-DE |
 
 Every manual preserves all 13 chapters, 11 tables and 15 current drawings. The five
-translations include complete translated captions and alternative descriptions,
-including the drawing labels. Shared raster drawings retain their German annotations.
+translations include localized captions and complete alternative descriptions.
+All manuals share the same canonical English E01-E15 engineering drawings.
 Technical filenames remain unchanged.
 
 The DOCX packages pass structural and accessibility checks. Rendering remains

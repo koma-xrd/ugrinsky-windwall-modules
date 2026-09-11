@@ -14,9 +14,10 @@ or additional keys, changed numeric tokens, filenames, missing required safety
 phrases and untranslated German instructions fail validation before authoring.
 
 The shared builder preserves all paragraphs and run formatting, 13 chapters,
-11 tables, 15 inline images, page breaks, A4 pages and 18 mm margins. Captions and
-complete alt descriptions are translated. The current German raster drawings are
-reused unchanged and identified by their release hashes. The two Word style parts
+11 tables, 16 inline images, page breaks, A4 pages and 18 mm margins. Captions and
+complete alt descriptions are translated. The canonical English E01-E15 raster
+drawings and shared hero image are reused unchanged and identified by their release
+hashes. The two Word style parts
 use the same explicit language, fonts and black heading styles. ZIP ordering,
 timestamps and source metadata dates are deterministic.
 

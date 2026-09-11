@@ -106,6 +106,18 @@ def _figure(doc, drawing_id, data):
     caption.paragraph_format.keep_together = True
 
 
+def _hero(doc, data):
+    hero = data["hero"]
+    paragraph = doc.add_paragraph()
+    paragraph.paragraph_format.keep_with_next = True
+    paragraph.paragraph_format.space_after = Pt(3)
+    image = paragraph.add_run().add_picture(str(hero["path"]), width=Mm(174))
+    image._inline.docPr.set("descr", hero["alt_text"])
+    image._inline.docPr.set("title", "HERO")
+    caption = doc.add_paragraph(hero["caption"], style="Caption")
+    caption.paragraph_format.keep_together = True
+
+
 def _setup_document():
     doc = Document()
     section = doc.sections[0]
@@ -163,6 +175,7 @@ def _scope(doc, data):
     _paragraph(doc, "Diese Anleitung führt durch Passproben, Druck, Montage des siebenstufigen Rotors und vergleichbare Spulenversuche. Baue zuerst einen geschützten Werkstattaufbau. Erst reale Messungen erlauben die Auswahl der Wicklung, der Magnetbefestigung und der Ladeelektronik.")
     _paragraph(doc, "V5 ist physisch nicht validiert. CAD-Prüfungen bestätigen geometrische Eigenschaften, aber keine sichere Drehzahl, Dauerfestigkeit, Leistung oder Eignung für unbeaufsichtigten Außenbetrieb. Die Passungen sind keine freigegebene Presspassung. Der seitliche Kabelausgang und das Gehäuse sind nicht wasserdicht.", lead="Prototypstatus.")
     _paragraph(doc, "Den Generator nicht direkt an einen 48-V-Bleiakku anschließen. Für die ersten Versuche ausschließlich einen geschützten Messaufbau mit definierter, passend bemessener Last verwenden.", lead="Elektrische Grenze.")
+    _hero(doc, data)
     _table(doc, ["Merkmal", "V5 Nennwert"], [
         ("Rotorstufen", f"{parameters['rotor']['stage_count']}: 1 Base, {parameters['rotor']['standard_stage_count']} Standard, 1 Top"),
         ("Rotordurchmesser", mm(parameters["rotor"]["rotor_diameter_mm"]) + " mm"),

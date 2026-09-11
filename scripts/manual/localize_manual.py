@@ -23,7 +23,7 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 SOURCE_MANUAL = "release/v5/docs/Ugrinsky-Wind-Wall-V5-Bauanleitung.docx"
-SOURCE_SHA256 = "eecdace0e859b82a434b0a1e1ad3fa747cdb411297721b3d15de3b57a00e64f3"
+SOURCE_SHA256 = "38c4575443e4e9ddfdc70ac1f40e1d22c608ee4640648f7a8cf4c872e14ecc7d"
 LOCALES = {
     "en-GB": ("English", "Arial"),
     "zh-CN": ("Chinese-Simplified", "Microsoft YaHei"),
@@ -52,6 +52,13 @@ LANGUAGE_CHECKS = {
               "s157": "superficie activa del bobinado", "s168": "alivio real de tracción"},
     "fr-FR": {"s008": "Ne raccordez pas", "s006": "ne sont pas étanches", "s130": "ni nombre définitif",
               "s157": "surface active du bobinage", "s168": "décharge de traction"},
+}
+HERO_QUALIFIERS = {
+    "en-GB": "Unvalidated concept",
+    "zh-CN": "未经验证的概念图",
+    "hi-IN": "अप्रमाणित अवधारणा",
+    "es-ES": "Concepto no validado",
+    "fr-FR": "Concept non validé",
 }
 
 
@@ -85,10 +92,26 @@ def _text_nodes(package):
     return document, nodes
 
 
+def _drawing_aliases(root):
+    """Map localized German drawing metadata to the canonical English source text."""
+    german = json.loads((Path(root) / "scripts/manual/locales/de-DE.json").read_bytes())["drawings"]
+    figures = json.loads((Path(root) / "release/v5/drawings/figures.json").read_bytes())["figures"]
+    aliases = {}
+    for drawing in figures:
+        localized = german[drawing["drawing_id"]]
+        prefix = drawing["drawing_id"] + "  "
+        aliases[prefix + localized["caption"]] = prefix + drawing["caption"]
+        aliases[localized["alt_text"]] = drawing["alt_text"]
+    return aliases
+
+
 def source_segments(root):
     """Stable segment IDs are ordered and bound to the exact German package."""
     _, nodes = _text_nodes(_source_package(root))
-    texts = list(dict.fromkeys(text for _, _, text in nodes if _is_translatable(text)))
+    aliases = _drawing_aliases(root)
+    hero_source = set(json.loads((Path(root) / "scripts/manual/locales/de-DE.json").read_bytes())["hero"].values())
+    texts = list(dict.fromkeys(aliases.get(text, text) for _, _, text in nodes
+                               if text not in hero_source and _is_translatable(text)))
     return {f"s{index:03d}": text for index, text in enumerate(texts, 1)}
 
 
@@ -106,7 +129,9 @@ def validate_catalog(source, catalog):
             raise ValueError(f"Empty translation: {key}")
         if numeric_tokens(original) != numeric_tokens(translated):
             raise ValueError(f"Translation numeric invariants differ: {key}")
-        if original.strip() == translated.strip() and original not in SHARED_LABELS:
+        canonical_english_drawing = bool(re.match(r"^E\d{2}[ .]", original.strip()))
+        if (original.strip() == translated.strip() and original not in SHARED_LABELS
+                and not (catalog["locale"] == "en-GB" and canonical_english_drawing)):
             raise ValueError(f"Untranslated German instruction: {key}")
         for filename in re.findall(r"[A-Za-z0-9_./-]+\.(?:stl|step|png|json)", original):
             if filename not in translated:
@@ -133,6 +158,15 @@ def load_catalog(root, locale):
     catalog = json.loads(path.read_bytes())
     if catalog["locale"] != locale or catalog["source_sha256"] != SOURCE_SHA256:
         raise ValueError("Translation catalogue source or locale is stale")
+    if set(catalog.get("hero", {})) != {"caption", "alt_text"}:
+        raise ValueError("Localized hero caption and alternative text are required")
+    if (not isinstance(catalog["hero"]["caption"], str)
+            or not catalog["hero"]["caption"].strip()
+            or not isinstance(catalog["hero"]["alt_text"], str)
+            or len(catalog["hero"]["alt_text"].strip()) < 40):
+        raise ValueError("Localized hero text is incomplete")
+    if HERO_QUALIFIERS[locale] not in catalog["hero"]["alt_text"]:
+        raise ValueError("Hero alternative text must identify the unvalidated concept")
     validate_catalog(source_segments(root), catalog)
     return catalog
 
@@ -145,6 +179,11 @@ def _translated_package(root, locale):
     package = _source_package(root)
     catalog = load_catalog(root, locale)
     mapping = {text: catalog["translations"][key] for key, text in source_segments(root).items()}
+    for localized, canonical in _drawing_aliases(root).items():
+        mapping[localized] = mapping[canonical]
+    german_hero = json.loads((Path(root) / "scripts/manual/locales/de-DE.json").read_bytes())["hero"]
+    mapping[german_hero["caption"]] = catalog["hero"]["caption"]
+    mapping[german_hero["alt_text"]] = catalog["hero"]["alt_text"]
     document, nodes = _text_nodes(package)
     for node, attribute, original in nodes:
         if original not in mapping:
@@ -195,6 +234,9 @@ def _input_binding(root):
     if drawings != german_audit["drawing_sha256_by_filename"]:
         raise ValueError("German manual drawing binding is stale")
     result["drawing_sha256_by_filename"] = drawings
+    result["hero_sha256"] = digest((root / "release/v5/media/windwall-fence-hero.png").read_bytes())
+    if result["hero_sha256"] != german_audit.get("hero_sha256"):
+        raise ValueError("German manual hero binding is stale")
     result["source_manual_sha256"] = SOURCE_SHA256
     return result
 
@@ -222,8 +264,8 @@ def audit_translation(root, path, locale):
     tables = doc.xpath("//w:tbl", namespaces=NS)
     images = doc.xpath("//wp:inline", namespaces=NS)
     captions = doc.xpath("//w:p[w:pPr/w:pStyle[@w:val='Caption']]", namespaces=NS)
-    checks = [numbers == list(range(1, 14)), len(tables) == 11, len(images) == 15,
-              len(captions) == 15, not doc.xpath("//wp:anchor", namespaces=NS)]
+    checks = [numbers == list(range(1, 14)), len(tables) == 11, len(images) == 16,
+              len(captions) == 16, not doc.xpath("//wp:anchor", namespaces=NS)]
     checks += [bool(t.xpath("./w:tr[1]/w:trPr/w:tblHeader", namespaces=NS)) for t in tables]
     checks += [len(t.xpath("./w:tblPr/w:tblBorders/*[@w:color='D9D9D9']", namespaces=NS)) == 6
                and bool(t.xpath("./w:tblPr/w:tblCellMar", namespaces=NS))
@@ -240,7 +282,8 @@ def audit_translation(root, path, locale):
     checks.append(all(margins.get(q(side)) == "1020" for side in ("top", "right", "bottom", "left")))
     checks.append(all(lang.get(q("val")) == locale for lang in styles.xpath("//w:lang", namespaces=NS)))
     media = {name: digest(payload) for name, payload in expected.items() if name.startswith("word/media/")}
-    if Counter(media.values()) != Counter(binding["drawing_sha256_by_filename"].values()):
+    expected_media = list(binding["drawing_sha256_by_filename"].values()) + [binding["hero_sha256"]]
+    if Counter(media.values()) != Counter(expected_media):
         raise ValueError("Translation embedded images do not match release drawings")
     rels = etree.fromstring(expected["word/_rels/document.xml.rels"])
     targets = {r.get("Id"): "word/" + r.get("Target") for r in rels}
@@ -256,9 +299,9 @@ def audit_translation(root, path, locale):
     return {**binding, "artifact_path": "release/v5/docs/" + filename, "locale": locale,
             "artifact_sha256": digest(path.read_bytes()), "size_bytes": path.stat().st_size,
             "catalog_path": catalog_path, "catalog_sha256": digest((Path(root) / catalog_path).read_bytes()),
-            "chapter_count": 13, "figure_count": 15, "table_count": 11, "segment_count": len(source_segments(root)),
+            "chapter_count": 13, "figure_count": 16, "table_count": 11, "segment_count": len(source_segments(root)),
             "structural_checks_passed": True, "canonical_zip_verified": True,
-            "embedded_images_match_release": 15, "image_binding_sha256_by_id": image_bindings,
+            "embedded_images_match_release": 16, "image_binding_sha256_by_id": image_bindings,
             "page_size_mm": [210, 297], "margins_mm": [18, 18, 18, 18],
             "physical_validation_verified": False}
 
@@ -302,7 +345,7 @@ def write_audit(root, qa_directory):
     audit = {"schema_version": 1, "source_manual": SOURCE_MANUAL,
              "inspection_runtime": "bundled_codex_document_python", "documents": reports,
              "translation_method": "Complete source-run and image-description catalogues; shared deterministic OOXML builder",
-             "drawing_language_note": "Original E01-E15 raster annotations remain German; all figure captions and complete alternative descriptions are translated.",
+             "drawing_language_note": "E01-E15 use canonical English raster annotations in every manual; captions and complete alternative descriptions are localized.",
              "translation_review": "Automated structural, coverage, numeric and terminology checks; no independent native-speaker review recorded."}
     path = Path(root) / "release/v5/audits/manual-translations.json"
     path.write_text(json.dumps(audit, ensure_ascii=False, sort_keys=True, indent=2) + "\n", encoding="utf-8", newline="\n")

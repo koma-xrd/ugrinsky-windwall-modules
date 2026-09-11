@@ -47,6 +47,7 @@ class V5ManualTests(unittest.TestCase):
         cls.text = "\n".join(cls.xml.xpath("//w:t/text()", namespaces=NS))
         cls.manifest = json.loads((ROOT / "release/v5/manifest.json").read_text(encoding="utf-8"))
         cls.figures = json.loads((ROOT / "release/v5/drawings/figures.json").read_text(encoding="utf-8"))
+        cls.german = json.loads((ROOT / "scripts/manual/locales/de-DE.json").read_text(encoding="utf-8"))
 
     def setUp(self):
         self.assertTrue(self.builder_path.is_file(), "V5 manual builder is absent")
@@ -78,12 +79,16 @@ class V5ManualTests(unittest.TestCase):
 
     def test_every_current_figure_is_inline_captioned_and_has_source_alt_text(self):
         inline = self.xml.xpath("//wp:inline", namespaces=NS)
-        self.assertEqual(len(inline), 15)
+        self.assertEqual(len(inline), 16)
         self.assertFalse(self.xml.xpath("//wp:anchor", namespaces=NS))
+        self.assertEqual(inline[0].find(qn("wp:docPr")).get("title"), "HERO")
+        self.assertIn("Unvalidiertes Konzeptbild", inline[0].find(qn("wp:docPr")).get("descr"))
         captions = [p.text for p in self.doc.paragraphs if p.style.name == "Caption"]
+        self.assertTrue(captions[0].startswith("Konzeptbild"))
         for drawing in self.figures["figures"]:
-            self.assertIn(f"{drawing['drawing_id']}  {drawing['caption']}", captions)
-            matches = [item for item in inline if item.find(qn("wp:docPr")).get("descr") == drawing["alt_text"]]
+            localized = self.german["drawings"][drawing["drawing_id"]]
+            self.assertIn(f"{drawing['drawing_id']}  {localized['caption']}", captions)
+            matches = [item for item in inline if item.find(qn("wp:docPr")).get("descr") == localized["alt_text"]]
             self.assertEqual(len(matches), 1)
 
     def test_tables_have_headers_borders_padding_and_no_fixed_heights(self):
@@ -161,6 +166,9 @@ class V5ManualTests(unittest.TestCase):
         with temporary_build_directory() as folder:
             root = Path(folder)
             (root / "release/v5/drawings").mkdir(parents=True)
+            (root / "scripts/manual/locales").mkdir(parents=True)
+            (root / "scripts/manual/locales/de-DE.json").write_bytes(
+                (ROOT / "scripts/manual/locales/de-DE.json").read_bytes())
             (root / "release/v5/manifest.json").write_bytes((ROOT / "release/v5/manifest.json").read_bytes())
             figures = deepcopy(self.figures)
             figures["source_manifest_sha256"] = "0" * 64
@@ -174,6 +182,9 @@ class V5ManualTests(unittest.TestCase):
         with temporary_build_directory() as folder:
             root = Path(folder)
             (root / "release/v5/drawings").mkdir(parents=True)
+            (root / "scripts/manual/locales").mkdir(parents=True)
+            (root / "scripts/manual/locales/de-DE.json").write_bytes(
+                (ROOT / "scripts/manual/locales/de-DE.json").read_bytes())
             (root / "release/v5/manifest.json").write_bytes((ROOT / "release/v5/manifest.json").read_bytes())
             figures = deepcopy(self.figures)
             figures["figures"] = figures["figures"][:-1]

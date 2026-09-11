@@ -7,6 +7,7 @@ from pathlib import Path
 import re
 import sys
 import unittest
+from unittest.mock import patch
 from zipfile import ZipFile
 
 from tests.support import temporary_build_directory
@@ -41,9 +42,9 @@ class V5TranslationTests(unittest.TestCase):
                 report = self.module.audit_translation(ROOT, path, locale)
                 self.assertTrue(report["structural_checks_passed"])
                 self.assertEqual(report["chapter_count"], 13)
-                self.assertEqual(report["figure_count"], 15)
+                self.assertEqual(report["figure_count"], 16)
                 self.assertEqual(report["table_count"], 11)
-                self.assertEqual(report["embedded_images_match_release"], 15)
+                self.assertEqual(report["embedded_images_match_release"], 16)
                 self.assertTrue(report["canonical_zip_verified"])
                 self.assertFalse(report["physical_validation_verified"])
 
@@ -56,7 +57,7 @@ class V5TranslationTests(unittest.TestCase):
             self.assertEqual(other.read_bytes(), path.read_bytes())
         german = ROOT / self.module.SOURCE_MANUAL
         self.assertEqual(hashlib.sha256(german.read_bytes()).hexdigest(),
-                         "eecdace0e859b82a434b0a1e1ad3fa747cdb411297721b3d15de3b57a00e64f3")
+                         "38c4575443e4e9ddfdc70ac1f40e1d22c608ee4640648f7a8cf4c872e14ecc7d")
 
     def test_coverage_is_exact_and_translations_preserve_numeric_invariants(self):
         for locale in LOCALES:
@@ -65,7 +66,9 @@ class V5TranslationTests(unittest.TestCase):
             self.assertEqual(set(catalog["translations"]), set(source))
             self.module.validate_catalog(source, catalog)
             for key, translated in catalog["translations"].items():
-                if source[key] not in self.module.SHARED_LABELS:
+                canonical_english_drawing = bool(re.match(r"^E\d{2}[ .]", source[key].strip()))
+                if (source[key] not in self.module.SHARED_LABELS
+                        and not (locale == "en-GB" and canonical_english_drawing)):
                     self.assertNotEqual(translated.strip(), source[key].strip(), key)
 
     def test_locales_accessibility_styles_and_critical_instruction_order(self):
@@ -91,11 +94,19 @@ class V5TranslationTests(unittest.TestCase):
                 order = [assembly.index(catalog[key]) for key in ("s134", "s136", "s138", "s140", "s142")]
                 self.assertEqual(order, sorted(order))
                 captions = [p.text for p in doc.paragraphs if p.style.name == "Caption"]
-                self.assertEqual(len(captions), 15)
+                self.assertEqual(len(captions), 16)
+                self.assertEqual(doc.inline_shapes[0]._inline.docPr.get("title"), "HERO")
+                self.assertEqual(doc.inline_shapes[0]._inline.docPr.get("descr"),
+                                 self.module.load_catalog(ROOT, locale)["hero"]["alt_text"])
+                self.assertIn(self.module.HERO_QUALIFIERS[locale],
+                              doc.inline_shapes[0]._inline.docPr.get("descr"))
+                self.assertEqual(captions[0], self.module.load_catalog(ROOT, locale)["hero"]["caption"])
+                allowed_descriptions = set(catalog.values()) | {
+                    self.module.load_catalog(ROOT, locale)["hero"]["alt_text"]}
                 for shape in doc.inline_shapes:
                     description = shape._inline.docPr.get("descr")
                     self.assertGreater(len(description), 40)
-                    self.assertIn(description, catalog.values())
+                    self.assertIn(description, allowed_descriptions)
                 self.assertIn("N S N S", text)
                 for critical in ("s006", "s008", "s104", "s108", "s109", "s121", "s130", "s157", "s158", "s191", "s233", "s234", "s295"):
                     self.assertIn(catalog[critical], text)
@@ -153,6 +164,16 @@ class V5TranslationTests(unittest.TestCase):
                 dst.writestr(item, payload)
         with self.assertRaisesRegex(ValueError, "translation|text|content"):
             self.module.audit_translation(ROOT, target, locale)
+
+    def test_changed_hero_is_rejected_before_translation_is_written(self):
+        target = self.folder / "must-not-exist.docx"
+        hero = (ROOT / "release/v5/media/windwall-fence-hero.png").read_bytes()
+        original_digest = self.module.digest
+        with patch.object(self.module, "digest",
+                          side_effect=lambda payload: "0" * 64 if payload == hero else original_digest(payload)):
+            with self.assertRaisesRegex(ValueError, "hero"):
+                self.module.build_translation(ROOT, "en-GB", target)
+        self.assertFalse(target.exists())
 
     def test_release_audit_tracks_every_catalog_and_document(self):
         audit = json.loads((ROOT / "release/v5/audits/manual-translations.json").read_bytes())

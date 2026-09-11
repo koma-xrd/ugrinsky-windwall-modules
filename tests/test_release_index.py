@@ -74,6 +74,13 @@ class ReleaseIndexTests(unittest.TestCase):
         self.save('release/v5/drawings/figures.json', self.figures)
         self.write('release/v5/drawings/README.md', b'Drawing inventory')
         self.write('release/v5/docs/Ugrinsky-Wind-Wall-V5-Bauanleitung.docx', b'reviewed document fixture')
+        hero_path = self.release / 'media/windwall-fence-hero.png'
+        hero_path.parent.mkdir(exist_ok=True)
+        Image.new('RGB', (1600, 900), (20, 40, 60)).save(hero_path)
+        gif_path = self.release / 'media/ugrinsky_windwall_10_rotors.gif'
+        Image.new('RGB', (20, 10), (1, 2, 3)).save(
+            gif_path, save_all=True, append_images=[Image.new('RGB', (20, 10), (3, 2, 1))],
+            duration=100, loop=0)
         self.audit = {'artifact_path': 'release/v5/docs/Ugrinsky-Wind-Wall-V5-Bauanleitung.docx',
                       'artifact_sha256': self.digest('release/v5/docs/Ugrinsky-Wind-Wall-V5-Bauanleitung.docx'),
                       'structural_checks_passed': True, 'accessibility_findings': {'high': 0, 'medium': 0, 'low': 0},
@@ -82,6 +89,7 @@ class ReleaseIndexTests(unittest.TestCase):
                       'figures_manifest_sha256': self.digest('release/v5/drawings/figures.json'),
                       'drawing_sha256_by_filename': {item['filename']: self.digest('release/v5/drawings/' + item['filename'])
                                                      for item in drawings},
+                      'hero_sha256': self.digest('release/v5/media/windwall-fence-hero.png'),
                       'physical_validation_verified': False}
         self.save('release/v5/audits/manual.json', self.audit)
         self.translations = {'documents': {}}
@@ -96,10 +104,11 @@ class ReleaseIndexTests(unittest.TestCase):
                 'locale': locale, 'size_bytes': (self.root / path).stat().st_size,
                 'source_manual_sha256': self.audit['artifact_sha256'],
                 'catalog_path': catalog_path, 'catalog_sha256': self.digest(catalog_path),
-                'chapter_count': 13, 'figure_count': 15, 'table_count': 11,
-                'embedded_images_match_release': 15,
+                'chapter_count': 13, 'figure_count': 16, 'table_count': 11,
+                'embedded_images_match_release': 16,
+                'hero_sha256': self.audit['hero_sha256'],
                 'image_binding_sha256_by_id': {d['drawing_id']: self.digest('release/v5/drawings/' + d['filename'])
-                                               for d in drawings}}
+                                               for d in drawings} | {'HERO': self.audit['hero_sha256']}}
         self.save('release/v5/audits/manual-translations.json', self.translations)
 
     def write(self, relative, payload):

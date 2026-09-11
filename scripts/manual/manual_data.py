@@ -49,6 +49,7 @@ def load_manual_data(project_root: Path) -> dict:
     raw_manifest = manifest_path.read_bytes()
     manifest = json.loads(raw_manifest)
     figures = json.loads((root / "release/v5/drawings/figures.json").read_text(encoding="utf-8"))
+    german = json.loads((root / "scripts/manual/locales/de-DE.json").read_text(encoding="utf-8"))
     if manifest["release"] != "v5" or figures["release"] != "v5":
         raise ValueError("Manual requires the V5 release")
     if figures["source_manifest_sha256"] != hashlib.sha256(raw_manifest).hexdigest():
@@ -56,6 +57,8 @@ def load_manual_data(project_root: Path) -> dict:
     drawing_ids = [drawing["drawing_id"] for drawing in figures["figures"]]
     if drawing_ids != [f"E{index:02d}" for index in range(1, 16)]:
         raise ValueError("Manual requires E01 through E15 exactly once and in order")
+    if set(german["drawings"]) != set(drawing_ids):
+        raise ValueError("German drawing catalogue must cover E01 through E15 exactly")
     parts = manifest["production_parts"]
     if {part["name"] for part in parts} != set(PART_LABELS):
         raise ValueError("V5 production inventory has changed; review manual instructions")
@@ -71,7 +74,12 @@ def load_manual_data(project_root: Path) -> dict:
         if not drawing["caption"].strip() or len(drawing["alt_text"].strip()) < 40:
             raise ValueError(f"Meaningful caption and alt text required: {drawing['drawing_id']}")
         path = _release_path(root, "release/v5/drawings/" + drawing["filename"])
-        drawings[drawing["drawing_id"]] = {**drawing, "path": path}
+        localized = german["drawings"][drawing["drawing_id"]]
+        if not localized["caption"].strip() or len(localized["alt_text"].strip()) < 40:
+            raise ValueError(f"German drawing text is incomplete: {drawing['drawing_id']}")
+        drawings[drawing["drawing_id"]] = {**drawing, **localized, "path": path}
+    hero = {**german["hero"],
+            "path": _release_path(root, "release/v5/media/windwall-fence-hero.png")}
     assemblies = {assembly["name"]: assembly for assembly in manifest["assemblies"]}
     components = {part["name"]: part for part in assemblies["fence_assembly"]["components"]}
     frame_parts = {part["name"]: part for part in drawings["E14"]["parts"]}
@@ -88,6 +96,6 @@ def load_manual_data(project_root: Path) -> dict:
         (sum(name.startswith("lower_wood_screw_") for name in frame_parts), "Holzschrauben unten", frame_parts["lower_wood_screw_1_reference"]["reference_note"]),
         (sum(name.startswith("wood_screw_") for name in frame_parts), "Holzschrauben oben", frame_parts["wood_screw_1_reference"]["reference_note"]),
     ]
-    return {"manifest": manifest, "parts": parts, "drawings": drawings,
+    return {"manifest": manifest, "parts": parts, "drawings": drawings, "hero": hero,
             "components": components, "hardware": hardware,
             "coupons": {part["name"]: part for part in manifest["coupons"]}}
