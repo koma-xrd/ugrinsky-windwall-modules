@@ -264,8 +264,8 @@ class RotorModuleTests(unittest.TestCase):
         self.assertTrue(all(not base.isInside((x,y,plate_top+0.2)) for x,y in probes))
 
     def test_base_blade_reinforcement_reaches_the_central_carrier_ring(self):
-        # The 51105 cover boss reserves radius 24.45; blade-form walls join
-        # the annular carrier immediately outside that stationary keepout.
+        # The 51105 cover boss reserves the bearing keepout; blade-form walls
+        # join the annular carrier immediately outside that stationary keepout.
         connection_zone = (cq.Workplane('XY').circle(25.6).circle(24.6)
                            .extrude(4).translate((0,0,-7.5)))
         contact = self.modules['base'].shape.intersect(connection_zone)
