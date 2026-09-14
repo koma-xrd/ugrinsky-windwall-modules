@@ -169,7 +169,7 @@ class RotorModuleTests(unittest.TestCase):
                              .extrude(0.2).translate((0, 0, cap_probe_z)))
         self.assertGreater(base.intersect(upper_plate_probe).val().Volume(), 4)
         cap_bridge_probe = (cq.Workplane('XY')
-                            .circle(interface['labyrinth_inner_radius_mm'] - 0.1)
+                            .circle(interface['labyrinth_inner_radius_mm'] + 0.1)
                             .circle(p.bearings.thrust_outer_diameter_mm / 2 + 0.1)
                             .extrude(0.2).translate((0, 0, cap_probe_z)))
         self.assertLess(cap_bridge_probe.cut(base).val().Volume(), 0.01)
