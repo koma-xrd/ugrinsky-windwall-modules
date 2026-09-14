@@ -603,17 +603,17 @@
             "minimum_xyz": [
               -75.0,
               -75.0,
-              -16.35
+              -14.350000000000001
             ],
             "size_xyz": [
               150.0,
               150.0,
-              14.2
+              12.2
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 25927.122461046678,
+          "cad_volume_mm3": 23259.53330453983,
           "dimensions_mm": {
             "maximum_xyz": [
               75.0,
@@ -623,12 +623,12 @@
             "minimum_xyz": [
               -75.0,
               -75.0,
-              -16.35
+              -14.350000000000001
             ],
             "size_xyz": [
               150.0,
               150.0,
-              14.2
+              12.2
             ]
           },
           "known_limitations": [
@@ -1812,8 +1812,8 @@
       ],
       "step_path": "release/v5/assembly/rotor_locked.step",
       "step_round_trip_valid": true,
-      "step_sha256": "4ad39fce3473a7ee26ff4dceeb894cfe9350e46afa84a2440ea54223a16f9c01",
-      "summed_component_volume_mm3": 776291.2435969962,
+      "step_sha256": "087f7602c5b5ac2a6a0678e41c05abb46a5844ea9ffdc0ff7ae942788e56bebe",
+      "summed_component_volume_mm3": 773623.6544404894,
       "topology_result": {
         "cad_solid_count": 64,
         "cad_valid": true,
@@ -2424,17 +2424,17 @@
             "minimum_xyz": [
               -75.0,
               -75.0,
-              -16.35
+              -14.350000000000001
             ],
             "size_xyz": [
               150.0,
               150.0,
-              14.2
+              12.2
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 25927.122461046678,
+          "cad_volume_mm3": 23259.53330453983,
           "dimensions_mm": {
             "maximum_xyz": [
               75.0,
@@ -2444,12 +2444,12 @@
             "minimum_xyz": [
               -75.0,
               -75.0,
-              -16.35
+              -14.350000000000001
             ],
             "size_xyz": [
               150.0,
               150.0,
-              14.2
+              12.2
             ]
           },
           "known_limitations": [
@@ -3122,8 +3122,8 @@
       "source_builder": "windwall.generator.build_generator_assembly",
       "step_path": "release/v5/assembly/generator.step",
       "step_round_trip_valid": true,
-      "step_sha256": "8ee59df1bb30b30f388546d3abaf9e17b72a0dea695b0924b721e908ab2b1386",
-      "summed_component_volume_mm3": 432798.1545236476,
+      "step_sha256": "eb8e83dbcaa012773fab58cd011ef112b2db970a6779587f759eefd303af9542",
+      "summed_component_volume_mm3": 430130.5653671408,
       "topology_result": {
         "cad_solid_count": 56,
         "cad_valid": true,
@@ -3734,17 +3734,17 @@
             "minimum_xyz": [
               -75.0,
               -75.0,
-              -16.35
+              -14.350000000000001
             ],
             "size_xyz": [
               150.0,
               150.0,
-              14.2
+              12.2
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 25927.122461046678,
+          "cad_volume_mm3": 23259.53330453983,
           "dimensions_mm": {
             "maximum_xyz": [
               75.0,
@@ -3754,12 +3754,12 @@
             "minimum_xyz": [
               -75.0,
               -75.0,
-              -16.35
+              -14.350000000000001
             ],
             "size_xyz": [
               150.0,
               150.0,
-              14.2
+              12.2
             ]
           },
           "known_limitations": [
@@ -5293,8 +5293,8 @@
       "source_builder": "windwall.assembly.build_locked_rotor_assembly",
       "step_path": "release/v5/assembly/fence_assembly.step",
       "step_round_trip_valid": true,
-      "step_sha256": "d796a2e80b871bf4d87eaf0d5a39f7d95b79a2aae2fdde34a002cac4a36288e4",
-      "summed_component_volume_mm3": 1033534.6224223054,
+      "step_sha256": "5ec8f13b2abbd26408a34be6b9609452076b57628cb0d7ac4882733d32fab0aa",
+      "summed_component_volume_mm3": 1030867.0332657986,
       "topology_result": {
         "cad_solid_count": 71,
         "cad_valid": true,
@@ -8120,17 +8120,17 @@
         "minimum_xyz": [
           -75.0,
           -75.0,
-          37.15
+          39.15
         ],
         "size_xyz": [
           150.0,
           150.0,
-          14.199999999999996
+          12.199999999999996
         ]
       },
       "cad_solid_count": 1,
       "cad_valid": true,
-      "cad_volume_mm3": 25927.122461046678,
+      "cad_volume_mm3": 23259.533304539837,
       "dimensions_mm": {
         "maximum_xyz": [
           75.0,
@@ -8140,12 +8140,12 @@
         "minimum_xyz": [
           -75.0,
           -75.0,
-          37.15
+          39.15
         ],
         "size_xyz": [
           150.0,
           150.0,
-          14.199999999999996
+          12.199999999999996
         ]
       },
       "expected_component_count": 1,
@@ -8162,7 +8162,7 @@
         "maximum_xyz": [
           75.0,
           75.0,
-          14.199999809265137
+          12.199999809265137
         ],
         "minimum_xyz": [
           -75.0,
@@ -8170,14 +8170,14 @@
           0.0
         ],
         "nonmanifold_edge_count": 0,
-        "signed_volume": 25913.76268637548,
+        "signed_volume": 23247.76527684309,
         "size_xyz": [
           150.0,
           150.0,
-          14.199999809265137
+          12.199999809265137
         ],
-        "triangle_count": 5428,
-        "unique_vertex_count": 2706
+        "triangle_count": 5008,
+        "unique_vertex_count": 2496
       },
       "name": "generator_cover",
       "physical_validation_verified": false,
@@ -8187,10 +8187,10 @@
       "source_builder": "windwall.generator_housing.build_generator_cover",
       "step_path": "release/v5/step/generator_cover.step",
       "step_round_trip_valid": true,
-      "step_sha256": "3ec2d9dbf4c6f28a0dff5b8efdfb9d5366f3faf61b608251149426abd0c5fafb",
+      "step_sha256": "b7237c71dfb39f7ba1bfd8c0674a7b544425296a85bebe278b615cf8064839bb",
       "stl_path": "release/v5/stl/generator_cover.stl",
-      "stl_sha256": "278de7f69071cf6f04adc1bff9e410b3d608635694773aedf353657ba9e82a97",
-      "stl_translation_z_mm": -37.15,
+      "stl_sha256": "28911e1ed1a14c5ffb70ea1834d89c627e5d96e6d30c0c13c9f3935e4f6b270f",
+      "stl_translation_z_mm": -39.15,
       "topology_result": {
         "cad_solid_count": 1,
         "cad_valid": true,

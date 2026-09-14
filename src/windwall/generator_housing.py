@@ -178,14 +178,13 @@ def build_coil_cassette(p: DesignParameters) -> cq.Workplane:
 
 
 def build_generator_cover(p: DesignParameters) -> cq.Workplane:
-    """M4-secured diaphragm, reinforced rim, and top-open 51105 load seat."""
+    """M4-secured flat-bottom diaphragm, rim, and top-open 51105 load seat."""
     d, radius, _, bottom = _layout(p)
     b = p.bearings
     body = _ring(d.shell_radius_mm, 12.5, bottom, d.diaphragm_mm)
     body = body.union(_ring(d.shell_radius_mm, radius, bottom, d.cover_rim_mm))
     seat_floor = bottom + d.diaphragm_mm
     boss_radius = b.thrust_housing_seat_diameter_mm / 2 + 3
-    body = body.union(_ring(boss_radius, 12.5, seat_floor - 3, 3))
     body = body.union(_ring(boss_radius, b.thrust_housing_seat_diameter_mm / 2,
                             seat_floor, b.thrust_housing_seat_depth_mm))
     for x, y in _fastener_axes(d):

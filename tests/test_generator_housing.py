@@ -107,6 +107,22 @@ class GeneratorHousingTests(unittest.TestCase):
         shaft = cq.Workplane('XY').circle(4.4).extrude(30).translate((0, 0, 27))
         self.assertLess(parts.cover.intersect(shaft).val().Volume(), 1e-6)
 
+    def test_cover_underside_is_flat_for_support_free_printing(self):
+        parts = self.parts
+        nominal_bottom = parts.metadata['cover_bottom_z_mm']
+        bounds = parts.cover.val().BoundingBox()
+        self.assertAlmostEqual(bounds.zmin, nominal_bottom, places=6)
+
+        # The central bearing shoulder and the surrounding diaphragm must both
+        # begin on the same print-bed plane; only the required shaft bore is open.
+        for radius in (15.0, 30.0, 58.0):
+            below_bed = (cq.Workplane('XY').circle(0.5).extrude(0.1)
+                         .translate((radius, 0, nominal_bottom - 0.1)))
+            first_layer = (cq.Workplane('XY').circle(0.5).extrude(0.1)
+                           .translate((radius, 0, nominal_bottom)))
+            self.assertLess(parts.cover.intersect(below_bed).val().Volume(), 1e-6)
+            self.assertGreater(parts.cover.intersect(first_layer).val().Volume(), 0.05)
+
     def test_cable_passage_is_open_and_explicitly_not_waterproof(self):
         parts = self.parts
         for shape in (parts.housing, parts.coil_cassette):
