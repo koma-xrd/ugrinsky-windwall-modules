@@ -41,7 +41,7 @@
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 92054.4202490977,
+          "cad_volume_mm3": 96564.90096061217,
           "dimensions_mm": {
             "maximum_xyz": [
               61.000000100000776,
@@ -1812,8 +1812,8 @@
       ],
       "step_path": "release/v5/assembly/rotor_locked.step",
       "step_round_trip_valid": true,
-      "step_sha256": "087f7602c5b5ac2a6a0678e41c05abb46a5844ea9ffdc0ff7ae942788e56bebe",
-      "summed_component_volume_mm3": 773623.6544404894,
+      "step_sha256": "1d0b65c3e23ce6f4984668026a3a9a2fbd21b6e45fccb28305624d2603d74093",
+      "summed_component_volume_mm3": 778134.1351520038,
       "topology_result": {
         "cad_solid_count": 64,
         "cad_valid": true,
@@ -1862,7 +1862,7 @@
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 92054.4202490977,
+          "cad_volume_mm3": 96564.90096061217,
           "dimensions_mm": {
             "maximum_xyz": [
               61.000000100000776,
@@ -3122,8 +3122,8 @@
       "source_builder": "windwall.generator.build_generator_assembly",
       "step_path": "release/v5/assembly/generator.step",
       "step_round_trip_valid": true,
-      "step_sha256": "eb8e83dbcaa012773fab58cd011ef112b2db970a6779587f759eefd303af9542",
-      "summed_component_volume_mm3": 430130.5653671408,
+      "step_sha256": "a688959bcbe9469dc045d45c42e576326ed1ed054d44495fef8543b3f09d735c",
+      "summed_component_volume_mm3": 434641.0460786552,
       "topology_result": {
         "cad_solid_count": 56,
         "cad_valid": true,
@@ -3172,7 +3172,7 @@
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 92054.4202490977,
+          "cad_volume_mm3": 96564.90096061217,
           "dimensions_mm": {
             "maximum_xyz": [
               61.000000100000776,
@@ -5293,8 +5293,8 @@
       "source_builder": "windwall.assembly.build_locked_rotor_assembly",
       "step_path": "release/v5/assembly/fence_assembly.step",
       "step_round_trip_valid": true,
-      "step_sha256": "5ec8f13b2abbd26408a34be6b9609452076b57628cb0d7ac4882733d32fab0aa",
-      "summed_component_volume_mm3": 1030867.0332657986,
+      "step_sha256": "3c395c579c031bd101589e9e29a03313f7fe405bc9b8abaf7596683b21a31126",
+      "summed_component_volume_mm3": 1035377.5139773131,
       "topology_result": {
         "cad_solid_count": 71,
         "cad_valid": true,
@@ -5603,8 +5603,8 @@
     "internal_blade_twist_deg": 60.0,
     "joint_axial_float": [
       {
-        "compression_0_10_mm_intersection_mm3": 37.56862140686572,
-        "compression_0_20_mm_intersection_mm3": 73.2918053304515,
+        "compression_0_10_mm_intersection_mm3": 37.56862087098033,
+        "compression_0_20_mm_intersection_mm3": 73.29180425768999,
         "contact_probe_bracket_mm": null,
         "joint": "base/standard_1",
         "physical_load_capacity_verified": false
@@ -7590,7 +7590,7 @@
       },
       "cad_solid_count": 1,
       "cad_valid": true,
-      "cad_volume_mm3": 92054.4202490977,
+      "cad_volume_mm3": 96564.90096061217,
       "dimensions_mm": {
         "maximum_xyz": [
           61.000000100000776,
@@ -7630,14 +7630,14 @@
           1.0000000116860974e-07
         ],
         "nonmanifold_edge_count": 0,
-        "signed_volume": 91937.70047766915,
+        "signed_volume": 96451.78562814738,
         "size_xyz": [
           122.0,
           121.28905487060547,
           83.80000295175782
         ],
-        "triangle_count": 31128,
-        "unique_vertex_count": 15544
+        "triangle_count": 31470,
+        "unique_vertex_count": 15723
       },
       "name": "base_rotor_module",
       "physical_validation_verified": false,
@@ -7647,9 +7647,9 @@
       "source_builder": "windwall.rotor_modules.build_base_module",
       "step_path": "release/v5/step/base_rotor_module.step",
       "step_round_trip_valid": true,
-      "step_sha256": "cb2f8226bcfbcca3964cd04deec2a2d909b97ab64dfadda3eebf3f8f4f1c8731",
+      "step_sha256": "e3c614f6c0186ff2eba85c07390e2a57869484c71f97125804544bea2c3ee98f",
       "stl_path": "release/v5/stl/base_rotor_module.stl",
-      "stl_sha256": "40cd5d10c6961603e5b48fdd8265458d8af80c9e4cd78dadb986d80c9389bff3",
+      "stl_sha256": "5719eef2a975a50490981538e98bdcc860a1b2de8454362daedb17f1d1606339",
       "stl_translation_z_mm": 13.0000001,
       "topology_result": {
         "cad_solid_count": 1,
