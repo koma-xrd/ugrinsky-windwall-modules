@@ -60,6 +60,12 @@ from above. The 51105 thrust bearing transfers rotor weight to the stationary co
 and housing. The upper 608 bearing provides radial guidance in a separate support
 attached beneath the upper timber rail.
 
+The base includes a 54 mm rotating labyrinth cup around the stationary 51105
+bearing-seat ring. Its 49 mm internal diameter leaves 0.4 mm nominal radial
+clearance, and its top cap leaves 0.25 mm nominal axial clearance above the ring.
+Check free rotation and the printed clearances before running the rotor. This
+shield does not establish waterproofing or weather resistance.
+
 | Rotates with the shaft | Remains stationary | Bearing motion |
 | --- | --- | --- |
 | Base and integrated upper magnet carrier | Housing and mounting tabs | 51105 shaft washer rotates with the base |

@@ -1,34 +1,34 @@
 {
   "accessibility_findings": {
     "high": 0,
-    "low": 0,
-    "medium": 0
+    "medium": 0,
+    "low": 0
   },
   "artifact_path": "release/v5/docs/Ugrinsky-Wind-Wall-V5-Bauanleitung.docx",
-  "artifact_sha256": "6bb21130b4625c20ad41ce5ff981accc406d204b9ac7340eba9d97d1d5ba86ce",
+  "artifact_sha256": "2101928cae0575febea5a57d2e791b4c62127ed155ffefd378134cb5dfe9d0a0",
   "canonical_zip_verified": true,
   "chapter_count": 13,
   "drawing_sha256_by_filename": {
-    "E01-rotorstapel.png": "81b09933a8d2d7c0cb8b18ecd64f9aa5c36b4ca5d7af8653e70e1375910ac428",
-    "E02-modultypen.png": "f30832cf7acc22b86789870e52efebbd41b818b8fb38479c8a06bae05ad424d3",
+    "E01-rotorstapel.png": "a6dae1d29851bfbd0548e85b96bd20e88fedc812cb4aac772a3001f17d7843e3",
+    "E02-modultypen.png": "d1f0cd057681d9e8d0008aabb2021ce5f9ec925547360ed2135e6ceeb29c7a7a",
     "E03-bajonett-blattnaht.png": "f308e1a11c347f0ce0dcd496506fa940bccf86426461dce5b6475a308c64c9ce",
-    "E04-base-51105-schnitt.png": "2bc6846db576beac024cef4782775aac200d7b50d91f64f29a83d32bfff80be0",
+    "E04-base-51105-schnitt.png": "425aa900cd9757f2389b3016ef8ec9d66d57dceb776eac26145b276b9efb7c87",
     "E05-unterer-magnetrotor.png": "47e46818461108c222780dc0a0952e8db5d97fd7bf4b294aadc3a3d409105bce",
-    "E06-generator-explosion.png": "f2e34e492316017d2d6012dabcb11d8b417213f4d8f22b8bb25103952f30be5b",
-    "E07-generator-schnitt.png": "e70b922135a573d06d5b270a255e115d183fe5e2fd8fd6d34bf78107c46ba211",
-    "E08-kassettenrueckhaltung.png": "9b0905bf0f0c708f742c50feb0759c5af82a4017442f2fe89547da7f344103ce",
-    "E09-deckelverschraubung.png": "0d537ca7d6d51b48d0ec9c967a3947826e840e079cb11145dc975e8571b42091",
+    "E06-generator-explosion.png": "cc0e3d93308140b750a1593666259f800e2e4d0772b5fb3026346f485255b639",
+    "E07-generator-schnitt.png": "bff49123421d507fab41148e06b902b09fdca1b5fc5178f0bab62df2993c9ed7",
+    "E08-kassettenrueckhaltung.png": "0adb2ac3ea5c4ab1af3e1119e5615f856cc2e09dec443ae54404899e96fb7b7b",
+    "E09-deckelverschraubung.png": "5b2fb9ac4bc32c2ad1834dd2ac9063b4e4f634027d178dff5a207d72b5a6f61a",
     "E10-seitlicher-kabelausgang.png": "2961528d79f9b33e60920dba8ea7e2959bc6f67478ff6ac6ed02787b8d138ff6",
     "E11-51105-passungsprobe.png": "812d498b0f8230c52d7a371271785157cd3b08ac9cf38fececda1ba986a28f68",
     "E12-608-passungsprobe.png": "ad5b389f35cb4bb6c68f6a05a991311a9b1906d977fe05aacbc798430454f685",
     "E13-oberer-halter.png": "ca67ef962eab9596bc954b40aca956d07d50b8460f278deca7224407262f7481",
-    "E14-zaunmontage.png": "2a6db4573b0d88ef6220a76216dab8593c49bafd9505b76095e61f1e5db911a3",
-    "E15-gesamtbaugruppe.png": "51478f0325bd42089f7a28d414171a0d0cf590f1a6656a0a049588e2e4341a9a"
+    "E14-zaunmontage.png": "36a17c9e0eb2d3f0c5a70884b83a85aec8f6b3752f9644b0395a42878bef122b",
+    "E15-gesamtbaugruppe.png": "e3f753e6434af5f0e22c80bd09b7fb3f644829576a6b438e16dfa8e5bcfc0c20"
   },
   "embedded_images_match_release": 16,
-  "figures_manifest_sha256": "c2f4b1c0d49830e7ddd3bf43d9900c8bcf24ac6c9deff8cbb4233af63027dc8d",
+  "figures_manifest_sha256": "8580b901f494663ba572d100683bb8902f5628cc915ddf773ccbd47156cb9e15",
   "full_rebuild_determinism": "verified_in_final_review_fix_with_bundled_document_python",
-  "geometry_manifest_sha256": "0c6664df4aeec9514c3c28032dbe54ae3bfa6ea4c126190b77cf9d3247599f62",
+  "geometry_manifest_sha256": "16a54bb5300221e22f6976367d89db5f974a0fe1c718d94b04a6c4c537eb2628",
   "inspection_runtime": "bundled_codex_document_python",
   "margins_mm": [
     18,

@@ -23,7 +23,7 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 SOURCE_MANUAL = "release/v5/docs/Ugrinsky-Wind-Wall-V5-Bauanleitung.docx"
-SOURCE_SHA256 = "6bb21130b4625c20ad41ce5ff981accc406d204b9ac7340eba9d97d1d5ba86ce"
+SOURCE_SHA256 = "2101928cae0575febea5a57d2e791b4c62127ed155ffefd378134cb5dfe9d0a0"
 LOCALES = {
     "en-GB": ("English", "Arial"),
     "zh-CN": ("Chinese-Simplified", "Microsoft YaHei"),
