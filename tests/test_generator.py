@@ -74,6 +74,13 @@ class GeneratorTests(unittest.TestCase):
                       for name, shape in a.rotating_parts.items()}
             self.assertLess(a.collision_report(moving)['unintended_intersection_mm3'], 0.01)
 
+    def test_base_labyrinth_clears_stationary_cover_through_rotation(self):
+        assembly = build_generator_assembly(DEFAULT_PARAMETERS)
+        for angle in range(0, 360, 15):
+            rotated = assembly.base_module.shape.rotate((0, 0, 0), (0, 0, 1), angle)
+            with self.subTest(angle=angle):
+                self.assertLess(rotated.intersect(assembly.cover).val().Volume(), 0.01)
+
     def test_bearing_support_penetration_is_not_exempt_from_collision_report(self):
         a = self.assembly
         moving = dict(a.rotating_parts, base=a.base_module.shape.translate((0, 0, -0.2)))

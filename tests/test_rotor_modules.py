@@ -156,6 +156,14 @@ class RotorModuleTests(unittest.TestCase):
             0.4,
         )
 
+        cover_boss = (cq.Workplane('XY')
+                      .circle(p.bearings.thrust_housing_seat_diameter_mm / 2 + 3)
+                      .circle(p.bearings.thrust_housing_seat_diameter_mm / 2)
+                      .extrude(interface['boss_clearance_top_z_mm']
+                               - interface['bearing_floor_z_mm'])
+                      .translate((0, 0, interface['bearing_floor_z_mm'])))
+        self.assertLess(base.intersect(cover_boss).val().Volume(), 0.01)
+
         for angle in range(0, 360, 10):
             direction = angle * pi / 180
             wall_radius = 25.5
