@@ -164,10 +164,15 @@ class RotorModuleTests(unittest.TestCase):
                 with self.subTest(angle=angle, z=z):
                     self.assertTrue(base.val().isInside((x, y, z)))
 
+        cap_probe_z = interface['boss_clearance_top_z_mm'] + 0.1
         upper_plate_probe = (cq.Workplane('XY').circle(26.9).circle(26.0)
-                             .extrude(0.2)
-                             .translate((0, 0, interface['boss_clearance_top_z_mm'] + 0.1)))
+                             .extrude(0.2).translate((0, 0, cap_probe_z)))
         self.assertGreater(base.intersect(upper_plate_probe).val().Volume(), 4)
+        cap_bridge_probe = (cq.Workplane('XY')
+                            .circle(interface['labyrinth_inner_radius_mm'] - 0.1)
+                            .circle(p.bearings.thrust_outer_diameter_mm / 2 + 0.1)
+                            .extrude(0.2).translate((0, 0, cap_probe_z)))
+        self.assertLess(cap_bridge_probe.cut(base).val().Volume(), 0.01)
 
     def test_base_blade_walls_reach_the_magnet_plate_for_torque_transfer(self):
         base = self.modules['base'].shape.val()
