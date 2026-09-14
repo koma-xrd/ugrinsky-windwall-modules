@@ -75,6 +75,12 @@ def _disc(radius: float, bottom: float, depth: float) -> cq.Workplane:
     return cq.Workplane('XY').circle(radius).extrude(depth).translate((0,0,bottom))
 
 
+def _ring(outer_radius: float, inner_radius: float, bottom: float,
+          depth: float) -> cq.Workplane:
+    return (cq.Workplane('XY').circle(outer_radius).circle(inner_radius)
+            .extrude(depth).translate((0,0,bottom)))
+
+
 def _end_guide(p: DesignParameters, bottom: float, angle_deg: float) -> cq.Workplane:
     guide = (cq.Workplane('XY').circle(6).circle(p.shaft.clearance_hole_diameter_mm/2)
              .extrude(3).translate((0,0,bottom)))
@@ -170,6 +176,19 @@ def _build(parameters: DesignParameters, kind: str) -> RotorModuleModel:
                                 pilot_bottom, shoulder-pilot_bottom))
         body = body.union(_disc(p.bearings.thrust_outer_diameter_mm/2,
                                 shoulder, interface['shoulder_top_z_mm']-shoulder))
+        labyrinth_inner = interface['labyrinth_inner_radius_mm']
+        labyrinth_outer = interface['labyrinth_outer_radius_mm']
+        body = body.union(_ring(
+            labyrinth_outer,
+            labyrinth_inner,
+            plate_bottom,
+            interface['shoulder_top_z_mm']-plate_bottom,
+        ))
+        body = body.union(_disc(
+            labyrinth_outer,
+            interface['boss_clearance_top_z_mm'],
+            interface['shoulder_top_z_mm']-interface['boss_clearance_top_z_mm'],
+        ))
         nut = (cq.Workplane('XY').polygon(6,2*m.nut_pocket_across_flats_mm/(3**0.5))
                .extrude(nut_bottom+m.nut_pocket_depth_mm-pilot_bottom+1)
                .translate((0,0,pilot_bottom-1)))

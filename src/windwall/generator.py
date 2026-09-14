@@ -138,10 +138,15 @@ def base_bearing_interface(p: DesignParameters) -> dict[str, float]:
     floor = face-p.generator.upper_air_gap_mm+d.cover_clearance_mm+d.diaphragm_mm
     shoulder = floor+b.thrust_height_mm
     shoulder_top = max(0, shoulder+p.manufacturing.minimum_loaded_wall_mm)
+    cover_boss_radius = b.thrust_housing_seat_diameter_mm/2+3
+    labyrinth_inner_radius = cover_boss_radius+0.4
+    labyrinth_outer_radius = 27.0
     return {'bearing_floor_z_mm': floor, 'shoulder_z_mm': shoulder,
             'shoulder_top_z_mm': shoulder_top,
             'nut_bottom_z_mm': shoulder_top-p.manufacturing.minimum_loaded_wall_mm-p.manufacturing.nut_pocket_depth_mm,
-            'boss_clearance_radius_mm': b.thrust_housing_seat_diameter_mm/2+3+d.radial_clearance_mm,
+            'boss_clearance_radius_mm': labyrinth_inner_radius,
+            'labyrinth_inner_radius_mm': labyrinth_inner_radius,
+            'labyrinth_outer_radius_mm': labyrinth_outer_radius,
             'boss_clearance_top_z_mm': floor+b.thrust_housing_seat_depth_mm+p.manufacturing.axial_clearance_mm,
             'pilot_bottom_z_mm': face}
 

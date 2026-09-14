@@ -141,6 +141,34 @@ class RotorModuleTests(unittest.TestCase):
         self.assertTrue(base.val().isInside((12,0,-1.5)))
         self.assertTrue(base.val().isInside((44.5,0,-8.5)))
 
+    def test_base_has_closed_0_4_mm_bearing_labyrinth(self):
+        p = DEFAULT_PARAMETERS
+        base = self.modules['base'].shape
+        interface = base_bearing_interface(p)
+        plate_bottom = upper_magnet_face_z_mm(p)
+        plate_top = plate_bottom + p.generator.carrier_disc_thickness_mm
+
+        self.assertAlmostEqual(interface['labyrinth_inner_radius_mm'], 24.5)
+        self.assertAlmostEqual(interface['labyrinth_outer_radius_mm'], 27.0)
+        self.assertAlmostEqual(
+            interface['labyrinth_inner_radius_mm']
+            - p.bearings.thrust_housing_seat_diameter_mm / 2 - 3,
+            0.4,
+        )
+
+        for angle in range(0, 360, 10):
+            direction = angle * pi / 180
+            wall_radius = 25.5
+            x, y = wall_radius * cos(direction), wall_radius * sin(direction)
+            for z in (plate_top - 0.1, -7.0, -4.0, interface['shoulder_z_mm'] + 0.1):
+                with self.subTest(angle=angle, z=z):
+                    self.assertTrue(base.val().isInside((x, y, z)))
+
+        upper_plate_probe = (cq.Workplane('XY').circle(26.9).circle(26.0)
+                             .extrude(0.2)
+                             .translate((0, 0, interface['boss_clearance_top_z_mm'] + 0.1)))
+        self.assertGreater(base.intersect(upper_plate_probe).val().Volume(), 4)
+
     def test_base_blade_walls_reach_the_magnet_plate_for_torque_transfer(self):
         base = self.modules['base'].shape.val()
         for x,y in ((-5,30),(0,-35),(0,35),(5,-30)):
