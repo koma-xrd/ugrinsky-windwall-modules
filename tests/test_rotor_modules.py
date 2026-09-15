@@ -55,8 +55,7 @@ class RotorModuleTests(unittest.TestCase):
 
     def test_outer_skin_is_retained_and_added_pads_stay_in_the_end_fitting_envelope(self):
         source = build_blade_stage(DEFAULT_PARAMETERS)
-        # Full wall thickness resumes above the inset groove; its surrounding
-        # aerodynamic skin is checked separately through the entire groove.
+        # Sample exterior blade-wall material away from the end fittings.
         outer = cq.Workplane('XY').circle(62).circle(36.001).extrude(68.9498).translate((0,0,1.0501))
         outside_fittings = cq.Workplane('XY').circle(62).circle(36.4).extrude(68.9498).translate((0,0,1.0501))
         for name, model in self.modules.items():

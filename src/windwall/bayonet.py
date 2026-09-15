@@ -5,9 +5,9 @@ insertion starts at -18 degrees viewed from +Z. A common z_plane_mm translates
 the interface without changing its frame. Tracks rise along CCW travel and have
 solid terminal faces. Their finite-lug envelope leaves axial/radial running
 clearance; stop contact intentionally has zero tangential clearance. Receiver
-headroom permits raised rotation before the blade tongues seat axially.
+headroom permits raised rotation before the plain blade ends meet axially.
 Permanent teeth and pawls require an unverified elastic snap during locking. Module
-builders add the blade seams; this file owns the central bayonet primitive.
+builders add plain blade ends; this file owns bayonet locking and torque transfer.
 """
 
 from dataclasses import dataclass

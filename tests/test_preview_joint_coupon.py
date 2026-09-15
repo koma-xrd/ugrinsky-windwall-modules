@@ -17,8 +17,9 @@ class JointExportTests(unittest.TestCase):
             report = export_coupon(changed, destination)
             self.assertEqual(report.get('locking_lift_mm'), 1.0)
             self.assertLess(report['maximum_rigid_motion_intersection_mm3'], .01)
-            self.assertEqual(report['blade_seam']['tongue_count'], 2)
-            self.assertEqual(report['blade_seam']['groove_count'], 2)
+            self.assertNotIn('blade_seam', report)
+            self.assertEqual(report['torque_interface'], 'central_bayonet_only')
+            self.assertEqual(report['blade_ends'], 'plain_flush_samples')
             self.assertAlmostEqual(report['motion_samples'][-1]['travel_deg'], 18.25)
             for name in ('male', 'female'):
                 mesh = analyze_binary_stl(destination / f'joint_{name}.stl')

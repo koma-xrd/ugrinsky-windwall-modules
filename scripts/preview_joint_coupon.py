@@ -3,7 +3,7 @@
 Use scripts/run_geometry.py for CLI execution. This exports local geometry and
 does not send a print job or certify fit/load capacity. Keeping the full ring
 preserves its stiffness; the pair includes three permanent-locking bayonet
-lugs, two blade seam pairs and a 4.2 mm-deep open-spoke M8 hex calibration recess. It is not a
+lugs, two plain blade-wall samples and a 4.2 mm-deep open-spoke M8 hex calibration recess. It is not a
 full-depth nut socket and has no continuous hexagonal load floor.
 """
 
@@ -20,7 +20,6 @@ if str(PROJECT_ROOT / 'src') not in sys.path:
 import cadquery as cq
 
 from windwall.drivers import build_joint_coupon
-from windwall.blade_seam import build_blade_seam
 from windwall.parameters import DEFAULT_PARAMETERS, DesignParameters
 from windwall.reference_mesh import analyze_binary_stl
 
@@ -69,7 +68,6 @@ def export_coupon(parameters: DesignParameters, output_dir: Path) -> dict:
     ccw = coupon.male.rotate((0,0,0), (0,0,1), 0.5).intersect(coupon.female).val().Volume()
     cw = coupon.male.rotate((0,0,0), (0,0,1), -0.5).intersect(coupon.female).val().Volume()
     locked = coupon.male.intersect(coupon.female).val().Volume()
-    seam = build_blade_seam(parameters)
     maximum_rigid = max(sample['rigid_intersection_mm3'] for sample in (*motion,*seating))
     report = {'physically_calibrated': False, 'interactive_qa_verified': False,
               'view': 'from +Z looking down', 'insertion_orientation_deg': -parameters.bayonet.insertion_offset_deg,
@@ -80,8 +78,8 @@ def export_coupon(parameters: DesignParameters, output_dir: Path) -> dict:
               'maximum_motion_intersection_mm3': max(sample['intersection_mm3'] for sample in motion),
               'maximum_rigid_motion_intersection_mm3': maximum_rigid,
               'locking_lift_mm': lift, 'seating_samples': seating,
-              'blade_seam': {'tongue_count': seam.tongue_count, 'groove_count': seam.groove_count,
-                             'transverse_clearance_mm': seam.transverse_clearance_mm},
+              'torque_interface': 'central_bayonet_only',
+              'blade_ends': 'plain_flush_samples',
               'maximum_insertion_intersection_mm3': max(insertion),
               'ccw_stop_intersection_mm3': ccw, 'cw_snap_lock_intersection_mm3': cw,
               'registration': coupon.registration, 'motion_samples': motion, 'meshes': meshes}

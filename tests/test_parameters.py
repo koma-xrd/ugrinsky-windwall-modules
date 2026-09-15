@@ -4,6 +4,9 @@ from windwall.parameters import DEFAULT_PARAMETERS
 
 
 class ParameterContractTests(unittest.TestCase):
+    def test_default_parameters_have_no_blade_seam_configuration(self):
+        self.assertFalse(hasattr(DEFAULT_PARAMETERS, 'blade_seam'))
+
     def test_stack_and_rotation_contract(self):
         p = DEFAULT_PARAMETERS
         self.assertEqual(p.rotor.stage_count, 7)

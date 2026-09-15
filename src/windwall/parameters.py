@@ -52,16 +52,6 @@ class BayonetParameters:
 
 
 @dataclass(frozen=True)
-class BladeSeamParameters:
-    """PLA coupon dimensions; the surrounding skin retains the blade envelope."""
-
-    tongue_height_mm: float = 0.8
-    groove_depth_mm: float = 1.05
-    transverse_clearance_mm: float = 0.12
-    skin_thickness_mm: float = 0.35
-
-
-@dataclass(frozen=True)
 class BladeParameters:
     """Measured circular centerlines in the bottom-section shaft frame, in mm.
 
@@ -205,7 +195,6 @@ class DesignParameters:
     rotor: RotorParameters = field(default_factory=RotorParameters)
     bayonet: BayonetParameters = field(default_factory=BayonetParameters)
     blade: BladeParameters = field(default_factory=BladeParameters)
-    blade_seam: BladeSeamParameters = field(default_factory=BladeSeamParameters)
     drivers: DriverParameters = field(default_factory=DriverParameters)
     modules: ModuleParameters = field(default_factory=ModuleParameters)
     generator: GeneratorParameters = field(default_factory=GeneratorParameters)

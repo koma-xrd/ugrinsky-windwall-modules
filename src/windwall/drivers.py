@@ -13,7 +13,6 @@ import cadquery as cq
 
 from windwall.bayonet import BayonetCoupon, build_bayonet_coupon
 from windwall.blade_profile import build_blade_section_faces
-from windwall.blade_seam import build_blade_seam
 from windwall.parameters import DesignParameters
 
 
@@ -28,6 +27,7 @@ class JointCoupon(BayonetCoupon):
     screw_axes: tuple = ()
     registration: dict | None = None
     nut_calibration_recess_depth_mm: float | None = None
+    blade_sample_count: int = 0
 
     def unplanned_intersection_volume_mm3(self) -> float:
         return self.locked_intersection_volume_mm3()
@@ -45,9 +45,9 @@ def build_joint_interface(parameters: DesignParameters) -> JointCoupon:
 
 
 def build_joint_coupon(parameters: DesignParameters) -> JointCoupon:
-    """Short blade seam samples share the module's bayonet and assembly path.
+    """Short plain blade-wall samples share the module's bayonet assembly path.
 
-    Spokes below/above the seam join both blade samples to their respective
+    Spokes below/above the nominal plane join both blade samples to their respective
     bayonet halves. The historical shallow open-spoke hex calibration remains.
     """
     joint = build_joint_interface(parameters)
@@ -60,7 +60,6 @@ def build_joint_coupon(parameters: DesignParameters) -> JointCoupon:
     nut = (cq.Workplane('XY').polygon(6, m.nut_pocket_across_flats_mm/cos(radians(30)))
            .extrude(m.nut_pocket_depth_mm+1).translate((0,0,top-recess_depth)))
     male, female = joint.male.cut(nut), joint.female
-    seam = build_blade_seam(parameters)
     phase = parameters.blade.twist_deg-parameters.modules.joint_phase_deg
     keepout = parameters.bayonet.hub_outer_diameter_mm/2+parameters.bayonet.lug_radial_depth_mm+2*m.minimum_loaded_wall_mm
     annulus = cq.Face.makeFromWires(cq.Workplane('XY').circle(parameters.blade.rotor_radius_mm).val(),
@@ -86,9 +85,7 @@ def build_joint_coupon(parameters: DesignParameters) -> JointCoupon:
                        .rotate((0,0,0),(0,0,1),angle))
         female = female.union(lower_spoke).union(lower_wall)
         male = male.union(spoke.translate((0,0,top))).union(upper_wall)
-    female = female.union(seam.tongues.rotate((0,0,0),(0,0,1),phase).translate((0,0,top)))
-    male = male.cut(seam.groove_clearance.rotate((0,0,0),(0,0,1),phase).translate((0,0,top)))
     if any(not part.val().isValid() or len(part.val().Solids()) != 1 for part in (male, female)):
         raise ValueError('Each joint coupon half must be one valid connected solid')
     return replace(joint, male=male, female=female,
-                   nut_calibration_recess_depth_mm=recess_depth)
+                   nut_calibration_recess_depth_mm=recess_depth, blade_sample_count=2)

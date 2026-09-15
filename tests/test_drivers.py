@@ -43,7 +43,10 @@ class JointCouponTests(unittest.TestCase):
         self.assertEqual(self.coupon.registration['joint_locked_phase_deg'], 60)
         self.assertTrue(self.coupon.registration['module_end_registration_verified'])
 
-    def test_coupon_exposes_two_blade_seams_and_raised_locking_clearance(self):
+    def test_coupon_exposes_two_plain_blade_samples_and_raised_locking_clearance(self):
+        self.assertEqual(self.coupon.blade_sample_count, 2)
+        self.assertFalse(hasattr(self.coupon, 'tongue_count'))
+        self.assertFalse(hasattr(self.coupon, 'groove_count'))
         outer = cq.Workplane('XY').circle(62).circle(26).extrude(30)
         for part in (self.coupon.male, self.coupon.female):
             self.assertGreater(part.intersect(outer).val().Volume(), 10)
