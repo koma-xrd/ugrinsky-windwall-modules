@@ -285,7 +285,7 @@ def _generator(doc, data):
     _page(doc, "7 Generator montieren", level=1)
     _paragraph(doc, "Arbeite bei gesichertem Stillstand mit einer Montagehilfe, die die Anziehung der Magnetringe kontrolliert. Der Gehäusetopf öffnet nach oben. Prüfe vorab Muttertaschen, Schulter, Schlüssel und Kabelweg. Setze die vier gefangenen M4-Muttern vor dem Verschließen vollständig ein.")
     _steps(doc, [
-        ("Unteren Magnetrotor einsetzen", "M8-Drehmomentmutter in die Rückentasche setzen. Unteren Rotor mit Welle und integrierter Distanzhülse in den Topf einsetzen, Magnetflächen nach oben. Der Magnetträger bleibt im Gehäuse; die Hülse läuft frei durch die stationäre Mitte. Mutter und Wellenende dürfen den geschlossenen Boden nicht berühren."),
+        ("Unteren Magnetrotor einsetzen", "M8-Drehmomentmutter von unten in die offene Tasche setzen. Unteren Rotor mit Welle und integrierter Distanzhülse in den Topf einsetzen, Magnetflächen nach oben. Der Magnetträger bleibt im Gehäuse; die Hülse läuft frei durch die stationäre Mitte. Mutter und Wellenende dürfen den geschlossenen Boden nicht berühren."),
         ("Spulenkassette einsetzen", "Die Wicklung zuvor auf Passung und Isolation prüfen. Kassette über die Welle absenken, auf der Gehäuseschulter absetzen und den einzelnen Schlüssel in die Verdrehsicherung führen. Die seitlichen Kabelöffnungen müssen fluchten."),
         ("Stationären Deckel montieren", "Kabel aus dem seitlichen Ausgang führen und entlasten. Deckel plan aufsetzen und die vier M4-Schrauben in gefangene Muttern einschrauben. Gleichmäßig und schrittweise über Kreuz anziehen; bei Spalt oder Verformung stoppen. Die getrennten äußeren Rahmenbohrungen bleiben dabei unberührt. Für PLA liegt kein geprüftes Anziehdrehmoment vor."),
         ("51105 einsetzen", "Stationäre Gehäusescheibe auf den Deckelbund setzen, dann Wälzkörper und rotierende Wellenscheibe mit einander zugewandten Laufbahnen einsetzen. Lager sauber halten; den Zentrierbund der Base mit der realen Wellenscheibe abgleichen."),
@@ -295,7 +295,7 @@ def _generator(doc, data):
     _page(doc, "Unterer Rotor im Gehäuse")
     _figure(doc, "E05", data)
     sleeve = data["manifest"]["assembly_audit"]["integral_lower_rotor_sleeve"]
-    _paragraph(doc, "Die Rückentasche überträgt Drehmoment über die M8-Mutter. Die integrierte Distanzhülse ist Teil des unteren Magnetrotors und dreht mit ihm; die stationäre Spule darf sie nicht berühren. Die CAD-Hülse misst " + dimensions((sleeve["outer_diameter_mm"], sleeve["height_mm"])) + " als Außendurchmesser und Höhe, mit " + mm(sleeve["inner_diameter_mm"]) + " mm M8-Durchgang. Reale Klemmung und Bodenabstand trocken prüfen.")
+    _paragraph(doc, "Die plane 5 mm dicke Trägerfläche liegt beim Druck auf dem Bett. Der erhöhte Mittelbereich enthält die nach unten offene M8-Muttertasche zur Drehmomentübertragung. Die integrierte Distanzhülse liegt oben und dreht mit dem unteren Magnetrotor; die stationäre Spule darf sie nicht berühren. Die CAD-Hülse misst " + dimensions((sleeve["outer_diameter_mm"], sleeve["height_mm"])) + " als Außendurchmesser und Höhe, mit " + mm(sleeve["inner_diameter_mm"]) + " mm M8-Durchgang. Reale Klemmung und Bodenabstand trocken prüfen. Steifigkeit, Brückendruck, Maßpassung, Außenbetrieb und angetriebener Betrieb bleiben physisch unvalidiert.")
     _page(doc, "Generator in Einbaureihenfolge")
     _figure(doc, "E06", data)
     _paragraph(doc, "Die angehobenen Teile zeigen den Zugang von oben. Die Wicklung bleibt zwischen den beiden rotierenden Magnetträgern stationär. Den unteren Magnetrotor vor Kassette und Deckel einsetzen; nach dem Verschließen ist der Topfboden kein Montagezugang.")
@@ -324,9 +324,9 @@ def _rotor(doc, data):
     _figure(doc, "E01", data)
     _paragraph(doc, "Auf die bereits gelagerte Base folgen fünf identische Standardmodule und abschließend das Topmodul. Die M8-Welle läuft durch die freien Mitten und die kurzen Führungsbereiche. Halte den Stapel während der Montage gegen Kippen gesichert.")
     _steps(doc, [
-        ("Einfügeposition ausrichten", "Jede neue Stufe anhand der passenden Klauen und Einführfenster gegenüber der darunterliegenden Stufe orientieren. Vor dem endgültigen Fügen müssen Nut und Feder an der Blattnaht zusammenpassen."),
+        ("Einfügeposition ausrichten", "Die Bajonettklauen und Einführfenster jeder neuen Stufe ausrichten. Die Stufen haben glatte bündige Blattenden. Das zentrale Bajonett ist die einzige formschlüssige Drehmomentschnittstelle."),
         ("Stufe verriegeln", "Von oben gesehen gegen den Uhrzeigersinn bis zum vorgesehenen Anschlag verriegeln. Die dauerhafte Rastung muss greifen. Kein übermäßiges Drehmoment und keinen Hammer verwenden; bei klemmender Verbindung die Coupons und Passflächen prüfen."),
-        ("Naht prüfen", "Sitz aller Klauen, Blattnaht und axiales Spiel jeder Verbindung kontrollieren. Ein sichtbarer Versatz oder ein beschädigter Rastzahn ist ein Abbruchgrund. Den nächsten Abschnitt erst nach dieser Kontrolle aufsetzen."),
+        ("Naht prüfen", "Nach dem Verriegeln den bündigen Blattkontakt, den Sitz aller Klauen, die Rastung und das axiale Spiel jeder Verbindung kontrollieren. Ein sichtbarer Versatz oder ein beschädigter Rastzahn ist ein Abbruchgrund. Den nächsten Abschnitt erst nach dieser Kontrolle aufsetzen."),
         ("Obere Klemmung schließen", "Scheibe und M8-Mutter auf dem verstärkten Topbereich einsetzen. Klemmung vor der Montage des oberen Lagerhalters einstellen. Der reale Lagerlauf und die Blattverbindungen dürfen beim Anziehen nicht verspannt werden."),
     ])
     _page(doc, "Drei Modultypen unterscheiden")

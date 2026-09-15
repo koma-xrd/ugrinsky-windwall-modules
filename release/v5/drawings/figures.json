@@ -2,7 +2,7 @@
   "release": "v5",
   "raster_language": "en-GB",
   "source_manifest": "release/v5/manifest.json",
-  "source_manifest_sha256": "16a54bb5300221e22f6976367d89db5f974a0fe1c718d94b04a6c4c537eb2628",
+  "source_manifest_sha256": "7cd36dc9791858d1a5e0be45490acd0bfec4f87a250e0b418bf25dbaac5a1384",
   "render_parameters": {
     "manufacturing": {
       "radial_clearance_mm": 0.3,
@@ -62,12 +62,6 @@
       "hub_blend_radius_mm": 13.0,
       "twist_deg": 60.0,
       "loft_section_count": 9
-    },
-    "blade_seam": {
-      "tongue_height_mm": 0.8,
-      "groove_depth_mm": 1.05,
-      "transverse_clearance_mm": 0.12,
-      "skin_thickness_mm": 0.35
     },
     "drivers": {
       "small_arc_station_deg": 125.0,
@@ -188,7 +182,7 @@
             [
               61.000000100000776,
               60.68442975357152,
-              70.8
+              70.00000010000029
             ]
           ],
           "display_bounds_mm": [
@@ -200,7 +194,7 @@
             [
               61.000000100000776,
               60.68442975357152,
-              70.8
+              70.00000010000029
             ]
           ],
           "printable": true,
@@ -220,7 +214,7 @@
             [
               59.59242814196484,
               61.00000005331607,
-              155.8
+              155.00000010000028
             ]
           ],
           "display_bounds_mm": [
@@ -232,7 +226,7 @@
             [
               59.59242814196484,
               61.00000005331607,
-              155.8
+              155.00000010000028
             ]
           ],
           "printable": true,
@@ -252,7 +246,7 @@
             [
               60.684429683838175,
               59.66700374476217,
-              240.8
+              240.00000010000028
             ]
           ],
           "display_bounds_mm": [
@@ -264,7 +258,7 @@
             [
               60.684429683838175,
               59.66700374476217,
-              240.8
+              240.00000010000028
             ]
           ],
           "printable": true,
@@ -284,7 +278,7 @@
             [
               61.00000012378634,
               60.68442976380187,
-              325.8
+              325.0000001000003
             ]
           ],
           "display_bounds_mm": [
@@ -296,7 +290,7 @@
             [
               61.00000012378634,
               60.68442976380187,
-              325.8
+              325.0000001000003
             ]
           ],
           "printable": true,
@@ -316,7 +310,7 @@
             [
               59.59242814196484,
               61.00000005331606,
-              410.8
+              410.0000001000003
             ]
           ],
           "display_bounds_mm": [
@@ -328,7 +322,7 @@
             [
               59.59242814196484,
               61.00000005331606,
-              410.8
+              410.0000001000003
             ]
           ],
           "printable": true,
@@ -348,7 +342,7 @@
             [
               60.68442968383816,
               59.66700374476216,
-              495.8
+              495.0000001000003
             ]
           ],
           "display_bounds_mm": [
@@ -360,7 +354,7 @@
             [
               60.68442968383816,
               59.66700374476216,
-              495.8
+              495.0000001000003
             ]
           ],
           "printable": true,
@@ -544,12 +538,12 @@
       "drawing_id": "E02",
       "filename": "E02-modultypen.png",
       "caption": "The seven stages use three distinct, one-piece CAD module types.",
-      "alt_text": "E02. The seven stages use three distinct, one-piece CAD module types. All shown module bodies rotate together with the M8 shaft. Integral upper magnet carrier Locating collar for 51105 Lower bayonet spigot Upper receiver and blade seam Compact torque plate Open M8 nut seat",
+      "alt_text": "E02. The seven stages use three distinct, one-piece CAD module types. Plain flush blade ends; the central bayonet is the sole keyed torque interface. All modules rotate with the M8 shaft. Integral upper magnet carrier Locating collar for 51105 Lower bayonet spigot Upper receiver and plain blade end Compact torque plate Open M8 nut seat",
       "callout_labels": [
         "Integral upper magnet carrier",
         "Locating collar for 51105",
         "Lower bayonet spigot",
-        "Upper receiver and blade seam",
+        "Upper receiver and plain blade end",
         "Compact torque plate",
         "Open M8 nut seat"
       ],
@@ -576,7 +570,7 @@
             [
               61.000000100000776,
               60.68442975357152,
-              70.8
+              70.00000010000029
             ]
           ],
           "display_bounds_mm": [
@@ -588,7 +582,7 @@
             [
               61.000000100000776,
               60.68442975357152,
-              70.8
+              70.00000010000029
             ]
           ],
           "printable": true,
@@ -608,7 +602,7 @@
             [
               61.000000100000776,
               60.68442975357152,
-              70.8
+              70.00000010000029
             ]
           ],
           "display_bounds_mm": [
@@ -620,7 +614,7 @@
             [
               61.000000100000776,
               60.68442975357152,
-              70.8
+              70.00000010000029
             ]
           ],
           "printable": null,
@@ -702,7 +696,7 @@
         },
         {
           "name": "standard",
-          "label": "Upper receiver and blade seam",
+          "label": "Upper receiver and plain blade end",
           "target": [
             25,
             -10,
@@ -745,13 +739,13 @@
     {
       "drawing_id": "E03",
       "filename": "E03-bajonett-blattnaht.png",
-      "caption": "Three bayonet lugs lock the stages; tongue and groove guide the blade seam.",
-      "alt_text": "E03. Three bayonet lugs lock the stages; tongue and groove guide the blade seam. Pre-assembly: insert and lock; test the elastic latch on the coupon first. Three lugs + permanent latch teeth Receiver with ramps and locking pawls Standard: lower groove / bayonet Base: upper tongue / receiver",
+      "caption": "Plain flush blade ends; the central bayonet is the sole keyed torque interface.",
+      "alt_text": "E03. Plain flush blade ends; the central bayonet is the sole keyed torque interface. Align insertion windows; lock counterclockwise; verify flush blade contact and inspect latch. Test fit on coupons. Three lugs + permanent latch teeth Receiver with ramps and locking pawls Standard: plain blade end / bayonet Base: plain blade end / receiver",
       "callout_labels": [
         "Three lugs + permanent latch teeth",
         "Receiver with ramps and locking pawls",
-        "Standard: lower groove / bayonet",
-        "Base: upper tongue / receiver"
+        "Standard: plain blade end / bayonet",
+        "Base: plain blade end / receiver"
       ],
       "rotation_state_legend": [
         "ROTATING · rotor, shaft, M8 clamp (ochre)",
@@ -840,7 +834,7 @@
             [
               61.000000100000776,
               60.68442975357152,
-              70.8
+              70.00000010000029
             ]
           ],
           "display_bounds_mm": [
@@ -852,7 +846,7 @@
             [
               39.44257573072728,
               56.176914639045165,
-              70.8
+              70.00000010000029
             ]
           ],
           "printable": true,
@@ -872,7 +866,7 @@
             [
               60.68442974986316,
               61.000000071558965,
-              140.8
+              140.00000010000028
             ]
           ],
           "display_bounds_mm": [
@@ -913,7 +907,7 @@
         },
         {
           "name": "standard_1",
-          "label": "Standard: lower groove / bayonet",
+          "label": "Standard: plain blade end / bayonet",
           "target": null,
           "marker_offset_mm": [
             0,
@@ -922,7 +916,7 @@
         },
         {
           "name": "base",
-          "label": "Base: upper tongue / receiver",
+          "label": "Base: plain blade end / receiver",
           "target": null,
           "marker_offset_mm": [
             0,
@@ -968,7 +962,7 @@
             [
               61.000000100000776,
               60.68442975357152,
-              70.8
+              70.00000010000029
             ]
           ],
           "display_bounds_mm": [
@@ -1246,13 +1240,14 @@
       "drawing_id": "E05",
       "filename": "E05-unterer-magnetrotor.png",
       "caption": "The lower magnet carrier runs inside the housing; its integral sleeve passes through the stationary centre.",
-      "alt_text": "E05. The lower magnet carrier runs inside the housing; its integral sleeve passes through the stationary centre. Housing cut away at the front; cassette and cover hidden for clarity. Closed housing floor · stationary Lower carrier · rotating Magnets facing up towards the coil · rotating M8 torque nut in rear pocket (hidden) Integral spacer sleeve · rotating",
+      "alt_text": "E05. The lower magnet carrier runs inside the housing; its integral sleeve passes through the stationary centre. Flat 5 mm print-side carrier; raised boss with bottom-open M8 nut pocket and upper integral sleeve. Closed housing floor · stationary Lower carrier · rotating Magnets face up to coil · rotating M8 nut in bottom-open pocket (hidden) Upper integral sleeve · rotating Flat carrier print face at bottom",
       "callout_labels": [
         "Closed housing floor · stationary",
         "Lower carrier · rotating",
-        "Magnets facing up towards the coil · rotating",
-        "M8 torque nut in rear pocket (hidden)",
-        "Integral spacer sleeve · rotating"
+        "Magnets face up to coil · rotating",
+        "M8 nut in bottom-open pocket (hidden)",
+        "Upper integral sleeve · rotating",
+        "Flat carrier print face at bottom"
       ],
       "rotation_state_legend": [
         "ROTATING · rotor, shaft, M8 clamp (ochre)",
@@ -1304,7 +1299,7 @@
             [
               -53.0,
               -53.0,
-              -37.0
+              -32.0
             ],
             [
               53.0,
@@ -1316,7 +1311,7 @@
             [
               -53.0,
               -53.0,
-              -37.0
+              -32.0
             ],
             [
               53.0,
@@ -1368,27 +1363,59 @@
             [
               -7.505553499465135,
               -6.500000000000003,
-              -37.0
+              -32.0
             ],
             [
               7.505553499465135,
               6.500000000000001,
-              -30.2
+              -25.2
             ]
           ],
           "display_bounds_mm": [
             [
               -7.505553499465135,
               -6.500000000000003,
-              -37.0
+              -32.0
             ],
             [
               7.505553499465135,
               6.500000000000001,
-              -30.2
+              -25.2
             ]
           ],
           "printable": false,
+          "reference_note": "",
+          "installation_direction": null
+        },
+        {
+          "name": "lower_magnet_rotor",
+          "motion": "rotating",
+          "source_builder": "windwall.generator.build_lower_magnet_rotor",
+          "source_bounds_mm": [
+            [
+              -53.0,
+              -53.0,
+              -32.0
+            ],
+            [
+              53.0,
+              53.0,
+              -9.149999999999999
+            ]
+          ],
+          "display_bounds_mm": [
+            [
+              -53.0,
+              -0.1500000000000068,
+              -32.0
+            ],
+            [
+              53.0,
+              0.15000000000001246,
+              -9.149999999999999
+            ]
+          ],
+          "printable": true,
           "reference_note": "",
           "installation_direction": null
         }
@@ -1414,7 +1441,7 @@
         },
         {
           "name": "lower_magnets",
-          "label": "Magnets facing up towards the coil · rotating",
+          "label": "Magnets face up to coil · rotating",
           "target": null,
           "marker_offset_mm": [
             0,
@@ -1423,7 +1450,7 @@
         },
         {
           "name": "lower_nut",
-          "label": "M8 torque nut in rear pocket (hidden)",
+          "label": "M8 nut in bottom-open pocket (hidden)",
           "target": null,
           "marker_offset_mm": [
             0,
@@ -1432,11 +1459,24 @@
         },
         {
           "name": "lower_magnet_rotor",
-          "label": "Integral spacer sleeve · rotating",
+          "label": "Upper integral sleeve · rotating",
           "target": [
             0,
             0,
             -11.149999999999999
+          ],
+          "marker_offset_mm": [
+            0,
+            0
+          ]
+        },
+        {
+          "name": "lower_magnet_rotor",
+          "label": "Flat carrier print face at bottom",
+          "target": [
+            40,
+            0,
+            -32.0
           ],
           "marker_offset_mm": [
             0,
@@ -1511,7 +1551,7 @@
             [
               -53.0,
               -53.0,
-              -37.0
+              -32.0
             ],
             [
               53.0,
@@ -1523,7 +1563,7 @@
             [
               -53.0,
               -53.0,
-              -37.0
+              -32.0
             ],
             [
               53.0,
@@ -1575,24 +1615,24 @@
             [
               -7.505553499465135,
               -6.500000000000003,
-              -37.0
+              -32.0
             ],
             [
               7.505553499465135,
               6.500000000000001,
-              -30.2
+              -25.2
             ]
           ],
           "display_bounds_mm": [
             [
               -7.505553499465135,
               -6.500000000000003,
-              -37.0
+              -32.0
             ],
             [
               7.505553499465135,
               6.500000000000001,
-              -30.2
+              -25.2
             ]
           ],
           "printable": false,
@@ -1804,7 +1844,7 @@
             [
               61.000000100000776,
               60.68442975357152,
-              70.8
+              70.00000010000029
             ]
           ],
           "display_bounds_mm": [
@@ -1816,7 +1856,7 @@
             [
               61.000000100000776,
               60.68442975357152,
-              170.8
+              170.00000010000028
             ]
           ],
           "printable": true,
@@ -2642,7 +2682,7 @@
             [
               61.000000100000776,
               60.68442975357152,
-              70.8
+              70.00000010000029
             ]
           ],
           "display_bounds_mm": [
@@ -2669,7 +2709,7 @@
             [
               -53.0,
               -53.0,
-              -37.0
+              -32.0
             ],
             [
               53.0,
@@ -2680,8 +2720,8 @@
           "display_bounds_mm": [
             [
               -53.0,
-              -0.15000000000000344,
-              -37.0
+              -0.1500000000000068,
+              -32.0
             ],
             [
               53.0,
@@ -2765,24 +2805,24 @@
             [
               -7.505553499465135,
               -6.500000000000003,
-              -37.0
+              -32.0
             ],
             [
               7.505553499465135,
               6.500000000000001,
-              -30.2
+              -25.2
             ]
           ],
           "display_bounds_mm": [
             [
               -7.505553499465135,
               -0.15000000000000083,
-              -37.0
+              -32.0
             ],
             [
               7.505553499465135,
               0.15000000000000002,
-              -30.2
+              -25.2
             ]
           ],
           "printable": false,
@@ -5310,7 +5350,7 @@
             [
               61.000000100000776,
               60.68442975357152,
-              70.8
+              70.00000010000029
             ]
           ],
           "display_bounds_mm": [
@@ -5322,7 +5362,7 @@
             [
               61.000000100000776,
               60.68442975357152,
-              70.8
+              70.00000010000029
             ]
           ],
           "printable": true,
@@ -5337,7 +5377,7 @@
             [
               -53.0,
               -53.0,
-              -37.0
+              -32.0
             ],
             [
               53.0,
@@ -5349,7 +5389,7 @@
             [
               -53.0,
               -53.0,
-              -37.0
+              -32.0
             ],
             [
               53.0,
@@ -5433,24 +5473,24 @@
             [
               -7.505553499465135,
               -6.500000000000003,
-              -37.0
+              -32.0
             ],
             [
               7.505553499465135,
               6.500000000000001,
-              -30.2
+              -25.2
             ]
           ],
           "display_bounds_mm": [
             [
               -7.505553499465135,
               -6.500000000000003,
-              -37.0
+              -32.0
             ],
             [
               7.505553499465135,
               6.500000000000001,
-              -30.2
+              -25.2
             ]
           ],
           "printable": false,
@@ -6014,7 +6054,7 @@
             [
               60.68442974986316,
               61.000000071558965,
-              140.8
+              140.00000010000028
             ]
           ],
           "display_bounds_mm": [
@@ -6026,7 +6066,7 @@
             [
               60.68442974986316,
               61.000000071558965,
-              140.8
+              140.00000010000028
             ]
           ],
           "printable": true,
@@ -6046,7 +6086,7 @@
             [
               61.0000001,
               55.90742357846125,
-              210.8
+              210.00000010000028
             ]
           ],
           "display_bounds_mm": [
@@ -6058,7 +6098,7 @@
             [
               61.0000001,
               55.90742357846125,
-              210.8
+              210.00000010000028
             ]
           ],
           "printable": true,
@@ -6078,7 +6118,7 @@
             [
               61.000000100000776,
               60.68442975357152,
-              280.8
+              280.0000001000003
             ]
           ],
           "display_bounds_mm": [
@@ -6090,7 +6130,7 @@
             [
               61.000000100000776,
               60.68442975357152,
-              280.8
+              280.0000001000003
             ]
           ],
           "printable": true,
@@ -6110,7 +6150,7 @@
             [
               60.684429749863455,
               61.000000071558986,
-              350.8
+              350.0000001000003
             ]
           ],
           "display_bounds_mm": [
@@ -6122,7 +6162,7 @@
             [
               60.684429749863455,
               61.000000071558986,
-              350.8
+              350.0000001000003
             ]
           ],
           "printable": true,
@@ -6142,7 +6182,7 @@
             [
               61.0000001,
               55.90742357846126,
-              420.8
+              420.0000001000003
             ]
           ],
           "display_bounds_mm": [
@@ -6154,7 +6194,7 @@
             [
               61.0000001,
               55.90742357846126,
-              420.8
+              420.0000001000003
             ]
           ],
           "printable": true,
@@ -6949,7 +6989,7 @@
             [
               61.000000100000776,
               60.68442975357152,
-              70.8
+              70.00000010000029
             ]
           ],
           "display_bounds_mm": [
@@ -6961,7 +7001,7 @@
             [
               61.000000100000776,
               60.68442975357152,
-              70.8
+              70.00000010000029
             ]
           ],
           "printable": true,
@@ -6976,7 +7016,7 @@
             [
               -53.0,
               -53.0,
-              -37.0
+              -32.0
             ],
             [
               53.0,
@@ -6988,7 +7028,7 @@
             [
               -53.0,
               -53.0,
-              -37.0
+              -32.0
             ],
             [
               53.0,
@@ -7072,24 +7112,24 @@
             [
               -7.505553499465135,
               -6.500000000000003,
-              -37.0
+              -32.0
             ],
             [
               7.505553499465135,
               6.500000000000001,
-              -30.2
+              -25.2
             ]
           ],
           "display_bounds_mm": [
             [
               -7.505553499465135,
               -6.500000000000003,
-              -37.0
+              -32.0
             ],
             [
               7.505553499465135,
               6.500000000000001,
-              -30.2
+              -25.2
             ]
           ],
           "printable": false,
@@ -7653,7 +7693,7 @@
             [
               60.68442974986316,
               61.000000071558965,
-              140.8
+              140.00000010000028
             ]
           ],
           "display_bounds_mm": [
@@ -7665,7 +7705,7 @@
             [
               60.68442974986316,
               61.000000071558965,
-              140.8
+              140.00000010000028
             ]
           ],
           "printable": true,
@@ -7685,7 +7725,7 @@
             [
               61.0000001,
               55.90742357846125,
-              210.8
+              210.00000010000028
             ]
           ],
           "display_bounds_mm": [
@@ -7697,7 +7737,7 @@
             [
               61.0000001,
               55.90742357846125,
-              210.8
+              210.00000010000028
             ]
           ],
           "printable": true,
@@ -7717,7 +7757,7 @@
             [
               61.000000100000776,
               60.68442975357152,
-              280.8
+              280.0000001000003
             ]
           ],
           "display_bounds_mm": [
@@ -7729,7 +7769,7 @@
             [
               61.000000100000776,
               60.68442975357152,
-              280.8
+              280.0000001000003
             ]
           ],
           "printable": true,
@@ -7749,7 +7789,7 @@
             [
               60.684429749863455,
               61.000000071558986,
-              350.8
+              350.0000001000003
             ]
           ],
           "display_bounds_mm": [
@@ -7761,7 +7801,7 @@
             [
               60.684429749863455,
               61.000000071558986,
-              350.8
+              350.0000001000003
             ]
           ],
           "printable": true,
@@ -7781,7 +7821,7 @@
             [
               61.0000001,
               55.90742357846126,
-              420.8
+              420.0000001000003
             ]
           ],
           "display_bounds_mm": [
@@ -7793,7 +7833,7 @@
             [
               61.0000001,
               55.90742357846126,
-              420.8
+              420.0000001000003
             ]
           ],
           "printable": true,
@@ -8325,7 +8365,7 @@
             [
               61.000000100000776,
               60.68442975357152,
-              70.8
+              70.00000010000029
             ]
           ],
           "display_bounds_mm": [
@@ -8352,7 +8392,7 @@
             [
               -53.0,
               -53.0,
-              -37.0
+              -32.0
             ],
             [
               53.0,
@@ -8363,8 +8403,8 @@
           "display_bounds_mm": [
             [
               -53.0,
-              -2.074051346642918e-17,
-              -37.0
+              -2.0818995585505003e-15,
+              -32.0
             ],
             [
               53.0,
@@ -8448,24 +8488,24 @@
             [
               -7.505553499465135,
               -6.500000000000003,
-              -37.0
+              -32.0
             ],
             [
               7.505553499465135,
               6.500000000000001,
-              -30.2
+              -25.2
             ]
           ],
           "display_bounds_mm": [
             [
               -7.505553499465137,
               -4.898587196589413e-16,
-              -37.0
+              -32.0
             ],
             [
               7.505553499465137,
               6.500000000000001,
-              -30.2
+              -25.2
             ]
           ],
           "printable": false,

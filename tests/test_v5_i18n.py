@@ -57,7 +57,7 @@ class V5TranslationTests(unittest.TestCase):
             self.assertEqual(other.read_bytes(), path.read_bytes())
         german = ROOT / self.module.SOURCE_MANUAL
         self.assertEqual(hashlib.sha256(german.read_bytes()).hexdigest(),
-                         "2101928cae0575febea5a57d2e791b4c62127ed155ffefd378134cb5dfe9d0a0")
+                         "b9a33829e9a4e664ebf611b4a251bd244ee16e5f433f1759c0a04bd78eaa0844")
 
     def test_coverage_is_exact_and_translations_preserve_numeric_invariants(self):
         for locale in LOCALES:
@@ -108,7 +108,7 @@ class V5TranslationTests(unittest.TestCase):
                     self.assertGreater(len(description), 40)
                     self.assertIn(description, allowed_descriptions)
                 self.assertIn("N S N S", text)
-                for critical in ("s006", "s008", "s104", "s108", "s109", "s121", "s130", "s157", "s158", "s191", "s233", "s234", "s295"):
+                for critical in ("s006", "s008", "s104", "s108", "s109", "s121", "s130", "s148", "s157", "s158", "s173", "s175", "s177", "s191", "s233", "s234", "s295"):
                     self.assertIn(catalog[critical], text)
                 matrix = doc.tables[6]
                 self.assertEqual([r.cells[1].text for r in matrix.rows[1:]], ["20", "40", "80"])

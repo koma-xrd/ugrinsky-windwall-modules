@@ -154,6 +154,10 @@ class V5ManualTests(unittest.TestCase):
                           "separate Distanzhülse"):
             self.assertNotIn(forbidden, self.text)
         self.assertIn("physisch nicht validiert", self.text)
+        for phrase in ("plane 5 mm", "nach unten offene M8", "glatte bündige Blattenden",
+                       "einzige formschlüssige Drehmomentschnittstelle", "bündigen Blattkontakt",
+                       "Steifigkeit, Brückendruck, Maßpassung"):
+            self.assertIn(phrase, self.text)
 
     def test_build_is_byte_deterministic(self):
         other = self.temp / "second.docx"

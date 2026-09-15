@@ -23,7 +23,7 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 SOURCE_MANUAL = "release/v5/docs/Ugrinsky-Wind-Wall-V5-Bauanleitung.docx"
-SOURCE_SHA256 = "2101928cae0575febea5a57d2e791b4c62127ed155ffefd378134cb5dfe9d0a0"
+SOURCE_SHA256 = "b9a33829e9a4e664ebf611b4a251bd244ee16e5f433f1759c0a04bd78eaa0844"
 LOCALES = {
     "en-GB": ("English", "Arial"),
     "zh-CN": ("Chinese-Simplified", "Microsoft YaHei"),
@@ -339,6 +339,8 @@ def write_audit(root, qa_directory):
         report["page_review"] = "blocked_missing_bundled_soffice"
         report["rendered_page_count"] = 0
         report["render_exit_code"] = evidence["render_exit_code"]
+        report["render_error"] = evidence["render_error"]
+        report["render_cleanup_error"] = evidence["render_cleanup_error"]
         report["render_attempt"] = "packaged_render_docx_with_emit_pdf_failed_missing_soffice"
         report["render_limitations"] = "Page layout, glyph rendering, pagination and PDF output remain unverified."
         reports[locale] = report

@@ -74,16 +74,16 @@ ENGLISH_TEXT_CATALOGUE = {
     'Einfügepositionen auseinandergezogen; dauerhafte Rastung nach dem Verriegeln.': 'Insertion positions are exploded; the latch is permanent after locking.',
     'Drei Druckmodultypen': 'Three printable module types',
     'Die sieben Stufen bestehen aus drei unterschiedlichen, einteiligen CAD-Modultypen.': 'The seven stages use three distinct, one-piece CAD module types.',
-    'Alle dargestellten Modulkörper drehen gemeinsam mit der M8-Welle.': 'All shown module bodies rotate together with the M8 shaft.',
-    'Bajonett und Nut-Feder-Blattnaht': 'Bayonet and tongue-and-groove blade seam',
-    'Drei Bajonettklauen verriegeln die Stufen; Nut und Feder führen die Blattnaht.': 'Three bayonet lugs lock the stages; tongue and groove guide the blade seam.',
-    'Vormontage: einführen und verriegeln; elastische Rastung zuerst am Coupon prüfen.': 'Pre-assembly: insert and lock; test the elastic latch on the coupon first.',
+    'Alle dargestellten Modulkörper drehen gemeinsam mit der M8-Welle.': 'Plain flush blade ends; the central bayonet is the sole keyed torque interface. All modules rotate with the M8 shaft.',
+    'Bajonett und glatte Blattenden': 'Bayonet and plain flush blade ends',
+    'Glatte bündige Blattenden; das zentrale Bajonett ist die einzige formschlüssige Drehmomentschnittstelle.': 'Plain flush blade ends; the central bayonet is the sole keyed torque interface.',
+    'Vormontage: einführen und verriegeln; elastische Rastung zuerst am Coupon prüfen.': 'Align insertion windows; lock counterclockwise; verify flush blade contact and inspect latch. Test fit on coupons.',
     'Base und Axiallager 51105 · Schnitt': 'Base and 51105 thrust bearing · section',
     'Die Base-Schulter trägt auf der rotierenden Wellenscheibe; die Gehäusescheibe sitzt im Deckel.': 'The base shoulder bears on the rotating shaft washer; the housing washer sits in the cover.',
     '51105: 25 × 42 × 11 mm. Wälzbereich als Hülle; tatsächliche Lagerpassung prüfen.': '51105: 25 × 42 × 11 mm. Rolling region shown as an envelope; verify the actual bearing fit.',
     'Unterer Magnetrotor im Gehäuse': 'Lower magnet rotor inside the housing',
     'Der untere Magnetträger läuft im Gehäuse; seine integrierte Hülse reicht durch die stationäre Mitte.': 'The lower magnet carrier runs inside the housing; its integral sleeve passes through the stationary centre.',
-    'Gehäuse vorn aufgeschnitten; Kassette und Deckel zur Einsicht ausgeblendet.': 'Housing cut away at the front; cassette and cover hidden for clarity.',
+    'Gehäuse vorn aufgeschnitten; Kassette und Deckel zur Einsicht ausgeblendet.': 'Flat 5 mm print-side carrier; raised boss with bottom-open M8 nut pocket and upper integral sleeve.',
     'Generator · Explosionsdarstellung': 'Generator · exploded view',
     'Kassette, Deckel und Base sind angehoben; der untere Magnetrotor bleibt im aufgeschnittenen Gehäuse.': 'Cassette, cover and base are raised; the lower magnet rotor remains in the cut-away housing.',
     'Unterer Rotor unter der stationären Wicklung. Base-Blätter zur Lesbarkeit gekürzt.': 'Lower rotor below the stationary winding. The complete V5.2 base blades are shown.',
@@ -138,11 +138,11 @@ ENGLISH_TEXT_CATALOGUE.update({
     'Base · 1 Stück': 'Base · 1 piece', 'Standard · 5 Stück': 'Standard · 5 pieces',
     'Top · 1 Stück': 'Top · 1 piece', 'Oberer Magnetträger integriert': 'Integral upper magnet carrier',
     'Zentrierbund für 51105': 'Locating collar for 51105', 'Unterer Bajonettzapfen': 'Lower bayonet spigot',
-    'Obere Aufnahme und Blattnaht': 'Upper receiver and blade seam', 'Kompakte Kraftplatte': 'Compact torque plate',
+    'Obere Aufnahme und Blattnaht': 'Upper receiver and plain blade end', 'Kompakte Kraftplatte': 'Compact torque plate',
     'Offener M8-Muttersitz': 'Open M8 nut seat', 'Bajonett · getrennte Einfügeposition': 'Bayonet · separated insertion position',
     'Reale Naht · Halbschnitt': 'Actual seam · half section', 'Drei Klauen + dauerhafte Rastzähne': 'Three lugs + permanent latch teeth',
     'Aufnahme mit Rampen und Sperrklinken': 'Receiver with ramps and locking pawls',
-    'Standard: untere Nut / Bajonett': 'Standard: lower groove / bayonet', 'Base: obere Feder / Aufnahme': 'Base: upper tongue / receiver',
+    'Standard: glattes Blattende / Bajonett': 'Standard: plain blade end / bayonet', 'Base: glattes Blattende / Aufnahme': 'Base: plain blade end / receiver',
     'Mittelschnitt X–Z · oberer Blattbereich abgeschnitten': 'Centre section X–Z · upper blade region clipped',
     'Base-Schulter und 25-mm-Pilot · rotierend': 'Base shoulder and 25 mm pilot · rotating',
     '51105 Wellenscheibe · rotierend': '51105 shaft washer · rotating',
@@ -151,8 +151,8 @@ ENGLISH_TEXT_CATALOGUE.update({
     'Deckel mit Lagersitz · stationär': 'Cover with bearing seat · stationary',
     'Gefangene M8-Drehmomentmutter': 'Captive M8 torque nut', 'Montierte Lage · Gehäuse als Halbschnitt': 'Assembled position · housing half section',
     'Geschlossener Gehäuseboden · stationär': 'Closed housing floor · stationary',
-    'Unterer Träger · rotierend': 'Lower carrier · rotating', 'Magnete nach oben zur Spule · rotierend': 'Magnets facing up towards the coil · rotating',
-    'M8-Drehmomentmutter in Rückentasche (verdeckt)': 'M8 torque nut in rear pocket (hidden)', 'Integrierte Distanzhülse · rotierend': 'Integral spacer sleeve · rotating',
+    'Unterer Träger · rotierend': 'Lower carrier · rotating', 'Magnete nach oben zur Spule · rotierend': 'Magnets face up to coil · rotating',
+    'M8-Drehmomentmutter in Rückentasche (verdeckt)': 'M8 nut in bottom-open pocket (hidden)', 'Integrierte Distanzhülse · rotierend': 'Upper integral sleeve · rotating',
     'Montagereihenfolge entlang der gemeinsamen Wellenachse': 'Assembly order along the common shaft axis',
     'Base mit oberem Magnetträger · rotierend': 'Base with upper magnet carrier · rotating', 'Deckel und 51105-Aufnahme · stationär': 'Cover and 51105 seat · stationary',
     'Spulenkassette · stationär': 'Coil cassette · stationary', 'Aktiver Wicklungsraum · stationär': 'Active winding volume · stationary',
@@ -441,14 +441,14 @@ def build_v5_scenes(p=DEFAULT_PARAMETERS):
                   motion='rotating', source='windwall.bayonet.build_bayonet_coupon')
     female = m.part('bayonet_female', shape=joint.female, motion='rotating',
                     source='windwall.bayonet.build_bayonet_coupon')
-    add(3, 'bajonett-blattnaht', 'Bajonett und Nut-Feder-Blattnaht',
-        'Drei Bajonettklauen verriegeln die Stufen; Nut und Feder führen die Blattnaht.',
+    add(3, 'bajonett-blattnaht', 'Bajonett und glatte Blattenden',
+        'Glatte bündige Blattenden; das zentrale Bajonett ist die einzige formschlüssige Drehmomentschnittstelle.',
         'Vormontage: einführen und verriegeln; elastische Rastung zuerst am Coupon prüfen.',
         panel('Bajonett · getrennte Einfügeposition', (male, female),
               C('bayonet_male', 'Drei Klauen + dauerhafte Rastzähne'),
               C('bayonet_female', 'Aufnahme mit Rampen und Sperrklinken')),
         panel('Reale Naht · Halbschnitt', seam_parts,
-              C('standard_1', 'Standard: untere Nut / Bajonett'), C('base', 'Base: obere Feder / Aufnahme')))
+              C('standard_1', 'Standard: glattes Blattende / Bajonett'), C('base', 'Base: glattes Blattende / Aufnahme')))
 
     section_names = ('base', 'shaft', 'upper_nut', 'cover', '51105_shaft_washer',
                      '51105_housing_washer', '51105_rolling_envelope')
@@ -475,7 +475,12 @@ def build_v5_scenes(p=DEFAULT_PARAMETERS):
               C('lower_magnets', 'Magnete nach oben zur Spule · rotierend'),
               C('lower_nut', 'M8-Drehmomentmutter in Rückentasche (verdeckt)'),
               C('lower_magnet_rotor', 'Integrierte Distanzhülse · rotierend',
-                (0, 0, g.lower_rotor.val().BoundingBox().zmax-2)), view=(1, -1.8, 1.2)))
+                (0, 0, g.lower_rotor.val().BoundingBox().zmax-2)), view=(1, -1.8, 1.2)),
+        panel('Lower rotor centre section',
+              m.parts(('lower_magnet_rotor',), cut=_cut_box(-100, 100, section=True)),
+              C('lower_magnet_rotor', 'Flat carrier print face at bottom',
+                (40, 0, g.lower_rotor.val().BoundingBox().zmin)),
+              view=(0, -1, 0)))
 
     explosion = list(m.parts(('housing',), cut=_cut_box()))
     explosion += list(m.parts(('lower_magnet_rotor', 'lower_magnets', 'lower_nut')))

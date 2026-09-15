@@ -1,6 +1,6 @@
 # V5 manual translation catalogues
 
-Each UTF-8 JSON catalogue supplies all 312 unique source text runs and alternative
+Each UTF-8 JSON catalogue supplies all 310 unique source text runs and alternative
 image descriptions from the reviewed German V5 DOCX. Keys are assigned in source
 document order, followed by image descriptions. Repeated text shares a key. Pure
 measurements, units and technical filenames remain in the source structure; figure

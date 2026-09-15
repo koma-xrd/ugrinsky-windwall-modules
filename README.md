@@ -51,10 +51,14 @@ is recorded.
 The rotor has one base, five identical standard modules and one top module. Nominal
 diameter is 122 mm, stage pitch is 70 mm and aerodynamic height is 490 mm. Each module
 is one printed body with a 2 mm nominal blade wall. The base integrates the upper
-magnet carrier. Permanent bayonet latches and tongue-and-groove blade seams join
-adjacent stages; an M8 shaft and clamping hardware complete the rotating assembly.
+magnet carrier. Adjacent stages have plain flush blade ends. The central bayonet
+is the sole keyed torque interface; an M8 shaft and clamping hardware complete
+the rotating assembly.
 
-The lower magnet rotor runs inside the closed-bottom housing, below the stationary
+The lower magnet rotor has a flat 5 mm carrier print surface, a raised central
+boss with a bottom-open M8 nut pocket, and an upper integral sleeve. Print the flat
+carrier face on the bed; the pocket remains accessible from below. The rotor runs
+inside the closed-bottom housing, below the stationary
 coil cassette. A keyed shoulder seats the cassette; a screwed cover retains it
 from above. The 51105 thrust bearing transfers rotor weight to the stationary cover
 and housing. The upper 608 bearing provides radial guidance in a separate support
@@ -193,8 +197,9 @@ Use the full manual for tooling, checks and service. The essential order is:
 5. Install the 51105 housing washer, rolling elements and shaft washer correctly.
    Lower the base and upper torque nut, magnet faces down, controlling attraction
    with a fixture.
-6. Check hand rotation and gaps. Add five standard modules and the top, locking each
-   joint anticlockwise viewed from above. Check every latch and blade seam. Reverse
+6. Check hand rotation and gaps. Add five standard modules and the top. Align the
+   bayonet insertion windows, lock counterclockwise viewed from above, verify
+   flush blade contact and inspect every latch. Reverse
    disassembly can damage the permanent latches.
 7. Fit the top washer and M8 nut; finish clamp adjustment before the upper bearing
    support. Do not bind stationary parts or bearings.
@@ -328,6 +333,9 @@ Run packaged accessibility/rendering QA, record evidence, then rebuild the index
 
 The QA wrapper restricts executable lookup to the bundle, preventing desktop
 LibreOffice fallback. Missing rendering is recorded as blocked. When a bundled
+document skill is installed outside the runtime tree, pass its resolved directory
+with `verify_translations.py --document-skill-directory <directory>`. Verbose render
+logs and temporary profiles stay in the selected QA directory. When a bundled
 renderer becomes available, inspect every page and update the audit workflow to
 record the new evidence; its current writer rejects unexpected render results.
 Intermediates remain in `build/`.
@@ -352,6 +360,8 @@ pawls and lug roofs during insertion. Elastic behaviour needs physical tests des
 installed-geometry clearance checks. The joint coupon's 4.2 mm open-spoke hex recess
 is a calibration feature, not a full-depth load-bearing M8 nut socket.
 
+Physical stiffness, bridge printability, dimensional fit, outdoor use and powered
+operation remain unvalidated, including the flat lower carrier and plain blade joints.
 Magnet retention, printed bearing fits, clamping, shaft alignment, strength, fatigue,
 balance, electrical output, thermal behaviour, overspeed and frame loading remain
 unvalidated. The side outlet and housing are not waterproof. Wind operation, UV,

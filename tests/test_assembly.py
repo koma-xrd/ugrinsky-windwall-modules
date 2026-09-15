@@ -32,6 +32,9 @@ class AssemblyTests(unittest.TestCase):
             self.assertGreater(joint['compression_0_20_mm_intersection_mm3'], 0.05)
             self.assertIsNone(joint['contact_probe_bracket_mm'])
             self.assertFalse(joint['physical_load_capacity_verified'])
+        self.assertEqual(self.audit['contact_semantics'],
+                         'Named 51105 washer/support contacts; permanent bayonet stops; '
+                         'plain flush blade ends without keyed load sharing')
         self.assertEqual(self.audit['seam_phase_jump_deg'], 0)
         self.assertTrue(self.audit['aerodynamic_seam_continuous'])
 
