@@ -82,9 +82,63 @@ class WindingFrameTests(unittest.TestCase):
             .intersect(frame.head_hub).val().Volume(),
             0,
         )
+
+    def test_drive_pins_lock_head_rotation_and_withdraw_for_removal(self):
+        frame = self.frame
+        axis_start = (0, 0, 95.0)
+        axis_end = (1, 0, 95.0)
+
+        self.assertEqual(frame.metadata.get('head_torque_pin_count'), 3)
+        self.assertLess(
+            frame.head_hub.intersect(frame.head.backplate).val().Volume(),
+            1e-6,
+        )
+        rotated_backplate = frame.head.backplate.rotate(
+            axis_start, axis_end, 15.0)
         self.assertGreater(
-            frame.head.clamp.translate((0.4, 0, 0))
-            .intersect(frame.head_retaining_collar).val().Volume(),
+            frame.head_hub.intersect(rotated_backplate).val().Volume(),
+            0,
+        )
+        self.assertLess(
+            frame.head_hub.translate((-6.0, 0, 0))
+            .intersect(frame.head.backplate).val().Volume(),
+            1e-6,
+        )
+
+    def test_adjustment_screws_control_head_preload_through_task2_clamp(self):
+        frame = self.frame
+        screws = getattr(frame, 'preload_screw_references', ())
+        self.assertEqual(len(screws), 3)
+        for index, screw in enumerate(screws):
+            with self.subTest(screw=index + 1):
+                self.assertLess(
+                    screw.intersect(frame.head.clamp).val().Volume(), 1e-6)
+                self.assertLess(
+                    screw.intersect(frame.head_retaining_collar).val().Volume(),
+                    1e-6,
+                )
+                advanced = screw.translate((-0.15, 0, 0))
+                self.assertGreater(
+                    advanced.intersect(frame.head.clamp).val().Volume(), 0)
+                self.assertLess(
+                    advanced.intersect(
+                        frame.head_retaining_collar).val().Volume(),
+                    1e-6,
+                )
+                self.assertGreater(
+                    screw.translate((0, 0.3, 0))
+                    .intersect(frame.head_retaining_collar).val().Volume(),
+                    0,
+                )
+
+        self.assertGreater(
+            frame.head.clamp.translate((-0.1, 0, 0))
+            .intersect(frame.head.cam).val().Volume(),
+            0,
+        )
+        self.assertGreater(
+            frame.head.backplate.translate((-0.05, 0, 0))
+            .intersect(frame.head_hub).val().Volume(),
             0,
         )
 
@@ -144,6 +198,36 @@ class WindingFrameTests(unittest.TestCase):
             .intersect(frame.grip_washer_references[1]).val().Volume(),
             0,
         )
+
+    def test_complete_crank_sweep_clears_every_stationary_frame_body(self):
+        frame = self.frame
+        axis_start = (0, 0, 95.0)
+        axis_end = (1, 0, 95.0)
+        moving = {
+            'crank': frame.crank,
+            'grip': frame.crank_grip_reference,
+            'grip_pin': frame.grip_pin_reference,
+            'grip_washer_1': frame.grip_washer_references[0],
+            'grip_washer_2': frame.grip_washer_references[1],
+        }
+        stationary = {
+            'base': frame.base,
+            'left_upright': frame.uprights[0],
+            'right_upright': frame.uprights[1],
+            'left_bearing': frame.bearings[0],
+            'right_bearing': frame.bearings[1],
+        }
+
+        for angle in range(0, 360, 10):
+            for moving_name, moving_shape in moving.items():
+                rotated = moving_shape.rotate(axis_start, axis_end, angle)
+                for stationary_name, stationary_shape in stationary.items():
+                    with self.subTest(angle=angle, moving=moving_name,
+                                      stationary=stationary_name):
+                        self.assertLess(
+                            rotated.intersect(stationary_shape).val().Volume(),
+                            1e-6,
+                        )
 
     def test_bench_holes_are_through_and_clamp_lands_are_clear(self):
         frame = self.frame

@@ -32,6 +32,8 @@ _RIB_RADIAL_DEPTH_MM = 4.5
 _RIB_TANGENTIAL_WIDTH_MM = 52.0
 _RIB_BOTTOM_Z_MM = _SLIDER_TOP_Z_MM
 _RIB_HEIGHT_MM = 20.0
+_FRAME_DRIVE_PIN_RADIUS_MM = 13.5
+_FRAME_DRIVE_PIN_HOLE_DIAMETER_MM = 3.4
 
 
 @dataclass(frozen=True)
@@ -41,6 +43,7 @@ class WindingHeadState:
     tape_station_count: int
     tape_passage_width_mm: float
     release_travel_mm: float
+    frame_drive_pin_centres_xy_mm: tuple[tuple[float, float], ...]
 
 
 @dataclass(frozen=True)
@@ -88,6 +91,14 @@ def _rotate(shape: cq.Workplane, angle_deg: float) -> cq.Workplane:
     return shape.rotate((0, 0, 0), (0, 0, 1), angle_deg)
 
 
+def _frame_drive_pin_centres() -> tuple[tuple[float, float], ...]:
+    return tuple(
+        (_FRAME_DRIVE_PIN_RADIUS_MM * cos(radians(angle)),
+         _FRAME_DRIVE_PIN_RADIUS_MM * sin(radians(angle)))
+        for angle in (30.0, 150.0, 270.0)
+    )
+
+
 @lru_cache(maxsize=8)
 def _build_backplate(p: WindingToolParameters) -> cq.Workplane:
     body = _disc(_BACKPLATE_RADIUS_MM, 0, _BACKPLATE_THICKNESS_MM)
@@ -122,6 +133,15 @@ def _build_backplate(p: WindingToolParameters) -> cq.Workplane:
     body = body.union(_disc(11.5, 4.9, _CAM_BOTTOM_Z_MM - 4.9))
     body = body.cut(_disc(p.shaft_diameter_mm / 2 + 0.25, -0.5,
                            _CAM_BOTTOM_Z_MM + 1))
+
+    # Three frame-side drive pins pass through the backplate independently of
+    # clamp friction. Their centres lie outside the clamp-reaction shoulder and
+    # between the six radial slider guides.
+    for x, y in _frame_drive_pin_centres():
+        drive_hole = (_disc(_FRAME_DRIVE_PIN_HOLE_DIAMETER_MM / 2,
+                            -0.5, _BACKPLATE_THICKNESS_MM + 1.0)
+                      .translate((x, y, 0)))
+        body = body.cut(drive_hole)
 
     # Fixed witness line for the three calibrated diameter engravings on cam.
     pointer = (_radial_box(49.5, 7.0, 0.9, 4.45, 0.7)
@@ -393,6 +413,7 @@ def build_winding_head(p: WindingToolParameters,
         tape_station_count=p.tape_station_count,
         tape_passage_width_mm=p.tape_passage_width_mm,
         release_travel_mm=p.release_travel_mm,
+        frame_drive_pin_centres_xy_mm=_frame_drive_pin_centres(),
     )
     return WindingHeadParts(backplate, cam, clamp, sliders, ribs,
                             printable_parts, state)

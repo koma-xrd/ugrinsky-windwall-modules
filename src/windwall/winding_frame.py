@@ -8,7 +8,7 @@ experiments; this module does not validate powered winding.
 
 from dataclasses import dataclass
 from functools import lru_cache
-from math import isfinite, sqrt
+from math import cos, isfinite, radians, sin, sqrt
 
 import cadquery as cq
 
@@ -55,6 +55,7 @@ class WindingFrameParts:
     bench_fastener_references: tuple[cq.Workplane, ...]
     upright_fastener_references: tuple[cq.Workplane, ...]
     head_retaining_pin_references: tuple[cq.Workplane, cq.Workplane]
+    preload_screw_references: tuple[cq.Workplane, ...]
     crank_pin_reference: cq.Workplane
     crank_grip_reference: cq.Workplane
     grip_pin_reference: cq.Workplane
@@ -84,13 +85,14 @@ def _vertical_cylinder(radius_mm: float, bottom_z_mm: float,
 
 def _x_cylinder(radius_mm: float, start_x_mm: float, length_mm: float,
                 axis_z_mm: float = _AXIS_HEIGHT_MM,
-                direction: int = 1) -> cq.Workplane:
+                direction: int = 1,
+                axis_y_mm: float = 0.0) -> cq.Workplane:
     if direction not in (-1, 1):
         raise ValueError('Horizontal cylinder direction must be -1 or 1')
     angle = 90.0 * direction
     return (cq.Workplane('XY').circle(radius_mm).extrude(length_mm)
             .rotate((0, 0, 0), (0, 1, 0), angle)
-            .translate((start_x_mm, 0, axis_z_mm)))
+            .translate((start_x_mm, axis_y_mm, axis_z_mm)))
 
 
 def _x_ring(outer_radius_mm: float, inner_radius_mm: float,
@@ -213,19 +215,50 @@ def _place_head_horizontally(head: WindingHeadParts) -> WindingHeadParts:
     )
 
 
-def _build_head_retainers(tool_parameters: WindingToolParameters
-                          ) -> tuple[cq.Workplane, cq.Workplane,
-                                     tuple[cq.Workplane, cq.Workplane]]:
+def _build_head_retainers(
+        tool_parameters: WindingToolParameters,
+        head: WindingHeadParts,
+) -> tuple[cq.Workplane, cq.Workplane,
+           tuple[cq.Workplane, cq.Workplane], tuple[cq.Workplane, ...]]:
     shaft_clearance_radius = tool_parameters.shaft_diameter_mm / 2 + 0.2
+    backplate_rear_x = head.backplate.val().BoundingBox().xmin
+    clamp_front_x = head.clamp.val().BoundingBox().xmax
+
     hub = _x_ring(12.0, shaft_clearance_radius, -30.0, 12.0)
-    hub = hub.union(_x_ring(16.0, shaft_clearance_radius, -18.0, 3.2))
+    flange_start_x = -18.0
+    hub = hub.union(_x_ring(
+        16.0, shaft_clearance_radius,
+        flange_start_x, backplate_rear_x - flange_start_x))
+    for local_x, local_y in head.state.frame_drive_pin_centres_xy_mm:
+        pin_y = local_y
+        pin_z = _AXIS_HEIGHT_MM - local_x
+        drive_pin = _x_cylinder(
+            1.5, backplate_rear_x - 0.2, 4.9,
+            axis_z_mm=pin_z, axis_y_mm=pin_y,
+        )
+        hub = hub.union(drive_pin)
     hub_pin_hole = _vertical_cylinder(
         _PIN_HOLE_DIAMETER_MM / 2, _AXIS_HEIGHT_MM - 14.0,
         28.0, -25.0, 0,
     )
     hub = _valid_single_solid(hub.cut(hub_pin_hole), 'head hub')
 
-    collar = _x_ring(10.0, shaft_clearance_radius, 3.85, 7.0)
+    collar_start_x = clamp_front_x + 1.35
+    collar_length = 8.0
+    collar_end_x = collar_start_x + collar_length
+    collar = _x_ring(
+        14.0, shaft_clearance_radius, collar_start_x, collar_length)
+
+    preload_centres = tuple(
+        (9.0 * cos(radians(angle)),
+         _AXIS_HEIGHT_MM + 9.0 * sin(radians(angle)))
+        for angle in (0.0, 120.0, 240.0)
+    )
+    for y, z in preload_centres:
+        collar = collar.cut(_x_cylinder(
+            1.7, collar_start_x - 0.5, collar_length + 1.0,
+            axis_z_mm=z, axis_y_mm=y,
+        ))
     collar_pin_hole = _vertical_cylinder(
         _PIN_HOLE_DIAMETER_MM / 2, _AXIS_HEIGHT_MM - 12.0,
         24.0, 8.0, 0,
@@ -237,7 +270,22 @@ def _build_head_retainers(tool_parameters: WindingToolParameters
         _vertical_cylinder(2.0, _AXIS_HEIGHT_MM - 13.0, 26.0, -25.0, 0),
         _vertical_cylinder(2.0, _AXIS_HEIGHT_MM - 11.0, 22.0, 8.0, 0),
     )
-    return hub, collar, pins
+
+    preload_screws = []
+    for y, z in preload_centres:
+        shaft = _x_cylinder(
+            1.5, clamp_front_x,
+            collar_end_x + 0.3 - clamp_front_x,
+            axis_z_mm=z, axis_y_mm=y,
+        )
+        screw_head = _x_cylinder(
+            3.2, collar_end_x + 0.3, 2.0,
+            axis_z_mm=z, axis_y_mm=y,
+        )
+        preload_screws.append(
+            _valid_single_solid(
+                shaft.union(screw_head), 'preload screw reference'))
+    return hub, collar, pins, tuple(preload_screws)
 
 
 def _place_crank_local(shape: cq.Workplane) -> cq.Workplane:
@@ -303,16 +351,18 @@ def _build_crank(tool_parameters: WindingToolParameters,
                    .translate((0, 0, 0.05)))
     gauge = _place_crank_local(local_gauge)
 
+    # Keep the complete handle stack on the outboard side of the crank arm.
+    # This leaves the rotating grip clear of the right upright at every angle.
     local_grip = (cq.Workplane('XY').center(52.0, 0)
                   .circle(11.0).circle(3.3).extrude(24.0)
-                  .translate((0, 0, 13.0)))
+                  .translate((0, 0, -26.0)))
     local_grip_pin = (cq.Workplane('XY').center(52.0, 0).circle(3.0)
-                      .extrude(37.0).translate((0, 0, 2.0)))
+                      .extrude(41.0).translate((0, 0, -28.0)))
     local_washers = tuple(
         (cq.Workplane('XY').center(52.0, 0)
          .circle(7.0).circle(3.05).extrude(0.6)
          .translate((0, 0, start_z)))
-        for start_z in (12.2, 37.2)
+        for start_z in (-26.8, -1.8)
     )
     local_crank_pin = _local_y_cylinder(
         2.0, 0, crank_pin_local_z, 30.0)
@@ -388,7 +438,8 @@ def build_winding_frame(
 
     head = _place_head_horizontally(build_winding_head(
         tool_parameters, tool_parameters.reference_diameter_mm))
-    head_hub, head_collar, head_pins = _build_head_retainers(tool_parameters)
+    (head_hub, head_collar, head_pins,
+     preload_screws) = _build_head_retainers(tool_parameters, head)
     (end_wall, shaft_pocket_start, _, _,
      crank_pin_x) = _crank_drive_dimensions(design_parameters)
     crank, grip, grip_pin, crank_pin, washers, hex_gauge = _build_crank(
@@ -429,6 +480,9 @@ def build_winding_frame(
         'hex_socket_end_wall_mm': end_wall,
         'positive_head_retention': True,
         'head_retaining_pin_count': len(head_pins),
+        'head_torque_pin_count': len(head.state.frame_drive_pin_centres_xy_mm),
+        'preload_adjustment_screw_count': len(preload_screws),
+        'preload_adjustment_travel_mm': 0.3,
         'upright_bolt_count': len(upright_fasteners),
         'bench_hole_count': len(bench_fasteners),
         'clamp_land_count': len(clamp_lands),
@@ -447,6 +501,7 @@ def build_winding_frame(
         bench_fastener_references=bench_fasteners,
         upright_fastener_references=upright_fasteners,
         head_retaining_pin_references=head_pins,
+        preload_screw_references=preload_screws,
         crank_pin_reference=crank_pin,
         crank_grip_reference=grip,
         grip_pin_reference=grip_pin,
