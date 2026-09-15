@@ -21,6 +21,9 @@ class WindingToolParameters:
 
 
 def validate_winding_tool_parameters(p: WindingToolParameters) -> None:
+    if any(name.endswith('_mm') and isinstance(value, bool)
+           for name, value in vars(p).items()):
+        raise ValueError('Winding-tool dimensions must be numeric, not boolean')
     values = tuple(
         value for name, value in vars(p).items()
         if name.endswith('_mm')

@@ -39,6 +39,7 @@ class WindingToolParameterTests(unittest.TestCase):
         invalid = (
             replace(p, shaft_diameter_mm=0),
             replace(p, platter_diameter_mm=-1),
+            replace(p, shaft_diameter_mm=False),
             replace(p, spool_pilot_height_mm=nan),
             replace(p, tape_width_mm=inf),
         )
