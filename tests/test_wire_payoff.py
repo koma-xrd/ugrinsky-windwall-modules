@@ -105,7 +105,7 @@ class WirePayoffTests(unittest.TestCase):
 
         self.assertEqual(
             set(payoff.brake_parts),
-            {'adjuster', 'spring', 'washer', 'screw', 'felt'},
+            {'adjuster', 'spring', 'washer', 'screw', 'nut', 'felt'},
         )
         self.assertTrue(payoff.metadata['felt_replaceable'])
         self.assertNotIn('felt', payoff.printable_parts)
@@ -114,6 +114,109 @@ class WirePayoffTests(unittest.TestCase):
                 self.assertTrue(shape.val().isValid())
                 self.assertEqual(len(shape.val().Solids()), 1)
                 self.assertGreater(shape.val().Volume(), 0)
+
+    def test_brake_has_supported_load_path_and_captive_screw_engagement(self):
+        for setting in (0.0, 1.0):
+            payoff = build_wire_payoff(
+                P, DEFAULT_PARAMETERS, brake_setting=setting)
+            nut = getattr(payoff, 'nut', None)
+            with self.subTest(setting=setting, member='nut'):
+                self.assertIsNotNone(nut)
+            if nut is None:
+                continue
+
+            contacts = (
+                ('base/spring', payoff.base, payoff.spring),
+                ('spring/washer', payoff.spring, payoff.washer),
+                ('washer/adjuster', payoff.washer, payoff.adjuster),
+                ('adjuster/felt', payoff.adjuster, payoff.felt),
+                ('felt/platter', payoff.felt, payoff.platter),
+                ('base/screw-head', payoff.base, payoff.screw),
+            )
+            for name, first, second in contacts:
+                with self.subTest(setting=setting, contact=name):
+                    self.assertAlmostEqual(
+                        first.val().distance(second.val()), 0.0, places=5)
+
+            with self.subTest(setting=setting, reaction='spring seat'):
+                self.assertGreater(
+                    payoff.spring.translate((0, 0, -0.05))
+                    .intersect(payoff.base).val().Volume(),
+                    0,
+                )
+            with self.subTest(setting=setting, reaction='screw head seat'):
+                self.assertGreater(
+                    payoff.screw.translate((0, 0, 0.05))
+                    .intersect(payoff.base).val().Volume(),
+                    0,
+                )
+
+            self.assertLess(nut.intersect(payoff.adjuster).val().Volume(), 1e-6)
+            self.assertLess(nut.intersect(payoff.screw).val().Volume(), 1e-6)
+            for z_offset in (-0.2, 0.2):
+                with self.subTest(setting=setting,
+                                  captive_nut_axial_offset=z_offset):
+                    self.assertGreater(
+                        nut.translate((0, 0, z_offset))
+                        .intersect(payoff.adjuster).val().Volume(),
+                        0,
+                    )
+            nut_box = nut.val().BoundingBox()
+            nut_axis = (
+                (nut_box.xmin + nut_box.xmax) / 2,
+                (nut_box.ymin + nut_box.ymax) / 2,
+            )
+            with self.subTest(setting=setting, reaction='nut anti-rotation'):
+                self.assertGreater(
+                    nut.rotate(
+                        (nut_axis[0], nut_axis[1], 0),
+                        (nut_axis[0], nut_axis[1], 1),
+                        10.0,
+                    ).intersect(payoff.adjuster).val().Volume(),
+                    0,
+                )
+            with self.subTest(setting=setting, retention='engaged screw'):
+                self.assertGreater(
+                    nut.translate((0.25, 0, 0))
+                    .intersect(payoff.screw).val().Volume(),
+                    0,
+                )
+
+            self.assertGreater(
+                payoff.metadata['spring_preload_remaining_mm'], 0.0)
+            self.assertGreaterEqual(
+                payoff.metadata['screw_nut_engagement_mm'], 2.0)
+
+    def test_lowered_adjuster_and_nut_have_collision_free_service_path(self):
+        payoff = build_wire_payoff(P, DEFAULT_PARAMETERS, brake_setting=0.0)
+        nut = getattr(payoff, 'nut', None)
+        members = {'adjuster': payoff.adjuster}
+        if nut is not None:
+            members['nut'] = nut
+
+        for name, member in members.items():
+            for travel_mm in range(0, 25):
+                with self.subTest(member=name, travel_mm=travel_mm):
+                    self.assertLess(
+                        member.translate((travel_mm, 0, 0))
+                        .intersect(payoff.base).val().Volume(),
+                        1e-6,
+                    )
+        self.assertIsNotNone(nut)
+        if nut is not None:
+            for travel_mm in range(0, 10):
+                with self.subTest(member='nut/adjuster',
+                                  travel_mm=travel_mm):
+                    self.assertLess(
+                        nut.translate((travel_mm, 0, 0))
+                        .intersect(payoff.adjuster).val().Volume(),
+                        1e-6,
+                    )
+        self.assertEqual(payoff.metadata.get('adjuster_service_setting'), 0.0)
+        self.assertEqual(
+            payoff.metadata.get('adjuster_service_direction'),
+            '+X after screw removal',
+        )
 
     def test_positive_adjuster_stop_preserves_rigid_clearance_at_full_drag(self):
         payoff = build_wire_payoff(P, DEFAULT_PARAMETERS, brake_setting=1.0)

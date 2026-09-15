@@ -8,7 +8,7 @@ passive supply only; it does not couple or synchronize with the winding frame.
 
 from dataclasses import dataclass
 from functools import lru_cache
-from math import isfinite
+from math import isfinite, sqrt
 from numbers import Real
 
 import cadquery as cq
@@ -30,12 +30,19 @@ _BRAKE_X_MM = 55.0
 _BRAKE_TOWER_DIAMETER_MM = 24.0
 _ADJUSTER_STEM_DIAMETER_MM = 12.0
 _ADJUSTER_FLANGE_DIAMETER_MM = 16.0
+_ADJUSTER_HEIGHT_MM = 4.8
+_ADJUSTER_FLANGE_HEIGHT_MM = 2.8
 _ADJUSTER_TRAVEL_MM = 1.0
 _FELT_DIAMETER_MM = 14.0
 _FELT_UNCOMPRESSED_THICKNESS_MM = 2.0
 _HARD_STOP_CLEARANCE_MM = 1.0
 _BENCH_HOLE_DIAMETER_MM = 5.4
 _BRAKE_SCREW_CLEARANCE_DIAMETER_MM = 3.4
+_M3_NUT_ACROSS_FLATS_MM = 5.5
+_M3_NUT_THICKNESS_MM = 2.4
+_M3_NUT_POCKET_ACROSS_FLATS_MM = 5.8
+_M3_NUT_POCKET_HEIGHT_MM = 2.6
+_SPRING_FREE_LENGTH_MM = 9.2
 
 
 @dataclass(frozen=True)
@@ -48,6 +55,7 @@ class WirePayoffParts:
     spring: cq.Workplane
     washer: cq.Workplane
     screw: cq.Workplane
+    nut: cq.Workplane
     felt: cq.Workplane
     bearing: BearingReference
     bench_fastener_references: tuple[cq.Workplane, ...]
@@ -84,6 +92,19 @@ def _ring(
             .extrude(height_mm).translate((0, 0, bottom_z_mm)))
 
 
+def _hex_prism(
+        across_flats_mm: float,
+        bottom_z_mm: float,
+        height_mm: float,
+        x_mm: float,
+        y_mm: float = 0.0,
+) -> cq.Workplane:
+    circumscribed_diameter = 2 * across_flats_mm / sqrt(3)
+    return (cq.Workplane('XY').center(x_mm, y_mm)
+            .polygon(6, circumscribed_diameter)
+            .extrude(height_mm).translate((0, 0, bottom_z_mm)))
+
+
 def _valid_single_solid(shape: cq.Workplane, name: str) -> cq.Workplane:
     cleaned = shape.clean()
     value = cleaned.val()
@@ -113,7 +134,10 @@ def _build_base(
     seat_top_z = (bearing_floor_z_mm
                   + bearing_parameters.thrust_housing_seat_depth_mm)
     tower_top_z = platter_underside_z_mm - _PLATTER_BASE_CLEARANCE_MM
-    stop_z = platter_underside_z_mm - _HARD_STOP_CLEARANCE_MM - 3.0
+    stem_above_flange_mm = (_ADJUSTER_HEIGHT_MM
+                            - _ADJUSTER_FLANGE_HEIGHT_MM)
+    stop_z = (platter_underside_z_mm - _HARD_STOP_CLEARANCE_MM
+              - stem_above_flange_mm)
 
     plate = cq.Workplane('XY').box(
         _BASE_SIZE_MM,
@@ -153,6 +177,15 @@ def _build_base(
         tower_top_z - stop_z + 0.1,
         _BRAKE_X_MM,
     )
+    service_bottom_z = (platter_underside_z_mm
+                        - _FELT_UNCOMPRESSED_THICKNESS_MM
+                        - _ADJUSTER_HEIGHT_MM)
+    adjuster_service_slot = (cq.Workplane('XY').box(
+        25.0,
+        _ADJUSTER_FLANGE_DIAMETER_MM + 0.4,
+        _ADJUSTER_HEIGHT_MM + 0.2,
+        centered=(False, True, False),
+    ).translate((_BRAKE_X_MM, 0, service_bottom_z - 0.1)))
     screw_passage = _vertical_cylinder(
         _BRAKE_SCREW_CLEARANCE_DIAMETER_MM / 2,
         -0.1,
@@ -160,13 +193,14 @@ def _build_base(
         _BRAKE_X_MM,
     )
     screw_head_recess = _vertical_cylinder(
-        2.85,
+        design_parameters.manufacturing.screw_head_diameter_mm / 2 + 0.1,
         -0.1,
-        3.2,
+        design_parameters.manufacturing.screw_head_height_mm + 0.2,
         _BRAKE_X_MM,
     )
     base = (base.cut(lower_brake_cavity).cut(upper_brake_guide)
-            .cut(screw_passage).cut(screw_head_recess))
+            .cut(adjuster_service_slot).cut(screw_passage)
+            .cut(screw_head_recess))
 
     bench_fasteners = tuple(
         _vertical_cylinder(2.5, -1.0, _BASE_THICKNESS_MM + 2.0, x, y)
@@ -255,25 +289,58 @@ def _place_bearing(
 def _build_brake(
         compression_mm: float,
         platter_underside_z_mm: float,
+        design_parameters: DesignParameters,
 ) -> dict[str, cq.Workplane]:
+    """Place the screw-controlled, spring-loaded brake in its assembled state.
+
+    The screw head stays seated in the base while its captured nut moves the
+    adjuster axially. Removing the screw releases both radial service routes.
+    """
     adjuster_top_z = (platter_underside_z_mm
                       - _FELT_UNCOMPRESSED_THICKNESS_MM
                       + compression_mm)
-    adjuster_bottom_z = adjuster_top_z - 4.0
+    adjuster_bottom_z = adjuster_top_z - _ADJUSTER_HEIGHT_MM
     adjuster = _ring(
         _ADJUSTER_STEM_DIAMETER_MM / 2,
         _BRAKE_SCREW_CLEARANCE_DIAMETER_MM / 2,
         adjuster_bottom_z,
-        4.0,
+        _ADJUSTER_HEIGHT_MM,
         _BRAKE_X_MM,
     ).union(_ring(
         _ADJUSTER_FLANGE_DIAMETER_MM / 2,
         _BRAKE_SCREW_CLEARANCE_DIAMETER_MM / 2,
         adjuster_bottom_z,
-        1.0,
+        _ADJUSTER_FLANGE_HEIGHT_MM,
         _BRAKE_X_MM,
     ))
+    nut_pocket_bottom_z = adjuster_bottom_z + 0.1
+    nut_pocket = _hex_prism(
+        _M3_NUT_POCKET_ACROSS_FLATS_MM,
+        nut_pocket_bottom_z,
+        _M3_NUT_POCKET_HEIGHT_MM,
+        _BRAKE_X_MM,
+    )
+    nut_loading_slot = (cq.Workplane('XY').box(
+        _ADJUSTER_FLANGE_DIAMETER_MM / 2 + 0.2,
+        6.8,
+        _M3_NUT_POCKET_HEIGHT_MM,
+        centered=(False, True, False),
+    ).translate((_BRAKE_X_MM, 0, nut_pocket_bottom_z)))
+    adjuster = adjuster.cut(nut_pocket).cut(nut_loading_slot)
     adjuster = _valid_single_solid(adjuster, 'brake adjuster')
+
+    nut = _hex_prism(
+        _M3_NUT_ACROSS_FLATS_MM,
+        adjuster_bottom_z + 0.2,
+        _M3_NUT_THICKNESS_MM,
+        _BRAKE_X_MM,
+    ).cut(_vertical_cylinder(
+        1.6,
+        adjuster_bottom_z + 0.1,
+        _M3_NUT_POCKET_HEIGHT_MM,
+        _BRAKE_X_MM,
+    ))
+    nut = _valid_single_solid(nut, 'captive brake-adjuster nut')
 
     felt = _valid_single_solid(_ring(
         _FELT_DIAMETER_MM / 2,
@@ -291,7 +358,7 @@ def _build_brake(
         0.6,
         _BRAKE_X_MM,
     ), 'brake washer')
-    spring_bottom_z = 10.0 + 2.0 * compression_mm
+    spring_bottom_z = _BASE_THICKNESS_MM + 1.0
     spring = _valid_single_solid(_ring(
         4.0,
         2.0,
@@ -300,13 +367,22 @@ def _build_brake(
         _BRAKE_X_MM,
     ), 'brake spring envelope')
 
+    manufacturing = design_parameters.manufacturing
+    screw_head_top_z = manufacturing.screw_head_height_mm + 0.1
+    screw_shaft_bottom_z = screw_head_top_z - 0.1
     screw_shaft = _vertical_cylinder(
-        1.5,
-        2.9,
-        platter_underside_z_mm - _HARD_STOP_CLEARANCE_MM - 2.9,
+        manufacturing.screw_nominal_diameter_mm / 2,
+        screw_shaft_bottom_z,
+        (platter_underside_z_mm - _HARD_STOP_CLEARANCE_MM
+         - screw_shaft_bottom_z),
         _BRAKE_X_MM,
     )
-    screw_head = _vertical_cylinder(2.75, 0.1, 3.0, _BRAKE_X_MM)
+    screw_head = _vertical_cylinder(
+        manufacturing.screw_head_diameter_mm / 2,
+        0.1,
+        manufacturing.screw_head_height_mm,
+        _BRAKE_X_MM,
+    )
     screw = _valid_single_solid(
         screw_head.union(screw_shaft), 'brake screw reference')
     return {
@@ -314,6 +390,7 @@ def _build_brake(
         'spring': spring,
         'washer': washer,
         'screw': screw,
+        'nut': nut,
         'felt': felt,
     }
 
@@ -343,7 +420,8 @@ def build_wire_payoff(
         tool_parameters, design_parameters, bearing_floor_z,
         platter_underside_z)
     compression_mm = setting * _ADJUSTER_TRAVEL_MM
-    brake = _build_brake(compression_mm, platter_underside_z)
+    brake = _build_brake(
+        compression_mm, platter_underside_z, design_parameters)
 
     rotating_parts = {
         'platter': platter,
@@ -383,6 +461,30 @@ def build_wire_payoff(
         'felt_replaceable': True,
         'hard_stop_clearance_mm': _HARD_STOP_CLEARANCE_MM,
         'normal_adjustment_can_lock_platter': False,
+        'spring_preload_remaining_mm': round(
+            _SPRING_FREE_LENGTH_MM
+            - brake['spring'].val().BoundingBox().zlen,
+            4,
+        ),
+        'spring_lower_reaction': 'printed base cavity floor',
+        'screw_nut_engagement_mm': _M3_NUT_THICKNESS_MM,
+        'adjuster_retention': 'M3 screw and captive ISO 4032 M3 nut',
+        'adjuster_service_setting': 0.0,
+        'adjuster_service_direction': '+X after screw removal',
+        'brake_load_path': [
+            'base spring seat',
+            'spring',
+            'washer',
+            'adjuster',
+            'felt',
+            'platter',
+        ],
+        'brake_adjustment_path': [
+            'base screw-head seat',
+            'screw',
+            'captive nut',
+            'adjuster',
+        ],
         'bench_hole_count': len(bench_fasteners),
         'clamp_land_count': len(clamp_lands),
         'mechanically_synchronized_with_winder': False,
@@ -395,6 +497,7 @@ def build_wire_payoff(
         spring=brake['spring'],
         washer=brake['washer'],
         screw=brake['screw'],
+        nut=brake['nut'],
         felt=brake['felt'],
         bearing=bearing,
         bench_fastener_references=bench_fasteners,
