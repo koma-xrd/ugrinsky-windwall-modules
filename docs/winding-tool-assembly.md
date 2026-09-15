@@ -36,6 +36,24 @@ resolution is 0.0625 mm. The model is tested at 110, 127, and 145 mm. These are
 CAD clearance checks, not continuous collision certification, physical fit
 approval, strength testing, or approval of powered winding.
 
+Engagement evidence is returned in `bearing_608_engagement`,
+`bearing_51105_engagement`, and `cam_follower_engagement`. Each 608 must occupy
+its corresponding upright seat: annular probes overlap its radial seat wall
+and axial shoulder, and a core probe overlaps the shaft through the bearing.
+The 51105 requires base-floor and housing-wall support, a platter pilot inside
+the stack, support above the shaft washer, and an occupied rolling-stack
+probe. Internal alignment alone is insufficient if the entire bearing has
+been displaced from its supports.
+
+Every follower requires shoulder material inside both its slider bore and cam
+track, shoulder material through its washer, thread material through its nut,
+and a retaining head above the washer. Additional probes verify washer/nut
+material, the nut pocket's loaded roof, and a nearby physical cam-track wall.
+Support and core probes require over 95% occupied volume. Probes sit beyond
+nominal assembly gaps, and mating distances permit up to 0.2 mm clearance
+(0.05–0.35 mm at the follower washer/cam gap). Thus a part displaced into open
+space cannot pass just because it no longer collides with another part.
+
 ## Retained head hardware and assembly order
 
 The six cam followers are nominal custom 4 mm shoulder screws with M3 threaded

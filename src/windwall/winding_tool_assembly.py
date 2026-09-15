@@ -86,6 +86,46 @@ def _circle_centres(shape, radius):
                     - radius) < 1e-6]
 
 
+def _axial_probe(outer_radius, inner_radius, start, length, centre=(0.0, 0.0)):
+    """Make a cylindrical/annular gauge along local Z."""
+    profile = cq.Workplane('XY').circle(outer_radius)
+    if inner_radius > 0:
+        profile = profile.circle(inner_radius)
+    return profile.extrude(length).translate((*centre, start))
+
+
+def _probe_fraction(body, probe):
+    """Fraction of a dedicated positive-support gauge occupied by a B-rep."""
+    return _intersection(body, probe) / probe.val().Volume()
+
+
+def _bearing_608_engagement(bearing, upright, shaft, outward):
+    bb = _box(bearing)
+    axis_y, axis_z = (bb.ymin + bb.ymax) / 2, (bb.zmin + bb.zmax) / 2
+
+    def probe(outer, inner, start, length):
+        return (_axial_probe(outer, inner, 0, length)
+                .rotate((0, 0, 0), (0, 1, 0), 90)
+                .translate((start, axis_y, axis_z)))
+
+    # Gauges sit beyond the intended 0.1 mm running/shoulder gaps, inside the
+    # mating material. No exact face coincidence is needed for a positive fit.
+    wall = probe(11.35, 11.15, bb.xmin + 0.4, bb.xlen - 0.8)
+    shoulder_start = bb.xmin - 0.3 if outward < 0 else bb.xmax + 0.2
+    shoulder = probe(10.7, 4.5, shoulder_start, 0.1)
+    pilot = probe(3.8, 0, bb.xmin + 0.4, bb.xlen - 0.8)
+    evidence = {
+        'seat_wall_fraction': _probe_fraction(upright, wall),
+        'shoulder_fraction': _probe_fraction(upright, shoulder),
+        'shaft_pilot_fraction': _probe_fraction(shaft, pilot),
+        'seat_gap_mm': bearing.val().distance(upright.val()),
+    }
+    valid = (all(evidence[name] > 0.95 for name in
+                 ('seat_wall_fraction', 'shoulder_fraction', 'shaft_pilot_fraction'))
+             and evidence['seat_gap_mm'] <= 0.2)
+    return bool(valid), evidence
+
+
 def _place_head(head, frame):
     # Recover the rigid placement from the component B-reps, not a duplicate
     # axis-height constant. The local backplate rear face is Z=0.
@@ -402,12 +442,68 @@ def _head_hardware_audit(local, diameter, p):
     return bool(hardware_clear), bool(service_clear)
 
 
+def _follower_engagement_audit(local):
+    """Require shoulders, threads, and retention heads in their mating voids."""
+    evidence = []
+    cam = local['cam']
+    cam_box = _box(cam)
+    for i in range(1, 7):
+        slider, follower, nut, washer = (local[f'{name}_{i}'] for name in
+                                         ('slider', 'cam_follower',
+                                          'cam_follower_nut', 'cam_follower_washer'))
+        bore_edges = _circle_centres(slider, 2.1)
+        if len(bore_edges) != 2:
+            raise ValueError(f'Slider {i} requires two follower-bore rim circles')
+        lower, upper = sorted(bore_edges, key=lambda centre: centre.z)
+        centre = (lower.x, lower.y)
+        nb, wb = _box(nut), _box(washer)
+
+        def probe(outer, inner, bottom, height):
+            return _axial_probe(outer, inner, bottom, height, centre)
+
+        slider_core = probe(1.9, 0, lower.z + 0.05, upper.z - lower.z - 0.1)
+        cam_core = probe(1.9, 0, cam_box.zmin + 0.15, cam_box.zlen - 0.3)
+        washer_core = probe(1.9, 0, wb.zmin + 0.1, wb.zlen - 0.2)
+        nut_core = probe(1.4, 0, nb.zmin + 0.1, nb.zlen - 0.2)
+        values = {
+            'slider_shoulder_fraction': _probe_fraction(follower, slider_core),
+            'cam_shoulder_fraction': _probe_fraction(follower, cam_core),
+            'washer_shoulder_fraction': _probe_fraction(follower, washer_core),
+            'nut_thread_fraction': _probe_fraction(follower, nut_core),
+            'washer_body_fraction': _probe_fraction(
+                washer, probe(3.3, 2.2, wb.zmin + 0.1, wb.zlen - 0.2)),
+            'nut_body_fraction': _probe_fraction(
+                nut, probe(2.5, 1.7, nb.zmin + 0.1, nb.zlen - 0.2)),
+            'nut_roof_fraction': _probe_fraction(
+                slider, probe(2.65, 2.2, nb.zmax + 0.2, 0.1)),
+            'retaining_head_fraction': _probe_fraction(
+                follower, probe(2.65, 2.2, wb.zmax + 0.1, 0.1)),
+            'cam_track_wall_fraction': _probe_fraction(
+                cam, probe(3.5, 3.0, cam_box.zmin + 0.2, cam_box.zlen - 0.4)),
+            'washer_cam_gap_mm': washer.val().distance(cam.val()),
+            'nut_pocket_gap_mm': nut.val().distance(slider.val()),
+            'nut_thread_gap_mm': nut.val().distance(follower.val()),
+        }
+        values['valid'] = (
+            all(value > 0.95 for name, value in values.items()
+                if name.endswith('_fraction') and name != 'cam_track_wall_fraction')
+            and values['cam_track_wall_fraction'] > 0.05
+            and 0.05 <= values['washer_cam_gap_mm'] <= 0.35
+            and values['nut_pocket_gap_mm'] <= 0.2
+            and values['nut_thread_gap_mm'] <= 0.2
+            and _clear(slider_core, slider) and _clear(cam_core, cam)
+            and _clear(follower, nut) and _clear(follower, washer))
+        evidence.append(values)
+    return all(item['valid'] for item in evidence), evidence
+
+
 def _drive_audit(model):
     jig = model.winding_jig
     shaft = jig['shaft']
     box = _box(shaft)
     shaft_axis = ((box.ymin + box.ymax) / 2, (box.zmin + box.zmax) / 2)
     nested = abs(box.ylen - 8) < 1e-5 and abs(box.zlen - 8) < 1e-5
+    bearing_evidence = []
     for i, upright in ((1, 'left_upright'), (2, 'right_upright')):
         bearing = jig[f'bearing_608_{i}']
         bb = _box(bearing)
@@ -418,6 +514,10 @@ def _drive_audit(model):
                    and _clear(shaft, bearing) and _clear(bearing, jig[upright]))
         # A missing bore/oversized bore cannot pass merely by not colliding.
         nested &= _intersection(shaft.translate((0, 0.05, 0)), bearing) > 0
+        engaged, evidence = _bearing_608_engagement(
+            bearing, jig[upright], shaft, -1 if i == 1 else 1)
+        nested &= engaged
+        bearing_evidence.append(evidence)
     coaxial = all(_clear(shaft, jig[name]) and
                   _intersection(shaft.translate((0, 0.4, 0)), jig[name]) > 0
                   for name in ('backplate', 'cam', 'clamp', 'head_hub',
@@ -434,7 +534,37 @@ def _drive_audit(model):
             .translate((grip.xmin - 5, *shaft_axis)))
     stationary = [jig[name] for name in model.ownership['winding_jig']['stationary']]
     hand_clearance = min(hand.val().distance(body.val()) for body in stationary)
-    return bool(nested), bool(coaxial), hand_clearance
+    return bool(nested), bool(coaxial), hand_clearance, bearing_evidence
+
+
+def _bearing_51105_engagement(parts):
+    housing, rolling, shaft = (_box(parts[name]) for name in
+                               ('housing_washer', 'rolling_envelope', 'shaft_washer'))
+    centre = ((housing.xmin + housing.xmax) / 2, (housing.ymin + housing.ymax) / 2)
+    base_support = _axial_probe(20.8, 12.7, housing.zmin - 0.3, 0.1, centre)
+    housing_wall = _axial_probe(21.35, 21.15, housing.zmin + 0.2,
+                                housing.zlen - 0.4, centre)
+    platter_pilot = _axial_probe(12.3, 0, housing.zmin + 0.3,
+                                 shaft.zmax - housing.zmin - 0.4, centre)
+    platter_support = _axial_probe(17.8, 12.7, shaft.zmax + 0.2, 0.1, centre)
+    rolling_middle = (housing.zmax + shaft.zmin) / 2
+    rolling_probe = _axial_probe(19.0, 14.0, rolling_middle - 0.05, 0.1, centre)
+    evidence = {
+        'base_support_fraction': _probe_fraction(parts['base'], base_support),
+        'housing_wall_fraction': _probe_fraction(parts['base'], housing_wall),
+        'platter_pilot_fraction': _probe_fraction(parts['platter'], platter_pilot),
+        'platter_support_fraction': _probe_fraction(parts['platter'], platter_support),
+        'rolling_stack_fraction': _probe_fraction(parts['rolling_envelope'], rolling_probe),
+        'housing_base_gap_mm': parts['housing_washer'].val().distance(parts['base'].val()),
+        'shaft_platter_gap_mm': parts['shaft_washer'].val().distance(parts['platter'].val()),
+        'housing_rolling_gap_mm': rolling.zmin - housing.zmax,
+        'rolling_shaft_gap_mm': shaft.zmin - rolling.zmax,
+    }
+    supported = all(value > 0.95 for name, value in evidence.items()
+                    if name.endswith('_fraction'))
+    supported &= all(-1e-5 <= value <= 0.2 for name, value in evidence.items()
+                     if name.endswith('_gap_mm'))
+    return bool(supported), evidence
 
 
 def _brake_audit(model):
@@ -459,12 +589,10 @@ def _brake_audit(model):
         ('base', 'rolling_envelope'), ('base', 'housing_washer')))
     washers = [_box(parts[name]) for name in
                ('housing_washer', 'rolling_envelope', 'shaft_washer')]
-    bearing_clear &= (abs(washers[0].zmax - washers[1].zmin) < 1e-5
-                      and abs(washers[1].zmax - washers[2].zmin) < 1e-5
-                      and all(abs((b.xmin + b.xmax) / 2) < 1e-5
-                              and abs((b.ymin + b.ymax) / 2) < 1e-5
-                              for b in washers))
-    return bool(stop), clearance, bool(bearing_clear)
+    bearing_clear &= all(abs((b.xmin + b.xmax) / 2) < 1e-5
+                         and abs((b.ymin + b.ymax) / 2) < 1e-5 for b in washers)
+    supported, evidence = _bearing_51105_engagement(parts)
+    return bool(stop), clearance, bool(bearing_clear and supported), evidence
 
 
 def audit_winding_tool_assemblies(model: WindingToolAssemblies) -> dict:
@@ -480,7 +608,7 @@ def audit_winding_tool_assemblies(model: WindingToolAssemblies) -> dict:
         'independent_tools', 'moving_fixed_clearance', 'tape_passages',
         'slider_retention', 'cam_lock_clearance', 'head_release',
         'shaft_608_nesting', 'drive_coaxiality', 'crank_hand_envelope',
-        'head_hardware_clearance', 'head_service_access',
+        'head_hardware_clearance', 'head_service_access', 'cam_follower_engagement',
         'bearing_51105_ownership', 'bearing_51105_nesting',
         'brake_hard_stop', 'print_bed')}
     audit = {'valid': False, 'checks': checks, 'rib_count': 0,
@@ -540,16 +668,18 @@ def audit_winding_tool_assemblies(model: WindingToolAssemblies) -> dict:
         checks.update(head_checks)
         (checks['head_hardware_clearance'], checks['head_service_access']) = (
             _head_hardware_audit(local, diameter, model.parameters))
+        (checks['cam_follower_engagement'], audit['cam_follower_engagement']) = (
+            _follower_engagement_audit(local))
         audit['cam_lock_axial_gap_mm'] = gap
         audit['head_release_travel_mm'] = (model.parameters.release_travel_mm
                                             if checks['head_release'] else 0.0)
         audit['collisions'] = _moving_fixed_audit(model)
         checks['moving_fixed_clearance'] = not audit['collisions']
         (checks['shaft_608_nesting'], checks['drive_coaxiality'],
-         audit['crank_hand_clearance_mm']) = _drive_audit(model)
+         audit['crank_hand_clearance_mm'], audit['bearing_608_engagement']) = _drive_audit(model)
         checks['crank_hand_envelope'] = audit['crank_hand_clearance_mm'] > 0
         (checks['brake_hard_stop'], audit['brake_rigid_clearance_mm'],
-         checks['bearing_51105_nesting']) = _brake_audit(model)
+         checks['bearing_51105_nesting'], audit['bearing_51105_engagement']) = _brake_audit(model)
         envelopes = {}
         for path in model.printable_parts:
             tool, name = path.split('/')

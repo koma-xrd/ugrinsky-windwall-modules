@@ -116,6 +116,51 @@ class WindingToolAssemblyTests(unittest.TestCase):
         self.assertEqual(choices, {'winding_jig_bench', 'wire_payoff_bench'})
 
 
+class WindingToolEngagementTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.model = build_winding_tool_assemblies()
+
+    def test_audit_rejects_608_displaced_twenty_mm_along_shaft(self):
+        jig = dict(self.model.winding_jig)
+        jig['bearing_608_1'] = jig['bearing_608_1'].translate((20, 0, 0))
+        audit = audit_winding_tool_assemblies(replace(self.model, winding_jig=jig))
+        self.assertFalse(audit['valid'])
+        self.assertFalse(audit['checks']['shaft_608_nesting'])
+
+    def test_audit_rejects_entire_51105_stack_displaced_one_hundred_mm_upward(self):
+        payoff = dict(self.model.wire_payoff)
+        for name in ('housing_washer', 'rolling_envelope', 'shaft_washer'):
+            payoff[name] = payoff[name].translate((0, 0, 100))
+        audit = audit_winding_tool_assemblies(replace(self.model, wire_payoff=payoff))
+        self.assertFalse(audit['valid'])
+        self.assertFalse(audit['checks']['bearing_51105_nesting'])
+
+    def test_audit_rejects_follower_withdrawn_one_hundred_mm_along_head_axis(self):
+        jig = dict(self.model.winding_jig)
+        jig['cam_follower_1'] = jig['cam_follower_1'].translate((100, 0, 0))
+        audit = audit_winding_tool_assemblies(replace(self.model, winding_jig=jig))
+        self.assertFalse(audit['valid'])
+        self.assertFalse(audit['checks']['cam_follower_engagement'])
+
+    def test_nominal_interfaces_have_positive_support_and_pilot_evidence(self):
+        audit = audit_winding_tool_assemblies(self.model)
+        self.assertTrue(audit['valid'], audit['checks'])
+        for bearing in audit['bearing_608_engagement']:
+            self.assertGreater(bearing['seat_wall_fraction'], 0.95)
+            self.assertGreater(bearing['shoulder_fraction'], 0.95)
+            self.assertGreater(bearing['shaft_pilot_fraction'], 0.95)
+            self.assertLessEqual(bearing['seat_gap_mm'], 0.2)
+        thrust = audit['bearing_51105_engagement']
+        for name in ('base_support_fraction', 'housing_wall_fraction',
+                     'platter_pilot_fraction', 'platter_support_fraction'):
+            self.assertGreater(thrust[name], 0.95)
+        for follower in audit['cam_follower_engagement']:
+            for name in ('slider_shoulder_fraction', 'cam_shoulder_fraction',
+                         'washer_shoulder_fraction', 'nut_thread_fraction'):
+                self.assertGreater(follower[name], 0.95)
+
+
 class WindingToolHardwareTests(unittest.TestCase):
     def test_audit_rejects_removed_crank_retainer_even_if_ownership_is_updated(self):
         with patch('windwall.winding_tool_assembly.audit_winding_tool_assemblies',
