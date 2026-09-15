@@ -139,6 +139,9 @@ class ReleaseIndexTests(unittest.TestCase):
         manual = records[self.audit['artifact_path']]
         self.assertEqual(manual['validation']['page_review'], 'blocked_missing_bundled_soffice')
         self.assertFalse(result['physical_validation_verified'])
+        limitations = " ".join(result['known_limitations'])
+        self.assertIn('earlier V4.3', limitations)
+        self.assertIn('current tighter 0.20/0.18 mm coupon is untested', limitations)
         first = (self.release / 'release-index.json').read_bytes()
         self.assertNotIn(b'\r\n', first, 'Canonical inventory bytes must not depend on the host OS')
         self.build(self.root)

@@ -33,6 +33,8 @@ class CouponExportTests(unittest.TestCase):
         self.assertTrue((destination / "bayonet_fit.json").is_file())
         self.assertGreater(report["clockwise_snap_lock_intersection_mm3"], 0.01)
         self.assertGreater(report["ccw_stop_intersection_mm3"], 0.05)
+        self.assertAlmostEqual(report["radial_clearance_parameter_mm"], 0.20)
+        self.assertAlmostEqual(report["axial_clearance_parameter_mm"], 0.18)
         self.assertFalse(report["physically_calibrated"])
 
     def test_preview_contains_pair_insertion_ghost_and_ccw_marker(self):

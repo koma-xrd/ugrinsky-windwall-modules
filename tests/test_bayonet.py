@@ -55,7 +55,10 @@ class BayonetTests(unittest.TestCase):
     def test_locked_coupon_clearance_is_geometric_and_excludes_intentional_stop(self):
         self.assertLess(self.coupon.locked_intersection_volume_mm3(), 0.01)
         self.assertAlmostEqual(self.coupon.male.val().distance(self.coupon.female.val()), 0, places=5)
-        self.assertGreaterEqual(self.coupon.minimum_locked_clearance_mm(), 0.20)
+        # The 0.20 mm parameter offsets the curved profile; the tessellated
+        # chord-to-chord minimum is deliberately smaller and is frozen here.
+        self.assertGreaterEqual(self.coupon.minimum_locked_clearance_mm(), 0.10)
+        self.assertLessEqual(self.coupon.minimum_locked_clearance_mm(), 0.16)
 
     def test_counterclockwise_stop_and_clockwise_snap_block_locked_torque(self):
         clockwise = self.coupon.male.rotate((0, 0, 0), (0, 0, 1), -0.5)
@@ -69,7 +72,9 @@ class BayonetTests(unittest.TestCase):
             box = (cq.Workplane("XY").box(7, 4, 5, centered=False)
                    .translate((18.7, 4, 3)).rotate((0,0,0), (0,0,1), angle))
             stops = stops.union(box)
-        self.assertLess(collision.cut(stops).val().Volume(), 0.01)
+        snap_ring = (cq.Workplane('XY').circle(22).circle(20.4)
+                     .extrude(1.9).translate((0,0,3.9)))
+        self.assertLess(collision.cut(stops.union(snap_ring)).val().Volume(), 0.01)
 
     def test_locked_lugs_cannot_be_pulled_out_axially(self):
         self.assertGreater(self.coupon.male.translate((0, 0, 2)).intersect(
@@ -116,10 +121,19 @@ class BayonetTests(unittest.TestCase):
         self.assertGreater(clockwise_release.intersect(self.coupon.female).val().Volume(), 0.01)
 
     def test_running_gap_excludes_snap_pawl_faces_without_removing_the_lock(self):
-        self.assertGreaterEqual(self.coupon.minimum_locked_clearance_mm(), 0.20)
+        self.assertGreaterEqual(self.coupon.minimum_locked_clearance_mm(), 0.10)
+        self.assertLessEqual(self.coupon.minimum_locked_clearance_mm(), 0.16)
         reverse = self.coupon.male.rotate((0,0,0),(0,0,1),-0.5)
-        self.assertGreater(reverse.intersect(self.coupon.female).val().Volume(), 0.01)
+        self.assertGreater(reverse.intersect(self.coupon.female).val().Volume(), 0.12)
         self.assertLess(self.coupon.locked_intersection_volume_mm3(), 0.01)
+
+    def test_bayonet_fit_is_tight_without_changing_other_manufacturing_clearances(self):
+        p = DEFAULT_PARAMETERS
+        self.assertAlmostEqual(p.bayonet.radial_clearance_mm, 0.20)
+        self.assertAlmostEqual(p.bayonet.axial_clearance_mm, 0.18)
+        self.assertAlmostEqual(p.bayonet.snap_interference_mm, 0.15)
+        self.assertAlmostEqual(p.manufacturing.radial_clearance_mm, 0.30)
+        self.assertAlmostEqual(p.manufacturing.axial_clearance_mm, 0.25)
 
     def test_motion_rejects_travel_outside_the_track(self):
         for travel in (-1, 19, float("nan")):
@@ -127,8 +141,8 @@ class BayonetTests(unittest.TestCase):
                 self.coupon.male_at_travel(travel)
 
     def test_custom_clearances_change_actual_receiver_geometry(self):
-        parameters = replace(DEFAULT_PARAMETERS, manufacturing=replace(
-            DEFAULT_PARAMETERS.manufacturing, radial_clearance_mm=0.45, axial_clearance_mm=0.40))
+        parameters = replace(DEFAULT_PARAMETERS, bayonet=replace(
+            DEFAULT_PARAMETERS.bayonet, radial_clearance_mm=0.45, axial_clearance_mm=0.40))
         loose = build_bayonet_coupon(parameters)
         bore_probe = (17.35*cos(radians(60)), 17.35*sin(radians(60)), 1)
         self.assertTrue(self.coupon.female.val().isInside(bore_probe))
@@ -149,8 +163,8 @@ class BayonetTests(unittest.TestCase):
             with self.subTest(change=change), self.assertRaises(ValueError):
                 build_bayonet_coupon(parameters)
         for clearance in (0, -0.1, float("nan")):
-            parameters = replace(DEFAULT_PARAMETERS, manufacturing=replace(
-                DEFAULT_PARAMETERS.manufacturing, radial_clearance_mm=clearance))
+            parameters = replace(DEFAULT_PARAMETERS, bayonet=replace(
+                DEFAULT_PARAMETERS.bayonet, radial_clearance_mm=clearance))
             with self.subTest(clearance=clearance), self.assertRaises(ValueError):
                 build_bayonet_coupon(parameters)
 

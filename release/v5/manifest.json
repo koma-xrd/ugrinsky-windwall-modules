@@ -5,7 +5,7 @@
         "maximum_xyz": [
           90.0,
           90.0,
-          501.29999999999995
+          501.79999999999995
         ],
         "minimum_xyz": [
           -90.0,
@@ -15,7 +15,7 @@
         "size_xyz": [
           180.0,
           180.0,
-          554.8000000999999
+          555.3000000999999
         ]
       },
       "cad_solid_count": 64,
@@ -41,7 +41,7 @@
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 96509.67671401938,
+          "cad_volume_mm3": 96410.6838108883,
           "dimensions_mm": {
             "maximum_xyz": [
               61.000000100000776,
@@ -144,7 +144,7 @@
             "maximum_xyz": [
               4.0,
               4.0,
-              501.29999999999995
+              501.79999999999995
             ],
             "minimum_xyz": [
               -4.0,
@@ -154,17 +154,17 @@
             "size_xyz": [
               8.0,
               8.0,
-              543.3
+              543.8
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 27309.23661912535,
+          "cad_volume_mm3": 27334.369360354067,
           "dimensions_mm": {
             "maximum_xyz": [
               4.0,
               4.0,
-              501.29999999999995
+              501.79999999999995
             ],
             "minimum_xyz": [
               -4.0,
@@ -174,7 +174,7 @@
             "size_xyz": [
               8.0,
               8.0,
-              543.3
+              543.8
             ]
           },
           "known_limitations": [
@@ -1278,17 +1278,17 @@
             "minimum_xyz": [
               -60.68442974986313,
               -61.00000007155898,
-              59.549999899999996
+              59.6199999
             ],
             "size_xyz": [
               121.36885949972628,
               122.00000014311794,
-              80.45000020000029
+              80.38000020000027
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 54699.746510143406,
+          "cad_volume_mm3": 54571.5657496928,
           "dimensions_mm": {
             "maximum_xyz": [
               60.68442974986316,
@@ -1298,12 +1298,12 @@
             "minimum_xyz": [
               -60.68442974986313,
               -61.00000007155898,
-              59.549999899999996
+              59.6199999
             ],
             "size_xyz": [
               121.36885949972628,
               122.00000014311794,
-              80.45000020000029
+              80.38000020000027
             ]
           },
           "known_limitations": [
@@ -1337,17 +1337,17 @@
             "minimum_xyz": [
               -61.0000001,
               -55.90742357846125,
-              129.54999990000002
+              129.6199999
             ],
             "size_xyz": [
               122.0000002,
               111.8148471569225,
-              80.45000020000026
+              80.38000020000027
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 54699.74651014357,
+          "cad_volume_mm3": 54571.56574969295,
           "dimensions_mm": {
             "maximum_xyz": [
               61.0000001,
@@ -1357,12 +1357,12 @@
             "minimum_xyz": [
               -61.0000001,
               -55.90742357846125,
-              129.54999990000002
+              129.6199999
             ],
             "size_xyz": [
               122.0000002,
               111.8148471569225,
-              80.45000020000026
+              80.38000020000027
             ]
           },
           "known_limitations": [
@@ -1396,17 +1396,17 @@
             "minimum_xyz": [
               -61.000000100000776,
               -60.68442975357152,
-              199.54999990000002
+              199.6199999
             ],
             "size_xyz": [
               122.00000020000155,
               121.36885950714304,
-              80.45000020000029
+              80.3800002000003
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 54699.74651014327,
+          "cad_volume_mm3": 54571.56574969268,
           "dimensions_mm": {
             "maximum_xyz": [
               61.000000100000776,
@@ -1416,12 +1416,12 @@
             "minimum_xyz": [
               -61.000000100000776,
               -60.68442975357152,
-              199.54999990000002
+              199.6199999
             ],
             "size_xyz": [
               122.00000020000155,
               121.36885950714304,
-              80.45000020000029
+              80.3800002000003
             ]
           },
           "known_limitations": [
@@ -1455,17 +1455,17 @@
             "minimum_xyz": [
               -60.68442974986316,
               -61.000000071558986,
-              269.5499999
+              269.6199999
             ],
             "size_xyz": [
               121.36885949972663,
               122.00000014311797,
-              80.45000020000032
+              80.38000020000032
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 54699.746510143224,
+          "cad_volume_mm3": 54571.56574969272,
           "dimensions_mm": {
             "maximum_xyz": [
               60.684429749863455,
@@ -1475,12 +1475,12 @@
             "minimum_xyz": [
               -60.68442974986316,
               -61.000000071558986,
-              269.5499999
+              269.6199999
             ],
             "size_xyz": [
               121.36885949972663,
               122.00000014311797,
-              80.45000020000032
+              80.38000020000032
             ]
           },
           "known_limitations": [
@@ -1514,17 +1514,17 @@
             "minimum_xyz": [
               -61.000000100000015,
               -55.90742357846126,
-              339.5499999
+              339.6199999
             ],
             "size_xyz": [
               122.00000020000002,
               111.81484715692253,
-              80.45000020000032
+              80.38000020000032
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 54699.7465101438,
+          "cad_volume_mm3": 54571.56574969321,
           "dimensions_mm": {
             "maximum_xyz": [
               61.0000001,
@@ -1534,12 +1534,12 @@
             "minimum_xyz": [
               -61.000000100000015,
               -55.90742357846126,
-              339.5499999
+              339.6199999
             ],
             "size_xyz": [
               122.00000020000002,
               111.81484715692253,
-              80.45000020000032
+              80.38000020000032
             ]
           },
           "known_limitations": [
@@ -1573,17 +1573,17 @@
             "minimum_xyz": [
               -61.000000100000776,
               -60.68442975357151,
-              409.5499999
+              409.6199999
             ],
             "size_xyz": [
               122.0000002000008,
               121.36885950714301,
-              80.45000020000032
+              80.38000020000032
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 47956.321455383586,
+          "cad_volume_mm3": 47757.50416329074,
           "dimensions_mm": {
             "maximum_xyz": [
               61.00000010000002,
@@ -1593,12 +1593,12 @@
             "minimum_xyz": [
               -61.000000100000776,
               -60.68442975357151,
-              409.5499999
+              409.6199999
             ],
             "size_xyz": [
               122.0000002000008,
               121.36885950714301,
-              80.45000020000032
+              80.38000020000032
             ]
           },
           "known_limitations": [
@@ -1627,12 +1627,12 @@
             "maximum_xyz": [
               12.0,
               12.0,
-              491.5
+              492.0
             ],
             "minimum_xyz": [
               -12.0,
               -12.0,
-              489.5
+              490.0
             ],
             "size_xyz": [
               24.0,
@@ -1647,12 +1647,12 @@
             "maximum_xyz": [
               12.0,
               12.0,
-              491.5
+              492.0
             ],
             "minimum_xyz": [
               -12.0,
               -12.0,
-              489.5
+              490.0
             ],
             "size_xyz": [
               24.0,
@@ -1683,12 +1683,12 @@
             "maximum_xyz": [
               7.505553499465135,
               6.500000000000001,
-              498.3
+              498.8
             ],
             "minimum_xyz": [
               -7.505553499465135,
               -6.500000000000003,
-              491.5
+              492.0
             ],
             "size_xyz": [
               15.01110699893027,
@@ -1703,12 +1703,12 @@
             "maximum_xyz": [
               7.505553499465135,
               6.500000000000001,
-              498.3
+              498.8
             ],
             "minimum_xyz": [
               -7.505553499465135,
               -6.500000000000003,
-              491.5
+              492.0
             ],
             "size_xyz": [
               15.01110699893027,
@@ -1739,7 +1739,7 @@
         "maximum_xyz": [
           90.0,
           90.0,
-          501.29999999999995
+          501.79999999999995
         ],
         "minimum_xyz": [
           -90.0,
@@ -1749,7 +1749,7 @@
         "size_xyz": [
           180.0,
           180.0,
-          554.8000000999999
+          555.3000000999999
         ]
       },
       "expected_component_count": 30,
@@ -1812,8 +1812,8 @@
       ],
       "step_path": "release/v5/assembly/rotor_locked.step",
       "step_round_trip_valid": true,
-      "step_sha256": "921407a39580a786fd0c8e8f88ca46197145ec21e61c4543f9baa7cc21e76c6c",
-      "summed_component_volume_mm3": 775169.5953873659,
+      "step_sha256": "a744182c3ea4d7134e740a8d272d11a8b99fa1dca736c6ab4c9d00e65016de6c",
+      "summed_component_volume_mm3": 774256.0141311177,
       "topology_result": {
         "cad_solid_count": 64,
         "cad_valid": true,
@@ -1862,7 +1862,7 @@
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 96509.67671401938,
+          "cad_volume_mm3": 96410.6838108883,
           "dimensions_mm": {
             "maximum_xyz": [
               61.000000100000776,
@@ -3122,8 +3122,8 @@
       "source_builder": "windwall.generator.build_generator_assembly",
       "step_path": "release/v5/assembly/generator.step",
       "step_round_trip_valid": true,
-      "step_sha256": "12da17d7a1711427d7433bfc1c9008f8e7ee4331f499ae747bf028e40d2c35a1",
-      "summed_component_volume_mm3": 431352.45370422874,
+      "step_sha256": "ad819417016072d7a6f197340418e219d65a8eca299069adb1da745881cb0a51",
+      "summed_component_volume_mm3": 431253.4608010977,
       "topology_result": {
         "cad_solid_count": 56,
         "cad_valid": true,
@@ -3136,7 +3136,7 @@
         "maximum_xyz": [
           90.0,
           90.0,
-          542.3
+          542.8
         ],
         "minimum_xyz": [
           -90.0,
@@ -3146,7 +3146,7 @@
         "size_xyz": [
           180.0,
           180.0,
-          595.8000000999999
+          596.3000000999999
         ]
       },
       "cad_solid_count": 71,
@@ -3172,7 +3172,7 @@
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 96509.67671401938,
+          "cad_volume_mm3": 96410.6838108883,
           "dimensions_mm": {
             "maximum_xyz": [
               61.000000100000776,
@@ -3275,7 +3275,7 @@
             "maximum_xyz": [
               4.0,
               4.0,
-              513.3
+              513.8
             ],
             "minimum_xyz": [
               -4.0,
@@ -3285,17 +3285,17 @@
             "size_xyz": [
               8.0,
               8.0,
-              555.3
+              555.8
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 27912.42240861459,
+          "cad_volume_mm3": 27937.555149843312,
           "dimensions_mm": {
             "maximum_xyz": [
               4.0,
               4.0,
-              513.3
+              513.8
             ],
             "minimum_xyz": [
               -4.0,
@@ -3305,7 +3305,7 @@
             "size_xyz": [
               8.0,
               8.0,
-              555.3
+              555.8
             ]
           },
           "known_limitations": [
@@ -4409,17 +4409,17 @@
             "minimum_xyz": [
               -60.68442974986313,
               -61.00000007155898,
-              59.549999899999996
+              59.6199999
             ],
             "size_xyz": [
               121.36885949972628,
               122.00000014311794,
-              80.45000020000029
+              80.38000020000027
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 54699.746510143406,
+          "cad_volume_mm3": 54571.5657496928,
           "dimensions_mm": {
             "maximum_xyz": [
               60.68442974986316,
@@ -4429,12 +4429,12 @@
             "minimum_xyz": [
               -60.68442974986313,
               -61.00000007155898,
-              59.549999899999996
+              59.6199999
             ],
             "size_xyz": [
               121.36885949972628,
               122.00000014311794,
-              80.45000020000029
+              80.38000020000027
             ]
           },
           "known_limitations": [
@@ -4468,17 +4468,17 @@
             "minimum_xyz": [
               -61.0000001,
               -55.90742357846125,
-              129.54999990000002
+              129.6199999
             ],
             "size_xyz": [
               122.0000002,
               111.8148471569225,
-              80.45000020000026
+              80.38000020000027
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 54699.74651014357,
+          "cad_volume_mm3": 54571.56574969295,
           "dimensions_mm": {
             "maximum_xyz": [
               61.0000001,
@@ -4488,12 +4488,12 @@
             "minimum_xyz": [
               -61.0000001,
               -55.90742357846125,
-              129.54999990000002
+              129.6199999
             ],
             "size_xyz": [
               122.0000002,
               111.8148471569225,
-              80.45000020000026
+              80.38000020000027
             ]
           },
           "known_limitations": [
@@ -4527,17 +4527,17 @@
             "minimum_xyz": [
               -61.000000100000776,
               -60.68442975357152,
-              199.54999990000002
+              199.6199999
             ],
             "size_xyz": [
               122.00000020000155,
               121.36885950714304,
-              80.45000020000029
+              80.3800002000003
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 54699.74651014327,
+          "cad_volume_mm3": 54571.56574969268,
           "dimensions_mm": {
             "maximum_xyz": [
               61.000000100000776,
@@ -4547,12 +4547,12 @@
             "minimum_xyz": [
               -61.000000100000776,
               -60.68442975357152,
-              199.54999990000002
+              199.6199999
             ],
             "size_xyz": [
               122.00000020000155,
               121.36885950714304,
-              80.45000020000029
+              80.3800002000003
             ]
           },
           "known_limitations": [
@@ -4586,17 +4586,17 @@
             "minimum_xyz": [
               -60.68442974986316,
               -61.000000071558986,
-              269.5499999
+              269.6199999
             ],
             "size_xyz": [
               121.36885949972663,
               122.00000014311797,
-              80.45000020000032
+              80.38000020000032
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 54699.746510143224,
+          "cad_volume_mm3": 54571.56574969272,
           "dimensions_mm": {
             "maximum_xyz": [
               60.684429749863455,
@@ -4606,12 +4606,12 @@
             "minimum_xyz": [
               -60.68442974986316,
               -61.000000071558986,
-              269.5499999
+              269.6199999
             ],
             "size_xyz": [
               121.36885949972663,
               122.00000014311797,
-              80.45000020000032
+              80.38000020000032
             ]
           },
           "known_limitations": [
@@ -4645,17 +4645,17 @@
             "minimum_xyz": [
               -61.000000100000015,
               -55.90742357846126,
-              339.5499999
+              339.6199999
             ],
             "size_xyz": [
               122.00000020000002,
               111.81484715692253,
-              80.45000020000032
+              80.38000020000032
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 54699.7465101438,
+          "cad_volume_mm3": 54571.56574969321,
           "dimensions_mm": {
             "maximum_xyz": [
               61.0000001,
@@ -4665,12 +4665,12 @@
             "minimum_xyz": [
               -61.000000100000015,
               -55.90742357846126,
-              339.5499999
+              339.6199999
             ],
             "size_xyz": [
               122.00000020000002,
               111.81484715692253,
-              80.45000020000032
+              80.38000020000032
             ]
           },
           "known_limitations": [
@@ -4704,17 +4704,17 @@
             "minimum_xyz": [
               -61.000000100000776,
               -60.68442975357151,
-              409.5499999
+              409.6199999
             ],
             "size_xyz": [
               122.0000002000008,
               121.36885950714301,
-              80.45000020000032
+              80.38000020000032
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 47956.321455383586,
+          "cad_volume_mm3": 47757.50416329074,
           "dimensions_mm": {
             "maximum_xyz": [
               61.00000010000002,
@@ -4724,12 +4724,12 @@
             "minimum_xyz": [
               -61.000000100000776,
               -60.68442975357151,
-              409.5499999
+              409.6199999
             ],
             "size_xyz": [
               122.0000002000008,
               121.36885950714301,
-              80.45000020000032
+              80.38000020000032
             ]
           },
           "known_limitations": [
@@ -4758,12 +4758,12 @@
             "maximum_xyz": [
               12.0,
               12.0,
-              491.5
+              492.0
             ],
             "minimum_xyz": [
               -12.0,
               -12.0,
-              489.5
+              490.0
             ],
             "size_xyz": [
               24.0,
@@ -4778,12 +4778,12 @@
             "maximum_xyz": [
               12.0,
               12.0,
-              491.5
+              492.0
             ],
             "minimum_xyz": [
               -12.0,
               -12.0,
-              489.5
+              490.0
             ],
             "size_xyz": [
               24.0,
@@ -4814,12 +4814,12 @@
             "maximum_xyz": [
               7.505553499465135,
               6.500000000000001,
-              498.3
+              498.8
             ],
             "minimum_xyz": [
               -7.505553499465135,
               -6.500000000000003,
-              491.5
+              492.0
             ],
             "size_xyz": [
               15.01110699893027,
@@ -4834,12 +4834,12 @@
             "maximum_xyz": [
               7.505553499465135,
               6.500000000000001,
-              498.3
+              498.8
             ],
             "minimum_xyz": [
               -7.505553499465135,
               -6.500000000000003,
-              491.5
+              492.0
             ],
             "size_xyz": [
               15.01110699893027,
@@ -4870,12 +4870,12 @@
             "maximum_xyz": [
               40.0,
               25.0,
-              512.3
+              512.8
             ],
             "minimum_xyz": [
               -40.0,
               -25.0,
-              500.3
+              500.8
             ],
             "size_xyz": [
               80.0,
@@ -4890,12 +4890,12 @@
             "maximum_xyz": [
               40.0,
               25.0,
-              512.3
+              512.8
             ],
             "minimum_xyz": [
               -40.0,
               -25.0,
-              500.3
+              500.8
             ],
             "size_xyz": [
               80.0,
@@ -4929,12 +4929,12 @@
             "maximum_xyz": [
               11.0,
               11.0,
-              512.1
+              512.6
             ],
             "minimum_xyz": [
               -11.0,
               -11.0,
-              505.1
+              505.6
             ],
             "size_xyz": [
               22.0,
@@ -4949,12 +4949,12 @@
             "maximum_xyz": [
               11.0,
               11.0,
-              512.1
+              512.6
             ],
             "minimum_xyz": [
               -11.0,
               -11.0,
-              505.1
+              505.6
             ],
             "size_xyz": [
               22.0,
@@ -4985,12 +4985,12 @@
             "maximum_xyz": [
               50.0,
               35.0,
-              542.3
+              542.8
             ],
             "minimum_xyz": [
               -50.0,
               -35.0,
-              512.3
+              512.8
             ],
             "size_xyz": [
               100.0,
@@ -5005,12 +5005,12 @@
             "maximum_xyz": [
               50.0,
               35.0,
-              542.3
+              542.8
             ],
             "minimum_xyz": [
               -50.0,
               -35.0,
-              512.3
+              512.8
             ],
             "size_xyz": [
               100.0,
@@ -5041,12 +5041,12 @@
             "maximum_xyz": [
               -26.0,
               -11.0,
-              540.3
+              540.8
             ],
             "minimum_xyz": [
               -34.0,
               -19.0,
-              500.3
+              500.8
             ],
             "size_xyz": [
               8.0,
@@ -5061,12 +5061,12 @@
             "maximum_xyz": [
               -26.0,
               -11.0,
-              540.3
+              540.8
             ],
             "minimum_xyz": [
               -34.0,
               -19.0,
-              500.3
+              500.8
             ],
             "size_xyz": [
               8.0,
@@ -5097,12 +5097,12 @@
             "maximum_xyz": [
               -26.0,
               19.0,
-              540.3
+              540.8
             ],
             "minimum_xyz": [
               -34.0,
               11.0,
-              500.3
+              500.8
             ],
             "size_xyz": [
               8.0,
@@ -5117,12 +5117,12 @@
             "maximum_xyz": [
               -26.0,
               19.0,
-              540.3
+              540.8
             ],
             "minimum_xyz": [
               -34.0,
               11.0,
-              500.3
+              500.8
             ],
             "size_xyz": [
               8.0,
@@ -5153,12 +5153,12 @@
             "maximum_xyz": [
               34.0,
               -11.0,
-              540.3
+              540.8
             ],
             "minimum_xyz": [
               26.0,
               -19.0,
-              500.3
+              500.8
             ],
             "size_xyz": [
               8.0,
@@ -5173,12 +5173,12 @@
             "maximum_xyz": [
               34.0,
               -11.0,
-              540.3
+              540.8
             ],
             "minimum_xyz": [
               26.0,
               -19.0,
-              500.3
+              500.8
             ],
             "size_xyz": [
               8.0,
@@ -5209,12 +5209,12 @@
             "maximum_xyz": [
               34.0,
               19.0,
-              540.3
+              540.8
             ],
             "minimum_xyz": [
               26.0,
               11.0,
-              500.3
+              500.8
             ],
             "size_xyz": [
               8.0,
@@ -5229,12 +5229,12 @@
             "maximum_xyz": [
               34.0,
               19.0,
-              540.3
+              540.8
             ],
             "minimum_xyz": [
               26.0,
               11.0,
-              500.3
+              500.8
             ],
             "size_xyz": [
               8.0,
@@ -5265,7 +5265,7 @@
         "maximum_xyz": [
           90.0,
           90.0,
-          542.3
+          542.8
         ],
         "minimum_xyz": [
           -90.0,
@@ -5275,7 +5275,7 @@
         "size_xyz": [
           180.0,
           180.0,
-          595.8000000999999
+          596.3000000999999
         ]
       },
       "expected_component_count": 37,
@@ -5293,8 +5293,8 @@
       "source_builder": "windwall.assembly.build_locked_rotor_assembly",
       "step_path": "release/v5/assembly/fence_assembly.step",
       "step_round_trip_valid": true,
-      "step_sha256": "267119bdc2f959caf0d6b585e3294f76fca7c3c4e88697c77aec078688921bca",
-      "summed_component_volume_mm3": 1032412.9742126751,
+      "step_sha256": "ef787f39d750f04bfd5821337e02b762d579465d21f679f1bdadc81d9f13eff5",
+      "summed_component_volume_mm3": 1031499.392956427,
       "topology_result": {
         "cad_solid_count": 71,
         "cad_valid": true,
@@ -5603,43 +5603,43 @@
     "internal_blade_twist_deg": 60.0,
     "joint_axial_float": [
       {
-        "compression_0_10_mm_intersection_mm3": 47.095197698609525,
-        "compression_0_20_mm_intersection_mm3": 92.34498959791661,
+        "compression_0_10_mm_intersection_mm3": 47.19732175027094,
+        "compression_0_20_mm_intersection_mm3": 94.40526189649285,
         "contact_probe_bracket_mm": null,
         "joint": "base/standard_1",
         "physical_load_capacity_verified": false
       },
       {
-        "compression_0_10_mm_intersection_mm3": 47.095197306101,
-        "compression_0_20_mm_intersection_mm3": 92.34498880789326,
+        "compression_0_10_mm_intersection_mm3": 47.197321360665924,
+        "compression_0_20_mm_intersection_mm3": 94.40526110349091,
         "contact_probe_bracket_mm": null,
         "joint": "standard_1/standard_2",
         "physical_load_capacity_verified": false
       },
       {
-        "compression_0_10_mm_intersection_mm3": 47.09519730371515,
-        "compression_0_20_mm_intersection_mm3": 92.3449888071717,
+        "compression_0_10_mm_intersection_mm3": 47.19732135837833,
+        "compression_0_20_mm_intersection_mm3": 94.4052611033302,
         "contact_probe_bracket_mm": null,
         "joint": "standard_2/standard_3",
         "physical_load_capacity_verified": false
       },
       {
-        "compression_0_10_mm_intersection_mm3": 47.09519730378962,
-        "compression_0_20_mm_intersection_mm3": 92.34498880731664,
+        "compression_0_10_mm_intersection_mm3": 47.197321358420716,
+        "compression_0_20_mm_intersection_mm3": 94.40526110338457,
         "contact_probe_bracket_mm": null,
         "joint": "standard_3/standard_4",
         "physical_load_capacity_verified": false
       },
       {
-        "compression_0_10_mm_intersection_mm3": 47.09519730344039,
-        "compression_0_20_mm_intersection_mm3": 92.34498880690025,
+        "compression_0_10_mm_intersection_mm3": 47.19732135815505,
+        "compression_0_20_mm_intersection_mm3": 94.4052611030368,
         "contact_probe_bracket_mm": null,
         "joint": "standard_4/standard_5",
         "physical_load_capacity_verified": false
       },
       {
-        "compression_0_10_mm_intersection_mm3": 47.09519730366575,
-        "compression_0_20_mm_intersection_mm3": 92.3449888076091,
+        "compression_0_10_mm_intersection_mm3": 47.1973213582818,
+        "compression_0_20_mm_intersection_mm3": 94.40526110288307,
         "contact_probe_bracket_mm": null,
         "joint": "standard_5/top",
         "physical_load_capacity_verified": false
@@ -5647,40 +5647,40 @@
     ],
     "joint_paths": {
       "base/standard": {
-        "ccw_overtravel_intersection_mm3": 1.860407290274898,
-        "cw_reverse_intersection_mm3": 0.09266545530880434,
+        "ccw_overtravel_intersection_mm3": 2.0546416682455333,
+        "cw_reverse_intersection_mm3": 0.14083160143084844,
         "disassembly_supported": false,
         "elastic_snap_fit_verified": false,
         "insertion_sample_count": 16,
-        "locked_pull_intersection_mm3": 48.110900333146496,
+        "locked_pull_intersection_mm3": 54.984234633899604,
         "locking_lift_mm": 1.0,
         "locking_sample_count": 37,
-        "maximum_insertion_intersection_mm3": 0.007560473645767426,
-        "maximum_locking_intersection_mm3": 0.2724138865921433
+        "maximum_insertion_intersection_mm3": 0.00825453658163079,
+        "maximum_locking_intersection_mm3": 0.3104507141041538
       },
       "standard/standard": {
-        "ccw_overtravel_intersection_mm3": 1.860407290274898,
-        "cw_reverse_intersection_mm3": 0.09266545530880434,
+        "ccw_overtravel_intersection_mm3": 2.0546416682455333,
+        "cw_reverse_intersection_mm3": 0.14083160143084844,
         "disassembly_supported": false,
         "elastic_snap_fit_verified": false,
         "insertion_sample_count": 16,
-        "locked_pull_intersection_mm3": 48.110900333146496,
+        "locked_pull_intersection_mm3": 54.984234633899604,
         "locking_lift_mm": 1.0,
         "locking_sample_count": 37,
-        "maximum_insertion_intersection_mm3": 0.007560473645767426,
-        "maximum_locking_intersection_mm3": 0.2724138865921433
+        "maximum_insertion_intersection_mm3": 0.00825453658163079,
+        "maximum_locking_intersection_mm3": 0.3104507141041538
       },
       "standard/top": {
-        "ccw_overtravel_intersection_mm3": 1.860407290274898,
-        "cw_reverse_intersection_mm3": 0.09266545530880434,
+        "ccw_overtravel_intersection_mm3": 2.0546416682455333,
+        "cw_reverse_intersection_mm3": 0.14083160143084844,
         "disassembly_supported": false,
         "elastic_snap_fit_verified": false,
         "insertion_sample_count": 16,
-        "locked_pull_intersection_mm3": 48.110900333146496,
+        "locked_pull_intersection_mm3": 54.984234633899604,
         "locking_lift_mm": 1.0,
         "locking_sample_count": 37,
-        "maximum_insertion_intersection_mm3": 0.007560473645767426,
-        "maximum_locking_intersection_mm3": 0.2724138865921433
+        "maximum_insertion_intersection_mm3": 0.00825453658163079,
+        "maximum_locking_intersection_mm3": 0.3104507141041538
       }
     },
     "lower_generator_air_gap_mm": 1.5,
@@ -6148,7 +6148,7 @@
     "seam_phase_jump_deg": 0,
     "shaft_z_bounds_mm": [
       -42.0,
-      501.29999999999995
+      501.79999999999995
     ],
     "stage_count": 7,
     "standard_count": 5,
@@ -6661,37 +6661,37 @@
         "maximum_xyz": [
           21.4596032513375,
           19.637495373796554,
-          13.7
+          13.559999999999999
         ],
         "minimum_xyz": [
           -17.0,
           -19.63749537379655,
-          3.2499999999999996
+          3.18
         ],
         "size_xyz": [
           38.4596032513375,
           39.27499074759311,
-          10.45
+          10.379999999999999
         ]
       },
       "cad_solid_count": 1,
       "cad_valid": true,
-      "cad_volume_mm3": 4672.141425867902,
+      "cad_volume_mm3": 4642.953568774221,
       "dimensions_mm": {
         "maximum_xyz": [
           21.4596032513375,
           19.637495373796554,
-          13.7
+          13.559999999999999
         ],
         "minimum_xyz": [
           -17.0,
           -19.63749537379655,
-          3.2499999999999996
+          3.18
         ],
         "size_xyz": [
           38.4596032513375,
           39.27499074759311,
-          10.45
+          10.379999999999999
         ]
       },
       "expected_component_count": 1,
@@ -6708,7 +6708,7 @@
         "maximum_xyz": [
           21.45960235595703,
           19.637495040893555,
-          10.449999809265137
+          10.380000114440918
         ],
         "minimum_xyz": [
           -17.0,
@@ -6716,11 +6716,11 @@
           0.0
         ],
         "nonmanifold_edge_count": 0,
-        "signed_volume": 4671.420602487995,
+        "signed_volume": 4642.239563790707,
         "size_xyz": [
           38.45960235595703,
           39.27499008178711,
-          10.449999809265137
+          10.380000114440918
         ],
         "triangle_count": 2934,
         "unique_vertex_count": 1461
@@ -6733,10 +6733,10 @@
       "source_builder": "windwall.bayonet.build_bayonet_coupon",
       "step_path": "release/v5/step/bayonet_male.step",
       "step_round_trip_valid": true,
-      "step_sha256": "a9f9720f8ce0d7ab6c0a570c6c847e88002872cee44ecb7ccda82db3f5361cfb",
+      "step_sha256": "35bea063ca818ac374db6b05c4f50e14a82259c7fbb5a0b7cda9d5a54e728c98",
       "stl_path": "release/v5/coupons/bayonet_male.stl",
-      "stl_sha256": "ca837ce52b2522113171daf017db5e152b0aa556cfe768a80880626ca6775755",
-      "stl_translation_z_mm": -3.2499999999999996,
+      "stl_sha256": "8956ae61156efc1422104f6898f9a0990d82786980a0e300c5f1fba232821b93",
+      "stl_translation_z_mm": -3.18,
       "topology_result": {
         "cad_solid_count": 1,
         "cad_valid": true,
@@ -6749,39 +6749,39 @@
     {
       "cad_bounds_mm": {
         "maximum_xyz": [
-          24.4596032513375,
-          24.4596032513375,
-          13.7
+          24.3596032513375,
+          24.3596032513375,
+          13.559999999999999
         ],
         "minimum_xyz": [
-          -24.4596032513375,
-          -24.4596032513375,
+          -24.3596032513375,
+          -24.3596032513375,
           0.0
         ],
         "size_xyz": [
-          48.919206502675,
-          48.919206502675,
-          13.7
+          48.719206502675,
+          48.719206502675,
+          13.559999999999999
         ]
       },
       "cad_solid_count": 1,
       "cad_valid": true,
-      "cad_volume_mm3": 11204.010628914575,
+      "cad_volume_mm3": 11068.99637972576,
       "dimensions_mm": {
         "maximum_xyz": [
-          24.4596032513375,
-          24.4596032513375,
-          13.7
+          24.3596032513375,
+          24.3596032513375,
+          13.559999999999999
         ],
         "minimum_xyz": [
-          -24.4596032513375,
-          -24.4596032513375,
+          -24.3596032513375,
+          -24.3596032513375,
           0.0
         ],
         "size_xyz": [
-          48.919206502675,
-          48.919206502675,
-          13.7
+          48.719206502675,
+          48.719206502675,
+          13.559999999999999
         ]
       },
       "expected_component_count": 1,
@@ -6796,24 +6796,24 @@
         "degenerate_face_count": 0,
         "filename": "bayonet_female.stl",
         "maximum_xyz": [
-          24.45960235595703,
-          24.456867218017578,
-          13.699999809265137
+          24.359603881835938,
+          24.35687828063965,
+          13.5600004196167
         ],
         "minimum_xyz": [
-          -24.44865608215332,
-          -24.456867218017578,
+          -24.34870147705078,
+          -24.35687828063965,
           0.0
         ],
         "nonmanifold_edge_count": 0,
-        "signed_volume": 11193.6932445548,
+        "signed_volume": 11058.592755059974,
         "size_xyz": [
-          48.90825843811035,
-          48.913734436035156,
-          13.699999809265137
+          48.70830535888672,
+          48.7137565612793,
+          13.5600004196167
         ],
-        "triangle_count": 3504,
-        "unique_vertex_count": 1752
+        "triangle_count": 3588,
+        "unique_vertex_count": 1794
       },
       "name": "bayonet_female",
       "physical_validation_verified": false,
@@ -6823,9 +6823,9 @@
       "source_builder": "windwall.bayonet.build_bayonet_coupon",
       "step_path": "release/v5/step/bayonet_female.step",
       "step_round_trip_valid": true,
-      "step_sha256": "137d148c9d6805c99622db748bb9c2365ef5c510629d940ccf8561be6f10e6a2",
+      "step_sha256": "cd13d9f7a52fc67f908bacc0f4322e1a51d87054ba716b973714b15dfc52a035",
       "stl_path": "release/v5/coupons/bayonet_female.stl",
-      "stl_sha256": "2a2365ca5cab7a1282c706fedb66ba99568cd419a79c72bb456b8c5b74a23dee",
+      "stl_sha256": "84aeef06064b06be2cfaf79c5f412bd451c9823afa9c04d1816436b6e1ec50d9",
       "stl_translation_z_mm": -0.0,
       "topology_result": {
         "cad_solid_count": 1,
@@ -6841,37 +6841,37 @@
         "maximum_xyz": [
           52.57759995228321,
           39.71632324587083,
-          17.7
+          17.56
         ],
         "minimum_xyz": [
           -52.57759995228321,
           -39.716323245870825,
-          3.2499999999999996
+          3.18
         ],
         "size_xyz": [
           105.15519990456642,
           79.43264649174165,
-          14.45
+          14.379999999999999
         ]
       },
       "cad_solid_count": 1,
       "cad_valid": true,
-      "cad_volume_mm3": 6066.785646323969,
+      "cad_volume_mm3": 6037.597789230285,
       "dimensions_mm": {
         "maximum_xyz": [
           52.57759995228321,
           39.71632324587083,
-          17.7
+          17.56
         ],
         "minimum_xyz": [
           -52.57759995228321,
           -39.716323245870825,
-          3.2499999999999996
+          3.18
         ],
         "size_xyz": [
           105.15519990456642,
           79.43264649174165,
-          14.45
+          14.379999999999999
         ]
       },
       "expected_component_count": 1,
@@ -6888,7 +6888,7 @@
         "maximum_xyz": [
           52.576820373535156,
           39.71632385253906,
-          14.449999809265137
+          14.380000114440918
         ],
         "minimum_xyz": [
           -52.576820373535156,
@@ -6896,11 +6896,11 @@
           0.0
         ],
         "nonmanifold_edge_count": 0,
-        "signed_volume": 6065.222104979963,
+        "signed_volume": 6036.042335931687,
         "size_xyz": [
           105.15364074707031,
           79.43264770507812,
-          14.449999809265137
+          14.380000114440918
         ],
         "triangle_count": 3674,
         "unique_vertex_count": 1831
@@ -6913,10 +6913,10 @@
       "source_builder": "windwall.drivers.build_joint_coupon",
       "step_path": "release/v5/step/joint_male.step",
       "step_round_trip_valid": true,
-      "step_sha256": "dacc89f4190f57ca7812fb19e83d6938f919e1c3af1fde8b5d60086b66ec43ea",
+      "step_sha256": "5dd7e80afe6949bfe14169c766d689896424054c0372a82256c3f1a6083aaec9",
       "stl_path": "release/v5/coupons/joint_male.stl",
-      "stl_sha256": "5207382fd9b93cf08502a85459783fe31a85cb9bc4fd66711e51b551a9fb7751",
-      "stl_translation_z_mm": -3.2499999999999996,
+      "stl_sha256": "c7fbfa1b056300f9686130af8b4f159c77c04cd240b8ef41f42f1bba64c42086",
+      "stl_translation_z_mm": -3.18,
       "topology_result": {
         "cad_solid_count": 1,
         "cad_valid": true,
@@ -6931,7 +6931,7 @@
         "maximum_xyz": [
           52.57759995228321,
           39.71632324587084,
-          13.7
+          13.559999999999999
         ],
         "minimum_xyz": [
           -52.57759995228321,
@@ -6941,17 +6941,17 @@
         "size_xyz": [
           105.15519990456642,
           79.43264649174166,
-          13.7
+          13.559999999999999
         ]
       },
       "cad_solid_count": 1,
       "cad_valid": true,
-      "cad_volume_mm3": 13156.104608603247,
+      "cad_volume_mm3": 13022.891494226253,
       "dimensions_mm": {
         "maximum_xyz": [
           52.57759995228321,
           39.71632324587084,
-          13.7
+          13.559999999999999
         ],
         "minimum_xyz": [
           -52.57759995228321,
@@ -6961,7 +6961,7 @@
         "size_xyz": [
           105.15519990456642,
           79.43264649174166,
-          13.7
+          13.559999999999999
         ]
       },
       "expected_component_count": 1,
@@ -6978,7 +6978,7 @@
         "maximum_xyz": [
           52.576820373535156,
           39.71632385253906,
-          13.699999809265137
+          13.5600004196167
         ],
         "minimum_xyz": [
           -52.576820373535156,
@@ -6986,14 +6986,14 @@
           0.0
         ],
         "nonmanifold_edge_count": 0,
-        "signed_volume": 13145.007171224104,
+        "signed_volume": 13011.708164988731,
         "size_xyz": [
           105.15364074707031,
           79.43264770507812,
-          13.699999809265137
+          13.5600004196167
         ],
-        "triangle_count": 4220,
-        "unique_vertex_count": 2110
+        "triangle_count": 4304,
+        "unique_vertex_count": 2152
       },
       "name": "joint_female",
       "physical_validation_verified": false,
@@ -7003,9 +7003,9 @@
       "source_builder": "windwall.drivers.build_joint_coupon",
       "step_path": "release/v5/step/joint_female.step",
       "step_round_trip_valid": true,
-      "step_sha256": "3253611f198fce4c89699cbcded57dd02682e5a3fd24f43a80e674c99d8571f4",
+      "step_sha256": "001a525ec3bebc75f5793ea6bf989cf6349bfb76e5131ad86ffa6b13af2a9f9f",
       "stl_path": "release/v5/coupons/joint_female.stl",
-      "stl_sha256": "6aedcf5421acdfc80ab3e6d1b247d3c1984461aad39e55aeb852d659734a798c",
+      "stl_sha256": "1462920946ded7b0f5fbf573ce2cf01862c9f5f55edb8d6dcd126950bb7eab31",
       "stl_translation_z_mm": -0.0,
       "topology_result": {
         "cad_solid_count": 1,
@@ -7032,7 +7032,7 @@
     "physical_validation_verified": false,
     "shaft_bounds_z_mm": [
       -42.0,
-      513.3
+      513.8
     ],
     "shaft_engages_full_bearing_at_axial_float": true,
     "shaft_extension_mm": 12.0,
@@ -7424,15 +7424,18 @@
   "overspeed_validated": false,
   "parameters": {
     "bayonet": {
+      "axial_clearance_mm": 0.18,
       "hub_outer_diameter_mm": 34.0,
       "insertion_offset_deg": 18.0,
       "lug_axial_thickness_mm": 3.2,
       "lug_count": 3,
       "lug_radial_depth_mm": 4.0,
       "lug_tangential_width_mm": 8.0,
+      "radial_clearance_mm": 0.2,
       "ramp_rise_mm": 0.0,
       "root_fillet_mm": 1.5,
-      "seating_headroom_mm": 1.0
+      "seating_headroom_mm": 1.0,
+      "snap_interference_mm": 0.15
     },
     "bearings": {
       "coupon_diameter_step_mm": 0.2,
@@ -7542,7 +7545,7 @@
       "end_support_thickness_mm": 3.0,
       "joint_phase_deg": 100.0,
       "locked_seating_travel_mm": 0.0,
-      "washer_seat_depth_mm": 0.5
+      "washer_seat_depth_mm": 0.0
     },
     "rotor": {
       "rotation_direction": "counterclockwise_from_top",
@@ -7584,7 +7587,7 @@
       },
       "cad_solid_count": 1,
       "cad_valid": true,
-      "cad_volume_mm3": 96509.67671401938,
+      "cad_volume_mm3": 96410.6838108883,
       "dimensions_mm": {
         "maximum_xyz": [
           61.000000100000776,
@@ -7624,14 +7627,14 @@
           1.0000000116860974e-07
         ],
         "nonmanifold_edge_count": 0,
-        "signed_volume": 96396.61736226243,
+        "signed_volume": 96297.54313890869,
         "size_xyz": [
           122.0,
           121.28905487060547,
           82.9999999
         ],
-        "triangle_count": 30838,
-        "unique_vertex_count": 15407
+        "triangle_count": 30936,
+        "unique_vertex_count": 15456
       },
       "name": "base_rotor_module",
       "physical_validation_verified": false,
@@ -7641,9 +7644,9 @@
       "source_builder": "windwall.rotor_modules.build_base_module",
       "step_path": "release/v5/step/base_rotor_module.step",
       "step_round_trip_valid": true,
-      "step_sha256": "6197cdd2e2d82688da8a83a01288aa67af3e30317ec5db43e53c11bf4e0ebe1c",
+      "step_sha256": "8d533758b8f726b4b1ce5e5b620a146e0d15b3151df36e6a6ec49ae6eeff4977",
       "stl_path": "release/v5/stl/base_rotor_module.stl",
-      "stl_sha256": "ace5eefd2bfd4ca7d32540f6e228d54c6704b40e9ba847d614fffeab3f7f57a8",
+      "stl_sha256": "09feb724792ef632d336ea298cc263114d72a4f2c21f370162966f5f59566dff",
       "stl_translation_z_mm": 13.0000001,
       "topology_result": {
         "cad_solid_count": 1,
@@ -7664,17 +7667,17 @@
         "minimum_xyz": [
           -61.000000100000776,
           -60.68442975357152,
-          -10.450000099999999
+          -10.380000099999998
         ],
         "size_xyz": [
           122.00000020000155,
           121.36885950714304,
-          80.45000020000029
+          80.3800002000003
         ]
       },
       "cad_solid_count": 1,
       "cad_valid": true,
-      "cad_volume_mm3": 54699.74651014354,
+      "cad_volume_mm3": 54571.56574969297,
       "dimensions_mm": {
         "maximum_xyz": [
           61.000000100000776,
@@ -7684,12 +7687,12 @@
         "minimum_xyz": [
           -61.000000100000776,
           -60.68442975357152,
-          -10.450000099999999
+          -10.380000099999998
         ],
         "size_xyz": [
           122.00000020000155,
           121.36885950714304,
-          80.45000020000029
+          80.3800002000003
         ]
       },
       "expected_component_count": 1,
@@ -7706,7 +7709,7 @@
         "maximum_xyz": [
           61.0,
           60.644527435302734,
-          80.44999694824219
+          80.37999725341797
         ],
         "minimum_xyz": [
           -61.0,
@@ -7714,14 +7717,14 @@
           1.0000000116860974e-07
         ],
         "nonmanifold_edge_count": 0,
-        "signed_volume": 54606.44820524412,
+        "signed_volume": 54476.994582641615,
         "size_xyz": [
           122.0,
           121.28905487060547,
-          80.4499968482422
+          80.37999715341797
         ],
-        "triangle_count": 21336,
-        "unique_vertex_count": 10636
+        "triangle_count": 21252,
+        "unique_vertex_count": 10594
       },
       "name": "standard_rotor_module",
       "physical_validation_verified": false,
@@ -7731,10 +7734,10 @@
       "source_builder": "windwall.rotor_modules.build_standard_module",
       "step_path": "release/v5/step/standard_rotor_module.step",
       "step_round_trip_valid": true,
-      "step_sha256": "a4977b1df477341e7a90d57f585f661bf9aa22a90305c2aabf6a57b4a8cd7d65",
+      "step_sha256": "285b4ec61332d8c06290eaa608a437ac5985d891a79b69680d6c0d7e1ff8dd1b",
       "stl_path": "release/v5/stl/standard_rotor_module.stl",
-      "stl_sha256": "6fba6ba15823b47bbc2dcb36cfbcab0f202b98052bf3f42c13c0514b969734ea",
-      "stl_translation_z_mm": 10.450000099999999,
+      "stl_sha256": "5ad2aa6719cbea1cfe35bf6ec0aff7d05ac3e45c50b74bb1528087fffb780ced",
+      "stl_translation_z_mm": 10.380000099999998,
       "topology_result": {
         "cad_solid_count": 1,
         "cad_valid": true,
@@ -7754,17 +7757,17 @@
         "minimum_xyz": [
           -61.000000100000776,
           -60.68442975357152,
-          -10.450000099999999
+          -10.380000099999998
         ],
         "size_xyz": [
           122.00000020000155,
           121.36885950714304,
-          80.45000020000028
+          80.38000020000028
         ]
       },
       "cad_solid_count": 1,
       "cad_valid": true,
-      "cad_volume_mm3": 47956.3214553837,
+      "cad_volume_mm3": 47757.504163290796,
       "dimensions_mm": {
         "maximum_xyz": [
           61.000000100000776,
@@ -7774,12 +7777,12 @@
         "minimum_xyz": [
           -61.000000100000776,
           -60.68442975357152,
-          -10.450000099999999
+          -10.380000099999998
         ],
         "size_xyz": [
           122.00000020000155,
           121.36885950714304,
-          80.45000020000028
+          80.38000020000028
         ]
       },
       "expected_component_count": 1,
@@ -7796,7 +7799,7 @@
         "maximum_xyz": [
           61.0,
           60.644527435302734,
-          80.44999694824219
+          80.37999725341797
         ],
         "minimum_xyz": [
           -61.0,
@@ -7804,14 +7807,14 @@
           1.0000000116860974e-07
         ],
         "nonmanifold_edge_count": 0,
-        "signed_volume": 47862.65285767124,
+        "signed_volume": 47664.7855268305,
         "size_xyz": [
           122.0,
           121.28905487060547,
-          80.4499968482422
+          80.37999715341797
         ],
-        "triangle_count": 18778,
-        "unique_vertex_count": 9365
+        "triangle_count": 18180,
+        "unique_vertex_count": 9066
       },
       "name": "top_rotor_module",
       "physical_validation_verified": false,
@@ -7821,10 +7824,10 @@
       "source_builder": "windwall.rotor_modules.build_top_module",
       "step_path": "release/v5/step/top_rotor_module.step",
       "step_round_trip_valid": true,
-      "step_sha256": "2ba2d4b24c4ebc5dfec9f67500439d8039f1d4cfb89bd6380bc881253d99a4a5",
+      "step_sha256": "e534b0075595432b84f74a4bc6ab286e1d94e5713592e76e49594d2e324a0cc2",
       "stl_path": "release/v5/stl/top_rotor_module.stl",
-      "stl_sha256": "51d68bf845f497ebad37e26bbdaa0038edcd5556118fb04e75c26e5d64048a38",
-      "stl_translation_z_mm": 10.450000099999999,
+      "stl_sha256": "e9613d26a2d06f725a5387eaa4eafb93dd1ef31ac3b9c06185481f3fbdb9e233",
+      "stl_translation_z_mm": 10.380000099999998,
       "topology_result": {
         "cad_solid_count": 1,
         "cad_valid": true,

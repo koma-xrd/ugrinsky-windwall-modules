@@ -22,7 +22,8 @@ def _validate(parameters: DesignParameters, z_plane_mm: float = 0) -> None:
     b, m = parameters.bayonet, parameters.manufacturing
     positive = (b.hub_outer_diameter_mm, b.lug_radial_depth_mm,
                 b.lug_tangential_width_mm, b.lug_axial_thickness_mm,
-                b.root_fillet_mm, m.radial_clearance_mm, m.axial_clearance_mm,
+                b.root_fillet_mm, b.radial_clearance_mm, b.axial_clearance_mm,
+                b.snap_interference_mm,
                 b.seating_headroom_mm,
                 m.minimum_loaded_wall_mm, parameters.shaft.clearance_hole_diameter_mm)
     if any(not isfinite(value) or value <= 0 for value in positive):
@@ -31,8 +32,10 @@ def _validate(parameters: DesignParameters, z_plane_mm: float = 0) -> None:
         raise ValueError("This interface requires exactly three lugs")
     if not isfinite(b.insertion_offset_deg) or not 15 <= b.insertion_offset_deg <= 20:
         raise ValueError("Counterclockwise locking travel must be between 15 and 20 degrees")
-    if not isfinite(b.ramp_rise_mm) or not 0 <= b.ramp_rise_mm <= m.axial_clearance_mm * 2:
+    if not isfinite(b.ramp_rise_mm) or not 0 <= b.ramp_rise_mm <= b.axial_clearance_mm * 2:
         raise ValueError("Ramp rise must be finite, nonnegative and no more than two axial clearances")
+    if not 0 < b.snap_interference_mm <= 0.30:
+        raise ValueError("Snap interference must be positive and no more than 0.30 mm")
     if not isfinite(z_plane_mm):
         raise ValueError("Bayonet Z plane must be finite")
     if b.root_fillet_mm * 2 >= min(b.lug_tangential_width_mm, b.lug_radial_depth_mm):
@@ -57,7 +60,7 @@ def _track_half_span_deg(parameters: DesignParameters) -> float:
     b = parameters.bayonet
     # Includes the enlarged concave root fillet at the cylinder junction.
     return degrees(atan2(b.lug_tangential_width_mm/2 + b.root_fillet_mm
-                        + parameters.manufacturing.radial_clearance_mm,
+                        + parameters.bayonet.radial_clearance_mm,
                         b.hub_outer_diameter_mm/2))
 
 
@@ -66,7 +69,7 @@ def _receiver_height(parameters: DesignParameters) -> float:
     slope = b.ramp_rise_mm / b.insertion_offset_deg
     return (_insertion_height(parameters) + m.minimum_loaded_wall_mm
             + b.lug_axial_thickness_mm + b.ramp_rise_mm
-            + 2*slope*_track_half_span_deg(parameters) + m.axial_clearance_mm
+            + 2*slope*_track_half_span_deg(parameters) + b.axial_clearance_mm
             + b.seating_headroom_mm)
 
 
@@ -74,7 +77,7 @@ def _insertion_height(parameters: DesignParameters) -> float:
     b, m = parameters.bayonet, parameters.manufacturing
     # The finite-lug envelope extends below the nominal center path. Lift the
     # entire path so its lowest ramp surface still has a full loaded wall.
-    return (m.minimum_loaded_wall_mm + m.axial_clearance_mm
+    return (m.minimum_loaded_wall_mm + b.axial_clearance_mm
             + 2*b.ramp_rise_mm/b.insertion_offset_deg*_track_half_span_deg(parameters))
 
 
@@ -141,16 +144,16 @@ def _track(parameters: DesignParameters) -> cq.Workplane:
     start, end = -b.insertion_offset_deg-half_span, half_span
     count = int(end-start) + 1
     step = (end-start)/count
-    outer = (_lug_outer_radius(parameters) + m.radial_clearance_mm)/cos(radians(step/2))
+    outer = (_lug_outer_radius(parameters) + b.radial_clearance_mm)/cos(radians(step/2))
     inner = radius - b.root_fillet_mm
     sections = []
     for index in range(count+1):
         angle = start + index*step
         phi = radians(angle)
         lower = (_insertion_height(parameters) + slope*(angle+b.insertion_offset_deg-half_span)
-                 - m.axial_clearance_mm)
+                 - b.axial_clearance_mm)
         upper = (_insertion_height(parameters) + b.lug_axial_thickness_mm
-                 + slope*(angle+b.insertion_offset_deg+half_span) + m.axial_clearance_mm
+                 + slope*(angle+b.insertion_offset_deg+half_span) + b.axial_clearance_mm
                  + b.seating_headroom_mm)
         sections.append(cq.Wire.makePolygon([
             cq.Vector(r*cos(phi), r*sin(phi), z)
@@ -161,7 +164,7 @@ def _track(parameters: DesignParameters) -> cq.Workplane:
     # to the leading flat of the final lug, with no angular play at final zero.
     stop = (cq.Workplane("XY").box(outer*2, outer*2, _receiver_height(parameters)*3,
                                   centered=False)
-            .translate((radius+b.root_fillet_mm+m.radial_clearance_mm,
+            .translate((radius+b.root_fillet_mm+b.radial_clearance_mm,
                         b.lug_tangential_width_mm/2, -_receiver_height(parameters))))
     return channel.cut(stop)
 
@@ -174,8 +177,8 @@ def build_female_bayonet(parameters: DesignParameters, z_plane_mm: float = 0) ->
     height = _receiver_height(parameters)
     shell_height = height + m.minimum_loaded_wall_mm
     body = (cq.Workplane("XY").circle(_lug_outer_radius(parameters)
-            + m.radial_clearance_mm + m.minimum_loaded_wall_mm)
-            .circle(radius + m.radial_clearance_mm).extrude(shell_height))
+            + b.radial_clearance_mm + m.minimum_loaded_wall_mm)
+            .circle(radius + b.radial_clearance_mm).extrude(shell_height))
     track = _track(parameters)
     # A vertical angular window includes all lug/root surfaces at insertion.
     # Follow the actual rounded male profile, offset in XY, to keep the window
@@ -185,8 +188,8 @@ def build_female_bayonet(parameters: DesignParameters, z_plane_mm: float = 0) ->
     section = cq.Workplane(obj=male.val()).section(section_z)
     wires = section.val().Wires()
     outline = max(wires, key=lambda item: item.Length())
-    offset = outline.offset2D(m.radial_clearance_mm)[0]
-    rail_top = _insertion_height(parameters)-m.axial_clearance_mm
+    offset = outline.offset2D(b.radial_clearance_mm)[0]
+    rail_top = _insertion_height(parameters)-b.axial_clearance_mm
     window = (cq.Workplane(obj=cq.Solid.extrudeLinear(
               offset, [], cq.Vector(0,0,shell_height-rail_top+0.1)))
               .translate((0,0,rail_top-section_z))
@@ -204,9 +207,11 @@ def build_female_bayonet(parameters: DesignParameters, z_plane_mm: float = 0) ->
     notch = notch.translate((0,0,_insertion_height(parameters)+parameters.bayonet.ramp_rise_mm+0.7))
     for angle in (0,120,240):
         body = body.cut(notch.rotate((0,0,0),(0,0,1),angle))
+    flank_extension = b.snap_interference_mm * 0.30
     pawl_wire = cq.Wire.makePolygon([
-        cq.Vector(tooth_radius+0.15,-3.78,0),cq.Vector(tooth_radius-0.45,-3.20,0),
-        cq.Vector(tooth_radius+0.15,-2.62,0)],close=True)
+        cq.Vector(tooth_radius+0.15,-3.78-flank_extension,0),
+        cq.Vector(tooth_radius-0.45,-3.20,0),
+        cq.Vector(tooth_radius+0.15,-2.62+flank_extension,0)],close=True)
     pawl = cq.Workplane(obj=cq.Solid.extrudeLinear(pawl_wire,[],cq.Vector(0,0,1.8)))
     pawl = pawl.translate((0,0,_insertion_height(parameters)+parameters.bayonet.ramp_rise_mm+0.7))
     for angle in (0,120,240):

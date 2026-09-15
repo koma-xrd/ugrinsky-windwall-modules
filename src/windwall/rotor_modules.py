@@ -49,10 +49,12 @@ def _validate(p: DesignParameters) -> None:
     s, m, end = p.shaft, p.manufacturing, p.modules
     values = (s.nominal_diameter_mm, s.clearance_hole_diameter_mm,
               end.end_support_radius_mm, end.end_support_thickness_mm,
-              end.base_shaft_flange_depth_mm, end.washer_seat_depth_mm,
+              end.base_shaft_flange_depth_mm,
               m.washer_outer_diameter_mm)
     if any(not isfinite(value) or value <= 0 for value in values):
         raise ValueError('Module, shaft and clamping dimensions must be positive and finite')
+    if not isfinite(end.washer_seat_depth_mm) or end.washer_seat_depth_mm < 0:
+        raise ValueError('Top washer seat depth must be finite and nonnegative')
     if not isfinite(end.joint_phase_deg):
         raise ValueError('Common joint phase must be finite')
     if not (end.locked_seating_travel_mm == 0 and p.bayonet.ramp_rise_mm == 0):

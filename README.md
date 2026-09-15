@@ -108,7 +108,7 @@ Cut the male cassette arc free flush with its plate and deburr it before compari
 
 | Qty | Purchased item | Selection notes |
 | --- | --- | --- |
-| 1 | M8 threaded rod | Extended shaft envelope 555.3 mm; establish actual cut length by dry assembly |
+| 1 | M8 threaded rod | Extended shaft envelope 555.8 mm; establish actual cut length by dry assembly |
 | 3 | M8 nuts | Two torque-transmitting nuts and one upper clamping nut |
 | 1 | Top M8 washer | Nominal 24 mm outside diameter × 2 mm thickness |
 | 36 | Magnets | Two rings of 18; target 10 × 2 mm; measure coating and actual dimensions |
@@ -199,9 +199,11 @@ Use the full manual for tooling, checks and service. The essential order is:
    with a fixture.
 6. Check hand rotation and gaps. Add five standard modules and the top. Align the
    bayonet insertion windows, lock counterclockwise viewed from above, verify
-   flush blade contact and inspect every latch. Reverse
-   disassembly can damage the permanent latches.
-7. Fit the top washer and M8 nut; finish clamp adjustment before the upper bearing
+   flush blade contact and inspect every latch. The dedicated bayonet fit uses
+   0.20 mm nominal radial and 0.18 mm nominal axial clearance; its enlarged latch
+   flank is intended to remain practically permanent after engagement. Reverse
+   disassembly can damage the latch or module.
+7. Fit the top washer directly on the flat upper plate and add the M8 nut; finish clamp adjustment before the upper bearing
    support. Do not bind stationary parts or bearings.
 8. Fasten the housing's four tabs to the lower timber from above. Fit the 608 and
    fasten the upper support from below with four screws. Align both bearing axes;
@@ -354,8 +356,9 @@ and loose objects clear. Stop for rubbing, cracks, magnet movement, vibration,
 unusual bearing noise, heating or loose fasteners. Before each session check
 retention, screw marks, insulation and free rotation.
 
-The user reported that a printed V4.3 bayonet coupon fits and closes; assembly force
-and fatigue life remain unmeasured. Rigid CAD motion sweeps encounter permanent
+The user reported that an earlier V4.3 bayonet coupon fits and closes; the current
+tighter 0.20/0.18 mm coupon still requires a new test print. Assembly force and
+fatigue life remain unmeasured. Rigid CAD motion sweeps encounter permanent
 pawls and lug roofs during insertion. Elastic behaviour needs physical tests despite
 installed-geometry clearance checks. The joint coupon's 4.2 mm open-spoke hex recess
 is a calibration feature, not a full-depth load-bearing M8 nut socket.

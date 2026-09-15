@@ -52,8 +52,8 @@ def _cylinder(radius: float, bottom: float, height: float) -> cq.Workplane:
 def build_top_support(p: DesignParameters) -> TopSupport:
     """Build an 80x50x12 plate 2 mm above the highest Top or clamp face.
 
-    Top's face is the nominal stack height; the washer sits in its shallow
-    recess and the nut sits on the washer, as in assembly.py. A recessed clamp
+    Top's face is the nominal stack height; the washer sits on its flat upper
+    plate and the nut sits on the washer, as in assembly.py. A recessed clamp
     can end below Top, so all three upper faces determine the safe height.
     The screws have 4 mm shanks, 40 mm overall envelopes and provisional
     8 mm/90-degree heads.
@@ -63,12 +63,15 @@ def build_top_support(p: DesignParameters) -> TopSupport:
     """
     reference = build_608_reference(p)
     b, m = p.bearings, p.manufacturing
-    required_positive = (p.rotor.stage_height_mm, p.modules.washer_seat_depth_mm,
+    required_positive = (p.rotor.stage_height_mm,
                          p.generator.clamp_washer_thickness_mm, m.nut_pocket_depth_mm,
                          p.closure.rod_projection_mm, p.closure.shaft_bottom_projection_mm,
                          m.minimum_loaded_wall_mm)
     if any(not isfinite(value) or value <= 0 for value in required_positive):
         raise ValueError('Top support interface dimensions must be positive and finite')
+    if (not isfinite(p.modules.washer_seat_depth_mm)
+            or p.modules.washer_seat_depth_mm < 0):
+        raise ValueError('Top washer seat depth must be finite and nonnegative')
     if (type(p.rotor.stage_count) is not int or type(p.rotor.standard_stage_count) is not int
             or (p.rotor.stage_count, p.rotor.standard_stage_count) != (7, 5)):
         raise ValueError('Top support requires the seven-stage rotor interface')

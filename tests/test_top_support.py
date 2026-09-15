@@ -32,10 +32,10 @@ class TopSupportTests(unittest.TestCase):
         self.assertEqual(s.bearing_seat_diameter_mm, 22.2)
         self.assertEqual(s.bearing_seat_depth_mm, 7.2)
         self.assertAlmostEqual(s.bottom_shoulder_mm, 4.8)
-        seat = cq.Workplane('XY').circle(11.1).extrude(20).translate((0, 0, 505.1))
+        seat = cq.Workplane('XY').circle(11.1).extrude(20).translate((0, 0, 505.6))
         self.assert_clear(s.shape, seat)
         shoulder = (cq.Workplane('XY').circle(11).circle(4.4).extrude(4.8)
-                    .translate((0, 0, 500.3)))
+                    .translate((0, 0, 500.8)))
         self.assertAlmostEqual(s.shape.intersect(shoulder).val().Volume(),
                                shoulder.val().Volume(), places=5)
 
@@ -69,7 +69,7 @@ class TopSupportTests(unittest.TestCase):
         s = self.support
         self.assertAlmostEqual(s.plate_bottom_z_mm - self.rotor.parts['top_nut'].val().BoundingBox().zmax, 2)
         self.assertAlmostEqual(s.plate_bottom_z_mm - self.rotor.parts['top'].val().BoundingBox().zmax,
-                               10.3, places=5)
+                               10.8, places=5)
         for name in ('top', 'top_washer', 'top_nut'):
             for stationary in (s.shape, s.bearing, s.wood_frame_reference):
                 for axial_shift in (-1, 0, 1):
@@ -77,7 +77,7 @@ class TopSupportTests(unittest.TestCase):
 
     def test_extended_shaft_engages_608_through_axial_float_without_printed_sleeve(self):
         s = self.support
-        self.assertAlmostEqual(s.required_shaft_tip_z_mm, 513.3)
+        self.assertAlmostEqual(s.required_shaft_tip_z_mm, 513.8)
         self.assertAlmostEqual(s.required_shaft_extension_mm, 12.0)
         self.assertLess(self.rotor.parts['shaft'].val().BoundingBox().zmax,
                         s.bearing.val().BoundingBox().zmin)
@@ -89,7 +89,7 @@ class TopSupportTests(unittest.TestCase):
                 self.assert_clear(stationary, shaft)
             self.assertGreaterEqual(shaft.val().BoundingBox().zmax + 1e-6,
                                     s.bearing.val().BoundingBox().zmax)
-        clearance = cq.Workplane('XY').circle(4.4).extrude(12).translate((0, 0, 500.3))
+        clearance = cq.Workplane('XY').circle(4.4).extrude(12).translate((0, 0, 500.8))
         self.assert_clear(s.shape, clearance)
 
     def test_assembly_keeps_reference_components_separate_and_named(self):
@@ -124,10 +124,10 @@ class TopSupportTests(unittest.TestCase):
         p = replace(DEFAULT_PARAMETERS, rotor=replace(DEFAULT_PARAMETERS.rotor, stage_height_mm=75),
                     closure=replace(DEFAULT_PARAMETERS.closure, rod_projection_mm=20))
         s = build_top_support(p)
-        self.assertAlmostEqual(s.plate_bottom_z_mm, 535.3)
-        self.assertAlmostEqual(s.required_shaft_tip_z_mm, 548.3)
+        self.assertAlmostEqual(s.plate_bottom_z_mm, 535.8)
+        self.assertAlmostEqual(s.required_shaft_tip_z_mm, 548.8)
         self.assertEqual(s.required_shaft_extension_mm, 0)
-        self.assertAlmostEqual(s.required_shaft_reference.val().BoundingBox().zmax, 553.3)
+        self.assertAlmostEqual(s.required_shaft_reference.val().BoundingBox().zmax, 553.8)
 
     def test_support_clears_top_when_recessed_clamp_is_below_module_face(self):
         p = replace(DEFAULT_PARAMETERS,

@@ -138,7 +138,7 @@ ENGLISH_TEXT_CATALOGUE.update({
     'Base · 1 Stück': 'Base · 1 piece', 'Standard · 5 Stück': 'Standard · 5 pieces',
     'Top · 1 Stück': 'Top · 1 piece', 'Oberer Magnetträger integriert': 'Integral upper magnet carrier',
     'Zentrierbund für 51105': 'Locating collar for 51105', 'Unterer Bajonettzapfen': 'Lower bayonet spigot',
-    'Obere Aufnahme und Blattnaht': 'Upper receiver and plain blade end', 'Kompakte Kraftplatte': 'Compact torque plate',
+    'Obere Aufnahme und Blattnaht': 'Upper receiver and plain blade end', 'Ebene obere Kraftplatte': 'Flat upper torque plate',
     'Offener M8-Muttersitz': 'Open M8 nut seat', 'Bajonett · getrennte Einfügeposition': 'Bayonet · separated insertion position',
     'Reale Naht · Halbschnitt': 'Actual seam · half section', 'Drei Klauen + dauerhafte Rastzähne': 'Three lugs + permanent latch teeth',
     'Aufnahme mit Rampen und Sperrklinken': 'Receiver with ramps and locking pawls',
@@ -421,7 +421,7 @@ def build_v5_scenes(p=DEFAULT_PARAMETERS):
     for kind, title, labels in (
             ('base', 'Base · 1 Stück', ('Oberer Magnetträger integriert', 'Zentrierbund für 51105')),
             ('standard', 'Standard · 5 Stück', ('Unterer Bajonettzapfen', 'Obere Aufnahme und Blattnaht')),
-            ('top', 'Top · 1 Stück', ('Kompakte Kraftplatte', 'Offener M8-Muttersitz'))):
+            ('top', 'Top · 1 Stück', ('Ebene obere Kraftplatte', 'Offener M8-Muttersitz'))):
         part = m.part(kind, shape=m.locked.local_modules[kind], motion='rotating',
                       source=f'windwall.rotor_modules.build_{kind}_module')
         targets = {'base': ((40, -20, -10), (15, -10, -3)),

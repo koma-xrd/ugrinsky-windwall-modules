@@ -154,7 +154,7 @@ def build_release_index(project_root: Path) -> dict:
         raise ValueError(f'Unlisted release artifacts require review: {sorted(actual - set(records))}')
     result = {'release': 'v5', 'schema_version': 1, 'geometry_manifest': 'release/v5/manifest.json',
               'known_limitations': [
-                  'The user reported that the printed V4.3 bayonet coupon fits and closes; no measured assembly-force or durability approval follows.',
+                  'The user reported that an earlier V4.3 bayonet coupon fits and closes; the current tighter 0.20/0.18 mm coupon is untested and no measured assembly-force or durability approval follows.',
                   'Lifted module motion has nonzero rigid-body overlap at pawls and lug roofs; elastic assembly remains unverified.',
                   'Magnet retention, winding performance, strength, outdoor operation and printed bearing fits require physical validation.',
                   'DOCX rendered-page review and PDF output remain blocked by the absent bundled LibreOffice executable.',

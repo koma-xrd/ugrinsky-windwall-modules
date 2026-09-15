@@ -249,7 +249,7 @@ def _fits(doc, data):
         rows.append((label, " / ".join(mm(value) for value in data["coupons"][name]["fit_dimensions_mm"][key]) + " mm"))
     _table(doc, ["Probe", "Varianten im Release"], rows, [76, 98])
     _paragraph(doc, "Beim Kassettensegment zuerst den männlichen Bogen bündig von der Platte freischneiden und die Schnittkante entgraten. Dann mit den Sitzsegmenten vergleichen. Der Coupon prüft radiales Spiel, nicht die fertige axiale Klemmung durch den Deckel.")
-    _paragraph(doc, "Bajonettpaar und vollständiges Verbindungspaar getrennt testen. Einführen, gegen den Uhrzeigersinn verriegeln und Rastung kontrollieren. Die dauerhafte Rastung kann beim Rückdrehen oder Zerlegen beschädigt werden. Kraft, sichtbare Risse, axiales Spiel und Blattnaht protokollieren; die Rastung nicht durch gewaltsames Rückdrehen freimachen.")
+    _paragraph(doc, "Bajonettpaar und vollständiges Verbindungspaar getrennt testen. Die eigene straffe Bajonettpassung hat nominell 0,20 mm radial und 0,18 mm axial. Einführen, gegen den Uhrzeigersinn verriegeln und Rastung kontrollieren. Die vergrößerte Rastflanke ist nach dem Einrasten als praktisch dauerhaft vorgesehen; Rückdrehen oder Zerlegen kann Rastung oder Modul beschädigen. Kraft, sichtbare Risse, axiales Spiel und Blattnaht protokollieren; die Rastung nicht durch gewaltsames Rückdrehen freimachen.")
     _page(doc, "51105 Passung und Orientierung")
     _figure(doc, "E11", data)
     _paragraph(doc, "51105: " + dimensions((data["manifest"]["parameters"]["bearings"][key] for key in ("thrust_bore_diameter_mm", "thrust_outer_diameter_mm", "thrust_height_mm"))) + ". Die Gehäusescheibe bleibt stationär im zentralen Deckelsitz. Die Wellenscheibe dreht mit der Base und wird durch deren Zentrierbund ausgerichtet. Die Laufbahnen weisen zu den Wälzkörpern. Scheiben und Käfig nach ihrer tatsächlichen Geometrie und Herstellerkennzeichnung zuordnen; nicht allein nach ähnlichem Aussehen vertauschen.")
@@ -327,11 +327,11 @@ def _rotor(doc, data):
         ("Einfügeposition ausrichten", "Die Bajonettklauen und Einführfenster jeder neuen Stufe ausrichten. Die Stufen haben glatte bündige Blattenden. Das zentrale Bajonett ist die einzige formschlüssige Drehmomentschnittstelle."),
         ("Stufe verriegeln", "Von oben gesehen gegen den Uhrzeigersinn bis zum vorgesehenen Anschlag verriegeln. Die dauerhafte Rastung muss greifen. Kein übermäßiges Drehmoment und keinen Hammer verwenden; bei klemmender Verbindung die Coupons und Passflächen prüfen."),
         ("Naht prüfen", "Nach dem Verriegeln den bündigen Blattkontakt, den Sitz aller Klauen, die Rastung und das axiale Spiel jeder Verbindung kontrollieren. Ein sichtbarer Versatz oder ein beschädigter Rastzahn ist ein Abbruchgrund. Den nächsten Abschnitt erst nach dieser Kontrolle aufsetzen."),
-        ("Obere Klemmung schließen", "Scheibe und M8-Mutter auf dem verstärkten Topbereich einsetzen. Klemmung vor der Montage des oberen Lagerhalters einstellen. Der reale Lagerlauf und die Blattverbindungen dürfen beim Anziehen nicht verspannt werden."),
+        ("Obere Klemmung schließen", "Scheibe direkt auf die ebene obere Top-Platte legen und die M8-Mutter montieren. Klemmung vor der Montage des oberen Lagerhalters einstellen. Der reale Lagerlauf und die Blattverbindungen dürfen beim Anziehen nicht verspannt werden."),
     ])
     _page(doc, "Drei Modultypen unterscheiden")
     _figure(doc, "E02", data)
-    _paragraph(doc, "Die Base besitzt den oberen Magnetträger und den 51105-Zentrierbund. Das Standardmodul trägt unten das männliche und oben das weibliche Verbindungsteil. Das Topmodul beendet den Stapel mit einem lokalen Kraftbereich für die obere M8-Klemmung. Alle drei Typen sind jeweils ein Druckkörper.")
+    _paragraph(doc, "Die Base besitzt den oberen Magnetträger und den 51105-Zentrierbund. Das Standardmodul trägt unten das männliche und oben das weibliche Verbindungsteil. Das Topmodul beendet den Stapel mit einer ebenen oberen Kraftplatte für Scheibe und M8-Klemmung. Alle drei Typen sind jeweils ein Druckkörper.")
     _page(doc, "Bajonett und Blattnaht kontrollieren")
     _figure(doc, "E03", data)
     _paragraph(doc, "Die Rastung ist für eine dauerhafte Verbindung vorgesehen. Plane den Rotorstapel als Einheit; ein Spulenwechsel soll keine Trennung der sechs Stufenverbindungen erfordern. Die reale elastische Einfügung und Kraftübertragung bleiben durch Coupons und einen Aufbau aus zwei Stufen zu bestätigen.")

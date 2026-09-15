@@ -63,17 +63,18 @@ class RotorModuleTests(unittest.TestCase):
                 self.assertLess(source.cut(model.shape).intersect(outer).val().Volume(), 0.01)
                 self.assertLess(model.shape.cut(source).intersect(outside_fittings).val().Volume(), 0.01)
 
-    def test_top_washer_bears_below_an_exposed_serviceable_nut(self):
+    def test_top_washer_bears_on_a_flat_upper_plate_below_an_exposed_nut(self):
         top = self.modules['top']
         self.assertIsNone(top.nut_pocket_across_flats_mm)
         self.assertAlmostEqual(top.washer_seat_diameter_mm, 24.6)
-        # A 24 mm washer enters from above and bears at z=69.5. A 2 mm
-        # washer puts the exposed nut bottom at z=71.5, above the blade ends.
-        washer_access = cq.Workplane('XY').circle(12).circle(4.4).extrude(25).translate((0,0,69.5001))
-        self.assertLess(top.shape.intersect(washer_access).val().Volume(), 0.01)
-        bearing = cq.Workplane('XY').circle(11.9999).circle(4.4001).extrude(2.99).translate((0,0,66.5))
-        self.assertLess(bearing.cut(top.shape).val().Volume(), 0.01)
-        wrench = cq.Workplane('XY').circle(11.5).extrude(15).translate((0,0,71.5))
+        # The full washer annulus bears on the common z=70 top plane; only
+        # the M8 clearance bore interrupts that planar support surface.
+        top_layer = (cq.Workplane('XY').circle(11.9999).circle(4.4001)
+                     .extrude(0.1).translate((0,0,69.9)))
+        above_top = top_layer.translate((0,0,0.1001))
+        self.assertLess(top_layer.cut(top.shape).val().Volume(), 0.01)
+        self.assertLess(top.shape.intersect(above_top).val().Volume(), 0.01)
+        wrench = cq.Workplane('XY').circle(11.5).extrude(15).translate((0,0,70.0001))
         self.assertLess(top.shape.intersect(wrench).val().Volume(), 0.01)
         self.assertTrue(top.shape.val().isInside((6,0,68)))
         for name in ('base', 'standard'):

@@ -120,7 +120,7 @@ class BuildV5Tests(unittest.TestCase):
         self.assertEqual(components['shaft']['role'], 'hardware-reference')
         self.assertEqual(components['shaft']['motion'], 'rotating')
         self.assertAlmostEqual(components['shaft']['dimensions_mm']['minimum_xyz'][2], -42)
-        self.assertAlmostEqual(components['shaft']['dimensions_mm']['maximum_xyz'][2], 513.3)
+        self.assertAlmostEqual(components['shaft']['dimensions_mm']['maximum_xyz'][2], 513.8)
         self.assertNotIn('required_extended_m8_reference', components)
         for name in ('top_support', 'bearing_608', 'upper_wood_frame_reference'):
             self.assertIn(name, components)
@@ -139,7 +139,7 @@ class BuildV5Tests(unittest.TestCase):
                         if s.BoundingBox().zlen > 500 and s.BoundingBox().xlen < 9]
                 self.assertEqual(len(rods), 1)
                 self.assertAlmostEqual(rods[0].zmin, -42, places=5)
-                self.assertAlmostEqual(rods[0].zmax, 513.3, places=5)
+                self.assertAlmostEqual(rods[0].zmax, 513.8, places=5)
         audit = self.manifest['fence_assembly_audit']
         self.assertTrue(audit['extended_shaft_integrated'])
         self.assertAlmostEqual(audit['shaft_extension_mm'], 12)

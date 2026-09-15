@@ -61,14 +61,14 @@ class JointCouponTests(unittest.TestCase):
         self.assertEqual(getattr(self.coupon, 'nut_calibration_recess_depth_mm', None), 4.2)
         self.assertIsNone(self.interface.nut_calibration_recess_depth_mm)
         male = self.coupon.male
-        self.assertAlmostEqual(male.val().BoundingBox().zmax, 17.7)
+        self.assertAlmostEqual(male.val().BoundingBox().zmax, 17.56)
         probe = (cq.Workplane('XY').polygon(6, 13.2999/cos(radians(30)))
-                 .extrude(4.1999).translate((0,0,9.5001)))
+                 .extrude(4.1999).translate((0,0,9.3601)))
         self.assertLess(male.intersect(probe).val().Volume(), 0.01)
-        self.assertTrue(male.val().isInside((5.2,0,9.49)))
-        self.assertFalse(male.val().isInside((5.2,0,9.51)))
-        self.assertFalse(male.val().isInside((0,6.5,9.49)))
-        self.assertTrue(self.interface.male.val().isInside((5.2,0,13.6)))
+        self.assertTrue(male.val().isInside((5.2,0,9.35)))
+        self.assertFalse(male.val().isInside((5.2,0,9.37)))
+        self.assertFalse(male.val().isInside((0,6.5,9.35)))
+        self.assertTrue(self.interface.male.val().isInside((5.2,0,13.5)))
 
     def test_coupon_rejects_invalid_calibration_dimensions(self):
         p = DEFAULT_PARAMETERS

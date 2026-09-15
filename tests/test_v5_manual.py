@@ -124,7 +124,7 @@ class V5ManualTests(unittest.TestCase):
                          "unterhalb der stationären Spule", "Gehäuseschulter", "Verdrehsicherung",
                          "vier M4", "vier Bodenlaschen", "von unten", "verlängerte M8",
                          "18 abgerundeten Führungskörper", "integrierte Distanzhülse",
-                         "555,3 mm", "nicht wasserdicht"):
+                         "555,8 mm", "nicht wasserdicht"):
             self.assertIn(required, self.text)
         assembly = self.text.split("7 Generator montieren")[1].split("8 Rotorstapel montieren")[0]
         required_order = ("Unteren Magnetrotor einsetzen", "Spulenkassette einsetzen",

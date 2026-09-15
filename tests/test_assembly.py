@@ -41,7 +41,7 @@ class AssemblyTests(unittest.TestCase):
     def test_continuous_m8_shaft_clears_all_rotating_and_stationary_parts(self):
         shaft = self.assembly.parts['shaft']
         box = shaft.val().BoundingBox()
-        self.assertAlmostEqual(box.zmax, 501.3, places=5)
+        self.assertAlmostEqual(box.zmax, 501.8, places=5)
         self.assertAlmostEqual(box.xlen, 8, places=5)
         self.assertGreater(box.zmin, -50.5)
         for name, shape in self.assembly.parts.items():
@@ -73,8 +73,8 @@ class AssemblyTests(unittest.TestCase):
         self.assertNotIn('thread_forming_contacts', self.audit)
         self.assertLess(self.audit['top_wrench_access_intersection_mm3'], 0.01)
         self.assertLess(self.audit['top_washer_removal_intersection_mm3'], 0.01)
-        self.assertAlmostEqual(a.parts['top_washer'].val().BoundingBox().zmin, 489.5, places=5)
-        self.assertAlmostEqual(a.parts['top_nut'].val().BoundingBox().zmin, 491.5, places=5)
+        self.assertAlmostEqual(a.parts['top_washer'].val().BoundingBox().zmin, 490.0, places=5)
+        self.assertAlmostEqual(a.parts['top_nut'].val().BoundingBox().zmin, 492.0, places=5)
         washer = a.parts['top_washer']
         self.assertGreater(washer.translate((0, 0, -0.05)).intersect(a.parts['top']).val().Volume(), 0.05)
         top_above = cq.Workplane('XY').circle(62).extrude(20).translate((0, 0, 490.0001))
