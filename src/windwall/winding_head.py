@@ -7,6 +7,7 @@ motion across the supported diameter range.
 """
 
 from dataclasses import dataclass
+from functools import lru_cache
 from math import cos, hypot, isfinite, radians, sin
 
 import cadquery as cq
@@ -28,7 +29,7 @@ _CAM_THICKNESS_MM = 4.0
 _CAM_RADIUS_MM = 50.0
 _TRACK_HALF_SWEEP_DEG = 12.0
 _RIB_RADIAL_DEPTH_MM = 4.5
-_RIB_TANGENTIAL_WIDTH_MM = 58.0
+_RIB_TANGENTIAL_WIDTH_MM = 52.0
 _RIB_BOTTOM_Z_MM = _SLIDER_TOP_Z_MM
 _RIB_HEIGHT_MM = 20.0
 
@@ -87,6 +88,7 @@ def _rotate(shape: cq.Workplane, angle_deg: float) -> cq.Workplane:
     return shape.rotate((0, 0, 0), (0, 0, 1), angle_deg)
 
 
+@lru_cache(maxsize=8)
 def _build_backplate(p: WindingToolParameters) -> cq.Workplane:
     body = _disc(_BACKPLATE_RADIUS_MM, 0, _BACKPLATE_THICKNESS_MM)
 
@@ -107,17 +109,32 @@ def _build_backplate(p: WindingToolParameters) -> cq.Workplane:
     outer_stop_start = p.maximum_diameter_mm / 2 - _RIB_RADIAL_DEPTH_MM + 0.15
     guide = guide.union(
         _radial_box(inner_stop_end - 2.85, 2.85, 16.4, 4.9, 4.1))
-    guide = guide.union(_radial_box(outer_stop_start, 2.85, 16.4, 4.9, 4.1))
+    for offset in (-6.7, 6.7):
+        guide = guide.union(
+            _radial_box(outer_stop_start, 2.85, 3.0, 4.9, 4.1)
+            .translate((0, offset, 0)))
     for index in range(p.rib_count):
         body = body.union(_rotate(guide, index * 360 / p.rib_count))
 
+    # The cam seats on this integral annular shoulder. Clamp compression thus
+    # returns directly into the backplate rather than through sliders or guide
+    # lips. Its outer radius stays clear of a fully released slider.
+    body = body.union(_disc(11.5, 4.9, _CAM_BOTTOM_Z_MM - 4.9))
     body = body.cut(_disc(p.shaft_diameter_mm / 2 + 0.25, -0.5,
-                           _BACKPLATE_THICKNESS_MM + 1))
+                           _CAM_BOTTOM_Z_MM + 1))
 
     # Fixed witness line for the three calibrated diameter engravings on cam.
     pointer = (_radial_box(49.5, 7.0, 0.9, 4.45, 0.7)
                .rotate((0, 0, 0), (0, 0, 1), 180.0))
-    return body.cut(pointer)
+    body = body.cut(pointer)
+
+    # Station numerals sit outside the maximum rib radius and are tangent to
+    # their corresponding passage rays, so all 18 remain visible in assembly.
+    for station, angle in enumerate(tape_station_angles(p), start=1):
+        body = body.cut(_engraved_text(
+            str(station), 73.3, angle, _BACKPLATE_THICKNESS_MM,
+            character_height=2.4, depth=0.55))
+    return body
 
 
 def _track_radius_limits(p: WindingToolParameters) -> tuple[float, float]:
@@ -174,9 +191,11 @@ def _master_cam_track(p: WindingToolParameters) -> cq.Workplane:
 
 
 def _engraved_text(label: str, radius: float, angle_deg: float,
-                   top_z: float) -> cq.Workplane:
+                   top_z: float, character_height: float = 3.2,
+                   depth: float = 0.65) -> cq.Workplane:
     angle = radians(angle_deg)
-    text = (cq.Workplane('XY').text(label, 3.2, 0.65, combine=True)
+    text = (cq.Workplane('XY').text(
+                label, character_height, depth, combine=True)
             .rotate((0, 0, 0), (0, 0, 1), angle_deg + 90)
             .translate((radius * cos(angle), radius * sin(angle), top_z - 0.5)))
     return text
@@ -219,11 +238,17 @@ def _build_clamp(p: WindingToolParameters) -> cq.Workplane:
     return body.edges('|Z').fillet(0.7)
 
 
-def _build_master_slider(p: WindingToolParameters,
-                         radial_offset: float) -> cq.Workplane:
+def _tangential_hole(radial_position: float, height_position: float,
+                     radius: float, length: float) -> cq.Workplane:
+    return (cq.Workplane('XY').circle(radius).extrude(length)
+            .rotate((0, 0, 0), (1, 0, 0), 90)
+            .translate((radial_position, length / 2, height_position)))
+
+
+def _build_master_slider(p: WindingToolParameters) -> cq.Workplane:
     reference_contact_radius = p.reference_diameter_mm / 2
-    inner = _SLIDER_INNER_RADIUS_AT_REFERENCE_MM + radial_offset
-    outer = reference_contact_radius - _RIB_RADIAL_DEPTH_MM + radial_offset
+    inner = _SLIDER_INNER_RADIUS_AT_REFERENCE_MM
+    outer = reference_contact_radius - _RIB_RADIAL_DEPTH_MM
     height = _SLIDER_TOP_Z_MM - _SLIDER_BOTTOM_Z_MM
     slider = _radial_box(inner, outer - inner, 10.5,
                          _SLIDER_BOTTOM_Z_MM, height)
@@ -233,33 +258,68 @@ def _build_master_slider(p: WindingToolParameters,
                              1.5, _SLIDER_TOP_Z_MM - top_rebate_height,
                              top_rebate_height + 0.5).translate((0, y, 0))
         slider = slider.cut(rebate)
-    follower_radius = _FOLLOWER_RADIUS_AT_REFERENCE_MM + radial_offset
+
+    # The outer fork receives the rib's keyed tongue. A tangential 3 mm pin
+    # crosses both fork arms and the tongue, positively retaining the rib while
+    # keeping the fastener ends inside the wire-contact radius.
+    socket = _radial_box(
+        outer - 5.8, 6.3, 6.4,
+        _SLIDER_BOTTOM_Z_MM - 0.1, height + 0.2)
+    slider = slider.cut(socket)
+    attachment_pin_radius = reference_contact_radius - 7.0
+    slider = slider.cut(_tangential_hole(
+        attachment_pin_radius, 7.15, 1.7, 14.0))
+
     follower_hole = _disc(2.1, _SLIDER_BOTTOM_Z_MM - 0.5,
-                           height + 1).translate((follower_radius, 0, 0))
+                           height + 1).translate(
+                               (_FOLLOWER_RADIUS_AT_REFERENCE_MM, 0, 0))
     return slider.cut(follower_hole)
 
 
-def _build_master_rib(p: WindingToolParameters,
-                      contact_radius: float) -> cq.Workplane:
-    rib = _radial_box(
-        contact_radius - _RIB_RADIAL_DEPTH_MM,
-        _RIB_RADIAL_DEPTH_MM,
-        _RIB_TANGENTIAL_WIDTH_MM,
-        _RIB_BOTTOM_Z_MM,
-        _RIB_HEIGHT_MM,
-    ).edges().fillet(1.5)
+def _build_master_rib(p: WindingToolParameters) -> cq.Workplane:
+    minimum_contact_radius = p.minimum_diameter_mm / 2
+    inner_radius = minimum_contact_radius - _RIB_RADIAL_DEPTH_MM
+    annulus = _disc(minimum_contact_radius, _RIB_BOTTOM_Z_MM, _RIB_HEIGHT_MM)
+    annulus = annulus.cut(_disc(
+        inner_radius, _RIB_BOTTOM_Z_MM - 0.5, _RIB_HEIGHT_MM + 1))
+    window = _radial_box(
+        0, minimum_contact_radius + 1, _RIB_TANGENTIAL_WIDTH_MM,
+        _RIB_BOTTOM_Z_MM - 0.5, _RIB_HEIGHT_MM + 1)
+    rib = annulus.intersect(window).edges().fillet(1.2)
 
-    # Three open-top, outward-running grooves in each rib create all 18 tape
-    # stations after polar copying.  A 3.3 mm floor keeps each rib connected,
-    # while the open outer ends release the tape when the ribs retract.
-    groove_bottom = _RIB_BOTTOM_Z_MM + 3.3
-    groove_height = _RIB_HEIGHT_MM - 2.8
+    # A low keyed tongue fits the slider fork below the cam plane. The outer
+    # riser joins it to the rib shell beyond the cam radius. Both parts share a
+    # tangential pin bore for a removable M3-class fastener.
+    tongue = _radial_box(inner_radius - 5.6, 7.0, 6.0, 5.4, 3.5)
+    riser = _radial_box(inner_radius, 1.4, 6.0, 5.4, 5.4)
+    rib = rib.union(tongue).union(riser)
+    rib = rib.cut(_tangential_hole(
+        minimum_contact_radius - 7.0, 7.15, 1.7, 14.0))
+
+    # Three rounded, outward-running grooves in each invariant master create
+    # all 18 tape stations after polar copying. Top and bottom contact bands
+    # remain connected; the open radial mouth releases tape after retraction.
+    groove_bottom = _RIB_BOTTOM_Z_MM + 3.8
+    groove_height = _RIB_HEIGHT_MM - 7.6
+    adjustment_offsets = (
+        0.0,
+        (p.reference_diameter_mm - p.minimum_diameter_mm) / 2,
+        (p.maximum_diameter_mm - p.minimum_diameter_mm) / 2,
+    )
     for relative_angle in (-20.0, 0.0, 20.0):
-        groove = _rotate(
-            _radial_box(contact_radius - 8.0, 12.0,
-                        p.tape_passage_width_mm, groove_bottom, groove_height),
-            relative_angle,
-        )
+        groove = None
+        for offset in adjustment_offsets:
+            aligned_cutter = _rotate(
+                _radial_box(
+                    minimum_contact_radius + offset - 14.0, 15.5,
+                    p.tape_passage_width_mm, groove_bottom, groove_height)
+                .edges().fillet(0.8),
+                relative_angle,
+            ).translate((-offset, 0, 0))
+            groove = (aligned_cutter if groove is None
+                      else groove.union(aligned_cutter))
+        if groove is None:
+            raise ValueError('Tape groove sweep requires adjustment samples')
         rib = rib.cut(groove)
     return rib
 
@@ -283,8 +343,9 @@ def build_winding_head(p: WindingToolParameters,
     cam = _valid_single_solid(_build_cam(p, follower_radius), 'cam')
     clamp = _valid_single_solid(_build_clamp(p), 'clamp')
 
-    master_slider = _build_master_slider(p, radial_offset)
-    master_rib = _build_master_rib(p, contact_radius)
+    master_slider = _build_master_slider(p).translate((radial_offset, 0, 0))
+    master_rib = _build_master_rib(p).translate(
+        (contact_radius - p.minimum_diameter_mm / 2, 0, 0))
     sliders = tuple(
         _valid_single_solid(_rotate(master_slider, index * 360 / p.rib_count),
                             f'slider_{index + 1}')
