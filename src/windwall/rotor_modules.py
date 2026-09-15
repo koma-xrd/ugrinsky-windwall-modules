@@ -1,8 +1,7 @@
 """Load-bearing base, standard and top stages in a common nominal blade frame.
 
-The source blade frame spans z=0 to stage_height_mm with its +60-degree twist;
-two inset outer blade-wall seams retain the exterior skin. The upper
-receiver is recessed into a local end-support region;
+The source blade frame spans z=0 to stage_height_mm with its +60-degree twist.
+The upper receiver is recessed into a local end-support region;
 the next stage's male extends below zero into it. The support plate bridges
 the phase difference structurally. Successive modules rotate by the blade twist
 to continue the aerodynamic surface. Base fuses the upper generator carrier and
@@ -16,7 +15,6 @@ from math import cos, hypot, isfinite, pi, sin
 
 import cadquery as cq
 from windwall.blade_profile import build_blade_stage
-from windwall.blade_seam import BladeSeamInterface, build_blade_seam
 from windwall.drivers import build_joint_interface, joint_interface_height_mm
 from windwall.generator import base_bearing_interface, build_upper_magnet_carrier
 from windwall.parameters import DesignParameters
@@ -121,9 +119,8 @@ def _build(parameters: DesignParameters, kind: str) -> RotorModuleModel:
     depth = module_joint_depth_mm(p)
     joint_z = height-depth
     joint = build_joint_interface(p)
-    seam = build_blade_seam(p)
     body = build_blade_stage(p)
-    # Rotate the upper stage with tongues clear, then seat axially at +60 degrees.
+    # Rotate the upper stage through bayonet insertion, then seat at +60 degrees.
     if kind == 'base':
         plate_bottom = -end.base_shaft_flange_depth_mm-p.generator.carrier_height_mm
         carrier_disc_top_depth = (end.base_shaft_flange_depth_mm+p.generator.carrier_height_mm
@@ -196,11 +193,6 @@ def _build(parameters: DesignParameters, kind: str) -> RotorModuleModel:
         shaft_bottom = body.val().BoundingBox().zmin-1
         body = body.cut(_disc(p.shaft.clearance_hole_diameter_mm/2,
                               shaft_bottom, height-shaft_bottom+1)).clean()
-    if kind != 'top':
-        body = body.union(seam.tongues.rotate((0,0,0),(0,0,1),p.blade.twist_deg)
-                          .translate((0,0,height)))
-    if kind != 'base':
-        body = body.cut(seam.groove_clearance)
     if not body.val().isValid() or len(body.val().Solids()) != 1:
         raise ValueError(f'{kind.capitalize()} module must be one valid connected solid')
     return RotorModuleModel(body, (p.shaft.clearance_hole_diameter_mm-p.shaft.nominal_diameter_mm)/2,
