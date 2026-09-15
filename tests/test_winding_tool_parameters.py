@@ -1,5 +1,6 @@
 import unittest
 from dataclasses import replace
+from math import inf, nan
 
 from windwall.parameters import DEFAULT_PARAMETERS
 from windwall.winding_tool_parameters import (
@@ -28,6 +29,18 @@ class WindingToolParameterTests(unittest.TestCase):
             replace(p, tape_passage_width_mm=9.9),
             replace(p, release_travel_mm=1.9),
             replace(p, platter_diameter_mm=221),
+        )
+        for candidate in invalid:
+            with self.subTest(candidate=candidate), self.assertRaises(ValueError):
+                validate_winding_tool_parameters(candidate)
+
+    def test_validation_rejects_integer_and_non_finite_dimensions(self):
+        p = DEFAULT_WINDING_TOOL_PARAMETERS
+        invalid = (
+            replace(p, shaft_diameter_mm=0),
+            replace(p, platter_diameter_mm=-1),
+            replace(p, spool_pilot_height_mm=nan),
+            replace(p, tape_width_mm=inf),
         )
         for candidate in invalid:
             with self.subTest(candidate=candidate), self.assertRaises(ValueError):

@@ -21,7 +21,12 @@ class WindingToolParameters:
 
 
 def validate_winding_tool_parameters(p: WindingToolParameters) -> None:
-    values = tuple(value for value in vars(p).values() if isinstance(value, float))
+    values = tuple(
+        value for name, value in vars(p).items()
+        if name.endswith('_mm')
+        and isinstance(value, (int, float))
+        and not isinstance(value, bool)
+    )
     if not all(isfinite(value) and value > 0 for value in values):
         raise ValueError('Winding-tool dimensions must be positive and finite')
     if not p.minimum_diameter_mm <= p.reference_diameter_mm <= p.maximum_diameter_mm:
