@@ -23,13 +23,15 @@ The following remain unchanged:
 
 ### Flat print surface
 
-The lower rotor keeps the existing 106 mm diameter and 5 mm magnet-carrier disc thickness. Its complete lowest exterior support surface lies on one common plane. The six radial ribs and the deeper central hub currently projecting below the disc are removed; the design must not compensate by thickening the entire carrier disc.
+The lower rotor keeps the existing 106 mm diameter and 5 mm magnet-carrier disc thickness. Its complete lowest exterior support surface lies on one common plane. The six radial ribs and the deeper central hub currently projecting below the disc are removed from the underside; the design must not compensate by thickening the entire carrier disc.
+
+The central hub is rebuilt on the stator-facing upper side of the disc. It begins at the common flat carrier bottom, continues through the disc and projects upward around the spacer sleeve far enough to contain the complete 6.8 mm nut-pocket depth. Its existing 34 mm outside diameter remains inside the stationary 62 mm centre opening and therefore does not enter the active magnet or coil annulus.
 
 The lower surface may contain the intentional M8 hexagonal nut recess and central shaft bore. These are open cavities and do not count as protrusions or prevent the surrounding annular face from lying flat on the build plate. No other solid geometry may extend below the carrier-disc bottom.
 
 ### Nut pocket and sleeve
 
-The existing bottom-open M8 hexagonal nut pocket moves upward with the flat carrier bottom. It retains the current across-flats clearance and pocket depth. The pocket must remain accessible from below after printing and must not break into any magnet pocket.
+The existing bottom-open M8 hexagonal nut pocket moves upward with the flat carrier bottom. It retains the current across-flats clearance and 6.8 mm pocket depth. The upper-side central hub surrounds the portion of the recess that extends above the 5 mm carrier disc. The pocket must remain accessible from below after printing and must not break into any magnet pocket or emerge through the top of the hub.
 
 The 12 mm outside-diameter integral spacer sleeve remains above the magnet face and runs to the existing upper clamp-nut elevation. It retains the M8 clearance bore and remains fused to the carrier through the central disc region. Removing the lower hub must not disconnect or shorten this sleeve.
 
@@ -65,9 +67,9 @@ The implementation must prove all of the following:
 
 1. The lower magnet rotor is one valid connected solid with a closed manifold export.
 2. Its lowest solid Z equals the nominal 5 mm carrier-disc bottom across the usable annular support face.
-3. No rib or hub material exists below the nominal carrier disc.
+3. No rib or hub material exists below the nominal carrier disc; the 34 mm central hub projects only toward the stator-facing upper side and remains inside the 62 mm stationary centre opening.
 4. Carrier diameter and thickness remain 106 mm and 5 mm.
-5. The M8 hex pocket is bottom-open at the new carrier bottom, retains its existing width and depth, and remains clear of the shaft and magnets.
+5. The M8 hex pocket is bottom-open at the new carrier bottom, retains its existing width and 6.8 mm depth, and remains enclosed by the upper hub while staying clear of the shaft and magnets.
 6. The integral spacer sleeve retains its existing diameter, bore, upper elevation and continuous connection to the carrier.
 7. All 18 magnet pockets retain their positions, dimensions, opening direction and blind floors.
 8. No rotor module contains blade tongue or groove geometry.
