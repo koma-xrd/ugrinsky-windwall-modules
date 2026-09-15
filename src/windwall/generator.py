@@ -91,13 +91,15 @@ def _validate(p: DesignParameters) -> None:
         raise ValueError('Coupon variation must leave a positive smallest pocket')
 
 
-def _carrier(p: DesignParameters, radial_ribs: bool = True) -> cq.Workplane:
-    """Local pocket face Z=0; ribs and axial clamping face point toward +Z."""
+def _carrier(p: DesignParameters, radial_ribs: bool = True,
+             raised_hub: bool = True) -> cq.Workplane:
+    """Local pocket face Z=0; optional reinforcement points toward +Z."""
     _validate(p)
     g, m = p.generator,p.manufacturing
     bore = p.shaft.clearance_hole_diameter_mm/2
     body = _ring(g.carrier_diameter_mm/2,bore,0,g.carrier_disc_thickness_mm)
-    body = body.union(_ring(g.carrier_hub_diameter_mm/2,bore,0,g.carrier_height_mm))
+    if raised_hub:
+        body = body.union(_ring(g.carrier_hub_diameter_mm/2,bore,0,g.carrier_height_mm))
     rib_start = g.carrier_hub_diameter_mm/2-1
     rib_end = g.carrier_diameter_mm/2-m.minimum_loaded_wall_mm
     if radial_ribs:
@@ -125,6 +127,11 @@ def upper_magnet_face_z_mm(p: DesignParameters) -> float:
 def lower_magnet_face_z_mm(p: DesignParameters) -> float:
     g = p.generator
     return upper_magnet_face_z_mm(p)-g.upper_air_gap_mm-(g.coil_former_height_mm-1)-g.lower_air_gap_mm
+
+
+def lower_carrier_bottom_z_mm(p: DesignParameters) -> float:
+    """Flat print-side elevation of the lower carrier disc."""
+    return lower_magnet_face_z_mm(p)-p.generator.carrier_disc_thickness_mm
 
 
 def base_bearing_interface(p: DesignParameters) -> dict[str, float]:
@@ -164,13 +171,16 @@ def build_lower_magnet_rotor(parameters: DesignParameters) -> cq.Workplane:
     """Up-facing rotor with captive M8 pocket and integral rotating sleeve."""
     p = parameters
     face = lower_magnet_face_z_mm(p)
-    body = _carrier(p).mirror('XY').translate((0,0,face))
-    rear = face-p.generator.carrier_height_mm
+    rear = lower_carrier_bottom_z_mm(p)
+    body = _carrier(p,radial_ribs=False,raised_hub=False).mirror('XY').translate((0,0,face))
+    upper_hub = _ring(p.generator.carrier_hub_diameter_mm/2,
+                      p.shaft.clearance_hole_diameter_mm/2,
+                      rear,p.generator.carrier_height_mm)
     sleeve_top = base_bearing_interface(p)['nut_bottom_z_mm']
     sleeve = _ring(p.generator.spacer_outer_diameter_mm/2,
                    p.shaft.clearance_hole_diameter_mm/2,
                    face, sleeve_top-face)
-    return (body.union(sleeve)
+    return (body.union(upper_hub).union(sleeve)
             .cut(_hex(p.manufacturing.nut_pocket_across_flats_mm,
                       rear,p.manufacturing.nut_pocket_depth_mm)).clean())
 
@@ -325,12 +335,12 @@ def build_generator_assembly(parameters: DesignParameters) -> GeneratorAssembly:
     for index, fastener in enumerate(housing.cover_fasteners, 1):
         stationary[f'cover_screw_{index}'] = fastener.screw.translate((0, 0, offset))
         stationary[f'cover_nut_{index}'] = fastener.nut.translate((0, 0, offset))
-    rear = lower_face-g.carrier_height_mm
-    bottom = rear-p.closure.shaft_bottom_projection_mm
+    lower_nut_bottom = lower_carrier_bottom_z_mm(p)
+    bottom = lower_face-g.carrier_height_mm-p.closure.shaft_bottom_projection_mm
     shaft = cq.Workplane('XY').circle(p.shaft.nominal_diameter_mm/2).extrude(p.rotor.stage_height_mm+15-bottom).translate((0,0,bottom))
     upper_nut_bottom = base_bearing_interface(p)['nut_bottom_z_mm']
     hardware = {'upper_nut':_hex(g.clamp_nut_across_flats_mm,upper_nut_bottom,m.nut_pocket_depth_mm),
-                'lower_nut':_hex(g.clamp_nut_across_flats_mm,rear,m.nut_pocket_depth_mm)}
+                'lower_nut':_hex(g.clamp_nut_across_flats_mm,lower_nut_bottom,m.nut_pocket_depth_mm)}
     for name in ('upper_nut','lower_nut'):
         hardware[name] = hardware[name].cut(shaft)
     magnets = {'upper': _magnet_envelope(p, upper_face, True),

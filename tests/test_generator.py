@@ -6,7 +6,8 @@ import unittest
 
 import cadquery as cq
 
-from windwall.generator import build_generator_assembly, build_magnet_pocket_coupon
+from windwall.generator import (build_generator_assembly, build_magnet_pocket_coupon,
+                                 lower_carrier_bottom_z_mm)
 from windwall.parameters import DEFAULT_PARAMETERS
 
 
@@ -145,19 +146,51 @@ class GeneratorTests(unittest.TestCase):
                            a.base_module.bearing_seat_bottom_z_mm)
         self.assertEqual(a.lower_rotor_nut_pocket_across_flats_mm, 13.3)
 
-    def test_lower_rotor_integrates_the_full_rotating_spacer_sleeve(self):
+    def test_lower_rotor_integrates_the_spacer_sleeve_above_the_lower_nut_pocket(self):
         a = self.assembly
-        lower_face = a.magnets['lower'].val().BoundingBox().zmax
+        lower_nut_top = a.clamp_hardware['lower_nut'].val().BoundingBox().zmax
         upper_nut_bottom = a.clamp_hardware['upper_nut'].val().BoundingBox().zmin
         sleeve = (cq.Workplane('XY').circle(5.9).circle(4.5)
-                  .extrude(upper_nut_bottom - lower_face)
-                  .translate((0, 0, lower_face)))
+                  .extrude(upper_nut_bottom - lower_nut_top)
+                  .translate((0, 0, lower_nut_top)))
         self.assertLess(sleeve.cut(a.lower_rotor).val().Volume(), 0.01)
         self.assertEqual(len(a.lower_rotor.val().Solids()), 1)
         self.assertAlmostEqual(a.lower_rotor.val().BoundingBox().zmax,
                                upper_nut_bottom, places=5)
         self.assertLess(a.lower_rotor.intersect(a.shaft).val().Volume(), 0.01)
         self.assertFalse(hasattr(a, 'spacer'))
+
+    def test_lower_rotor_has_a_flat_five_mm_carrier_bottom_below_magnets(self):
+        """A raised hub or ribs must not break the lower rotor's print surface."""
+        p, rotor = DEFAULT_PARAMETERS, self.assembly.lower_rotor
+        magnet_face = self.assembly.magnets['lower'].val().BoundingBox().zmax
+        flat_bottom = magnet_face - p.generator.carrier_disc_thickness_mm
+        self.assertAlmostEqual(rotor.val().BoundingBox().zmin, flat_bottom, places=5)
+        self.assertAlmostEqual(lower_carrier_bottom_z_mm(p), flat_bottom, places=5)
+        for angle in range(0, 360, 15):
+            x, y = 30*cos(radians(angle)), 30*sin(radians(angle))
+            first_layer = cq.Workplane('XY').center(x, y).circle(0.5).extrude(0.1).translate((0, 0, flat_bottom))
+            below_layer = first_layer.translate((0, 0, -0.1))
+            with self.subTest(angle=angle):
+                self.assertGreater(rotor.intersect(first_layer).val().Volume(), 0.05)
+                self.assertLess(rotor.intersect(below_layer).val().Volume(), 0.01)
+
+    def test_lower_nut_reference_starts_at_the_shared_flat_bottom_and_pocket_is_blind(self):
+        """The lower nut recess must be sourced from the flat print plane."""
+        p, a = DEFAULT_PARAMETERS, self.assembly
+        flat_bottom = lower_carrier_bottom_z_mm(p)
+        magnet_face = a.magnets['lower'].val().BoundingBox().zmax
+        nut = a.clamp_hardware['lower_nut']
+        self.assertAlmostEqual(nut.val().BoundingBox().zmin, flat_bottom, places=5)
+        self.assertLess(nut.intersect(a.lower_rotor).val().Volume(), 0.01)
+        self.assertGreater(nut.translate((0, 0, p.manufacturing.nut_pocket_depth_mm + 0.05))
+                           .intersect(a.lower_rotor).val().Volume(), 0.01)
+        hub = (cq.Workplane('XY').circle(16.9).circle(8.0)
+               .extrude(p.generator.carrier_height_mm).translate((0, 0, flat_bottom)))
+        self.assertLess(hub.cut(a.lower_rotor).val().Volume(), 0.01)
+        no_upper_annulus = (cq.Workplane('XY').circle(30.9).circle(17.1).extrude(4.8)
+                            .translate((0, 0, magnet_face + 0.1)))
+        self.assertLess(a.lower_rotor.intersect(no_upper_annulus).val().Volume(), 0.01)
 
     def test_magnet_pockets_face_stator_with_loaded_blind_floors(self):
         for shape, opening, direction in ((self.assembly.upper_carrier, -13, 1),
