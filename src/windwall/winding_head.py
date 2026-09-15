@@ -26,7 +26,7 @@ _SLIDER_BOTTOM_Z_MM = 5.15
 _SLIDER_TOP_Z_MM = 9.2
 _CAM_BOTTOM_Z_MM = 9.7
 _CAM_THICKNESS_MM = 4.0
-_CAM_RADIUS_MM = 50.0
+_CAM_RADIUS_MM = 48.0
 _TRACK_HALF_SWEEP_DEG = 12.0
 _RIB_RADIAL_DEPTH_MM = 4.5
 _RIB_TANGENTIAL_WIDTH_MM = 52.0
@@ -321,6 +321,24 @@ def _build_master_rib(p: WindingToolParameters) -> cq.Workplane:
         if groove is None:
             raise ValueError('Tape groove sweep requires adjustment samples')
         rib = rib.cut(groove)
+
+    # Cutter fillets round the inside corners, but the cutter/outer-cylinder
+    # intersection otherwise leaves a sharp 90-degree mouth. Select those six
+    # final circular boundaries on the true contact cylinder and fillet the
+    # finished B-rep so the wire sees a tangent 0.8 mm transition.
+    groove_boundaries = (groove_bottom, groove_bottom + groove_height)
+    mouth_edges = [
+        edge for edge in rib.val().Edges()
+        if (edge.geomType() == 'CIRCLE'
+            and any(abs(edge.Center().z - boundary) < 0.01
+                    for boundary in groove_boundaries)
+            and max(hypot(vertex.X, vertex.Y)
+                    for vertex in edge.Vertices()) > minimum_contact_radius - 0.1
+            and edge.Length() > 5.0)
+    ]
+    if len(mouth_edges) != 6:
+        raise ValueError('Rib must expose six roundable tape-groove mouth edges')
+    rib = rib.newObject(mouth_edges).fillet(0.8)
     return rib
 
 

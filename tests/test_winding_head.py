@@ -1,6 +1,6 @@
 import unittest
 from itertools import combinations
-from math import cos, radians, sin
+from math import cos, hypot, radians, sin
 
 import cadquery as cq
 from OCP.BRepAdaptor import BRepAdaptor_Curve, BRepAdaptor_Surface
@@ -118,12 +118,22 @@ class WindingHeadTests(unittest.TestCase):
             release = P.release_travel_mm
             released_slider = slider.translate(
                 (-release * cos(angle), -release * sin(angle), 0))
+            released_rib = minimum_head.ribs[index].translate(
+                (-release * cos(angle), -release * sin(angle), 0))
             past_stop_slider = slider.translate(
                 (-(release + 0.3) * cos(angle),
                  -(release + 0.3) * sin(angle), 0))
             with self.subTest(end='release', slider=index + 1):
                 self.assertLess(
                     minimum_head.backplate.intersect(released_slider).val().Volume(),
+                    1e-6,
+                )
+                self.assertLess(
+                    minimum_head.backplate.intersect(released_rib).val().Volume(),
+                    1e-6,
+                )
+                self.assertLess(
+                    minimum_head.cam.intersect(released_rib).val().Volume(),
                     1e-6,
                 )
                 self.assertGreater(
@@ -221,16 +231,39 @@ class WindingHeadTests(unittest.TestCase):
             0.1,
         )
 
-    def test_tape_groove_contact_boundaries_include_rounding_faces(self):
+    def test_final_tape_groove_mouth_edges_have_tangent_radius_transitions(self):
         head = build_winding_head(P, 127.0)
         for index, rib in enumerate(head.ribs):
-            rounding_faces = [
-                face for face in rib.val().Faces()
-                if (face.geomType() == 'CYLINDER'
-                    and 0.6 <= BRepAdaptor_Surface(face.wrapped).Cylinder().Radius() <= 1.0)
+            contact_radius = head.state.requested_diameter_mm / 2
+            mouth_edges = [
+                edge for edge in rib.val().Edges()
+                if (edge.geomType() == 'CIRCLE'
+                    and any(abs(edge.Center().z - boundary) < 0.01
+                            for boundary in (13.0, 25.4))
+                    and max(hypot(vertex.X, vertex.Y)
+                            for vertex in edge.Vertices()) > contact_radius - 2.0
+                    and edge.Length() > 5.0)
             ]
             with self.subTest(rib=index + 1):
-                self.assertGreaterEqual(len(rounding_faces), 3)
+                self.assertEqual(len(mouth_edges), 6)
+                for edge in mouth_edges:
+                    adjacent_faces = [
+                        face for face in rib.val().Faces()
+                        if any(edge.isSame(face_edge)
+                               for face_edge in face.Edges())
+                    ]
+                    self.assertEqual(
+                        sorted(face.geomType() for face in adjacent_faces),
+                        ['PLANE', 'TORUS'],
+                    )
+                    torus = next(face for face in adjacent_faces
+                                 if face.geomType() == 'TORUS')
+                    self.assertAlmostEqual(
+                        BRepAdaptor_Surface(
+                            torus.wrapped).Torus().MinorRadius(),
+                        0.8,
+                        places=6,
+                    )
 
     def test_all_tape_stations_have_aligned_physical_number_engraving(self):
         head = build_winding_head(P, 127.0)
