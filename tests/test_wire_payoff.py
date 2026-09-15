@@ -8,6 +8,35 @@ from windwall.wire_payoff import build_wire_payoff
 
 
 class WirePayoffTests(unittest.TestCase):
+    def test_brake_adjuster_cannot_rotate_at_either_adjustment_endpoint(self):
+        for setting in (0.0, 1.0):
+            payoff = build_wire_payoff(P, brake_setting=setting)
+            for angle in (-10, 10):
+                with self.subTest(setting=setting, angle=angle):
+                    rotated = payoff.adjuster.rotate((55, 0, 0), (55, 0, 1), angle)
+                    self.assertGreater(rotated.intersect(payoff.base).val().Volume(), 0.01)
+            self.assertLess(payoff.adjuster.intersect(payoff.base).val().Volume(), 1e-6)
+
+    def test_mounted_brake_accepts_a_short_hex_key_and_sixty_degree_stroke(self):
+        payoff = build_wire_payoff(P)
+        bottom = payoff.base.val().BoundingBox().zmin
+        bench = (cq.Workplane('XY').box(400, 400, 10, centered=(True, True, False))
+                 .translate((0, 0, bottom - 10)))
+        # A 2.5 mm short hex key enters from the open right side below the base.
+        stem = (cq.Workplane('XY').polygon(6, 2.4 / (3**.5/2)).extrude(9.5)
+                .translate((55, 0, -8)))
+        arm = (cq.Workplane('XY').circle(1.5).extrude(90)
+               .rotate((0, 0, 0), (0, 1, 0), 90).translate((55, 0, -8)))
+        key = stem.union(arm)
+        for angle in range(-30, 31, 10):
+            moved = key.rotate((55, 0, 0), (55, 0, 1), angle)
+            turned_screw = payoff.screw.rotate((55, 0, 0), (55, 0, 1), angle)
+            for name, fixed in (('bench', bench), ('base', payoff.base), ('screw', turned_screw)):
+                with self.subTest(angle=angle, fixed=name):
+                    self.assertLess(moved.intersect(fixed).val().Volume(), 1e-5)
+        self.assertLess(payoff.base.intersect(bench).val().Volume(), 1e-6)
+        self.assertAlmostEqual(payoff.base.val().distance(bench.val()), 0)
+
     def test_platter_pilot_and_bearing_match_design(self):
         payoff = build_wire_payoff(P, DEFAULT_PARAMETERS)
         self.assertEqual(payoff.metadata['platter_diameter_mm'], 150.0)

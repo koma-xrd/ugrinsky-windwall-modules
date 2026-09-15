@@ -18,8 +18,8 @@
           180.63883675101002
         ]
       },
-      "cad_solid_count": 105,
-      "component_count": 105,
+      "cad_solid_count": 135,
+      "component_count": 135,
       "components": [
         {
           "adjustable": false,
@@ -73,7 +73,7 @@
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 317980.5593955827,
+          "cad_volume_mm3": 316975.6518702936,
           "hardware_reference": false,
           "motion": "stationary",
           "name": "base",
@@ -138,6 +138,366 @@
           "hardware_reference": true,
           "motion": "stationary",
           "name": "bearing_608_2",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              -79.6,
+              -13.25,
+              98.17542648054294
+            ],
+            "minimum_xyz": [
+              -82.0,
+              -18.75,
+              91.82457351945706
+            ],
+            "size_xyz": [
+              2.4000000000000057,
+              5.5,
+              6.350852961085877
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 43.571499051094534,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "bearing_cap_nut_1",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              -79.6,
+              18.75,
+              98.17542648054294
+            ],
+            "minimum_xyz": [
+              -82.0,
+              13.249999999999998,
+              91.82457351945706
+            ],
+            "size_xyz": [
+              2.4000000000000057,
+              5.500000000000002,
+              6.350852961085877
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 43.571499051094534,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "bearing_cap_nut_2",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              82.0,
+              18.749999999999993,
+              98.17542648054294
+            ],
+            "minimum_xyz": [
+              79.6,
+              13.24999999999999,
+              91.82457351945706
+            ],
+            "size_xyz": [
+              2.4000000000000057,
+              5.5000000000000036,
+              6.350852961085877
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 43.57149905109459,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "bearing_cap_nut_3",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              82.0,
+              -13.250000000000007,
+              98.17542648054294
+            ],
+            "minimum_xyz": [
+              79.6,
+              -18.75000000000001,
+              91.82457351945706
+            ],
+            "size_xyz": [
+              2.4000000000000057,
+              5.5000000000000036,
+              6.350852961085877
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 43.571499051094584,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "bearing_cap_nut_4",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              -59.0,
+              -13.25,
+              97.75
+            ],
+            "minimum_xyz": [
+              -84.0,
+              -18.75,
+              92.25
+            ],
+            "size_xyz": [
+              25.0,
+              5.5,
+              5.5
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 226.78371968101314,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "bearing_cap_screw_1",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              -59.0,
+              18.75,
+              97.75
+            ],
+            "minimum_xyz": [
+              -84.0,
+              13.25,
+              92.25
+            ],
+            "size_xyz": [
+              25.0,
+              5.5,
+              5.5
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 226.78371968101314,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "bearing_cap_screw_2",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              84.0,
+              18.749999999999993,
+              97.75
+            ],
+            "minimum_xyz": [
+              59.0,
+              13.249999999999993,
+              92.25
+            ],
+            "size_xyz": [
+              25.0,
+              5.5,
+              5.5
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 226.78371968101314,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "bearing_cap_screw_3",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              84.0,
+              -13.250000000000007,
+              97.75
+            ],
+            "minimum_xyz": [
+              59.0,
+              -18.750000000000007,
+              92.25
+            ],
+            "size_xyz": [
+              25.0,
+              5.5,
+              5.5
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 226.78371968101314,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "bearing_cap_screw_4",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              -79.0,
+              -13.0,
+              98.0
+            ],
+            "minimum_xyz": [
+              -79.6,
+              -19.0,
+              92.0
+            ],
+            "size_xyz": [
+              0.5999999999999943,
+              6.0,
+              6.0
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 12.139114013470934,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "bearing_cap_washer_1",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              -79.0,
+              19.0,
+              98.0
+            ],
+            "minimum_xyz": [
+              -79.6,
+              13.0,
+              92.0
+            ],
+            "size_xyz": [
+              0.5999999999999943,
+              6.0,
+              6.0
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 12.139114013470934,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "bearing_cap_washer_2",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              79.6,
+              18.999999999999993,
+              98.0
+            ],
+            "minimum_xyz": [
+              79.0,
+              12.999999999999991,
+              92.0
+            ],
+            "size_xyz": [
+              0.5999999999999943,
+              6.000000000000002,
+              6.0
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 12.139114013470932,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "bearing_cap_washer_3",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              79.6,
+              -13.00000000000001,
+              98.0
+            ],
+            "minimum_xyz": [
+              79.0,
+              -19.00000000000001,
+              92.0
+            ],
+            "size_xyz": [
+              0.5999999999999943,
+              6.0,
+              6.0
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 12.139114013470934,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "bearing_cap_washer_4",
           "physical_fit_verified": false,
           "printable": false,
           "quantity": 1,
@@ -1621,24 +1981,24 @@
           "adjustable": false,
           "cad_bounds_mm": {
             "maximum_xyz": [
-              13.000000200000002,
-              14.0,
-              109.0
+              23.000000200000002,
+              14.0000001,
+              109.0000001
             ],
             "minimum_xyz": [
-              5.000000000000001,
-              -14.0,
-              81.0
+              15.0,
+              -14.0000001,
+              80.9999999
             ],
             "size_xyz": [
               8.000000200000002,
-              28.0,
-              28.0
+              28.0000002,
+              28.000000199999988
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 3717.4415266487126,
+          "cad_volume_mm3": 3662.2301787704473,
           "hardware_reference": false,
           "motion": "rotating",
           "name": "head_retaining_collar",
@@ -1682,24 +2042,24 @@
           "adjustable": false,
           "cad_bounds_mm": {
             "maximum_xyz": [
-              10.0,
+              19.75,
               2.0,
-              106.0
+              111.0
             ],
             "minimum_xyz": [
-              6.0,
+              15.75,
               -2.0,
-              84.0
+              79.0
             ],
             "size_xyz": [
               4.0,
               4.0,
-              22.0
+              32.0
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 276.4601535159018,
+          "cad_volume_mm3": 402.1238596594935,
           "hardware_reference": true,
           "motion": "rotating",
           "name": "head_retaining_pin_2",
@@ -1712,14 +2072,45 @@
           "adjustable": false,
           "cad_bounds_mm": {
             "maximum_xyz": [
+              -62.0,
+              22.0,
+              117.0
+            ],
+            "minimum_xyz": [
+              -65.1,
+              -22.0,
+              73.0
+            ],
+            "size_xyz": [
+              3.0999999999999943,
+              44.0,
+              44.0
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 3570.548856103597,
+          "hardware_reference": false,
+          "motion": "stationary",
+          "name": "left_bearing_cap",
+          "physical_fit_verified": false,
+          "print_part": "winding_frame_bearing_cap",
+          "printable": true,
+          "quantity": 1,
+          "source_builder": "windwall.winding_frame.build_winding_frame"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
               -54.0,
               55.0,
-              112.2
+              112.0
             ],
             "minimum_xyz": [
               -90.0,
               -55.0,
-              8.2
+              8.0
             ],
             "size_xyz": [
               36.0,
@@ -1729,7 +2120,7 @@
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 130380.18613313486,
+          "cad_volume_mm3": 128403.26984082515,
           "hardware_reference": false,
           "motion": "stationary",
           "name": "left_upright",
@@ -1743,17 +2134,17 @@
           "adjustable": false,
           "cad_bounds_mm": {
             "maximum_xyz": [
-              11.200000100000002,
+              21.200000100000004,
               11.75,
               98.17542648054294
             ],
             "minimum_xyz": [
-              8.800000100000002,
+              18.800000100000002,
               6.249999999999998,
               91.82457351945706
             ],
             "size_xyz": [
-              2.4000000000000004,
+              2.400000000000002,
               5.500000000000002,
               6.350852961085877
             ]
@@ -1773,17 +2164,17 @@
           "adjustable": false,
           "cad_bounds_mm": {
             "maximum_xyz": [
-              11.200000100000002,
+              21.200000100000004,
               -1.7499999999999978,
               105.96965511460289
             ],
             "minimum_xyz": [
-              8.800000100000002,
+              18.800000100000002,
               -7.25,
               99.61880215351701
             ],
             "size_xyz": [
-              2.4000000000000004,
+              2.400000000000002,
               5.500000000000002,
               6.350852961085877
             ]
@@ -1803,17 +2194,17 @@
           "adjustable": false,
           "cad_bounds_mm": {
             "maximum_xyz": [
-              11.200000100000002,
+              21.200000100000004,
               -1.750000000000003,
               90.38119784648299
             ],
             "minimum_xyz": [
-              8.800000100000002,
+              18.800000100000002,
               -7.250000000000005,
               84.03034488539711
             ],
             "size_xyz": [
-              2.4000000000000004,
+              2.400000000000002,
               5.500000000000002,
               6.350852961085877
             ]
@@ -1833,7 +2224,7 @@
           "adjustable": false,
           "cad_bounds_mm": {
             "maximum_xyz": [
-              16.6500001,
+              26.650000100000003,
               11.75,
               97.75
             ],
@@ -1843,14 +2234,14 @@
               92.25
             ],
             "size_xyz": [
-              12.999999999999998,
+              23.0,
               5.5,
               5.5
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 141.96071803408876,
+          "cad_volume_mm3": 212.6465527398591,
           "hardware_reference": true,
           "motion": "rotating",
           "name": "preload_screw_1",
@@ -1863,7 +2254,7 @@
           "adjustable": false,
           "cad_bounds_mm": {
             "maximum_xyz": [
-              16.6500001,
+              26.650000100000003,
               -1.7499999999999982,
               105.54422863405995
             ],
@@ -1873,14 +2264,14 @@
               100.04422863405995
             ],
             "size_xyz": [
-              12.999999999999998,
+              23.0,
               5.5,
               5.5
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 141.96071803408876,
+          "cad_volume_mm3": 212.64655273985906,
           "hardware_reference": true,
           "motion": "rotating",
           "name": "preload_screw_2",
@@ -1893,7 +2284,7 @@
           "adjustable": false,
           "cad_bounds_mm": {
             "maximum_xyz": [
-              16.6500001,
+              26.650000100000003,
               -1.7500000000000036,
               89.95577136594005
             ],
@@ -1903,14 +2294,14 @@
               84.45577136594005
             ],
             "size_xyz": [
-              12.999999999999998,
+              23.0,
               5.5,
               5.5
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 141.96071803408876,
+          "cad_volume_mm3": 212.6465527398591,
           "hardware_reference": true,
           "motion": "rotating",
           "name": "preload_screw_3",
@@ -2829,14 +3220,45 @@
           "adjustable": false,
           "cad_bounds_mm": {
             "maximum_xyz": [
+              65.1,
+              21.999999999999993,
+              117.0
+            ],
+            "minimum_xyz": [
+              61.99999999999999,
+              -22.000000000000007,
+              73.0
+            ],
+            "size_xyz": [
+              3.1000000000000014,
+              44.0,
+              44.0
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 3570.548856103597,
+          "hardware_reference": false,
+          "motion": "stationary",
+          "name": "right_bearing_cap",
+          "physical_fit_verified": false,
+          "print_part": "winding_frame_bearing_cap",
+          "printable": true,
+          "quantity": 1,
+          "source_builder": "windwall.winding_frame.build_winding_frame"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
               90.0,
               55.0,
-              112.2
+              112.0
             ],
             "minimum_xyz": [
               54.0,
               -55.0,
-              8.2
+              8.0
             ],
             "size_xyz": [
               36.0,
@@ -2846,7 +3268,7 @@
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 130380.18613313488,
+          "cad_volume_mm3": 128403.26984082512,
           "hardware_reference": false,
           "motion": "stationary",
           "name": "right_upright",
@@ -2877,10 +3299,130 @@
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 9476.125737342634,
+          "cad_volume_mm3": 9350.073937184945,
           "hardware_reference": true,
           "motion": "rotating",
           "name": "shaft",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              -72.1999999,
+              8.0000001,
+              103.0000001
+            ],
+            "minimum_xyz": [
+              -86.20000009999998,
+              -8.0000001,
+              86.9999999
+            ],
+            "size_xyz": [
+              14.000000199999988,
+              16.0000002,
+              16.000000199999988
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 1315.4798203143696,
+          "hardware_reference": true,
+          "motion": "rotating",
+          "name": "shaft_locator_1",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              -50.9999999,
+              8.0000001,
+              103.0000001
+            ],
+            "minimum_xyz": [
+              -65.0000001,
+              -8.0000001,
+              86.9999999
+            ],
+            "size_xyz": [
+              14.000000199999995,
+              16.0000002,
+              16.000000199999988
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 1315.4798203132032,
+          "hardware_reference": true,
+          "motion": "rotating",
+          "name": "shaft_locator_2",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              -80.69999999999999,
+              1.5,
+              105.0
+            ],
+            "minimum_xyz": [
+              -83.69999999999999,
+              -1.5,
+              85.0
+            ],
+            "size_xyz": [
+              3.0,
+              3.0,
+              20.0
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 141.37166941154072,
+          "hardware_reference": true,
+          "motion": "rotating",
+          "name": "shaft_locator_pin_1",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              -53.5,
+              1.5,
+              105.0
+            ],
+            "minimum_xyz": [
+              -56.5,
+              -1.5,
+              85.0
+            ],
+            "size_xyz": [
+              3.0,
+              3.0,
+              20.0
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 141.3716694115407,
+          "hardware_reference": true,
+          "motion": "rotating",
+          "name": "shaft_locator_pin_2",
           "physical_fit_verified": false,
           "printable": false,
           "quantity": 1,
@@ -3076,24 +3618,24 @@
           "adjustable": false,
           "cad_bounds_mm": {
             "maximum_xyz": [
-              -70.0,
-              -43.0,
-              18.2
+              -68.5,
+              -41.5,
+              24.1
             ],
             "minimum_xyz": [
-              -74.0,
-              -47.0,
-              -2.0
+              -75.5,
+              -48.5,
+              0.1
             ],
             "size_xyz": [
-              4.0,
-              4.0,
-              20.2
+              7.0,
+              7.0,
+              24.0
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 253.84068641005513,
+          "cad_volume_mm3": 405.26545231308324,
           "hardware_reference": true,
           "motion": "stationary",
           "name": "upright_fastener_1",
@@ -3106,24 +3648,24 @@
           "adjustable": false,
           "cad_bounds_mm": {
             "maximum_xyz": [
-              -70.0,
-              47.0,
-              18.2
+              -68.5,
+              48.5,
+              24.1
             ],
             "minimum_xyz": [
-              -74.0,
-              43.0,
-              -2.0
+              -75.5,
+              41.5,
+              0.1
             ],
             "size_xyz": [
-              4.0,
-              4.0,
-              20.2
+              7.0,
+              7.0,
+              24.0
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 253.84068641005513,
+          "cad_volume_mm3": 405.26545231308324,
           "hardware_reference": true,
           "motion": "stationary",
           "name": "upright_fastener_2",
@@ -3136,24 +3678,24 @@
           "adjustable": false,
           "cad_bounds_mm": {
             "maximum_xyz": [
-              74.0,
-              -43.0,
-              18.2
+              75.5,
+              -41.5,
+              24.1
             ],
             "minimum_xyz": [
-              70.0,
-              -47.0,
-              -2.0
+              68.5,
+              -48.5,
+              0.1
             ],
             "size_xyz": [
-              4.0,
-              4.0,
-              20.2
+              7.0,
+              7.0,
+              24.0
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 253.84068641005513,
+          "cad_volume_mm3": 405.26545231308324,
           "hardware_reference": true,
           "motion": "stationary",
           "name": "upright_fastener_3",
@@ -3166,27 +3708,387 @@
           "adjustable": false,
           "cad_bounds_mm": {
             "maximum_xyz": [
-              74.0,
-              47.0,
-              18.2
+              75.5,
+              48.5,
+              24.1
             ],
             "minimum_xyz": [
-              70.0,
-              43.0,
-              -2.0
+              68.5,
+              41.5,
+              0.1
             ],
             "size_xyz": [
-              4.0,
-              4.0,
-              20.2
+              7.0,
+              7.0,
+              24.0
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 253.84068641005513,
+          "cad_volume_mm3": 405.26545231308324,
           "hardware_reference": true,
           "motion": "stationary",
           "name": "upright_fastener_4",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              -67.95854811567261,
+              -41.5,
+              21.8
+            ],
+            "minimum_xyz": [
+              -76.04145188432739,
+              -48.5,
+              16.8
+            ],
+            "size_xyz": [
+              8.082903768654774,
+              7.0,
+              5.0
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 142.90410591553305,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "upright_nut_1",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              -67.95854811567261,
+              48.5,
+              21.8
+            ],
+            "minimum_xyz": [
+              -76.04145188432739,
+              41.5,
+              16.8
+            ],
+            "size_xyz": [
+              8.082903768654774,
+              7.0,
+              5.0
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 142.90410591553305,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "upright_nut_2",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              76.04145188432739,
+              -41.5,
+              21.8
+            ],
+            "minimum_xyz": [
+              67.95854811567261,
+              -48.5,
+              16.8
+            ],
+            "size_xyz": [
+              8.082903768654774,
+              7.0,
+              5.0
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 142.90410591553305,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "upright_nut_3",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              76.04145188432739,
+              48.5,
+              21.8
+            ],
+            "minimum_xyz": [
+              67.95854811567261,
+              41.5,
+              16.8
+            ],
+            "size_xyz": [
+              8.082903768654774,
+              7.0,
+              5.0
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 142.90410591553305,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "upright_nut_4",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              -67.5,
+              -40.5,
+              4.8999999999999995
+            ],
+            "minimum_xyz": [
+              -76.5,
+              -49.5,
+              4.1
+            ],
+            "size_xyz": [
+              9.0,
+              9.0,
+              0.7999999999999998
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 39.276191355179556,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "upright_washer_1",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              -67.5,
+              -40.5,
+              16.8
+            ],
+            "minimum_xyz": [
+              -76.5,
+              -49.5,
+              16.0
+            ],
+            "size_xyz": [
+              9.0,
+              9.0,
+              0.8000000000000007
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 39.27619135517957,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "upright_washer_2",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              -67.5,
+              49.5,
+              4.8999999999999995
+            ],
+            "minimum_xyz": [
+              -76.5,
+              40.5,
+              4.1
+            ],
+            "size_xyz": [
+              9.0,
+              9.0,
+              0.7999999999999998
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 39.276191355179556,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "upright_washer_3",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              -67.5,
+              49.5,
+              16.8
+            ],
+            "minimum_xyz": [
+              -76.5,
+              40.5,
+              16.0
+            ],
+            "size_xyz": [
+              9.0,
+              9.0,
+              0.8000000000000007
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 39.27619135517957,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "upright_washer_4",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              76.5,
+              -40.5,
+              4.8999999999999995
+            ],
+            "minimum_xyz": [
+              67.5,
+              -49.5,
+              4.1
+            ],
+            "size_xyz": [
+              9.0,
+              9.0,
+              0.7999999999999998
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 39.276191355179556,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "upright_washer_5",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              76.5,
+              -40.5,
+              16.8
+            ],
+            "minimum_xyz": [
+              67.5,
+              -49.5,
+              16.0
+            ],
+            "size_xyz": [
+              9.0,
+              9.0,
+              0.8000000000000007
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 39.27619135517957,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "upright_washer_6",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              76.5,
+              49.5,
+              4.8999999999999995
+            ],
+            "minimum_xyz": [
+              67.5,
+              40.5,
+              4.1
+            ],
+            "size_xyz": [
+              9.0,
+              9.0,
+              0.7999999999999998
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 39.276191355179556,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "upright_washer_7",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              76.5,
+              49.5,
+              16.8
+            ],
+            "minimum_xyz": [
+              67.5,
+              40.5,
+              16.0
+            ],
+            "size_xyz": [
+              9.0,
+              9.0,
+              0.8000000000000007
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 39.27619135517957,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "upright_washer_8",
           "physical_fit_verified": false,
           "printable": false,
           "quantity": 1,
@@ -3195,7 +4097,7 @@
       ],
       "known_limitations": [
         "Printed fits, strength, tape clearance and coil release require physical prototype tests.",
-        "The 127 mm reference is a calculated starting setting; cassette fit and winding quality remain unverified.",
+        "The configured reference diameter is a calculated starting setting; cassette fit and winding quality remain unverified.",
         "Powered operation is not approved: speed, torque limiting and guarding remain unvalidated.",
         "Wire tension, enamel protection, useful brake drag and electrical performance remain unvalidated.",
         "STL orientations place the lowest point at Z=0; supports and print process require review."
@@ -3206,10 +4108,10 @@
       "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies",
       "step_path": "assembly/winding_jig.step",
       "step_round_trip_valid": true,
-      "step_sha256": "88e28e7ff77704d20bcfec67c04c103379b0f9617beb9d9b2fec302efd022a7a",
-      "summed_component_volume_mm3": 774580.5639118853,
+      "step_sha256": "7f201077bffd363f2da435ee7938a34e21beb90e023cff184000b9580a61154d",
+      "summed_component_volume_mm3": 782454.5849049574,
       "topology_result": {
-        "cad_solid_count": 105,
+        "cad_solid_count": 135,
         "cad_valid": true,
         "step_round_trip_valid": true,
         "stl_required": false
@@ -3233,8 +4135,8 @@
           291.9472303455712
         ]
       },
-      "cad_solid_count": 105,
-      "component_count": 105,
+      "cad_solid_count": 135,
+      "component_count": 135,
       "component_translations_mm": {
         "backplate": [
           -80.0,
@@ -3255,6 +4157,66 @@
           0.0,
           0.0,
           100.0
+        ],
+        "bearing_cap_nut_1": [
+          0.0,
+          0.0,
+          75.0
+        ],
+        "bearing_cap_nut_2": [
+          0.0,
+          0.0,
+          75.0
+        ],
+        "bearing_cap_nut_3": [
+          0.0,
+          0.0,
+          75.0
+        ],
+        "bearing_cap_nut_4": [
+          0.0,
+          0.0,
+          75.0
+        ],
+        "bearing_cap_screw_1": [
+          0.0,
+          0.0,
+          75.0
+        ],
+        "bearing_cap_screw_2": [
+          0.0,
+          0.0,
+          75.0
+        ],
+        "bearing_cap_screw_3": [
+          0.0,
+          0.0,
+          75.0
+        ],
+        "bearing_cap_screw_4": [
+          0.0,
+          0.0,
+          75.0
+        ],
+        "bearing_cap_washer_1": [
+          0.0,
+          0.0,
+          75.0
+        ],
+        "bearing_cap_washer_2": [
+          0.0,
+          0.0,
+          75.0
+        ],
+        "bearing_cap_washer_3": [
+          0.0,
+          0.0,
+          75.0
+        ],
+        "bearing_cap_washer_4": [
+          0.0,
+          0.0,
+          75.0
         ],
         "bench_fastener_1": [
           0.0,
@@ -3516,6 +4478,11 @@
           0.0,
           0.0
         ],
+        "left_bearing_cap": [
+          0.0,
+          0.0,
+          75.0
+        ],
         "left_upright": [
           0.0,
           0.0,
@@ -3701,6 +4668,11 @@
           -35.624348251056624,
           -28.696818842642443
         ],
+        "right_bearing_cap": [
+          0.0,
+          0.0,
+          75.0
+        ],
         "right_upright": [
           0.0,
           0.0,
@@ -3710,6 +4682,26 @@
           0.0,
           0.0,
           0.0
+        ],
+        "shaft_locator_1": [
+          0.0,
+          0.0,
+          100.0
+        ],
+        "shaft_locator_2": [
+          0.0,
+          0.0,
+          100.0
+        ],
+        "shaft_locator_pin_1": [
+          0.0,
+          0.0,
+          100.0
+        ],
+        "shaft_locator_pin_2": [
+          0.0,
+          0.0,
+          100.0
         ],
         "slider_1": [
           -180.0,
@@ -3760,6 +4752,66 @@
           0.0,
           0.0,
           45.0
+        ],
+        "upright_nut_1": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "upright_nut_2": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "upright_nut_3": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "upright_nut_4": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "upright_washer_1": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "upright_washer_2": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "upright_washer_3": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "upright_washer_4": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "upright_washer_5": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "upright_washer_6": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "upright_washer_7": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "upright_washer_8": [
+          0.0,
+          0.0,
+          0.0
         ]
       },
       "components": [
@@ -3815,7 +4867,7 @@
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 317980.5593955827,
+          "cad_volume_mm3": 316975.6518702936,
           "hardware_reference": false,
           "motion": "stationary",
           "name": "base",
@@ -3880,6 +4932,366 @@
           "hardware_reference": true,
           "motion": "stationary",
           "name": "bearing_608_2",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              -79.6,
+              -13.25,
+              173.17542648054294
+            ],
+            "minimum_xyz": [
+              -82.0,
+              -18.75,
+              166.82457351945706
+            ],
+            "size_xyz": [
+              2.4000000000000057,
+              5.5,
+              6.350852961085877
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 43.57149905109441,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "bearing_cap_nut_1",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              -79.6,
+              18.75,
+              173.17542648054294
+            ],
+            "minimum_xyz": [
+              -82.0,
+              13.249999999999998,
+              166.82457351945706
+            ],
+            "size_xyz": [
+              2.4000000000000057,
+              5.500000000000002,
+              6.350852961085877
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 43.57149905109442,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "bearing_cap_nut_2",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              82.0,
+              18.749999999999993,
+              173.17542648054294
+            ],
+            "minimum_xyz": [
+              79.6,
+              13.24999999999999,
+              166.82457351945706
+            ],
+            "size_xyz": [
+              2.4000000000000057,
+              5.5000000000000036,
+              6.350852961085877
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 43.57149905109442,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "bearing_cap_nut_3",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              82.0,
+              -13.250000000000007,
+              173.17542648054294
+            ],
+            "minimum_xyz": [
+              79.6,
+              -18.75000000000001,
+              166.82457351945706
+            ],
+            "size_xyz": [
+              2.4000000000000057,
+              5.5000000000000036,
+              6.350852961085877
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 43.57149905109441,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "bearing_cap_nut_4",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              -59.0,
+              -13.25,
+              172.75
+            ],
+            "minimum_xyz": [
+              -84.0,
+              -18.75,
+              167.25
+            ],
+            "size_xyz": [
+              25.0,
+              5.5,
+              5.5
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 226.78371968101322,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "bearing_cap_screw_1",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              -59.0,
+              18.75,
+              172.75
+            ],
+            "minimum_xyz": [
+              -84.0,
+              13.25,
+              167.25
+            ],
+            "size_xyz": [
+              25.0,
+              5.5,
+              5.5
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 226.78371968101325,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "bearing_cap_screw_2",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              84.0,
+              18.749999999999993,
+              172.75
+            ],
+            "minimum_xyz": [
+              59.0,
+              13.249999999999993,
+              167.25
+            ],
+            "size_xyz": [
+              25.0,
+              5.5,
+              5.5
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 226.78371968101325,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "bearing_cap_screw_3",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              84.0,
+              -13.250000000000007,
+              172.75
+            ],
+            "minimum_xyz": [
+              59.0,
+              -18.750000000000007,
+              167.25
+            ],
+            "size_xyz": [
+              25.0,
+              5.5,
+              5.5
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 226.78371968101325,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "bearing_cap_screw_4",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              -79.0,
+              -13.0,
+              173.0
+            ],
+            "minimum_xyz": [
+              -79.6,
+              -19.0,
+              167.0
+            ],
+            "size_xyz": [
+              0.5999999999999943,
+              6.0,
+              6.0
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 12.139114013470934,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "bearing_cap_washer_1",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              -79.0,
+              19.0,
+              173.0
+            ],
+            "minimum_xyz": [
+              -79.6,
+              13.0,
+              167.0
+            ],
+            "size_xyz": [
+              0.5999999999999943,
+              6.0,
+              6.0
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 12.139114013470934,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "bearing_cap_washer_2",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              79.6,
+              18.999999999999993,
+              173.0
+            ],
+            "minimum_xyz": [
+              79.0,
+              12.999999999999991,
+              167.0
+            ],
+            "size_xyz": [
+              0.5999999999999943,
+              6.000000000000002,
+              6.0
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 12.13911401347093,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "bearing_cap_washer_3",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              79.6,
+              -13.00000000000001,
+              173.0
+            ],
+            "minimum_xyz": [
+              79.0,
+              -19.00000000000001,
+              167.0
+            ],
+            "size_xyz": [
+              0.5999999999999943,
+              6.0,
+              6.0
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 12.139114013470934,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "bearing_cap_washer_4",
           "physical_fit_verified": false,
           "printable": false,
           "quantity": 1,
@@ -5363,24 +6775,24 @@
           "adjustable": false,
           "cad_bounds_mm": {
             "maximum_xyz": [
-              13.000000200000002,
-              14.0,
-              109.0
+              23.000000200000002,
+              14.0000001,
+              109.0000001
             ],
             "minimum_xyz": [
-              5.000000000000001,
-              -14.0,
-              81.0
+              15.0,
+              -14.0000001,
+              80.9999999
             ],
             "size_xyz": [
               8.000000200000002,
-              28.0,
-              28.0
+              28.0000002,
+              28.000000199999988
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 3717.4415266487117,
+          "cad_volume_mm3": 3662.230178770446,
           "hardware_reference": false,
           "motion": "rotating",
           "name": "head_retaining_collar",
@@ -5424,24 +6836,24 @@
           "adjustable": false,
           "cad_bounds_mm": {
             "maximum_xyz": [
-              10.0,
+              19.75,
               2.0,
-              106.0
+              111.0
             ],
             "minimum_xyz": [
-              6.0,
+              15.75,
               -2.0,
-              84.0
+              79.0
             ],
             "size_xyz": [
               4.0,
               4.0,
-              22.0
+              32.0
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 276.4601535159018,
+          "cad_volume_mm3": 402.1238596594935,
           "hardware_reference": true,
           "motion": "rotating",
           "name": "head_retaining_pin_2",
@@ -5454,24 +6866,55 @@
           "adjustable": false,
           "cad_bounds_mm": {
             "maximum_xyz": [
-              -54.0,
-              55.0,
-              157.2
+              -62.0,
+              22.0,
+              192.0
             ],
             "minimum_xyz": [
-              -90.0,
-              -55.0,
-              53.2
+              -65.1,
+              -22.0,
+              148.0
             ],
             "size_xyz": [
-              36.0,
-              110.0,
-              103.99999999999999
+              3.0999999999999943,
+              44.0,
+              44.0
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 130380.18613313486,
+          "cad_volume_mm3": 3570.5488561035963,
+          "hardware_reference": false,
+          "motion": "stationary",
+          "name": "left_bearing_cap",
+          "physical_fit_verified": false,
+          "print_part": "winding_frame_bearing_cap",
+          "printable": true,
+          "quantity": 1,
+          "source_builder": "windwall.winding_frame.build_winding_frame"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              -54.0,
+              55.0,
+              157.0
+            ],
+            "minimum_xyz": [
+              -90.0,
+              -55.0,
+              53.0
+            ],
+            "size_xyz": [
+              36.0,
+              110.0,
+              104.0
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 128403.26984082515,
           "hardware_reference": false,
           "motion": "stationary",
           "name": "left_upright",
@@ -5485,17 +6928,17 @@
           "adjustable": false,
           "cad_bounds_mm": {
             "maximum_xyz": [
-              11.200000100000002,
+              21.200000100000004,
               11.75,
               98.17542648054294
             ],
             "minimum_xyz": [
-              8.800000100000002,
+              18.800000100000002,
               6.249999999999998,
               91.82457351945706
             ],
             "size_xyz": [
-              2.4000000000000004,
+              2.400000000000002,
               5.500000000000002,
               6.350852961085877
             ]
@@ -5515,24 +6958,24 @@
           "adjustable": false,
           "cad_bounds_mm": {
             "maximum_xyz": [
-              11.200000100000002,
+              21.200000100000004,
               -1.7499999999999978,
               105.96965511460289
             ],
             "minimum_xyz": [
-              8.800000100000002,
+              18.800000100000002,
               -7.25,
               99.61880215351701
             ],
             "size_xyz": [
-              2.4000000000000004,
+              2.400000000000002,
               5.500000000000002,
               6.350852961085877
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 43.57149905109458,
+          "cad_volume_mm3": 43.571499051094584,
           "hardware_reference": true,
           "motion": "rotating",
           "name": "preload_nut_2",
@@ -5545,17 +6988,17 @@
           "adjustable": false,
           "cad_bounds_mm": {
             "maximum_xyz": [
-              11.200000100000002,
+              21.200000100000004,
               -1.750000000000003,
               90.38119784648299
             ],
             "minimum_xyz": [
-              8.800000100000002,
+              18.800000100000002,
               -7.250000000000005,
               84.03034488539711
             ],
             "size_xyz": [
-              2.4000000000000004,
+              2.400000000000002,
               5.500000000000002,
               6.350852961085877
             ]
@@ -5575,7 +7018,7 @@
           "adjustable": false,
           "cad_bounds_mm": {
             "maximum_xyz": [
-              16.6500001,
+              26.650000100000003,
               11.75,
               97.75
             ],
@@ -5585,14 +7028,14 @@
               92.25
             ],
             "size_xyz": [
-              12.999999999999998,
+              23.0,
               5.5,
               5.5
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 141.96071803408876,
+          "cad_volume_mm3": 212.6465527398591,
           "hardware_reference": true,
           "motion": "rotating",
           "name": "preload_screw_1",
@@ -5605,7 +7048,7 @@
           "adjustable": false,
           "cad_bounds_mm": {
             "maximum_xyz": [
-              16.6500001,
+              26.650000100000003,
               -1.7499999999999982,
               105.54422863405995
             ],
@@ -5615,14 +7058,14 @@
               100.04422863405995
             ],
             "size_xyz": [
-              12.999999999999998,
+              23.0,
               5.5,
               5.5
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 141.96071803408876,
+          "cad_volume_mm3": 212.64655273985906,
           "hardware_reference": true,
           "motion": "rotating",
           "name": "preload_screw_2",
@@ -5635,7 +7078,7 @@
           "adjustable": false,
           "cad_bounds_mm": {
             "maximum_xyz": [
-              16.6500001,
+              26.650000100000003,
               -1.7500000000000036,
               89.95577136594005
             ],
@@ -5645,14 +7088,14 @@
               84.45577136594005
             ],
             "size_xyz": [
-              12.999999999999998,
+              23.0,
               5.5,
               5.5
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 141.96071803408876,
+          "cad_volume_mm3": 212.6465527398591,
           "hardware_reference": true,
           "motion": "rotating",
           "name": "preload_screw_3",
@@ -6571,24 +8014,55 @@
           "adjustable": false,
           "cad_bounds_mm": {
             "maximum_xyz": [
-              90.0,
-              55.0,
-              157.2
+              65.1,
+              21.999999999999993,
+              192.0
             ],
             "minimum_xyz": [
-              54.0,
-              -55.0,
-              53.2
+              61.99999999999999,
+              -22.000000000000007,
+              148.0
             ],
             "size_xyz": [
-              36.0,
-              110.0,
-              103.99999999999999
+              3.1000000000000014,
+              44.0,
+              44.0
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 130380.18613313485,
+          "cad_volume_mm3": 3570.5488561035963,
+          "hardware_reference": false,
+          "motion": "stationary",
+          "name": "right_bearing_cap",
+          "physical_fit_verified": false,
+          "print_part": "winding_frame_bearing_cap",
+          "printable": true,
+          "quantity": 1,
+          "source_builder": "windwall.winding_frame.build_winding_frame"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              90.0,
+              55.0,
+              157.0
+            ],
+            "minimum_xyz": [
+              54.0,
+              -55.0,
+              53.0
+            ],
+            "size_xyz": [
+              36.0,
+              110.0,
+              104.0
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 128403.26984082512,
           "hardware_reference": false,
           "motion": "stationary",
           "name": "right_upright",
@@ -6619,10 +8093,130 @@
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 9476.125737342634,
+          "cad_volume_mm3": 9350.073937184945,
           "hardware_reference": true,
           "motion": "rotating",
           "name": "shaft",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              -72.1999999,
+              8.0000001,
+              203.0000001
+            ],
+            "minimum_xyz": [
+              -86.20000009999998,
+              -8.0000001,
+              186.9999999
+            ],
+            "size_xyz": [
+              14.000000199999988,
+              16.0000002,
+              16.000000199999988
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 1315.4798203143691,
+          "hardware_reference": true,
+          "motion": "rotating",
+          "name": "shaft_locator_1",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              -50.9999999,
+              8.0000001,
+              203.0000001
+            ],
+            "minimum_xyz": [
+              -65.0000001,
+              -8.0000001,
+              186.9999999
+            ],
+            "size_xyz": [
+              14.000000199999995,
+              16.0000002,
+              16.000000199999988
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 1315.4798203132018,
+          "hardware_reference": true,
+          "motion": "rotating",
+          "name": "shaft_locator_2",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              -80.69999999999999,
+              1.5,
+              205.0
+            ],
+            "minimum_xyz": [
+              -83.69999999999999,
+              -1.5,
+              185.0
+            ],
+            "size_xyz": [
+              3.0,
+              3.0,
+              20.0
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 141.37166941154072,
+          "hardware_reference": true,
+          "motion": "rotating",
+          "name": "shaft_locator_pin_1",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              -53.5,
+              1.5,
+              205.0
+            ],
+            "minimum_xyz": [
+              -56.5,
+              -1.5,
+              185.0
+            ],
+            "size_xyz": [
+              3.0,
+              3.0,
+              20.0
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 141.3716694115407,
+          "hardware_reference": true,
+          "motion": "rotating",
+          "name": "shaft_locator_pin_2",
           "physical_fit_verified": false,
           "printable": false,
           "quantity": 1,
@@ -6818,24 +8412,24 @@
           "adjustable": false,
           "cad_bounds_mm": {
             "maximum_xyz": [
-              -70.0,
-              -43.0,
-              63.2
+              -68.5,
+              -41.5,
+              69.1
             ],
             "minimum_xyz": [
-              -74.0,
-              -47.0,
-              43.0
+              -75.5,
+              -48.5,
+              45.1
             ],
             "size_xyz": [
-              4.0,
-              4.0,
-              20.200000000000003
+              7.0,
+              7.0,
+              23.999999999999993
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 253.84068641005518,
+          "cad_volume_mm3": 405.2654523130832,
           "hardware_reference": true,
           "motion": "stationary",
           "name": "upright_fastener_1",
@@ -6848,24 +8442,24 @@
           "adjustable": false,
           "cad_bounds_mm": {
             "maximum_xyz": [
-              -70.0,
-              47.0,
-              63.2
+              -68.5,
+              48.5,
+              69.1
             ],
             "minimum_xyz": [
-              -74.0,
-              43.0,
-              43.0
+              -75.5,
+              41.5,
+              45.1
             ],
             "size_xyz": [
-              4.0,
-              4.0,
-              20.200000000000003
+              7.0,
+              7.0,
+              23.999999999999993
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 253.84068641005518,
+          "cad_volume_mm3": 405.2654523130832,
           "hardware_reference": true,
           "motion": "stationary",
           "name": "upright_fastener_2",
@@ -6878,24 +8472,24 @@
           "adjustable": false,
           "cad_bounds_mm": {
             "maximum_xyz": [
-              74.0,
-              -43.0,
-              63.2
+              75.5,
+              -41.5,
+              69.1
             ],
             "minimum_xyz": [
-              70.0,
-              -47.0,
-              43.0
+              68.5,
+              -48.5,
+              45.1
             ],
             "size_xyz": [
-              4.0,
-              4.0,
-              20.200000000000003
+              7.0,
+              7.0,
+              23.999999999999993
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 253.84068641005518,
+          "cad_volume_mm3": 405.2654523130832,
           "hardware_reference": true,
           "motion": "stationary",
           "name": "upright_fastener_3",
@@ -6908,27 +8502,387 @@
           "adjustable": false,
           "cad_bounds_mm": {
             "maximum_xyz": [
-              74.0,
-              47.0,
-              63.2
+              75.5,
+              48.5,
+              69.1
             ],
             "minimum_xyz": [
-              70.0,
-              43.0,
-              43.0
+              68.5,
+              41.5,
+              45.1
             ],
             "size_xyz": [
-              4.0,
-              4.0,
-              20.200000000000003
+              7.0,
+              7.0,
+              23.999999999999993
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 253.84068641005518,
+          "cad_volume_mm3": 405.2654523130832,
           "hardware_reference": true,
           "motion": "stationary",
           "name": "upright_fastener_4",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              -67.95854811567261,
+              -41.5,
+              21.8
+            ],
+            "minimum_xyz": [
+              -76.04145188432739,
+              -48.5,
+              16.8
+            ],
+            "size_xyz": [
+              8.082903768654774,
+              7.0,
+              5.0
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 142.90410591553305,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "upright_nut_1",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              -67.95854811567261,
+              48.5,
+              21.8
+            ],
+            "minimum_xyz": [
+              -76.04145188432739,
+              41.5,
+              16.8
+            ],
+            "size_xyz": [
+              8.082903768654774,
+              7.0,
+              5.0
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 142.90410591553305,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "upright_nut_2",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              76.04145188432739,
+              -41.5,
+              21.8
+            ],
+            "minimum_xyz": [
+              67.95854811567261,
+              -48.5,
+              16.8
+            ],
+            "size_xyz": [
+              8.082903768654774,
+              7.0,
+              5.0
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 142.90410591553305,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "upright_nut_3",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              76.04145188432739,
+              48.5,
+              21.8
+            ],
+            "minimum_xyz": [
+              67.95854811567261,
+              41.5,
+              16.8
+            ],
+            "size_xyz": [
+              8.082903768654774,
+              7.0,
+              5.0
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 142.90410591553305,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "upright_nut_4",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              -67.5,
+              -40.5,
+              4.8999999999999995
+            ],
+            "minimum_xyz": [
+              -76.5,
+              -49.5,
+              4.1
+            ],
+            "size_xyz": [
+              9.0,
+              9.0,
+              0.7999999999999998
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 39.276191355179556,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "upright_washer_1",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              -67.5,
+              -40.5,
+              16.8
+            ],
+            "minimum_xyz": [
+              -76.5,
+              -49.5,
+              16.0
+            ],
+            "size_xyz": [
+              9.0,
+              9.0,
+              0.8000000000000007
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 39.27619135517957,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "upright_washer_2",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              -67.5,
+              49.5,
+              4.8999999999999995
+            ],
+            "minimum_xyz": [
+              -76.5,
+              40.5,
+              4.1
+            ],
+            "size_xyz": [
+              9.0,
+              9.0,
+              0.7999999999999998
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 39.276191355179556,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "upright_washer_3",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              -67.5,
+              49.5,
+              16.8
+            ],
+            "minimum_xyz": [
+              -76.5,
+              40.5,
+              16.0
+            ],
+            "size_xyz": [
+              9.0,
+              9.0,
+              0.8000000000000007
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 39.27619135517957,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "upright_washer_4",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              76.5,
+              -40.5,
+              4.8999999999999995
+            ],
+            "minimum_xyz": [
+              67.5,
+              -49.5,
+              4.1
+            ],
+            "size_xyz": [
+              9.0,
+              9.0,
+              0.7999999999999998
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 39.276191355179556,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "upright_washer_5",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              76.5,
+              -40.5,
+              16.8
+            ],
+            "minimum_xyz": [
+              67.5,
+              -49.5,
+              16.0
+            ],
+            "size_xyz": [
+              9.0,
+              9.0,
+              0.8000000000000007
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 39.27619135517957,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "upright_washer_6",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              76.5,
+              49.5,
+              4.8999999999999995
+            ],
+            "minimum_xyz": [
+              67.5,
+              40.5,
+              4.1
+            ],
+            "size_xyz": [
+              9.0,
+              9.0,
+              0.7999999999999998
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 39.276191355179556,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "upright_washer_7",
+          "physical_fit_verified": false,
+          "printable": false,
+          "quantity": 1,
+          "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies"
+        },
+        {
+          "adjustable": false,
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              76.5,
+              49.5,
+              16.8
+            ],
+            "minimum_xyz": [
+              67.5,
+              40.5,
+              16.0
+            ],
+            "size_xyz": [
+              9.0,
+              9.0,
+              0.8000000000000007
+            ]
+          },
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "cad_volume_mm3": 39.27619135517957,
+          "hardware_reference": true,
+          "motion": "stationary",
+          "name": "upright_washer_8",
           "physical_fit_verified": false,
           "printable": false,
           "quantity": 1,
@@ -6937,7 +8891,7 @@
       ],
       "known_limitations": [
         "Printed fits, strength, tape clearance and coil release require physical prototype tests.",
-        "The 127 mm reference is a calculated starting setting; cassette fit and winding quality remain unverified.",
+        "The configured reference diameter is a calculated starting setting; cassette fit and winding quality remain unverified.",
         "Powered operation is not approved: speed, torque limiting and guarding remain unvalidated.",
         "Wire tension, enamel protection, useful brake drag and electrical performance remain unvalidated.",
         "STL orientations place the lowest point at Z=0; supports and print process require review."
@@ -6949,10 +8903,10 @@
       "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies",
       "step_path": "assembly/winding_jig_exploded.step",
       "step_round_trip_valid": true,
-      "step_sha256": "36cac3ebd1cd14a1a3219d493f387ac8d8600cce25b5c692fa0dd39175965385",
-      "summed_component_volume_mm3": 774580.5639118853,
+      "step_sha256": "f4ce3b165356d16bec6dd05cd69f2f86384ae8d8f24d8a7c24771cb53d108faf",
+      "summed_component_volume_mm3": 782454.5849049576,
       "topology_result": {
-        "cad_solid_count": 105,
+        "cad_solid_count": 135,
         "cad_valid": true,
         "step_round_trip_valid": true,
         "stl_required": false
@@ -6968,12 +8922,12 @@
         "minimum_xyz": [
           -95.0,
           -95.0,
-          -1.0
+          -25.0
         ],
         "size_xyz": [
           190.0,
           190.0,
-          49.0
+          73.0
         ]
       },
       "cad_solid_count": 15,
@@ -6983,7 +8937,7 @@
           "adjustable": true,
           "cad_bounds_mm": {
             "maximum_xyz": [
-              63.0,
+              67.0,
               8.0,
               22.0
             ],
@@ -6993,14 +8947,14 @@
               17.2
             ],
             "size_xyz": [
-              16.0,
+              20.0,
               16.0,
               4.800000000000001
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 594.2622740992967,
+          "cad_volume_mm3": 767.498880572881,
           "hardware_reference": false,
           "motion": "stationary",
           "name": "adjuster",
@@ -7021,17 +8975,17 @@
             "minimum_xyz": [
               -95.0,
               -95.0,
-              0.0
+              -24.0
             ],
             "size_xyz": [
               190.0,
               190.0,
-              22.2
+              46.2
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 318407.4086655784,
+          "cad_volume_mm3": 431408.7964628505,
           "hardware_reference": false,
           "motion": "stationary",
           "name": "base",
@@ -7052,17 +9006,17 @@
             "minimum_xyz": [
               -74.5,
               -74.5,
-              -1.0
+              -25.0
             ],
             "size_xyz": [
               5.0,
               5.0,
-              10.0
+              34.0
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 196.34954084936203,
+          "cad_volume_mm3": 667.5884388878308,
           "hardware_reference": true,
           "motion": "stationary",
           "name": "bench_fastener_1",
@@ -7082,17 +9036,17 @@
             "minimum_xyz": [
               -74.5,
               69.5,
-              -1.0
+              -25.0
             ],
             "size_xyz": [
               5.0,
               5.0,
-              10.0
+              34.0
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 196.34954084936203,
+          "cad_volume_mm3": 667.5884388878308,
           "hardware_reference": true,
           "motion": "stationary",
           "name": "bench_fastener_2",
@@ -7112,17 +9066,17 @@
             "minimum_xyz": [
               69.5,
               -74.5,
-              -1.0
+              -25.0
             ],
             "size_xyz": [
               5.0,
               5.0,
-              10.0
+              34.0
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 196.34954084936203,
+          "cad_volume_mm3": 667.5884388878308,
           "hardware_reference": true,
           "motion": "stationary",
           "name": "bench_fastener_3",
@@ -7142,17 +9096,17 @@
             "minimum_xyz": [
               69.5,
               69.5,
-              -1.0
+              -25.0
             ],
             "size_xyz": [
               5.0,
               5.0,
-              10.0
+              34.0
             ]
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 196.34954084936203,
+          "cad_volume_mm3": 667.5884388878308,
           "hardware_reference": true,
           "motion": "stationary",
           "name": "bench_fastener_4",
@@ -7333,7 +9287,7 @@
           },
           "cad_solid_count": 1,
           "cad_valid": true,
-          "cad_volume_mm3": 211.9396943928014,
+          "cad_volume_mm3": 202.7381744775917,
           "hardware_reference": true,
           "motion": "stationary",
           "name": "screw",
@@ -7435,7 +9389,7 @@
       ],
       "known_limitations": [
         "Printed fits, strength, tape clearance and coil release require physical prototype tests.",
-        "The 127 mm reference is a calculated starting setting; cassette fit and winding quality remain unverified.",
+        "The configured reference diameter is a calculated starting setting; cassette fit and winding quality remain unverified.",
         "Powered operation is not approved: speed, torque limiting and guarding remain unvalidated.",
         "Wire tension, enamel protection, useful brake drag and electrical performance remain unvalidated.",
         "STL orientations place the lowest point at Z=0; supports and print process require review."
@@ -7446,8 +9400,8 @@
       "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies",
       "step_path": "assembly/wire_payoff.step",
       "step_round_trip_valid": true,
-      "step_sha256": "712a2848de003cb5ce1ccc91a7126535233cf6d9fed0b41dd476b8774423f86a",
-      "summed_component_volume_mm3": 409854.88296887564,
+      "step_sha256": "1f10949f82035a1f6599739d3bf4c8831a866bfb509c4a900edf54d5e251a950",
+      "summed_component_volume_mm3": 524905.26144486,
       "topology_result": {
         "cad_solid_count": 15,
         "cad_valid": true,
@@ -7579,11 +9533,15 @@
     "checks": {
       "bearing_51105_nesting": true,
       "bearing_51105_ownership": true,
+      "brake_anti_rotation": true,
       "brake_hard_stop": true,
+      "brake_mounted_access": true,
       "cam_follower_engagement": true,
       "cam_lock_clearance": true,
+      "complete_coil_removal": true,
       "crank_hand_envelope": true,
       "drive_coaxiality": true,
+      "frame_flush_mounting": true,
       "head_hardware_clearance": true,
       "head_release": true,
       "head_service_access": true,
@@ -7594,11 +9552,12 @@
       "required_members": true,
       "shaft_608_nesting": true,
       "slider_retention": true,
+      "spindle_axial_location": true,
       "tape_passages": true,
       "valid_solids": true
     },
     "collisions": [],
-    "crank_hand_clearance_mm": 14.671059948162524,
+    "crank_hand_clearance_mm": 14.76482306032329,
     "errors": [],
     "head_release_travel_mm": 2.0,
     "maximum_print_xy_mm": 210.0,
@@ -7631,7 +9590,11 @@
       ],
       "winding_jig/head_retaining_collar": [
         8.000000200000002,
-        28.0
+        28.0000002
+      ],
+      "winding_jig/left_bearing_cap": [
+        3.0999999999999943,
+        44.0
       ],
       "winding_jig/left_upright": [
         36.0,
@@ -7660,6 +9623,10 @@
       "winding_jig/rib_6": [
         25.600000100000003,
         28.966902622641882
+      ],
+      "winding_jig/right_bearing_cap": [
+        3.1000000000000014,
+        44.0
       ],
       "winding_jig/right_upright": [
         36.0,
@@ -7690,7 +9657,7 @@
         35.56088913245535
       ],
       "wire_payoff/adjuster": [
-        16.0,
+        20.0,
         16.0
       ],
       "wire_payoff/base": [
@@ -7703,6 +9670,55 @@
       ]
     },
     "rib_count": 6,
+    "service": {
+      "brake_key_bench_clearance_mm": 14.5,
+      "coil_removal_collisions": [],
+      "coil_removal_translations_mm": {
+        "lift_head_and_coil": [
+          0,
+          0,
+          200
+        ],
+        "remove_coil": [
+          50,
+          0,
+          0
+        ],
+        "withdraw_crank_pin": [
+          0,
+          40,
+          0
+        ],
+        "withdraw_head_and_locator_pins": [
+          0,
+          0,
+          40
+        ],
+        "withdraw_shaft": [
+          -220,
+          0,
+          0
+        ]
+      },
+      "coil_surrogate_mm": {
+        "axial_width": 10,
+        "inward_tape_allowance": 0.5,
+        "radial_build": 3
+      },
+      "errors": [],
+      "route_sample_count_per_stage": 21,
+      "shaft_locators": [
+        {
+          "gap_mm": 0.09999999999999432,
+          "valid": true
+        },
+        {
+          "gap_mm": 0.09999999999999432,
+          "valid": true
+        }
+      ],
+      "upright_hardware_bench_clearance_mm": 0.1
+    },
     "tape_clearances_mm": [
       12.0,
       13.9375,
@@ -7741,7 +9757,7 @@
     "thrust_rotating_pilot_diameter_mm": 24.8
   },
   "bom_path": "bom.json",
-  "bom_sha256": "4368d3f74f78c1afaeab27e7c5c4364c86c2f9c517817c64766bcbaa72242a23",
+  "bom_sha256": "8da546d95d6d1f9845c1d2fea2671d70a020876311f3ad6da0ae9697aac8b304",
   "coordinate_frames": {
     "assembly_step": "Separate tool origins; winding axis X, payoff axis Z.",
     "exploded_step": "Presentation translations recorded per component.",
@@ -7753,9 +9769,14 @@
     110.0,
     145.0
   ],
+  "engraved_diameter_labels": [
+    "110",
+    "127",
+    "145"
+  ],
   "known_limitations": [
     "Printed fits, strength, tape clearance and coil release require physical prototype tests.",
-    "The 127 mm reference is a calculated starting setting; cassette fit and winding quality remain unverified.",
+    "The configured reference diameter is a calculated starting setting; cassette fit and winding quality remain unverified.",
     "Powered operation is not approved: speed, torque limiting and guarding remain unvalidated.",
     "Wire tension, enamel protection, useful brake drag and electrical performance remain unvalidated.",
     "STL orientations place the lowest point at Z=0; supports and print process require review."
@@ -7799,6 +9820,18 @@
       "hardware_reference": [
         "bearing_608_1",
         "bearing_608_2",
+        "bearing_cap_nut_1",
+        "bearing_cap_nut_2",
+        "bearing_cap_nut_3",
+        "bearing_cap_nut_4",
+        "bearing_cap_screw_1",
+        "bearing_cap_screw_2",
+        "bearing_cap_screw_3",
+        "bearing_cap_screw_4",
+        "bearing_cap_washer_1",
+        "bearing_cap_washer_2",
+        "bearing_cap_washer_3",
+        "bearing_cap_washer_4",
         "bench_fastener_1",
         "bench_fastener_2",
         "bench_fastener_3",
@@ -7877,10 +9910,26 @@
         "rib_washer_outer_5",
         "rib_washer_outer_6",
         "shaft",
+        "shaft_locator_1",
+        "shaft_locator_2",
+        "shaft_locator_pin_1",
+        "shaft_locator_pin_2",
         "upright_fastener_1",
         "upright_fastener_2",
         "upright_fastener_3",
-        "upright_fastener_4"
+        "upright_fastener_4",
+        "upright_nut_1",
+        "upright_nut_2",
+        "upright_nut_3",
+        "upright_nut_4",
+        "upright_washer_1",
+        "upright_washer_2",
+        "upright_washer_3",
+        "upright_washer_4",
+        "upright_washer_5",
+        "upright_washer_6",
+        "upright_washer_7",
+        "upright_washer_8"
       ],
       "rotating": [
         "backplate",
@@ -7969,6 +10018,10 @@
         "rib_washer_outer_5",
         "rib_washer_outer_6",
         "shaft",
+        "shaft_locator_1",
+        "shaft_locator_2",
+        "shaft_locator_pin_1",
+        "shaft_locator_pin_2",
         "slider_1",
         "slider_2",
         "slider_3",
@@ -7980,16 +10033,42 @@
         "base",
         "bearing_608_1",
         "bearing_608_2",
+        "bearing_cap_nut_1",
+        "bearing_cap_nut_2",
+        "bearing_cap_nut_3",
+        "bearing_cap_nut_4",
+        "bearing_cap_screw_1",
+        "bearing_cap_screw_2",
+        "bearing_cap_screw_3",
+        "bearing_cap_screw_4",
+        "bearing_cap_washer_1",
+        "bearing_cap_washer_2",
+        "bearing_cap_washer_3",
+        "bearing_cap_washer_4",
         "bench_fastener_1",
         "bench_fastener_2",
         "bench_fastener_3",
         "bench_fastener_4",
+        "left_bearing_cap",
         "left_upright",
+        "right_bearing_cap",
         "right_upright",
         "upright_fastener_1",
         "upright_fastener_2",
         "upright_fastener_3",
-        "upright_fastener_4"
+        "upright_fastener_4",
+        "upright_nut_1",
+        "upright_nut_2",
+        "upright_nut_3",
+        "upright_nut_4",
+        "upright_washer_1",
+        "upright_washer_2",
+        "upright_washer_3",
+        "upright_washer_4",
+        "upright_washer_5",
+        "upright_washer_6",
+        "upright_washer_7",
+        "upright_washer_8"
       ]
     },
     "wire_payoff": {
@@ -8081,7 +10160,7 @@
       },
       "cad_solid_count": 1,
       "cad_valid": true,
-      "cad_volume_mm3": 317980.5593955827,
+      "cad_volume_mm3": 316975.6518702936,
       "dimensions_mm": {
         "maximum_xyz": [
           105.0,
@@ -8102,7 +10181,7 @@
       "expected_component_count": 1,
       "known_limitations": [
         "Printed fits, strength, tape clearance and coil release require physical prototype tests.",
-        "The 127 mm reference is a calculated starting setting; cassette fit and winding quality remain unverified.",
+        "The configured reference diameter is a calculated starting setting; cassette fit and winding quality remain unverified.",
         "Powered operation is not approved: speed, torque limiting and guarding remain unvalidated.",
         "Wire tension, enamel protection, useful brake drag and electrical performance remain unvalidated.",
         "STL orientations place the lowest point at Z=0; supports and print process require review."
@@ -8123,14 +10202,14 @@
           0.0
         ],
         "nonmanifold_edge_count": 0,
-        "signed_volume": 317981.2870036289,
+        "signed_volume": 316976.9791710007,
         "size_xyz": [
           210.0,
           190.0,
           8.0
         ],
-        "triangle_count": 3404,
-        "unique_vertex_count": 1688
+        "triangle_count": 5084,
+        "unique_vertex_count": 2528
       },
       "name": "winding_frame_base",
       "physical_validation_verified": false,
@@ -8141,10 +10220,108 @@
       "source_builder": "windwall.winding_frame.build_winding_frame",
       "step_path": "step/winding_frame_base.step",
       "step_round_trip_valid": true,
-      "step_sha256": "2fcab9533df70bb455ea182d888ef338f71da8f1bca16e150e9aa9b15379d878",
+      "step_sha256": "506cd3432957271bc99a08f907598a0bbdcca781e53a10a782bcaec880c4ec87",
       "stl_path": "stl/winding_frame_base.stl",
-      "stl_sha256": "b4ab6153618e2cb70c7c64c4adb6c826961cde1b1c7c7cbc35d7cf689212d2bd",
+      "stl_sha256": "a3cc8e13ae08b8c117a2d7a5135ae3ffd1c398243f2d1e285d2b41b090f86864",
       "stl_translation_z_mm": -0.0,
+      "tool": "winding_jig",
+      "topology_result": {
+        "cad_solid_count": 1,
+        "cad_valid": true,
+        "step_round_trip_valid": true,
+        "stl_binary": true,
+        "stl_closed_manifold": true,
+        "stl_component_count": 1
+      }
+    },
+    {
+      "assembly_members": [
+        "left_bearing_cap",
+        "right_bearing_cap"
+      ],
+      "cad_bounds_mm": {
+        "maximum_xyz": [
+          -73.0,
+          22.0,
+          -61.999999999999986
+        ],
+        "minimum_xyz": [
+          -117.00000000000001,
+          -22.0,
+          -65.1
+        ],
+        "size_xyz": [
+          44.000000000000014,
+          44.0,
+          3.1000000000000085
+        ]
+      },
+      "cad_solid_count": 1,
+      "cad_valid": true,
+      "cad_volume_mm3": 3570.5488561035936,
+      "dimensions_mm": {
+        "maximum_xyz": [
+          -73.0,
+          22.0,
+          -61.999999999999986
+        ],
+        "minimum_xyz": [
+          -117.00000000000001,
+          -22.0,
+          -65.1
+        ],
+        "size_xyz": [
+          44.000000000000014,
+          44.0,
+          3.1000000000000085
+        ]
+      },
+      "expected_component_count": 1,
+      "known_limitations": [
+        "Printed fits, strength, tape clearance and coil release require physical prototype tests.",
+        "The configured reference diameter is a calculated starting setting; cassette fit and winding quality remain unverified.",
+        "Powered operation is not approved: speed, torque limiting and guarding remain unvalidated.",
+        "Wire tension, enamel protection, useful brake drag and electrical performance remain unvalidated.",
+        "STL orientations place the lowest point at Z=0; supports and print process require review."
+      ],
+      "mesh": {
+        "boundary_edge_count": 0,
+        "component_count": 1,
+        "degenerate_face_count": 0,
+        "filename": "winding_frame_bearing_cap.stl",
+        "maximum_xyz": [
+          -73.0,
+          21.99753761291504,
+          3.0999999046325684
+        ],
+        "minimum_xyz": [
+          -116.99015045166016,
+          -21.99753761291504,
+          1.4210854715202004e-14
+        ],
+        "nonmanifold_edge_count": 0,
+        "signed_volume": 3568.4183021373315,
+        "size_xyz": [
+          43.990150451660156,
+          43.99507522583008,
+          3.099999904632554
+        ],
+        "triangle_count": 2108,
+        "unique_vertex_count": 1050
+      },
+      "name": "winding_frame_bearing_cap",
+      "physical_validation_verified": false,
+      "print_rotation_y_deg": -90,
+      "printable": true,
+      "quantity": 2,
+      "role": "tooling",
+      "source_builder": "windwall.winding_frame.build_winding_frame",
+      "step_path": "step/winding_frame_bearing_cap.step",
+      "step_round_trip_valid": true,
+      "step_sha256": "d596b46855e34053a3d974ae5a58ddf5f82b28b360317edb6fbf909ca12b7507",
+      "stl_path": "stl/winding_frame_bearing_cap.stl",
+      "stl_sha256": "16b69fb0d9075c4e9caa6033b0c35b0396b5931aa1e438d1d797b766555fc552",
+      "stl_translation_z_mm": 65.1,
       "tool": "winding_jig",
       "topology_result": {
         "cad_solid_count": 1,
@@ -8199,7 +10376,7 @@
       "expected_component_count": 1,
       "known_limitations": [
         "Printed fits, strength, tape clearance and coil release require physical prototype tests.",
-        "The 127 mm reference is a calculated starting setting; cassette fit and winding quality remain unverified.",
+        "The configured reference diameter is a calculated starting setting; cassette fit and winding quality remain unverified.",
         "Powered operation is not approved: speed, torque limiting and guarding remain unvalidated.",
         "Wire tension, enamel protection, useful brake drag and electrical performance remain unvalidated.",
         "STL orientations place the lowest point at Z=0; supports and print process require review."
@@ -8296,7 +10473,7 @@
       "expected_component_count": 1,
       "known_limitations": [
         "Printed fits, strength, tape clearance and coil release require physical prototype tests.",
-        "The 127 mm reference is a calculated starting setting; cassette fit and winding quality remain unverified.",
+        "The configured reference diameter is a calculated starting setting; cassette fit and winding quality remain unverified.",
         "Powered operation is not approved: speed, torque limiting and guarding remain unvalidated.",
         "Wire tension, enamel protection, useful brake drag and electrical performance remain unvalidated.",
         "STL orientations place the lowest point at Z=0; supports and print process require review."
@@ -8355,45 +10532,45 @@
       ],
       "cad_bounds_mm": {
         "maximum_xyz": [
-          -81.0,
-          14.0,
-          13.000000200000011
+          -80.9999999,
+          14.0000001,
+          23.000000200000013
         ],
         "minimum_xyz": [
-          -109.0,
-          -14.0,
-          5.000000000000012
+          -109.0000001,
+          -14.0000001,
+          15.000000000000012
         ],
         "size_xyz": [
-          28.0,
-          28.0,
-          8.000000199999999
+          28.000000199999988,
+          28.0000002,
+          8.0000002
         ]
       },
       "cad_solid_count": 1,
       "cad_valid": true,
-      "cad_volume_mm3": 3717.4415266487144,
+      "cad_volume_mm3": 3662.230178770446,
       "dimensions_mm": {
         "maximum_xyz": [
-          -81.0,
-          14.0,
-          13.000000200000011
+          -80.9999999,
+          14.0000001,
+          23.000000200000013
         ],
         "minimum_xyz": [
-          -109.0,
-          -14.0,
-          5.000000000000012
+          -109.0000001,
+          -14.0000001,
+          15.000000000000012
         ],
         "size_xyz": [
-          28.0,
-          28.0,
-          8.000000199999999
+          28.000000199999988,
+          28.0000002,
+          8.0000002
         ]
       },
       "expected_component_count": 1,
       "known_limitations": [
         "Printed fits, strength, tape clearance and coil release require physical prototype tests.",
-        "The 127 mm reference is a calculated starting setting; cassette fit and winding quality remain unverified.",
+        "The configured reference diameter is a calculated starting setting; cassette fit and winding quality remain unverified.",
         "Powered operation is not approved: speed, torque limiting and guarding remain unvalidated.",
         "Wire tension, enamel protection, useful brake drag and electrical performance remain unvalidated.",
         "STL orientations place the lowest point at Z=0; supports and print process require review."
@@ -8409,19 +10586,19 @@
           8.0
         ],
         "minimum_xyz": [
-          -108.99373626708984,
+          -109.0,
           -13.998433113098145,
           1.0000000116860974e-07
         ],
         "nonmanifold_edge_count": 0,
-        "signed_volume": 3715.211618943788,
+        "signed_volume": 3660.071521399445,
         "size_xyz": [
-          27.993736267089844,
+          28.0,
           27.99686622619629,
           7.999999899999999
         ],
-        "triangle_count": 4770,
-        "unique_vertex_count": 2369
+        "triangle_count": 4964,
+        "unique_vertex_count": 2462
       },
       "name": "winding_frame_head_retaining_collar",
       "physical_validation_verified": false,
@@ -8432,10 +10609,10 @@
       "source_builder": "windwall.winding_frame.build_winding_frame",
       "step_path": "step/winding_frame_head_retaining_collar.step",
       "step_round_trip_valid": true,
-      "step_sha256": "5e96a32a66aa5962fef0a165c502a483e236b17446e1f78325b675f1555d7f52",
+      "step_sha256": "e2758797c9252278bdbc29417ac4cabf4a0979159ee4302e9cfdc184941df9f6",
       "stl_path": "stl/winding_frame_head_retaining_collar.stl",
-      "stl_sha256": "eb8a62619f8d645903962a639782e00af1c375eac7fdae1627b662b973d466de",
-      "stl_translation_z_mm": -5.000000000000012,
+      "stl_sha256": "ea37d40e7111296adb2e0041b101a2ed7289717f2e6d9f9209ae60b89618f540",
+      "stl_translation_z_mm": -15.000000000000012,
       "tool": "winding_jig",
       "topology_result": {
         "cad_solid_count": 1,
@@ -8455,12 +10632,12 @@
         "maximum_xyz": [
           -54.0,
           55.0,
-          112.2
+          112.0
         ],
         "minimum_xyz": [
           -90.0,
           -55.0,
-          8.2
+          8.0
         ],
         "size_xyz": [
           36.0,
@@ -8470,17 +10647,17 @@
       },
       "cad_solid_count": 1,
       "cad_valid": true,
-      "cad_volume_mm3": 130380.18613313486,
+      "cad_volume_mm3": 128403.26984082515,
       "dimensions_mm": {
         "maximum_xyz": [
           -54.0,
           55.0,
-          112.2
+          112.0
         ],
         "minimum_xyz": [
           -90.0,
           -55.0,
-          8.2
+          8.0
         ],
         "size_xyz": [
           36.0,
@@ -8491,7 +10668,7 @@
       "expected_component_count": 1,
       "known_limitations": [
         "Printed fits, strength, tape clearance and coil release require physical prototype tests.",
-        "The 127 mm reference is a calculated starting setting; cassette fit and winding quality remain unverified.",
+        "The configured reference diameter is a calculated starting setting; cassette fit and winding quality remain unverified.",
         "Powered operation is not approved: speed, torque limiting and guarding remain unvalidated.",
         "Wire tension, enamel protection, useful brake drag and electrical performance remain unvalidated.",
         "STL orientations place the lowest point at Z=0; supports and print process require review."
@@ -8512,14 +10689,14 @@
           0.0
         ],
         "nonmanifold_edge_count": 0,
-        "signed_volume": 130382.24210587043,
+        "signed_volume": 128406.50464062039,
         "size_xyz": [
           36.0,
           110.0,
           104.0
         ],
-        "triangle_count": 1720,
-        "unique_vertex_count": 856
+        "triangle_count": 2568,
+        "unique_vertex_count": 1276
       },
       "name": "winding_frame_upright",
       "physical_validation_verified": false,
@@ -8530,10 +10707,10 @@
       "source_builder": "windwall.winding_frame.build_winding_frame",
       "step_path": "step/winding_frame_upright.step",
       "step_round_trip_valid": true,
-      "step_sha256": "4cacf79735ee32f121f3fe121cb71ef685059739d68490333d457abcd8995769",
+      "step_sha256": "977bd34f3415414f60b5c107522ef1842aeec672aca10112ad6f0da17d45b032",
       "stl_path": "stl/winding_frame_upright.stl",
-      "stl_sha256": "715ebb81eb784ca8684fe5b57b1fec80e8b209d97ea8b7480f6f73ce6e2b9f04",
-      "stl_translation_z_mm": -8.2,
+      "stl_sha256": "3ba9a4bdf51bd834f385c2346dd8d9e5e2ba3a5b1c9eb34ac7b218e06cc3c626",
+      "stl_translation_z_mm": -8.0,
       "tool": "winding_jig",
       "topology_result": {
         "cad_solid_count": 1,
@@ -8588,7 +10765,7 @@
       "expected_component_count": 1,
       "known_limitations": [
         "Printed fits, strength, tape clearance and coil release require physical prototype tests.",
-        "The 127 mm reference is a calculated starting setting; cassette fit and winding quality remain unverified.",
+        "The configured reference diameter is a calculated starting setting; cassette fit and winding quality remain unverified.",
         "Powered operation is not approved: speed, torque limiting and guarding remain unvalidated.",
         "Wire tension, enamel protection, useful brake drag and electrical performance remain unvalidated.",
         "STL orientations place the lowest point at Z=0; supports and print process require review."
@@ -8685,7 +10862,7 @@
       "expected_component_count": 1,
       "known_limitations": [
         "Printed fits, strength, tape clearance and coil release require physical prototype tests.",
-        "The 127 mm reference is a calculated starting setting; cassette fit and winding quality remain unverified.",
+        "The configured reference diameter is a calculated starting setting; cassette fit and winding quality remain unverified.",
         "Powered operation is not approved: speed, torque limiting and guarding remain unvalidated.",
         "Wire tension, enamel protection, useful brake drag and electrical performance remain unvalidated.",
         "STL orientations place the lowest point at Z=0; supports and print process require review."
@@ -8782,7 +10959,7 @@
       "expected_component_count": 1,
       "known_limitations": [
         "Printed fits, strength, tape clearance and coil release require physical prototype tests.",
-        "The 127 mm reference is a calculated starting setting; cassette fit and winding quality remain unverified.",
+        "The configured reference diameter is a calculated starting setting; cassette fit and winding quality remain unverified.",
         "Powered operation is not approved: speed, torque limiting and guarding remain unvalidated.",
         "Wire tension, enamel protection, useful brake drag and electrical performance remain unvalidated.",
         "STL orientations place the lowest point at Z=0; supports and print process require review."
@@ -8884,7 +11061,7 @@
       "expected_component_count": 1,
       "known_limitations": [
         "Printed fits, strength, tape clearance and coil release require physical prototype tests.",
-        "The 127 mm reference is a calculated starting setting; cassette fit and winding quality remain unverified.",
+        "The configured reference diameter is a calculated starting setting; cassette fit and winding quality remain unverified.",
         "Powered operation is not approved: speed, torque limiting and guarding remain unvalidated.",
         "Wire tension, enamel protection, useful brake drag and electrical performance remain unvalidated.",
         "STL orientations place the lowest point at Z=0; supports and print process require review."
@@ -8986,7 +11163,7 @@
       "expected_component_count": 1,
       "known_limitations": [
         "Printed fits, strength, tape clearance and coil release require physical prototype tests.",
-        "The 127 mm reference is a calculated starting setting; cassette fit and winding quality remain unverified.",
+        "The configured reference diameter is a calculated starting setting; cassette fit and winding quality remain unverified.",
         "Powered operation is not approved: speed, torque limiting and guarding remain unvalidated.",
         "Wire tension, enamel protection, useful brake drag and electrical performance remain unvalidated.",
         "STL orientations place the lowest point at Z=0; supports and print process require review."
@@ -9045,7 +11222,7 @@
       ],
       "cad_bounds_mm": {
         "maximum_xyz": [
-          63.0,
+          67.0,
           8.0,
           22.0
         ],
@@ -9055,17 +11232,17 @@
           17.2
         ],
         "size_xyz": [
-          16.0,
+          20.0,
           16.0,
           4.800000000000001
         ]
       },
       "cad_solid_count": 1,
       "cad_valid": true,
-      "cad_volume_mm3": 594.2622740992967,
+      "cad_volume_mm3": 767.498880572881,
       "dimensions_mm": {
         "maximum_xyz": [
-          63.0,
+          67.0,
           8.0,
           22.0
         ],
@@ -9075,7 +11252,7 @@
           17.2
         ],
         "size_xyz": [
-          16.0,
+          20.0,
           16.0,
           4.800000000000001
         ]
@@ -9083,7 +11260,7 @@
       "expected_component_count": 1,
       "known_limitations": [
         "Printed fits, strength, tape clearance and coil release require physical prototype tests.",
-        "The 127 mm reference is a calculated starting setting; cassette fit and winding quality remain unverified.",
+        "The configured reference diameter is a calculated starting setting; cassette fit and winding quality remain unverified.",
         "Powered operation is not approved: speed, torque limiting and guarding remain unvalidated.",
         "Wire tension, enamel protection, useful brake drag and electrical performance remain unvalidated.",
         "STL orientations place the lowest point at Z=0; supports and print process require review."
@@ -9094,24 +11271,24 @@
         "degenerate_face_count": 0,
         "filename": "wire_payoff_adjuster.stl",
         "maximum_xyz": [
-          63.0,
-          7.999104976654053,
+          67.0,
+          8.0,
           4.800000190734863
         ],
         "minimum_xyz": [
-          47.00358200073242,
-          -7.999104976654053,
+          47.0,
+          -8.0,
           0.0
         ],
         "nonmanifold_edge_count": 0,
-        "signed_volume": 593.8500405676249,
+        "signed_volume": 767.151854105062,
         "size_xyz": [
-          15.996417999267578,
-          15.998209953308105,
+          20.0,
+          16.0,
           4.800000190734863
         ],
-        "triangle_count": 1780,
-        "unique_vertex_count": 888
+        "triangle_count": 1600,
+        "unique_vertex_count": 798
       },
       "name": "wire_payoff_adjuster",
       "physical_validation_verified": false,
@@ -9122,9 +11299,9 @@
       "source_builder": "windwall.wire_payoff.build_wire_payoff",
       "step_path": "step/wire_payoff_adjuster.step",
       "step_round_trip_valid": true,
-      "step_sha256": "b3144b36e43f66c21afa058968f33cad1a7a3683d8851b5e453383367f5ff2d2",
+      "step_sha256": "34bbd1f6fd996708d4237dd898f7f966bf90305f1f14b3257fe541e35bdf9f12",
       "stl_path": "stl/wire_payoff_adjuster.stl",
-      "stl_sha256": "bc58606b91b1d9b5702c5229b649cff04ec56696664337805d4be937ee164431",
+      "stl_sha256": "3fd7a531b689788d6a4a96a71058cf05a39579f46178356fb9dba09ce90afa86",
       "stl_translation_z_mm": -17.2,
       "tool": "wire_payoff",
       "topology_result": {
@@ -9149,17 +11326,17 @@
         "minimum_xyz": [
           -95.0,
           -95.0,
-          0.0
+          -24.0
         ],
         "size_xyz": [
           190.0,
           190.0,
-          22.2
+          46.2
         ]
       },
       "cad_solid_count": 1,
       "cad_valid": true,
-      "cad_volume_mm3": 318407.4086655784,
+      "cad_volume_mm3": 431408.7964628505,
       "dimensions_mm": {
         "maximum_xyz": [
           95.0,
@@ -9169,18 +11346,18 @@
         "minimum_xyz": [
           -95.0,
           -95.0,
-          0.0
+          -24.0
         ],
         "size_xyz": [
           190.0,
           190.0,
-          22.2
+          46.2
         ]
       },
       "expected_component_count": 1,
       "known_limitations": [
         "Printed fits, strength, tape clearance and coil release require physical prototype tests.",
-        "The 127 mm reference is a calculated starting setting; cassette fit and winding quality remain unverified.",
+        "The configured reference diameter is a calculated starting setting; cassette fit and winding quality remain unverified.",
         "Powered operation is not approved: speed, torque limiting and guarding remain unvalidated.",
         "Wire tension, enamel protection, useful brake drag and electrical performance remain unvalidated.",
         "STL orientations place the lowest point at Z=0; supports and print process require review."
@@ -9193,7 +11370,7 @@
         "maximum_xyz": [
           95.0,
           95.0,
-          22.200000762939453
+          46.20000076293945
         ],
         "minimum_xyz": [
           -95.0,
@@ -9201,14 +11378,14 @@
           0.0
         ],
         "nonmanifold_edge_count": 0,
-        "signed_volume": 318390.10610270785,
+        "signed_volume": 431392.80500355473,
         "size_xyz": [
           190.0,
           190.0,
-          22.200000762939453
+          46.20000076293945
         ],
-        "triangle_count": 4466,
-        "unique_vertex_count": 2225
+        "triangle_count": 4530,
+        "unique_vertex_count": 2257
       },
       "name": "wire_payoff_base",
       "physical_validation_verified": false,
@@ -9219,10 +11396,10 @@
       "source_builder": "windwall.wire_payoff.build_wire_payoff",
       "step_path": "step/wire_payoff_base.step",
       "step_round_trip_valid": true,
-      "step_sha256": "8e3724e1c1018bcf7be6624a3a777653dd73798d90e0e857ea1c6d65313ea94b",
+      "step_sha256": "1498915e3d29f3af95292a49eabc7d3283afb706090901ecab15414f149cc353",
       "stl_path": "stl/wire_payoff_base.stl",
-      "stl_sha256": "b93c948a6c27742c9cd958bbc55d4e33f078c84997e00b3e57c6f0a262097e61",
-      "stl_translation_z_mm": -0.0,
+      "stl_sha256": "9dc40d20fa611c972ce722fa8634273375633b6139277cbbddbc9d70a262913a",
+      "stl_translation_z_mm": 24.0,
       "tool": "wire_payoff",
       "topology_result": {
         "cad_solid_count": 1,
@@ -9277,7 +11454,7 @@
       "expected_component_count": 1,
       "known_limitations": [
         "Printed fits, strength, tape clearance and coil release require physical prototype tests.",
-        "The 127 mm reference is a calculated starting setting; cassette fit and winding quality remain unverified.",
+        "The configured reference diameter is a calculated starting setting; cassette fit and winding quality remain unverified.",
         "Powered operation is not approved: speed, torque limiting and guarding remain unvalidated.",
         "Wire tension, enamel protection, useful brake drag and electrical performance remain unvalidated.",
         "STL orientations place the lowest point at Z=0; supports and print process require review."
@@ -9331,7 +11508,7 @@
       }
     }
   ],
-  "printable_quantity": 24,
+  "printable_quantity": 26,
   "reference_diameter_mm": 127.0,
   "reference_setting_status": "Calculated starting setting; physical calibration required.",
   "release": "winding-tool",
@@ -9352,14 +11529,14 @@
       "bom_tables_regenerated": true,
       "language": "de-DE",
       "path": "docs/serpentine-coil-winding-tool-de.md",
-      "sha256": "18e1159fbfe9488facaacb26b3c0c4f8054268a65bdd35bc99f269e380f26929",
+      "sha256": "f3fe40805d8e2f79a6c438d22a5d04a6b774cde751aed12c8a3bddda7b3f5d9f",
       "source": "docs/serpentine-coil-winding-tool-de.md"
     },
     {
       "height_px": 1400,
       "path": "drawings/winding-jig-range.png",
       "presentation_only": true,
-      "sha256": "22251823071eaa94bc60f2bb39b6c519b2959ecdd65608d5765fd76b6cef6158",
+      "sha256": "42c0e2f8efa5c9dee82689988d7666cbc22ee387b588aaaacecd7d3ec4a6fca8",
       "source_builder": "scripts.preview_winding_tool.render_winding_tool_drawings",
       "width_px": 2000
     },
@@ -9367,7 +11544,7 @@
       "height_px": 1400,
       "path": "drawings/winding-jig-reference.png",
       "presentation_only": true,
-      "sha256": "28edb60b68b00c0cdeed796f1145538523e1e1f554d82a20b6c4f797f22844d1",
+      "sha256": "b1f80a5719331b54c0ec5c3055205fc3981437f1b6a67b20a494f7d456697a40",
       "source_builder": "scripts.preview_winding_tool.render_winding_tool_drawings",
       "width_px": 2000
     },
@@ -9452,7 +11629,7 @@
         ]
       },
       "presentation_only": true,
-      "sha256": "6f853ff945b63461b720ea66a60e735561d1ad93c9823fc9df9aea931aab9241",
+      "sha256": "798ab182b024977044f19b64cb9e173bb098177d6b658a3200b6574117376053",
       "source_builder": "scripts.preview_winding_tool.render_winding_tool_drawings",
       "width_px": 2000
     }

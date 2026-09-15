@@ -24,9 +24,42 @@ the named dictionary B-reps, rather than trusting component validity labels.
 Checks cover valid individual solids, exact ownership, required members,
 moving/fixed collisions, all 18 tape passages, retained sliders and their end
 stops, physical cam/follower clearance, clamp closing clearance, 2 mm radial
-coil release with common-cam travel, the 608/shaft/drive interfaces, a crank
+coil release with common-cam travel and the complete supported removal route,
+the 608/shaft/drive interfaces, a crank
 hand envelope, 51105 nesting, the brake hard stop, head-hardware clearance,
 head service access, and every printable body's X/Y bed envelope.
+
+`windwall.winding_tool_service` owns the service gauges and stages. The left
+608 alone axially locates the spindle through two cross-pinned steel shoulder
+collars, with 0.1 mm clearance at each inner-ring face. Both bearings have
+removable outer-ring caps. Shoulders/caps clear the inner rings and seals;
+the right shaft/bearing interface remains free to slide axially. Purchased
+608 ring lands must match the 4.1–5.2 mm inner and 10–11 mm outer contact radii.
+The Ø10.4 mm nose and Ø20 mm housing opening follow the abutment limits in the
+[SKF 608-2RSH manufacturer drawing](https://www.tme.eu/Document/83a59906c97cb2ff6c50c795411b45d2/SKF608-2RSH.pdf).
+An independent conservative annular exclusion covers the seal/recess region
+between radii 5.25 and 9.6 mm during axial engagement, including both caps and
+upright shoulders. Other manufacturers still require physical verification.
+Pin/hole clearance and the purchased bearing's internal clearance add to the
+face gaps; these values do not specify total measured spindle endplay. The
+front head collar sits ahead of the winding envelope, with M3x20 preload screws
+and a fully withdrawable 4x32 mm cross-pin.
+
+The coil-removal audit uses a real annular surrogate with 10 mm axial width,
+3 mm radial build and 0.5 mm inward tape allowance, after 2 mm radial rib
+release. `coil_removal_stages(model)` supplies the drawing and independent
+route tests: withdraw four vertical head/locator pins and the side crank pin,
+pull the shaft 220 mm left, lift the supported head and coil 200 mm, and slide
+the coil 50 mm forward above the frame. A helper holds the head stack and
+loose crank/collars. Stands and bearing caps remain installed. The audit
+checks 21 positions per linear stage; it reports the first collision and does
+not certify hands, unlimited coil thickness or unsupported disassembly.
+
+The frame's four complete M4x20 stacks have recessed heads/lower washers and
+top washers/locknuts, and clear a Z=0 bench surface. The payoff has four integral
+24 mm feet. Its keyed brake flange cannot rotate at either endpoint; the open
+space under its mounted plate accepts a short 2.5 mm hex key through a 60-degree
+stroke. Bench bolt lengths account for its 32 mm total mounting height.
 
 Rotation is sampled every 30 degrees and cam release every 0.5 degrees. The
 hand envelope is a continuous annular sweep with a 20 mm radial allowance and
@@ -103,7 +136,7 @@ tool; do not buy both as mandatory mounting hardware.
 All screw/pin lengths are nominal CAD selections. The custom follower shoulder,
 rib bolt length, brake screw length, shaft drilling, nut pockets, and fits need
 physical verification. Grip-axle grooves, retaining rings, cross-pin keeper
-clips, upright washers/nuts, and bench washers/nuts are purchasing selections
+clips and bench washers/nuts are purchasing selections
 whose detailed geometry is not modeled. The guide-floor and bolt-end recesses
 also require a printed strength and wear trial; local backplate material is
 2.5 mm thick at the bolt-end reliefs. The rib pin bore has 0.6 mm of material

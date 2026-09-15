@@ -15,7 +15,7 @@ import cadquery as cq
 from tests.support import temporary_build_directory
 from windwall.export import export_part
 from windwall.winding_tool_assembly import build_winding_tool_assemblies
-from windwall.winding_tool_export import export_winding_tool
+from windwall.winding_tool_export import export_winding_tool, _print_inventory
 from windwall.winding_head import build_winding_head
 from windwall.winding_tool_parameters import DEFAULT_WINDING_TOOL_PARAMETERS
 
@@ -35,6 +35,16 @@ class WindingToolReleaseAttributeTests(unittest.TestCase):
 
 
 class WindingToolPrintabilityTests(unittest.TestCase):
+    def test_bearing_caps_are_exported_as_one_master_with_two_occurrences(self):
+        with patch('windwall.winding_tool_assembly.audit_winding_tool_assemblies',
+                   return_value={'valid': True}):
+            model = build_winding_tool_assemblies()
+        inventory = _print_inventory(model)
+        caps = [row for row in inventory if row['name'] == 'winding_frame_bearing_cap']
+        self.assertEqual(len(caps), 1)
+        self.assertEqual(caps[0]['quantity'], 2)
+        self.assertEqual(set(caps[0]['members']), {'left_bearing_cap', 'right_bearing_cap'})
+
     def test_fresh_rib_builds_export_identical_bytes(self):
         with temporary_build_directory() as destination:
             digests = []
@@ -94,6 +104,19 @@ class WindingToolExportTests(unittest.TestCase):
             self.assertEqual({p.relative_to(destination).as_posix()
                               for p in destination.rglob('*') if p.is_file()}, listed)
 
+    def test_custom_export_keeps_physical_labels_and_setting_tables_in_agreement(self):
+        parameters = replace(DEFAULT_WINDING_TOOL_PARAMETERS,
+                             minimum_diameter_mm=112.0,
+                             reference_diameter_mm=128.5, maximum_diameter_mm=144.0)
+        with temporary_build_directory() as destination:
+            manifest = export_winding_tool(destination, parameters)
+            data = json.loads(manifest.path.read_text('utf-8'))
+            self.assertEqual(data.get('engraved_diameter_labels'), ['112', '128.5', '144'])
+            guide = (destination / 'docs/serpentine-coil-winding-tool-de.md').read_text('utf-8')
+            self.assertIn('Ø112 / Ø128.5 / Ø144 mm', guide)
+            self.assertEqual(data['reference_diameter_mm'], 128.5)
+            self.assertTrue(data['assembly_audit']['valid'])
+
     def test_tooling_export_has_valid_unique_parts_assemblies_bom_and_manifest(self):
         with temporary_build_directory() as destination:
             manifest = export_winding_tool(destination)
@@ -103,14 +126,15 @@ class WindingToolExportTests(unittest.TestCase):
                 'winding_head_backplate': 1, 'winding_head_cam': 1,
                 'winding_head_clamp': 1, 'winding_head_slider': 6, 'winding_head_rib': 6,
                 'winding_frame_base': 1, 'winding_frame_upright': 2,
+                'winding_frame_bearing_cap': 2,
                 'winding_frame_head_hub': 1, 'winding_frame_head_retaining_collar': 1,
                 'winding_frame_crank': 1, 'wire_payoff_base': 1,
                 'wire_payoff_platter': 1, 'wire_payoff_adjuster': 1,
             })
-            self.assertEqual(data['printable_quantity'], 24)
+            self.assertEqual(data['printable_quantity'], 26)
             self.assertEqual(list(quantities), sorted(quantities))
-            self.assertEqual(len(list((destination / 'stl').glob('*.stl'))), 13)
-            self.assertEqual(len(list((destination / 'step').glob('*.step'))), 13)
+            self.assertEqual(len(list((destination / 'stl').glob('*.stl'))), len(quantities))
+            self.assertEqual(len(list((destination / 'step').glob('*.step'))), len(quantities))
             self.assertEqual(data['reference_diameter_mm'], 127.0)
             self.assertEqual(data['diameter_range_mm'], [110.0, 145.0])
             self.assertEqual(data['tape_layout']['station_angles_deg'], list(range(0, 360, 20)))

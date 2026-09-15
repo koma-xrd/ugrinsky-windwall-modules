@@ -23,8 +23,10 @@ from matplotlib.collections import PolyCollection
 from matplotlib.colors import to_rgb
 from matplotlib.patches import Circle
 import numpy as np
+import cadquery as cq
 
 from windwall.winding_head import build_winding_head, tape_station_angles
+from windwall.winding_tool_service import brake_access_key, coil_removal_stages
 
 
 COLORS = {'structure': '#3b8d91', 'rib': '#d89932', 'cam': '#5972b9',
@@ -35,6 +37,8 @@ DRAWING_NAMES = ('winding-jig-reference.png', 'winding-jig-range.png',
 
 
 def _color(name):
+    if name == 'coil':
+        return '#bc6540'
     if 'bearing' in name or name in ('shaft_washer', 'housing_washer', 'rolling_envelope'):
         return COLORS['bearing']
     if name.rsplit('_', 1)[0] in ('rib', 'slider'):
@@ -131,19 +135,23 @@ def _reference(model):
     for number, name, offset in ((1, 'rib_2', (12, 15)), (2, 'cam', (-15, 20)),
                                   (3, 'bearing_608_2', (10, 18)), (4, 'crank_grip', (12, 10))):
         _number(ax, points, name, number, offset)
-    ax, points = _project(fig, (.61, .34, .36, .43), model.wire_payoff, (1.6, -2, 1.6))
+    payoff_view = {**model.wire_payoff, 'hex_key': brake_access_key(),
+                   'bench_surface': cq.Workplane('XY').box(205, 205, 2)
+                   .translate((0, 0, -25))}
+    ax, points = _project(fig, (.61, .34, .36, .43), payoff_view, (1.6, -2, 1.2))
     _number(ax, points, 'platter', 5, (8, 10))
     _number(ax, points, 'base', 6, (10, -5))
     _labels(fig, .05, .28, (
         f'1  {p.rib_count} Rippen · Kontaktkreis Ø{p.reference_diameter_mm:g} mm',
         f'2  Zentraler Kurvenring · {p.tape_station_count} Bandstellen, je {360/p.tape_station_count:g}°',
         '3  2 × 608 · Außenring im Ständer, Innenring auf der Welle',
-        f'4  Handkurbel mit frei drehendem Griff · Welle Ø{p.shaft_diameter_mm:g} mm'))
+        f'4  Handkurbel mit frei drehendem Griff · Welle Ø{p.shaft_diameter_mm:g} mm',
+        'Links: zwei verstiftete Stahlbundringe; beide Lager mit Kappen.'))
     _labels(fig, .64, .28, (
         f'5  Teller Ø{p.platter_diameter_mm:g} mm · Dorn Ø{p.spool_pilot_diameter_mm:g} × {p.spool_pilot_height_mm:g} mm',
-        '6  51105 unter dem Teller · Filzbremse seitlich',
-        'Je Modul eigene Schrauben oder zwei Zwingen.',
-        'Lager und Bremse: siehe Explosion 03.'))
+        '6  51105; verdrehgesicherter Bremseinsteller',
+        '24-mm-Füße: kurzer Inbusschlüssel von rechts.',
+        'Werkbank und Werkzeug nur als Zugangsnachweis.'))
     feed = fig.add_axes((.34, .32, .43, .035))
     feed.annotate('', (.04, .5), (.96, .5), arrowprops=dict(arrowstyle='->', color='#a54432', lw=2.5))
     feed.text(.5, 1.1, 'Drahtzufuhr  B → A  (schematisch)', ha='center', fontsize=12, color=INK)
@@ -159,7 +167,7 @@ def _range(model):
                 f'{p.rib_count} radial geführte Rippen · {p.tape_station_count} Bandstellen im {360/p.tape_station_count:g}°-Raster · Frontansicht des Kopfes')
     for index, diameter in enumerate(diameters):
         head = build_winding_head(p, diameter)
-        ax, _ = _project(fig, (.025+index*.325, .34, .30, .48), head.printable_parts, (0, 0, 1))
+        ax, _ = _project(fig, (.025+index*.325, .51, .30, .30), head.printable_parts, (0, 0, 1))
         for circle_diameter, color, style in zip(diameters, ('#a44944', '#25384b', '#416aaf'), (':', '-', '--')):
             ax.add_patch(Circle((0, 0), circle_diameter/2, fill=False, edgecolor=color, lw=1.2, linestyle=style))
         for station, angle in enumerate(tape_station_angles(p), 1):
@@ -169,18 +177,25 @@ def _range(model):
         ax.set_xlim(-103, 103)
         ax.set_ylim(-103, 103)
         fig.text(.175+index*.325, .825, f'Ø{diameter:g} mm', ha='center', fontsize=22, weight='bold', color=INK)
-    fig.text(.05, .32, f'Kontaktkreise: rot punktiert Ø{diameters[0]:g} · schwarz Ø{diameters[1]:g} · blau gestrichelt Ø{diameters[2]:g} mm',
-             fontsize=14, color=INK)
-    ax = fig.add_axes((.035, .115, .18, .16))
-    ax.annotate('', (.2, .7), (.75, .7), arrowprops=dict(arrowstyle='->', connectionstyle='arc3,rad=.8', lw=2, color=INK))
-    ax.text(.5, .08, 'Wickeldrehsinn\nBlick auf die Rippen', ha='center', fontsize=12, color=INK)
-    ax.axis('off')
-    _labels(fig, .25, .265, (
-        f'18 Streifen {p.tape_width_mm:g}-mm-Klebeband vor dem Wickeln einlegen; Öffnung ≥{p.tape_passage_width_mm:g} mm.',
-        'Orange = Rippen; blau = Kurvenring und Schieber; türkis = Rückplatte.',
-        'Vor jeder Verstellung anhalten und alle drei M3-Vorspannschrauben lösen.',
-        f'Nach dem Tapen: Rippen {p.release_travel_mm:g} mm radial nach innen; Spule abheben.',
-        'Bandöffnungen und gerundete Drahtflächen praktisch prüfen. Keine Passungsfreigabe.'), spacing=.031)
+    fig.text(.05, .495, f'Kontaktkreise Ø{diameters[0]:g} / Ø{diameters[1]:g} / Ø{diameters[2]:g} · Wickeln: gegen Uhrzeigersinn in dieser Frontansicht.',
+             fontsize=13, color=INK)
+    fig.text(.05, .462, f'18 Streifen {p.tape_width_mm:g}-mm-Band; Passage ≥{p.tape_passage_width_mm:g} mm. Anhalten, tapen, Vorspannung lösen, Rippen {p.release_travel_mm:g} mm einziehen.',
+             fontsize=13, color=INK)
+    stages = coil_removal_stages(model)
+    captions = ('1  Helfer stützt Kopf / lose Teile; 5 Stifte heraus.\n    Welle 220 mm nach links herausziehen.',
+                '2  Kopf und getapte Spule gemeinsam\n    200 mm zwischen Ständern anheben.',
+                '3  Kopf auf weicher Unterlage zusammenhalten.\n    Spule 50 mm axial zur Rippenseite abziehen.')
+    visible = set(model.frame.printable_parts) | set(model.head.printable_parts) | {'shaft', 'coil'}
+    for index, stage in enumerate(stages[2:]):
+        view = {**stage['fixed'], **{name: shape.translate(stage['translation_mm'])
+                                    for name, shape in stage['moving'].items()}}
+        view = {name: shape for name, shape in view.items() if name in visible}
+        _project(fig, (.02+index*.325, .16, .30, .255), view, (1.0, -3, .9))
+        fig.text(.035+index*.325, .425, captions[index], fontsize=11, color=INK, va='top')
+    fig.text(.05, .122, 'Braun = Spulen-Hüllkörper: 10 mm axial, 3 mm radial, 0,5 mm Band nach innen. Ständer und Lagerkappen bleiben montiert.',
+             fontsize=12, color=INK)
+    fig.text(.05, .094, 'Nach Montage alle fünf Stifte sichern und axialen Freigang prüfen. Größere Wicklungen benötigen eine eigene Entnahmeprüfung.',
+             fontsize=12, color=INK)
     return fig
 
 
@@ -197,7 +212,7 @@ def _exploded(model, jig):
         _number(ax, points, name, number, offset)
     _labels(fig, .66, .83, (
         '1  Grundplatte + Tischbefestigung', '2  Zwei Ständer + vier M4-Schrauben',
-        '3  Zwei 608-Radiallager', '4  Welle, Nabe, Haltering + Sicherungsstifte',
+        '3  Zwei 608 + Lagerkappen; links zwei Stahlbundringe', '4  Welle, Nabe, Haltering + fünf Sicherungsstifte',
         '5  Rückplatte + sechs abnehmbare Anschläge', '6  Sechs Rippen / Schieber + M3-Verbindungen',
         '7  Kurvenring + sechs Metall-Kurvenfolger', '8  Klemmring; drei Vorspannschrauben am Haltering',
         '9  Kurbel + Griff, Achse, Scheiben, Sicherungen'), spacing=.030, size=12)
@@ -214,12 +229,12 @@ def _exploded(model, jig):
                                   (14, 'platter', (12, 10)), (15, 'adjuster', (15, 10))):
         _number(ax, points, name, number, offset)
     _labels(fig, .66, .44, (
-        '10  Grundplatte + eigene Tischbefestigung',
+        '10  Grundplatte mit 24-mm-Füßen + Tischbefestigung',
         '11  51105-Gehäusescheibe: bleibt in der Basis',
         '12  51105-Wälzkranz: lagerinterne Bewegung',
         '13  51105-Wellenscheibe: dreht mit Teller',
         '14  Abnehmbarer Teller + angefaster Spulendorn',
-        '15  Filz, Einsteller/Mutter, Scheibe, Feder, Schraube',
+        '15  Filz, geführter Einsteller/Mutter, Feder, Schraube',
         '11–13 = EIN komplettes 51105, kein Lagertrio.',
         '608: Außenring fest; Innenring dreht mit Welle.',
         'Bremse leicht schleifend; kein starrer Tellerstopp.'), spacing=.030, size=12)

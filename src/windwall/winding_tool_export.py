@@ -32,7 +32,7 @@ from windwall.winding_tool_parameters import (
 
 PROTOTYPE_LIMITS = (
     'Printed fits, strength, tape clearance and coil release require physical prototype tests.',
-    'The 127 mm reference is a calculated starting setting; cassette fit and winding quality remain unverified.',
+    'The configured reference diameter is a calculated starting setting; cassette fit and winding quality remain unverified.',
     'Powered operation is not approved: speed, torque limiting and guarding remain unvalidated.',
     'Wire tension, enamel protection, useful brake drag and electrical performance remain unvalidated.',
     'STL orientations place the lowest point at Z=0; supports and print process require review.',
@@ -63,6 +63,7 @@ def _print_inventory(model: WindingToolAssemblies) -> tuple[dict, ...]:
           ('rib', tuple(f'rib_{i}' for i in range(1, 7))))),
         ('winding_frame', 'winding_jig', 'windwall.winding_frame.build_winding_frame',
          (('base', ('base',)), ('upright', ('left_upright', 'right_upright')),
+          ('bearing_cap', ('left_bearing_cap', 'right_bearing_cap')),
           ('head_hub', ('head_hub',)), ('head_retaining_collar', ('head_retaining_collar',)),
           ('crank', ('crank',)))),
         ('wire_payoff', 'wire_payoff', 'windwall.wire_payoff.build_wire_payoff',
@@ -78,8 +79,9 @@ def _print_inventory(model: WindingToolAssemblies) -> tuple[dict, ...]:
                 covered.add(path)
                 _valid_solid(parts[member].val(), path)
                 if index:
-                    axis = (0, 0, 1) if master == 'upright' else (1, 0, 0)
-                    angle = 180 if master == 'upright' else -index * 60
+                    opposed = master in ('upright', 'bearing_cap')
+                    axis = (0, 0, 1) if opposed else (1, 0, 0)
+                    angle = 180 if opposed else -index * 60
                     aligned = parts[member].rotate((0, 0, 0), axis, angle)
                     offset = representative.val().Center() - aligned.val().Center()
                     aligned = aligned.translate(offset.toTuple())
@@ -90,7 +92,7 @@ def _print_inventory(model: WindingToolAssemblies) -> tuple[dict, ...]:
             # Flat faces on winding-axis parts avoid a curved tessellated
             # extremum floating above the bed and provide a broad contact face.
             rotation = -90 if (prefix == 'winding_head' or master in
-                               ('crank', 'head_hub', 'head_retaining_collar')) else 0
+                               ('crank', 'head_hub', 'head_retaining_collar', 'bearing_cap')) else 0
             printable = representative.rotate((0, 0, 0), (0, 1, 0), rotation) if rotation else representative
             rows.append({'name': f'{prefix}_{master}', 'tool': tool,
                          'members': members, 'shape': printable,
@@ -120,8 +122,10 @@ def _exploded_jig(model: WindingToolAssemblies) -> tuple[dict, dict]:
             dx = {'backplate': -80.0, 'cam': -290.0, 'clamp': -335.0}[name]
         elif name.startswith(('crank', 'grip_')):
             dx = 90.0
-        elif name.startswith('bearing_608_'):
+        elif name.startswith(('bearing_608_', 'shaft_locator')):
             dz = 100.0
+        elif 'bearing_cap' in name:
+            dz = 75.0
         elif name in ('left_upright', 'right_upright') or name.startswith('upright_fastener_'):
             dz = 45.0
         translations[name] = [dx, dy, dz]
@@ -193,6 +197,8 @@ def _export_supporting_artifacts(model, exploded, destination, bom):
         ('Teller / Spulendorn', f'Ø{p.platter_diameter_mm:g} / Ø{p.spool_pilot_diameter_mm:g} × {p.spool_pilot_height_mm:g} mm'),
         ('Welle / Sechskant-Schlüsselweite', f'Ø{p.shaft_diameter_mm:g} / {p.hex_socket_across_flats_mm:g} mm'),
         ('Maximales Druckbett', f'{p.print_bed_size_mm:g} × {p.print_bed_size_mm:g} mm'),
+        ('Abrollerfüße / Werkzeugfreiheit unter Basis',
+         f"{model.payoff.metadata['base_foot_height_mm']:g} mm / kurzer 2,5-mm-Inbusschlüssel"),
     ]
     sections = {
         'configuration': '| Merkmal | CAD-Konfiguration dieses Releases |\n| --- | --- |\n' +
@@ -286,6 +292,9 @@ def export_winding_tool(
         'reference_diameter_mm': tool_parameters.reference_diameter_mm,
         'diameter_range_mm': [tool_parameters.minimum_diameter_mm, tool_parameters.maximum_diameter_mm],
         'reference_setting_status': 'Calculated starting setting; physical calibration required.',
+        'engraved_diameter_labels': [f'{value:g}' for value in (
+            tool_parameters.minimum_diameter_mm, tool_parameters.reference_diameter_mm,
+            tool_parameters.maximum_diameter_mm)],
         'tape_layout': {'station_angles_deg': list(tape_station_angles(tool_parameters)),
                         'tape_width_mm': tool_parameters.tape_width_mm,
                         'passage_width_mm': tool_parameters.tape_passage_width_mm},

@@ -21,7 +21,7 @@
       "length_selection": "nominal CAD selection",
       "physical_fit_verified": false,
       "quantity": 1,
-      "service_note": "Three cross-drilled 4.2 mm holes; remove retaining pins before withdrawal.",
+      "service_note": "Three 4.2 mm drive holes plus two 3.2 mm locator holes; remove all five pins before withdrawal.",
       "specification": "8 mm steel shaft, 194.9 mm long"
     },
     {
@@ -31,6 +31,30 @@
       "quantity": 3,
       "service_note": "Load radially into collar pockets before fitting preload screws.",
       "specification": "M3, 5.5 mm across flats, 2.4 mm thick"
+    },
+    {
+      "item": "M3 bearing cap nut",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 4,
+      "service_note": "Hold with a wrench while tightening the cap; do not clamp an inner ring or seal.",
+      "specification": "ISO 4032 M3, 5.5 mm AF x 2.4 mm"
+    },
+    {
+      "item": "M3 bearing cap screw",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 4,
+      "service_note": "Two per outer-ring cap; nuts and washers remain accessible outside each upright.",
+      "specification": "M3 x 22 mm socket-head screw"
+    },
+    {
+      "item": "M3 bearing cap washer",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 4,
+      "service_note": "Under each cap nut on the outside of the upright.",
+      "specification": "6 mm OD x 3.2 mm ID x 0.6 mm"
     },
     {
       "item": "M3 brake adjustment screw",
@@ -81,28 +105,28 @@
       "specification": "M3 x 22 mm socket-head through-bolt"
     },
     {
-      "item": "M3 x 10 mm socket-head cap screw",
+      "item": "M3 x 20 mm socket-head cap screw",
       "length_selection": "nominal CAD selection",
       "physical_fit_verified": false,
       "quantity": 3,
       "service_note": "Back off all three screws before cam adjustment or head release.",
-      "specification": "ISO 4762 M3 x 10, 5.5 mm head diameter, 3 mm head height"
+      "specification": "ISO 4762 M3 x 20, 5.5 mm head diameter, 3 mm head height"
     },
     {
       "item": "M4 upright bolt",
       "length_selection": "nominal CAD selection",
       "physical_fit_verified": false,
       "quantity": 4,
-      "service_note": "Fit through base and upright feet; verify bench underside access.",
-      "specification": "M4 x 25 mm through-bolt"
+      "service_note": "Install from below before mounting: head and lower washer lie inside the base recess.",
+      "specification": "M4 x 20 mm socket-head bolt, 7 mm OD x 4 mm head"
     },
     {
       "item": "M4 upright nut",
       "length_selection": "nominal CAD selection",
       "physical_fit_verified": false,
       "quantity": 4,
-      "service_note": "Inspect tightness before winding.",
-      "specification": "M4 locking nut"
+      "service_note": "Above upright foot; inspect tightness before winding.",
+      "specification": "M4 locking nut, 7 mm AF x 5 mm"
     },
     {
       "item": "M4 upright washer",
@@ -110,7 +134,7 @@
       "physical_fit_verified": false,
       "quantity": 8,
       "service_note": "One washer under each bolt head and nut.",
-      "specification": "M4 flat washer"
+      "specification": "9 mm OD x 4.3 mm ID x 0.8 mm"
     },
     {
       "item": "brake compression spring",
@@ -198,7 +222,7 @@
       "physical_fit_verified": false,
       "quantity": 1,
       "service_note": "Withdraw after releasing the preload screws.",
-      "specification": "4 mm diameter x 22 mm removable cross-pin"
+      "specification": "4 mm diameter x 32 mm removable cross-pin"
     },
     {
       "item": "head hub retaining pin",
@@ -239,6 +263,30 @@
       "quantity": 12,
       "service_note": "One washer at each rib-bolt end, outside guide walls.",
       "specification": "6 mm OD x 3.2 mm ID x 0.6 mm"
+    },
+    {
+      "item": "shaft locator pin",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 2,
+      "service_note": "Cross-drill shaft/collars together at the modeled axes; deburr for shaft withdrawal.",
+      "specification": "3 mm diameter x 20 mm removable cross-pin"
+    },
+    {
+      "item": "shaft locator pin keeper",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 2,
+      "service_note": "Remove with the other three keepers for supported coil removal.",
+      "specification": "Keeper clip matched to 3 mm locator cross-pin"
+    },
+    {
+      "item": "shaft shoulder collar",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 2,
+      "service_note": "Locate only the left 608 inner ring with 0.1 mm face clearance each side; verify purchased ring lands.",
+      "specification": "Steel: 8.2 mm bore, 10.4 mm OD x 6 mm nose, 16 mm OD x 8 mm body"
     },
     {
       "alternative": "bolts",
@@ -288,7 +336,7 @@
       "physical_fit_verified": false,
       "quantity": 4,
       "service_note": "Bolted mounting alternative; measure bench and verify underside access.",
-      "specification": "M5 through-bolt; length = bench thickness + 18 mm"
+      "specification": "M5 through-bolt; length = bench thickness + 42 mm"
     },
     {
       "alternative": "clamps",
@@ -326,6 +374,13 @@
       "item": "winding_frame_base",
       "physical_fit_verified": false,
       "quantity": 1,
+      "source_builder": "windwall.winding_frame.build_winding_frame",
+      "tool": "winding_jig"
+    },
+    {
+      "item": "winding_frame_bearing_cap",
+      "physical_fit_verified": false,
+      "quantity": 2,
       "source_builder": "windwall.winding_frame.build_winding_frame",
       "tool": "winding_jig"
     },

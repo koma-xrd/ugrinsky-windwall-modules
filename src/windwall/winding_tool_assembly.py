@@ -21,6 +21,10 @@ from windwall.winding_tool_parameters import (
     DEFAULT_WINDING_TOOL_PARAMETERS, WindingToolParameters,
     validate_winding_tool_parameters,
 )
+from windwall.winding_tool_service import (
+    audit_winding_tool_service,
+    coil_removal_stages as coil_removal_stages,
+)
 from windwall.wire_payoff import WirePayoffParts, build_wire_payoff
 
 
@@ -28,12 +32,17 @@ _VOLUME_TOLERANCE_MM3 = 1e-5
 _JIG_PRINTABLE_NAMES = frozenset({
     'base', 'left_upright', 'right_upright', 'head_hub',
     'head_retaining_collar', 'crank', 'backplate', 'cam', 'clamp',
+    'left_bearing_cap', 'right_bearing_cap',
     *[f'{prefix}_{i}' for prefix in ('slider', 'rib') for i in range(1, 7)],
 })
 _PAYOFF_PRINTABLE_NAMES = frozenset({'base', 'platter', 'adjuster'})
 _JIG_STATIONARY_NAMES = frozenset({
     'base', 'left_upright', 'right_upright', 'bearing_608_1', 'bearing_608_2',
+    'left_bearing_cap', 'right_bearing_cap',
     *[f'{prefix}_fastener_{i}' for prefix in ('bench', 'upright') for i in range(1, 5)],
+    *[f'upright_washer_{i}' for i in range(1, 9)],
+    *[f'upright_nut_{i}' for i in range(1, 5)],
+    *[f'bearing_cap_{kind}_{i}' for kind in ('screw', 'washer', 'nut') for i in range(1, 5)],
 })
 
 
@@ -112,7 +121,7 @@ def _bearing_608_engagement(bearing, upright, shaft, outward):
     # mating material. No exact face coincidence is needed for a positive fit.
     wall = probe(11.35, 11.15, bb.xmin + 0.4, bb.xlen - 0.8)
     shoulder_start = bb.xmin - 0.3 if outward < 0 else bb.xmax + 0.2
-    shoulder = probe(10.7, 4.5, shoulder_start, 0.1)
+    shoulder = probe(10.7, 10.05, shoulder_start, 0.1)
     pilot = probe(3.8, 0, bb.xmin + 0.4, bb.xlen - 0.8)
     evidence = {
         'seat_wall_fraction': _probe_fraction(upright, wall),
@@ -234,6 +243,11 @@ def build_winding_tool_assemblies(
         **_numbered('bearing_608', frame.bearings),
         **_numbered('bench_fastener', frame.bench_fastener_references),
         **_numbered('upright_fastener', frame.upright_fastener_references),
+        **_numbered('upright_washer', frame.upright_washer_references),
+        **_numbered('upright_nut', frame.upright_nut_references),
+        **_numbered('shaft_locator', frame.shaft_locator_references),
+        **_numbered('shaft_locator_pin', frame.shaft_locator_pin_references),
+        **frame.bearing_cap_hardware,
         **_numbered('head_retaining_pin', frame.head_retaining_pin_references),
         **_numbered('preload_screw', frame.preload_screw_references),
         **_numbered('preload_nut', frame.preload_nut_references),
@@ -610,7 +624,9 @@ def audit_winding_tool_assemblies(model: WindingToolAssemblies) -> dict:
         'shaft_608_nesting', 'drive_coaxiality', 'crank_hand_envelope',
         'head_hardware_clearance', 'head_service_access', 'cam_follower_engagement',
         'bearing_51105_ownership', 'bearing_51105_nesting',
-        'brake_hard_stop', 'print_bed')}
+        'brake_hard_stop', 'print_bed', 'spindle_axial_location',
+        'complete_coil_removal', 'frame_flush_mounting',
+        'brake_anti_rotation', 'brake_mounted_access')}
     audit = {'valid': False, 'checks': checks, 'rib_count': 0,
              'tape_station_count': 0, 'minimum_tape_clearance_mm': 0.0,
              'maximum_print_xy_mm': 0.0, 'head_release_travel_mm': 0.0,
@@ -621,6 +637,7 @@ def audit_winding_tool_assemblies(model: WindingToolAssemblies) -> dict:
                         'backplate', 'cam', 'clamp', 'head_hub',
                         'head_retaining_collar', 'crank', 'crank_grip',
                         'bearing_608_1', 'bearing_608_2',
+                        'left_bearing_cap', 'right_bearing_cap',
                         *[f'{prefix}_{i}' for prefix in
                           ('rib', 'slider', 'cam_follower', 'cam_follower_nut',
                            'cam_follower_washer', 'rib_pin', 'rib_locknut',
@@ -633,7 +650,11 @@ def audit_winding_tool_assemblies(model: WindingToolAssemblies) -> dict:
         required_jig |= {'crank_pin', 'grip_pin'}
         for prefix, count in (('bench_fastener', 4), ('upright_fastener', 4),
                               ('head_retaining_pin', 2), ('preload_screw', 3),
-                              ('preload_nut', 3), ('grip_washer', 2)):
+                              ('preload_nut', 3), ('grip_washer', 2),
+                              ('upright_washer', 8), ('upright_nut', 4),
+                              ('shaft_locator', 2), ('shaft_locator_pin', 2),
+                              ('bearing_cap_screw', 4), ('bearing_cap_washer', 4),
+                              ('bearing_cap_nut', 4)):
             required_jig.update(f'{prefix}_{i}' for i in range(1, count + 1))
         required_supply.update(f'bench_fastener_{i}' for i in range(1, 5))
         checks['required_members'] = (required_jig == jig.keys()
@@ -680,6 +701,9 @@ def audit_winding_tool_assemblies(model: WindingToolAssemblies) -> dict:
         checks['crank_hand_envelope'] = audit['crank_hand_clearance_mm'] > 0
         (checks['brake_hard_stop'], audit['brake_rigid_clearance_mm'],
          checks['bearing_51105_nesting'], audit['bearing_51105_engagement']) = _brake_audit(model)
+        service = audit_winding_tool_service(model)
+        checks.update(service.pop('checks'))
+        audit['service'] = service
         envelopes = {}
         for path in model.printable_parts:
             tool, name = path.split('/')
@@ -716,7 +740,19 @@ def winding_tool_bom(model: WindingToolAssemblies) -> tuple[dict, ...]:
     add('51105 thrust bearing', 1, '25 x 42 x 11 mm, complete purchased bearing',
         'Lift platter; keep both washers and rolling assembly as one bearing set.')
     add('8 mm shaft', 1, f'8 mm steel shaft, {_box(frame.shaft_reference).xlen:.1f} mm long',
-        'Three cross-drilled 4.2 mm holes; remove retaining pins before withdrawal.')
+        'Three 4.2 mm drive holes plus two 3.2 mm locator holes; remove all five pins before withdrawal.')
+    add('shaft shoulder collar', 2, 'Steel: 8.2 mm bore, 10.4 mm OD x 6 mm nose, 16 mm OD x 8 mm body',
+        'Locate only the left 608 inner ring with 0.1 mm face clearance each side; verify purchased ring lands.')
+    add('shaft locator pin', 2, '3 mm diameter x 20 mm removable cross-pin',
+        'Cross-drill shaft/collars together at the modeled axes; deburr for shaft withdrawal.')
+    add('shaft locator pin keeper', 2, 'Keeper clip matched to 3 mm locator cross-pin',
+        'Remove with the other three keepers for supported coil removal.')
+    add('M3 bearing cap screw', 4, 'M3 x 22 mm socket-head screw',
+        'Two per outer-ring cap; nuts and washers remain accessible outside each upright.')
+    add('M3 bearing cap nut', 4, 'ISO 4032 M3, 5.5 mm AF x 2.4 mm',
+        'Hold with a wrench while tightening the cap; do not clamp an inner ring or seal.')
+    add('M3 bearing cap washer', 4, '6 mm OD x 3.2 mm ID x 0.6 mm',
+        'Under each cap nut on the outside of the upright.')
     add('metal cam follower', 6,
         '4 mm shoulder x 6.65 mm, M3 threaded tip x 2.6 mm, 5.5 x 3 mm head',
         'Nominal custom shoulder screw; captive nut loads from slider underside '
@@ -739,21 +775,21 @@ def winding_tool_bom(model: WindingToolAssemblies) -> tuple[dict, ...]:
         'Fit beneath the outboard stop screw head.')
     hardware = frame.metadata['preload_hardware']
     add(hardware['screw_designation'], hardware['screw_quantity'],
-        'ISO 4762 M3 x 10, 5.5 mm head diameter, 3 mm head height',
+        'ISO 4762 M3 x 20, 5.5 mm head diameter, 3 mm head height',
         'Back off all three screws before cam adjustment or head release.')
     add('ISO 4032 M3 preload nut', hardware['nut_quantity'],
         'M3, 5.5 mm across flats, 2.4 mm thick',
         'Load radially into collar pockets before fitting preload screws.')
     add('head hub retaining pin', 1, '4 mm diameter x 26 mm removable cross-pin',
         'Withdraw to slide hub away from the three printed torque pins.')
-    add('head collar retaining pin', 1, '4 mm diameter x 22 mm removable cross-pin',
+    add('head collar retaining pin', 1, '4 mm diameter x 32 mm removable cross-pin',
         'Withdraw after releasing the preload screws.')
     add('crank shaft retaining pin', 1, '4 mm diameter x 30 mm removable cross-pin',
         'Withdraw before removing the manual crank.')
-    add('M4 upright bolt', len(frame.upright_fastener_references), 'M4 x 25 mm through-bolt',
-        'Fit through base and upright feet; verify bench underside access.')
-    add('M4 upright nut', 4, 'M4 locking nut', 'Inspect tightness before winding.')
-    add('M4 upright washer', 8, 'M4 flat washer', 'One washer under each bolt head and nut.')
+    add('M4 upright bolt', len(frame.upright_fastener_references), 'M4 x 20 mm socket-head bolt, 7 mm OD x 4 mm head',
+        'Install from below before mounting: head and lower washer lie inside the base recess.')
+    add('M4 upright nut', 4, 'M4 locking nut, 7 mm AF x 5 mm', 'Above upright foot; inspect tightness before winding.')
+    add('M4 upright washer', 8, '9 mm OD x 4.3 mm ID x 0.8 mm', 'One washer under each bolt head and nut.')
     add('crank grip', 1, '22 mm OD x 24 mm long, 6.6 mm running bore',
         'Purchased freely rotating grip; verify no seizure under hand load.')
     add('crank grip axle', 1, '6 mm diameter x 41 mm retained axle',
@@ -777,7 +813,8 @@ def winding_tool_bom(model: WindingToolAssemblies) -> tuple[dict, ...]:
         'Load into adjuster pocket before inserting adjuster into base; keep screw engaged.')
     for tool, count in (('winding_jig', len(frame.bench_fastener_references)),
                         ('wire_payoff', len(payoff.bench_fastener_references))):
-        add(f'{tool} bench bolt', count, 'M5 through-bolt; length = bench thickness + 18 mm',
+        allowance = 18 + (payoff.metadata['base_foot_height_mm'] if tool == 'wire_payoff' else 0)
+        add(f'{tool} bench bolt', count, f'M5 through-bolt; length = bench thickness + {allowance:g} mm',
             'Bolted mounting alternative; measure bench and verify underside access.',
             choice_group=f'{tool}_bench', alternative='bolts')
         add(f'{tool} bench washer', count * 2, 'M5 flat washer',

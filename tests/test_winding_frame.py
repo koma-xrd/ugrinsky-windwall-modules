@@ -1,4 +1,5 @@
 import unittest
+from dataclasses import replace
 from math import pi
 
 import cadquery as cq
@@ -10,6 +11,73 @@ from windwall.winding_tool_parameters import DEFAULT_WINDING_TOOL_PARAMETERS as 
 
 
 class WindingFrameTests(unittest.TestCase):
+    def test_invalid_count_cannot_reuse_a_cached_frame(self):
+        build_winding_frame(P)
+        with self.assertRaises(ValueError):
+            build_winding_frame(replace(P, rib_count=6.0))
+
+    def test_upright_fastener_stacks_clear_a_flush_bench_and_react_load(self):
+        frame = self.frame
+        bench = cq.Workplane('XY').box(400, 400, 10, centered=(True, True, False)).translate((0, 0, -10))
+        for bolt in frame.upright_fastener_references:
+            self.assertLess(bolt.intersect(bench).val().Volume(), 1e-6)
+        washers = getattr(frame, 'upright_washer_references', ())
+        nuts = getattr(frame, 'upright_nut_references', ())
+        self.assertEqual(len(washers), 8)
+        self.assertEqual(len(nuts), 4)
+        for body in (*washers, *nuts):
+            self.assertLess(body.intersect(bench).val().Volume(), 1e-6)
+            self.assertLess(body.intersect(frame.base).val().Volume(), 1e-6)
+        for index, bolt in enumerate(frame.upright_fastener_references):
+            self.assertAlmostEqual(bolt.val().BoundingBox().zlen, 24.0, places=5)
+            lower, upper = washers[2*index:2*index+2]
+            self.assertAlmostEqual(bolt.val().distance(lower.val()), 0, places=5)
+            self.assertAlmostEqual(lower.val().distance(frame.base.val()), 0, places=5)
+            self.assertGreater(lower.translate((0, 0, .1)).intersect(frame.base).val().Volume(), 0)
+            self.assertAlmostEqual(upper.val().distance(frame.uprights[index//2].val()), 0, places=5)
+            self.assertAlmostEqual(nuts[index].val().distance(upper.val()), 0, places=5)
+
+    def test_spindle_is_axially_located_at_one_bearing_and_serviceable(self):
+        frame = self.frame
+        collars = getattr(frame, 'shaft_locator_references', ())
+        pins = getattr(frame, 'shaft_locator_pin_references', ())
+        caps = getattr(frame, 'bearing_caps', ())
+        self.assertEqual((len(collars), len(pins), len(caps)), (2, 2, 2))
+        bearing = frame.bearings[0]
+        for collar, pin, direction in zip(collars, pins, (1, -1), strict=True):
+            self.assertLess(collar.intersect(bearing).val().Volume(), 1e-6)
+            self.assertGreater(collar.translate((direction*.25, 0, 0)).intersect(bearing).val().Volume(), 0)
+            self.assertLess(collar.intersect(frame.uprights[0]).val().Volume(), 1e-6)
+            self.assertLess(collar.intersect(pin).val().Volume(), 1e-6)
+            self.assertLess(frame.shaft_reference.intersect(pin).val().Volume(), 1e-6)
+            self.assertGreater(collar.translate((.25, 0, 0)).intersect(pin).val().Volume(), 0)
+            # Only the nominal inner-ring land may touch the rotating locator.
+            outside_inner_ring = (cq.Workplane('XY').circle(11).circle(5.25).extrude(7.6)
+                                  .rotate((0, 0, 0), (0, 1, 0), 90).translate((-72.5, 0, 95)))
+            self.assertLess(collar.intersect(outside_inner_ring).val().Volume(), 1e-6)
+        for upright, bearing, cap, inward in zip(frame.uprights, frame.bearings, caps, (1, -1), strict=True):
+            self.assertLess(cap.intersect(bearing).val().Volume(), 1e-6)
+            self.assertGreater(bearing.translate((inward*.35, 0, 0)).intersect(cap).val().Volume(), 0)
+            self.assertGreater(bearing.translate((-inward*.35, 0, 0)).intersect(upright).val().Volume(), 0)
+
+    def test_retention_faces_clear_sealed_608_regions_under_axial_load(self):
+        # SKF 608-2RSH: inner abutment 10–10.5 mm; seal recess OD 19.2 mm.
+        # A flush annular exclusion conservatively includes that seal region.
+        for index, (bearing, upright, cap, inward) in enumerate(zip(
+                self.frame.bearings, self.frame.uprights, self.frame.bearing_caps,
+                (1, -1), strict=True)):
+            bounds = bearing.val().BoundingBox()
+            seals = (cq.Workplane('XY').circle(9.6).circle(5.25).extrude(bounds.xlen)
+                     .rotate((0, 0, 0), (0, 1, 0), 90)
+                     .translate((bounds.xmin, 0, 95)))
+            with self.subTest(bearing=index):
+                self.assertLess(seals.translate((inward*.35, 0, 0)).intersect(cap).val().Volume(), 1e-6)
+                self.assertLess(seals.translate((-inward*.35, 0, 0)).intersect(upright).val().Volume(), 1e-6)
+            if index == 0:
+                for collar, direction in zip(self.frame.shaft_locator_references, (1, -1), strict=True):
+                    with self.subTest(collar_direction=direction):
+                        self.assertLess(collar.translate((direction*.25, 0, 0)).intersect(seals).val().Volume(), 1e-6)
+
     @classmethod
     def setUpClass(cls):
         cls.frame = build_winding_frame(P, DEFAULT_PARAMETERS)
@@ -182,7 +250,7 @@ class WindingFrameTests(unittest.TestCase):
 
         self.assertEqual(len(nuts), 3)
         self.assertEqual(hardware.get('screw_designation'),
-                         'M3 x 10 mm socket-head cap screw')
+                         'M3 x 20 mm socket-head cap screw')
         self.assertEqual(hardware.get('nut_standard'), 'ISO 4032 M3')
         self.assertEqual(hardware.get('nut_quantity'), 3)
         self.assertEqual(hardware.get('nut_across_flats_mm'), 5.5)
@@ -216,11 +284,11 @@ class WindingFrameTests(unittest.TestCase):
         frame = self.frame
         hardware = frame.metadata['preload_hardware']
         self.assertEqual(hardware.get('screw_nominal_diameter_mm'), 3.0)
-        self.assertEqual(hardware.get('screw_length_mm'), 10.0)
+        self.assertEqual(hardware.get('screw_length_mm'), 20.0)
         self.assertEqual(hardware.get('screw_head_diameter_mm'), 5.5)
         self.assertEqual(hardware.get('screw_head_height_mm'), 3.0)
 
-        expected_volume = pi * (1.5 ** 2 * 10.0 + 2.75 ** 2 * 3.0)
+        expected_volume = pi * (1.5 ** 2 * 20.0 + 2.75 ** 2 * 3.0)
         for index, screw in enumerate(frame.preload_screw_references):
             with self.subTest(screw=index + 1):
                 self.assertAlmostEqual(

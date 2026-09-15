@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from math import isfinite
+from numbers import Integral, Real
 
 
 @dataclass(frozen=True)
@@ -21,17 +22,15 @@ class WindingToolParameters:
 
 
 def validate_winding_tool_parameters(p: WindingToolParameters) -> None:
-    if any(name.endswith('_mm') and isinstance(value, bool)
-           for name, value in vars(p).items()):
-        raise ValueError('Winding-tool dimensions must be numeric, not boolean')
-    values = tuple(
-        value for name, value in vars(p).items()
-        if name.endswith('_mm')
-        and isinstance(value, (int, float))
-        and not isinstance(value, bool)
-    )
-    if not all(isfinite(value) and value > 0 for value in values):
-        raise ValueError('Winding-tool dimensions must be positive and finite')
+    for name, value in vars(p).items():
+        if name.endswith('_mm'):
+            if isinstance(value, bool) or not isinstance(value, Real):
+                raise ValueError(f'{name} must be a numeric dimension, not {type(value).__name__}')
+            if not isfinite(value) or value <= 0:
+                raise ValueError(f'{name} must be positive and finite')
+        elif name.endswith('_count'):
+            if isinstance(value, bool) or not isinstance(value, Integral):
+                raise ValueError(f'{name} must be an integer count')
     if not p.minimum_diameter_mm <= p.reference_diameter_mm <= p.maximum_diameter_mm:
         raise ValueError('Reference diameter must lie inside the winding range')
     if p.rib_count != 6 or p.tape_station_count != 18:

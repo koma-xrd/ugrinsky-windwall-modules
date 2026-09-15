@@ -8,6 +8,7 @@ from windwall.winding_tool_assembly import (
     audit_winding_tool_assemblies, build_winding_tool_assemblies, winding_tool_bom,
 )
 from windwall.winding_tool_parameters import DEFAULT_WINDING_TOOL_PARAMETERS as P
+from windwall import winding_tool_assembly as assembly_module
 
 
 class WindingToolAssemblyTests(unittest.TestCase):
@@ -101,7 +102,7 @@ class WindingToolAssemblyTests(unittest.TestCase):
         self.assertEqual(quantities['metal cam follower'], 6)
         self.assertEqual(quantities['felt brake pad'], 1)
         self.assertEqual(quantities['brake compression spring'], 1)
-        self.assertEqual(quantities['M3 x 10 mm socket-head cap screw'], 3)
+        self.assertEqual(quantities['M3 x 20 mm socket-head cap screw'], 3)
         self.assertEqual(quantities['ISO 4032 M3 preload nut'], 3)
         self.assertEqual(quantities['M3 brake-adjuster nut'], 1)
         self.assertEqual(quantities['M3 rib attachment pin'], 6)
@@ -162,6 +163,54 @@ class WindingToolEngagementTests(unittest.TestCase):
 
 
 class WindingToolHardwareTests(unittest.TestCase):
+    def test_complete_coil_removal_route_clears_frame_at_all_three_diameters(self):
+        route_builder = getattr(assembly_module, 'coil_removal_stages', None)
+        self.assertTrue(callable(route_builder), 'A complete modeled coil removal route is required')
+        for diameter in (110.0, 127.0, 145.0):
+            with patch('windwall.winding_tool_assembly.audit_winding_tool_assemblies',
+                       return_value={'valid': True}):
+                model = build_winding_tool_assemblies(diameter_mm=diameter)
+            stages = route_builder(model)
+            self.assertEqual([stage['name'] for stage in stages],
+                             ['withdraw_head_and_locator_pins', 'withdraw_crank_pin',
+                              'withdraw_shaft', 'lift_head_and_coil', 'remove_coil'])
+            for stage in stages:
+                vector = stage['translation_mm']
+                fixed_boxes = {name: body.val().BoundingBox() for name, body in stage['fixed'].items()}
+                for step in range(21):
+                    for name, body in stage['moving'].items():
+                        moved = body.translate(tuple(value * step / 20 for value in vector))
+                        a = moved.val().BoundingBox()
+                        for fixed_name, fixed in stage['fixed'].items():
+                            b = fixed_boxes[fixed_name]
+                            if a.xmax < b.xmin or b.xmax < a.xmin or a.ymax < b.ymin or b.ymax < a.ymin or a.zmax < b.zmin or b.zmax < a.zmin:
+                                continue
+                            self.assertLess(moved.intersect(fixed).val().Volume(), 1e-5,
+                                            f'{diameter}, {stage["name"]}, {step}, {name}/{fixed_name}')
+            last = stages[-1]
+            coil = last['moving']['coil'].translate(last['translation_mm'])
+            self.assertAlmostEqual(coil.val().BoundingBox().ylen, diameter + 6, places=5)
+            self.assertGreater(coil.val().BoundingBox().zmin, 112.5)
+            self.assertGreater(coil.val().BoundingBox().xmin, 40)
+
+    def test_service_audits_reject_missing_locator_and_obstructed_removal(self):
+        service_audit = getattr(assembly_module, 'audit_winding_tool_service', None)
+        self.assertTrue(callable(service_audit), 'Service interfaces require geometric audits')
+        with patch('windwall.winding_tool_assembly.audit_winding_tool_assemblies',
+                   return_value={'valid': True}):
+            model = build_winding_tool_assemblies()
+        result = service_audit(model)
+        self.assertTrue(all(result['checks'].values()), result)
+        jig = dict(model.winding_jig)
+        jig['shaft_locator_1'] = jig['shaft_locator_1'].translate((-20, 0, 0))
+        self.assertFalse(service_audit(replace(model, winding_jig=jig))['checks']['spindle_axial_location'])
+        jig = dict(model.winding_jig)
+        # A connected overhead obstruction must invalidate the supported lift.
+        post = cq.Workplane('XY').box(10, 10, 240, centered=(True, True, False)).translate((0, 85, 0))
+        bridge = cq.Workplane('XY').box(100, 180, 10).translate((0, 0, 235))
+        jig['base'] = jig['base'].union(post).union(bridge)
+        self.assertFalse(service_audit(replace(model, winding_jig=jig))['checks']['complete_coil_removal'])
+
     def test_audit_rejects_removed_crank_retainer_even_if_ownership_is_updated(self):
         with patch('windwall.winding_tool_assembly.audit_winding_tool_assemblies',
                    return_value={'valid': True}):

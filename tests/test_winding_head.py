@@ -1,4 +1,5 @@
 import unittest
+from dataclasses import replace
 from itertools import combinations
 from math import cos, hypot, radians, sin
 
@@ -10,6 +11,20 @@ from windwall.winding_tool_parameters import DEFAULT_WINDING_TOOL_PARAMETERS as 
 
 
 class WindingHeadTests(unittest.TestCase):
+    def test_custom_diameter_values_are_cut_into_the_actual_cam(self):
+        parameters = replace(P, minimum_diameter_mm=112.0,
+                             reference_diameter_mm=128.5, maximum_diameter_mm=144.0)
+        cam = build_winding_head(parameters, 128.5).cam
+        # Hand-derived from the 18 mm follower stroke across 24 degrees.
+        for label, angle in (('112', 169.0), ('128.5', 180.0), ('144', 190 + 1/3)):
+            theta = radians(angle)
+            glyph = (cq.Workplane('XY').text(label, 3.2, 0.25, combine=True)
+                     .rotate((0, 0, 0), (0, 0, 1), angle + 90)
+                     .translate((46*cos(theta), 46*sin(theta), 13.35)))
+            with self.subTest(label=label):
+                self.assertGreater(glyph.val().Volume(), 0.2)
+                self.assertLess(cam.intersect(glyph).val().Volume(), 1e-5)
+
     def test_guide_stop_screws_withdraw_outward_without_crossing_a_rib(self):
         head = build_winding_head(P, 145.0)
         for travel in range(0, 17, 2):

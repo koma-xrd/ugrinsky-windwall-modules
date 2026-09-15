@@ -8,6 +8,23 @@ from windwall.winding_tool_parameters import (
 
 
 class WindingToolParameterTests(unittest.TestCase):
+    def test_every_dimension_rejects_non_numeric_values_with_value_error(self):
+        for name in vars(DEFAULT_WINDING_TOOL_PARAMETERS):
+            if not name.endswith('_mm'):
+                continue
+            for value in (None, '8', True, False):
+                with self.subTest(field=name, value=value), self.assertRaises(ValueError):
+                    validate_winding_tool_parameters(replace(
+                        DEFAULT_WINDING_TOOL_PARAMETERS, **{name: value}))
+
+    def test_counts_require_integral_types_even_when_the_numeric_value_matches(self):
+        for name, value in (('rib_count', 6.0), ('tape_station_count', 18.0),
+                            ('rib_count', True), ('tape_station_count', None),
+                            ('rib_count', '6')):
+            with self.subTest(field=name, value=value), self.assertRaises(ValueError):
+                validate_winding_tool_parameters(replace(
+                    DEFAULT_WINDING_TOOL_PARAMETERS, **{name: value}))
+
     def test_defaults_match_approved_design(self):
         p = DEFAULT_WINDING_TOOL_PARAMETERS
         self.assertEqual((p.minimum_diameter_mm, p.reference_diameter_mm,

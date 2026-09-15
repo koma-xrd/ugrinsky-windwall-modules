@@ -282,16 +282,14 @@ def _build_cam(p: WindingToolParameters, follower_radius: float) -> cq.Workplane
     cam = cam.cut(_disc(p.shaft_diameter_mm / 2 + 0.3,
                         _CAM_BOTTOM_Z_MM - 0.5, _CAM_THICKNESS_MM + 1))
 
-    for label, diameter in (
-            ('110', p.minimum_diameter_mm),
-            ('127', p.reference_diameter_mm),
-            ('145', p.maximum_diameter_mm)):
+    for diameter in (p.minimum_diameter_mm, p.reference_diameter_mm,
+                     p.maximum_diameter_mm):
         label_follower_radius = (
             _FOLLOWER_RADIUS_AT_REFERENCE_MM
             + diameter / 2 - p.reference_diameter_mm / 2)
         label_angle = 180.0 + _track_angle_for_radius(p, label_follower_radius)
         cam = cam.cut(_engraved_text(
-            label, 46.0, label_angle, _CAM_BOTTOM_Z_MM + _CAM_THICKNESS_MM))
+            f'{diameter:g}', 46.0, label_angle, _CAM_BOTTOM_Z_MM + _CAM_THICKNESS_MM))
 
     setting_angle = -_track_angle_for_radius(p, follower_radius)
     return _rotate(cam, setting_angle)

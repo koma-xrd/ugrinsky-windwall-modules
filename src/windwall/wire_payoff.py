@@ -23,6 +23,7 @@ from windwall.winding_tool_parameters import (
 
 _BASE_SIZE_MM = 190.0
 _BASE_THICKNESS_MM = 8.0
+_FOOT_HEIGHT_MM = 24.0
 _BEARING_PEDESTAL_DIAMETER_MM = 62.0
 _PLATTER_THICKNESS_MM = 4.0
 _PLATTER_BASE_CLEARANCE_MM = 2.0
@@ -145,6 +146,13 @@ def _build_base(
         _BASE_THICKNESS_MM,
         centered=(True, True, False),
     )
+    # Open space between four integral feet admits a short hex key from +X.
+    for x in (-80.0, 80.0):
+        for y in (-65.0, 65.0):
+            foot = (cq.Workplane('XY').box(30, 40, _FOOT_HEIGHT_MM,
+                                          centered=(True, True, False))
+                    .translate((x, y, -_FOOT_HEIGHT_MM)))
+            plate = plate.union(foot)
     bearing_pedestal = _vertical_cylinder(
         _BEARING_PEDESTAL_DIAMETER_MM / 2,
         _BASE_THICKNESS_MM,
@@ -203,7 +211,8 @@ def _build_base(
             .cut(screw_head_recess))
 
     bench_fasteners = tuple(
-        _vertical_cylinder(2.5, -1.0, _BASE_THICKNESS_MM + 2.0, x, y)
+        _vertical_cylinder(2.5, -_FOOT_HEIGHT_MM - 1.0,
+                           _FOOT_HEIGHT_MM + _BASE_THICKNESS_MM + 2.0, x, y)
         for x in (-72.0, 72.0)
         for y in (-72.0, 72.0)
     )
@@ -211,8 +220,8 @@ def _build_base(
         for y in (-72.0, 72.0):
             base = base.cut(_vertical_cylinder(
                 _BENCH_HOLE_DIAMETER_MM / 2,
-                -1.0,
-                _BASE_THICKNESS_MM + 2.0,
+                -_FOOT_HEIGHT_MM - 1.0,
+                _FOOT_HEIGHT_MM + _BASE_THICKNESS_MM + 2.0,
                 x,
                 y,
             ))
@@ -313,6 +322,12 @@ def _build_brake(
         _ADJUSTER_FLANGE_HEIGHT_MM,
         _BRAKE_X_MM,
     ))
+    # Two straight flange edges slide between the existing service-slot walls.
+    # Their overlap restrains rotation at both endpoints without closing the
+    # radial loading route when the screw has been removed.
+    adjuster = adjuster.union(cq.Workplane('XY').box(
+        8, 16, _ADJUSTER_FLANGE_HEIGHT_MM, centered=(False, True, False))
+        .translate((_BRAKE_X_MM + 4, 0, adjuster_bottom_z)))
     nut_pocket_bottom_z = adjuster_bottom_z + 0.1
     nut_pocket = _hex_prism(
         _M3_NUT_POCKET_ACROSS_FLATS_MM,
@@ -321,7 +336,7 @@ def _build_brake(
         _BRAKE_X_MM,
     )
     nut_loading_slot = (cq.Workplane('XY').box(
-        _ADJUSTER_FLANGE_DIAMETER_MM / 2 + 0.2,
+        12.2,
         6.8,
         _M3_NUT_POCKET_HEIGHT_MM,
         centered=(False, True, False),
@@ -383,6 +398,7 @@ def _build_brake(
         manufacturing.screw_head_height_mm,
         _BRAKE_X_MM,
     )
+    screw_head = screw_head.cut(_hex_prism(2.5, 0.0, 1.8, _BRAKE_X_MM))
     screw = _valid_single_solid(
         screw_head.union(screw_shaft), 'brake screw reference')
     return {
@@ -395,7 +411,6 @@ def _build_brake(
     }
 
 
-@lru_cache(maxsize=16, typed=True)
 def build_wire_payoff(
         tool_parameters: WindingToolParameters,
         design_parameters: DesignParameters = DEFAULT_PARAMETERS,
@@ -404,6 +419,11 @@ def build_wire_payoff(
     """Build the independent payoff and map normalized setting to felt drag."""
     validate_winding_tool_parameters(tool_parameters)
     setting = _validate_brake_setting(brake_setting)
+    return _build_wire_payoff_cached(tool_parameters, design_parameters, setting)
+
+
+@lru_cache(maxsize=16)
+def _build_wire_payoff_cached(tool_parameters, design_parameters, setting):
     bearing_floor_z = (_BASE_THICKNESS_MM
                        + design_parameters.manufacturing.minimum_loaded_wall_mm)
     bearing = _place_bearing(design_parameters, bearing_floor_z)
@@ -471,6 +491,9 @@ def build_wire_payoff(
         'adjuster_retention': 'M3 screw and captive ISO 4032 M3 nut',
         'adjuster_service_setting': 0.0,
         'adjuster_service_direction': '+X after screw removal',
+        'adjuster_anti_rotation': 'two flange flats guided by service-slot walls',
+        'base_foot_height_mm': _FOOT_HEIGHT_MM,
+        'brake_tool_access': 'short 2.5 mm hex key from +X; 60 degree stroke below base',
         'brake_load_path': [
             'base spring seat',
             'spring',
