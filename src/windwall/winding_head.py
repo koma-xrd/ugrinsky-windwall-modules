@@ -353,6 +353,20 @@ def _build_master_slider(p: WindingToolParameters) -> cq.Workplane:
     return slider.cut(follower_hole).cut(nut_pocket)
 
 
+def _edge_sort_key(edge: cq.Edge) -> tuple[float, ...]:
+    centre = edge.Center()
+    return tuple(round(value, 8) for value in
+                 (centre.z, centre.y, centre.x, edge.Length()))
+
+
+def _fillet_edges_stably(shape: cq.Workplane, selector: str,
+                         radius: float) -> cq.Workplane:
+    # OCCT contour processing follows input edge order. Geometric ordering
+    # keeps boundary loops, STEP entities and STL triangles reproducible.
+    edges = sorted(shape.edges(selector).vals(), key=_edge_sort_key)
+    return shape.newObject(edges).fillet(radius)
+
+
 def _build_master_rib(p: WindingToolParameters) -> cq.Workplane:
     minimum_contact_radius = p.minimum_diameter_mm / 2
     inner_radius = minimum_contact_radius - _RIB_RADIAL_DEPTH_MM
@@ -362,7 +376,10 @@ def _build_master_rib(p: WindingToolParameters) -> cq.Workplane:
     window = _radial_box(
         0, minimum_contact_radius + 1, _RIB_TANGENTIAL_WIDTH_MM,
         _RIB_BOTTOM_Z_MM - 0.5, _RIB_HEIGHT_MM + 1)
-    rib = annulus.intersect(window).edges().fillet(1.2)
+    # Unequal corner/edge radii avoid spherical pole triangles collapsing in
+    # binary STL. The winding-contact cylinder and tape-mouth radii stay fixed.
+    rib = _fillet_edges_stably(annulus.intersect(window), '|Z', 1.5)
+    rib = _fillet_edges_stably(rib, '>Z or <Z', 1.2)
 
     # A low keyed tongue fits the slider fork below the cam plane. The outer
     # riser joins it to the rib shell beyond the cam radius. Both parts share a
@@ -415,7 +432,7 @@ def _build_master_rib(p: WindingToolParameters) -> cq.Workplane:
     ]
     if len(mouth_edges) != 6:
         raise ValueError('Rib must expose six roundable tape-groove mouth edges')
-    rib = rib.newObject(mouth_edges).fillet(0.8)
+    rib = rib.newObject(sorted(mouth_edges, key=_edge_sort_key)).fillet(0.8)
     return rib
 
 

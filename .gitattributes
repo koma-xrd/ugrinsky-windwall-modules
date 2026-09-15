@@ -1,4 +1,5 @@
 # Release checksums describe exact bytes, including on Windows checkouts.
 release/v5/** -text
+release/winding-tool/** -text
 # Translation reviews also hash the source catalogues byte for byte.
 scripts/manual/locales/*.json -text

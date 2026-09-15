@@ -49,6 +49,8 @@ class ExportTests(unittest.TestCase):
                 'release/v5/drawings/figures.json': b'{"figures": []}\n',
                 'release/v5/drawings/README.md': b'Drawing inventory\n',
                 'release/v5/audits/manual.json': b'{"structural_checks_passed": true}\n',
+                'release/winding-tool/manifest.json': b'{"release": "winding-tool"}\n',
+                'release/winding-tool/step/winding_head_rib.step': b'ISO-10303-21;\nEND-ISO-10303-21;\n',
             }
             for name, payload in samples.items():
                 path = destination / name
@@ -84,6 +86,8 @@ class ExportTests(unittest.TestCase):
     def test_all_unique_parts_export_as_valid_step_and_stl(self):
         with temporary_build_directory() as destination:
             manifest = export_all(destination)
+            self.assertNotIn('winding_head_backplate', manifest.part_names())
+            self.assertNotIn('wire_payoff_platter', manifest.part_names())
             self.assertEqual(manifest.part_names(), {
                 'base_rotor_module', 'standard_rotor_module', 'top_rotor_module',
                 'lower_magnet_rotor', 'generator_housing', 'coil_cassette',
