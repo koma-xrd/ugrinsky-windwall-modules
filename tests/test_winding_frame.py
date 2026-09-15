@@ -1,4 +1,5 @@
 import unittest
+from math import pi
 
 import cadquery as cq
 
@@ -141,6 +142,89 @@ class WindingFrameTests(unittest.TestCase):
             .intersect(frame.head_hub).val().Volume(),
             0,
         )
+
+    def test_captive_preload_nuts_react_axial_load_and_block_rotation(self):
+        frame = self.frame
+        nuts = getattr(frame, 'preload_nut_references', ())
+        self.assertEqual(len(nuts), 3)
+        for index, (nut, screw) in enumerate(zip(
+                nuts, frame.preload_screw_references, strict=True)):
+            box = nut.val().BoundingBox()
+            axis_y = (box.ymin + box.ymax) / 2
+            axis_z = (box.zmin + box.zmax) / 2
+            with self.subTest(nut=index + 1):
+                self.assertLess(
+                    nut.intersect(frame.head_retaining_collar).val().Volume(),
+                    1e-6,
+                )
+                self.assertLess(nut.intersect(screw).val().Volume(), 1e-6)
+                self.assertGreater(
+                    nut.translate((-0.3, 0, 0))
+                    .intersect(frame.head_retaining_collar).val().Volume(),
+                    0,
+                )
+                self.assertGreater(
+                    nut.translate((0.3, 0, 0))
+                    .intersect(frame.head_retaining_collar).val().Volume(),
+                    0,
+                )
+                self.assertGreater(
+                    nut.rotate((0, axis_y, axis_z),
+                               (1, axis_y, axis_z), 10.0)
+                    .intersect(frame.head_retaining_collar).val().Volume(),
+                    0,
+                )
+
+    def test_captive_preload_nuts_have_service_access_and_bom_metadata(self):
+        frame = self.frame
+        nuts = getattr(frame, 'preload_nut_references', ())
+        hardware = frame.metadata.get('preload_hardware', {})
+
+        self.assertEqual(len(nuts), 3)
+        self.assertEqual(hardware.get('screw_designation'),
+                         'M3 x 10 mm socket-head cap screw')
+        self.assertEqual(hardware.get('nut_standard'), 'ISO 4032 M3')
+        self.assertEqual(hardware.get('nut_quantity'), 3)
+        self.assertEqual(hardware.get('nut_across_flats_mm'), 5.5)
+        self.assertEqual(hardware.get('nut_thickness_mm'), 2.4)
+        self.assertEqual(hardware.get('nut_pocket_across_flats_mm'), 5.8)
+        self.assertEqual(hardware.get('nut_pocket_axial_depth_mm'), 2.8)
+        self.assertEqual(hardware.get('nut_insertion'),
+                         'Radially through collar OD before screw installation')
+
+        shaft_box = frame.shaft_reference.val().BoundingBox()
+        shaft_axis_y = (shaft_box.ymin + shaft_box.ymax) / 2
+        shaft_axis_z = (shaft_box.zmin + shaft_box.zmax) / 2
+        for index, nut in enumerate(nuts):
+            box = nut.val().BoundingBox()
+            radial_y = (box.ymin + box.ymax) / 2 - shaft_axis_y
+            radial_z = (box.zmin + box.zmax) / 2 - shaft_axis_z
+            radial_length = (radial_y ** 2 + radial_z ** 2) ** 0.5
+            unit_y = radial_y / radial_length
+            unit_z = radial_z / radial_length
+            for travel_mm in range(0, 11):
+                with self.subTest(nut=index + 1, travel_mm=travel_mm):
+                    translated = nut.translate(
+                        (0, travel_mm * unit_y, travel_mm * unit_z))
+                    self.assertLess(
+                        translated.intersect(
+                            frame.head_retaining_collar).val().Volume(),
+                        1e-6,
+                    )
+
+    def test_preload_screw_envelopes_match_the_bom_hardware(self):
+        frame = self.frame
+        hardware = frame.metadata['preload_hardware']
+        self.assertEqual(hardware.get('screw_nominal_diameter_mm'), 3.0)
+        self.assertEqual(hardware.get('screw_length_mm'), 10.0)
+        self.assertEqual(hardware.get('screw_head_diameter_mm'), 5.5)
+        self.assertEqual(hardware.get('screw_head_height_mm'), 3.0)
+
+        expected_volume = pi * (1.5 ** 2 * 10.0 + 2.75 ** 2 * 3.0)
+        for index, screw in enumerate(frame.preload_screw_references):
+            with self.subTest(screw=index + 1):
+                self.assertAlmostEqual(
+                    screw.val().Volume(), expected_volume, places=5)
 
     def test_hex_socket_is_a_coaxial_six_sided_physical_void(self):
         frame = self.frame

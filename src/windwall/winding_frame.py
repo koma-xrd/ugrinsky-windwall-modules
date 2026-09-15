@@ -38,6 +38,11 @@ _UPRIGHT_BOLT_HOLE_DIAMETER_MM = 4.4
 _PIN_HOLE_DIAMETER_MM = 4.2
 _CRANK_SOCKET_DEPTH_MM = 7.0
 _CRANK_OUTER_FACE_X_MM = 106.0
+_M3_NUT_ACROSS_FLATS_MM = 5.5
+_M3_NUT_THICKNESS_MM = 2.4
+_M3_NUT_POCKET_ACROSS_FLATS_MM = 5.8
+_M3_NUT_POCKET_AXIAL_DEPTH_MM = 2.8
+_PRELOAD_SCREW_LENGTH_MM = 10.0
 
 
 @dataclass(frozen=True)
@@ -56,6 +61,7 @@ class WindingFrameParts:
     upright_fastener_references: tuple[cq.Workplane, ...]
     head_retaining_pin_references: tuple[cq.Workplane, cq.Workplane]
     preload_screw_references: tuple[cq.Workplane, ...]
+    preload_nut_references: tuple[cq.Workplane, ...]
     crank_pin_reference: cq.Workplane
     crank_grip_reference: cq.Workplane
     grip_pin_reference: cq.Workplane
@@ -104,6 +110,28 @@ def _x_ring(outer_radius_mm: float, inner_radius_mm: float,
             .extrude(length_mm)
             .rotate((0, 0, 0), (0, 1, 0), angle)
             .translate((start_x_mm, 0, axis_z_mm)))
+
+
+def _x_hex_prism(across_flats_mm: float, start_x_mm: float,
+                 length_mm: float, axis_y_mm: float,
+                 axis_z_mm: float) -> cq.Workplane:
+    circumscribed_diameter = 2 * across_flats_mm / sqrt(3)
+    return (cq.Workplane('XY').polygon(6, circumscribed_diameter)
+            .extrude(length_mm)
+            .rotate((0, 0, 0), (0, 1, 0), 90)
+            .translate((start_x_mm, axis_y_mm, axis_z_mm)))
+
+
+def _radial_slot(start_x_mm: float, axial_length_mm: float,
+                 radial_start_mm: float, radial_length_mm: float,
+                 tangential_width_mm: float, angle_deg: float
+                 ) -> cq.Workplane:
+    return (cq.Workplane('XY')
+            .box(axial_length_mm, radial_length_mm, tangential_width_mm,
+                 centered=(False, False, True))
+            .translate((start_x_mm, radial_start_mm, 0))
+            .rotate((0, 0, 0), (1, 0, 0), angle_deg)
+            .translate((0, 0, _AXIS_HEIGHT_MM)))
 
 
 def _y_cylinder(radius_mm: float, start_y_mm: float, length_mm: float,
@@ -218,8 +246,10 @@ def _place_head_horizontally(head: WindingHeadParts) -> WindingHeadParts:
 def _build_head_retainers(
         tool_parameters: WindingToolParameters,
         head: WindingHeadParts,
+        design_parameters: DesignParameters,
 ) -> tuple[cq.Workplane, cq.Workplane,
-           tuple[cq.Workplane, cq.Workplane], tuple[cq.Workplane, ...]]:
+           tuple[cq.Workplane, cq.Workplane], tuple[cq.Workplane, ...],
+           tuple[cq.Workplane, ...]]:
     shaft_clearance_radius = tool_parameters.shaft_diameter_mm / 2 + 0.2
     backplate_rear_x = head.backplate.val().BoundingBox().xmin
     clamp_front_x = head.clamp.val().BoundingBox().xmax
@@ -245,19 +275,29 @@ def _build_head_retainers(
 
     collar_start_x = clamp_front_x + 1.35
     collar_length = 8.0
-    collar_end_x = collar_start_x + collar_length
     collar = _x_ring(
         14.0, shaft_clearance_radius, collar_start_x, collar_length)
 
-    preload_centres = tuple(
-        (9.0 * cos(radians(angle)),
+    preload_axes = tuple(
+        (angle,
+         9.0 * cos(radians(angle)),
          _AXIS_HEIGHT_MM + 9.0 * sin(radians(angle)))
         for angle in (0.0, 120.0, 240.0)
     )
-    for y, z in preload_centres:
+    nut_pocket_start_x = collar_start_x + 3.6
+    for angle, y, z in preload_axes:
         collar = collar.cut(_x_cylinder(
             1.7, collar_start_x - 0.5, collar_length + 1.0,
             axis_z_mm=z, axis_y_mm=y,
+        ))
+        collar = collar.cut(_x_hex_prism(
+            _M3_NUT_POCKET_ACROSS_FLATS_MM,
+            nut_pocket_start_x, _M3_NUT_POCKET_AXIAL_DEPTH_MM,
+            y, z,
+        ))
+        collar = collar.cut(_radial_slot(
+            nut_pocket_start_x, _M3_NUT_POCKET_AXIAL_DEPTH_MM,
+            8.0, 7.0, 6.8, angle,
         ))
     collar_pin_hole = _vertical_cylinder(
         _PIN_HOLE_DIAMETER_MM / 2, _AXIS_HEIGHT_MM - 12.0,
@@ -272,20 +312,36 @@ def _build_head_retainers(
     )
 
     preload_screws = []
-    for y, z in preload_centres:
+    preload_nuts = []
+    manufacturing = design_parameters.manufacturing
+    for _, y, z in preload_axes:
         shaft = _x_cylinder(
-            1.5, clamp_front_x,
-            collar_end_x + 0.3 - clamp_front_x,
+            manufacturing.screw_nominal_diameter_mm / 2,
+            clamp_front_x, _PRELOAD_SCREW_LENGTH_MM,
             axis_z_mm=z, axis_y_mm=y,
         )
         screw_head = _x_cylinder(
-            3.2, collar_end_x + 0.3, 2.0,
+            manufacturing.screw_head_diameter_mm / 2,
+            clamp_front_x + _PRELOAD_SCREW_LENGTH_MM,
+            manufacturing.screw_head_height_mm,
             axis_z_mm=z, axis_y_mm=y,
         )
         preload_screws.append(
             _valid_single_solid(
                 shaft.union(screw_head), 'preload screw reference'))
-    return hub, collar, pins, tuple(preload_screws)
+        nut = _x_hex_prism(
+            _M3_NUT_ACROSS_FLATS_MM,
+            nut_pocket_start_x + 0.2, _M3_NUT_THICKNESS_MM,
+            y, z,
+        ).cut(_x_cylinder(
+            1.6, nut_pocket_start_x,
+            _M3_NUT_POCKET_AXIAL_DEPTH_MM,
+            axis_z_mm=z, axis_y_mm=y,
+        ))
+        preload_nuts.append(
+            _valid_single_solid(nut, 'preload nut reference'))
+    return (hub, collar, pins, tuple(preload_screws),
+            tuple(preload_nuts))
 
 
 def _place_crank_local(shape: cq.Workplane) -> cq.Workplane:
@@ -439,7 +495,8 @@ def build_winding_frame(
     head = _place_head_horizontally(build_winding_head(
         tool_parameters, tool_parameters.reference_diameter_mm))
     (head_hub, head_collar, head_pins,
-     preload_screws) = _build_head_retainers(tool_parameters, head)
+     preload_screws, preload_nuts) = _build_head_retainers(
+         tool_parameters, head, design_parameters)
     (end_wall, shaft_pocket_start, _, _,
      crank_pin_x) = _crank_drive_dimensions(design_parameters)
     crank, grip, grip_pin, crank_pin, washers, hex_gauge = _build_crank(
@@ -483,6 +540,25 @@ def build_winding_frame(
         'head_torque_pin_count': len(head.state.frame_drive_pin_centres_xy_mm),
         'preload_adjustment_screw_count': len(preload_screws),
         'preload_adjustment_travel_mm': 0.3,
+        'preload_hardware': {
+            'screw_designation': 'M3 x 10 mm socket-head cap screw',
+            'screw_quantity': len(preload_screws),
+            'screw_nominal_diameter_mm': (
+                design_parameters.manufacturing.screw_nominal_diameter_mm),
+            'screw_length_mm': _PRELOAD_SCREW_LENGTH_MM,
+            'screw_head_diameter_mm': (
+                design_parameters.manufacturing.screw_head_diameter_mm),
+            'screw_head_height_mm': (
+                design_parameters.manufacturing.screw_head_height_mm),
+            'nut_standard': 'ISO 4032 M3',
+            'nut_quantity': len(preload_nuts),
+            'nut_across_flats_mm': _M3_NUT_ACROSS_FLATS_MM,
+            'nut_thickness_mm': _M3_NUT_THICKNESS_MM,
+            'nut_pocket_across_flats_mm': _M3_NUT_POCKET_ACROSS_FLATS_MM,
+            'nut_pocket_axial_depth_mm': _M3_NUT_POCKET_AXIAL_DEPTH_MM,
+            'nut_insertion': (
+                'Radially through collar OD before screw installation'),
+        },
         'upright_bolt_count': len(upright_fasteners),
         'bench_hole_count': len(bench_fasteners),
         'clamp_land_count': len(clamp_lands),
@@ -502,6 +578,7 @@ def build_winding_frame(
         upright_fastener_references=upright_fasteners,
         head_retaining_pin_references=head_pins,
         preload_screw_references=preload_screws,
+        preload_nut_references=preload_nuts,
         crank_pin_reference=crank_pin,
         crank_grip_reference=grip,
         grip_pin_reference=grip_pin,
