@@ -10,6 +10,60 @@ from windwall.winding_tool_parameters import DEFAULT_WINDING_TOOL_PARAMETERS as 
 
 
 class WindingHeadTests(unittest.TestCase):
+    def test_guide_stop_screws_withdraw_outward_without_crossing_a_rib(self):
+        head = build_winding_head(P, 145.0)
+        for travel in range(0, 17, 2):
+            screw = head.guide_stop_references[0].translate(
+                (travel * cos(radians(59)), travel * sin(radians(59)), 0))
+            for name, body in head.printable_parts.items():
+                self.assertLess(screw.intersect(body).val().Volume(), 1e-5,
+                                f'{name}, travel={travel}')
+
+    def test_removable_guide_stops_allow_undeformed_slider_rib_service(self):
+        head = build_winding_head(P, 145.0)
+        self.assertEqual(len(head.guide_stop_references), 6)
+        for index in range(6):
+            angle = radians(index * 60)
+            stop = head.guide_stop_references[index]
+            slider, rib = head.sliders[index], head.ribs[index]
+            self.assertLess(stop.intersect(slider).val().Volume(), 1e-6)
+            self.assertGreater(stop.intersect(slider.translate(
+                (0.3 * cos(angle), 0.3 * sin(angle), 0))).val().Volume(), 0)
+            for travel in range(0, 51, 5):
+                vector = (travel * cos(angle), travel * sin(angle), 0)
+                for body in (slider, rib):
+                    self.assertLess(head.backplate.intersect(body.translate(vector))
+                                    .val().Volume(), 1e-5)
+
+    def test_follower_has_an_underside_captive_nut_pocket(self):
+        head = build_winding_head(P, 127.0)
+        nut = (cq.Workplane('XY').polygon(6, 5.5 / cos(radians(30)))
+               .extrude(2.4).translate((32, 0, 5.35)))
+        nut = nut.cut(cq.Workplane('XY').circle(1.6).extrude(3)
+                      .translate((32, 0, 5.1)))
+        self.assertLess(head.sliders[0].intersect(nut).val().Volume(), 1e-6)
+        self.assertGreater(head.sliders[0].intersect(
+            nut.translate((0, 0, 0.4))).val().Volume(), 0)
+        self.assertGreater(head.sliders[0].intersect(
+            nut.rotate((32, 0, 0), (32, 0, 1), 30)).val().Volume(), 0)
+        self.assertLess(head.sliders[0].intersect(
+            nut.translate((0, 0, -3))).val().Volume(), 1e-6)
+
+    def test_rib_bolts_and_locknuts_clear_guides_through_adjustment(self):
+        for diameter in (110.0, 127.0, 145.0):
+            head = build_winding_head(P, diameter)
+            radius = diameter / 2 - 7
+            bolt = (cq.Workplane('XY').circle(1.5).extrude(25)
+                    .rotate((0, 0, 0), (1, 0, 0), 90)
+                    .translate((radius, 12.5, 5.9)))
+            for side in (-1, 1):
+                end = (cq.Workplane('XY').circle(3.2).extrude(3)
+                       .rotate((0, 0, 0), (1, 0, 0), 90)
+                       .translate((radius, side * 10.0 + 1.5, 5.9)))
+                for part in (head.backplate, head.sliders[0], head.ribs[0]):
+                    self.assertLess(part.intersect(end).val().Volume(), 1e-6)
+            self.assertLess(head.backplate.intersect(bolt).val().Volume(), 1e-6)
+
     @staticmethod
     def _follower_centres(slider):
         circles = [
@@ -161,7 +215,8 @@ class WindingHeadTests(unittest.TestCase):
                 (0.3 * cos(angle), 0.3 * sin(angle), 0))
             with self.subTest(end='maximum', slider=index + 1):
                 self.assertGreater(
-                    maximum_head.backplate.intersect(past_stop_slider).val().Volume(),
+                    maximum_head.guide_stop_references[index]
+                    .intersect(past_stop_slider).val().Volume(),
                     0,
                 )
 
@@ -170,10 +225,10 @@ class WindingHeadTests(unittest.TestCase):
         pin_radius = head.state.requested_diameter_mm / 2 - 7.0
         pin = (cq.Workplane('XY').circle(1.4).extrude(16.0)
                .rotate((0, 0, 0), (1, 0, 0), 90)
-               .translate((pin_radius, 8.0, 7.15)))
+               .translate((pin_radius, 8.0, 5.9)))
         bearing_shell = (cq.Workplane('XY').circle(2.2).circle(1.8).extrude(16.0)
                          .rotate((0, 0, 0), (1, 0, 0), 90)
-                         .translate((pin_radius, 8.0, 7.15)))
+                         .translate((pin_radius, 8.0, 5.9)))
 
         self.assertLess(head.sliders[0].intersect(pin).val().Volume(), 1e-6)
         self.assertLess(head.ribs[0].intersect(pin).val().Volume(), 1e-6)

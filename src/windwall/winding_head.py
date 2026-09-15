@@ -3,10 +3,11 @@
 The backplate, cam, clamp, six sliders, and six ribs remain independent
 printable bodies.  Identical slider/rib masters are rotated in 60-degree
 increments, while identical Archimedean cam tracks provide synchronous radial
-motion across the supported diameter range.
+motion across the supported diameter range. Purchased guide-stop hardware is
+published separately; removing it permits radial slider/rib service.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from functools import lru_cache
 from math import cos, hypot, isfinite, radians, sin
 
@@ -22,7 +23,7 @@ _BACKPLATE_RADIUS_MM = 76.0
 _BACKPLATE_THICKNESS_MM = 5.0
 _SLIDER_INNER_RADIUS_AT_REFERENCE_MM = 24.0
 _FOLLOWER_RADIUS_AT_REFERENCE_MM = 32.0
-_SLIDER_BOTTOM_Z_MM = 5.15
+_SLIDER_BOTTOM_Z_MM = 3.5
 _SLIDER_TOP_Z_MM = 9.2
 _CAM_BOTTOM_Z_MM = 9.7
 _CAM_THICKNESS_MM = 4.0
@@ -34,6 +35,7 @@ _RIB_BOTTOM_Z_MM = _SLIDER_TOP_Z_MM
 _RIB_HEIGHT_MM = 20.0
 _FRAME_DRIVE_PIN_RADIUS_MM = 13.5
 _FRAME_DRIVE_PIN_HOLE_DIAMETER_MM = 3.4
+_RIB_PIN_Z_MM = 5.9
 
 
 @dataclass(frozen=True)
@@ -55,6 +57,8 @@ class WindingHeadParts:
     ribs: tuple[cq.Workplane, ...]
     printable_parts: dict[str, cq.Workplane]
     state: WindingHeadState
+    guide_stop_references: tuple[cq.Workplane, ...] = ()
+    guide_stop_hardware: dict[str, cq.Workplane] = field(default_factory=dict)
 
 
 def tape_station_angles(p: WindingToolParameters) -> tuple[float, ...]:
@@ -100,12 +104,44 @@ def _frame_drive_pin_centres() -> tuple[tuple[float, float], ...]:
 
 
 @lru_cache(maxsize=8)
+def _guide_stop(p: WindingToolParameters):
+    """Outboard captive-nut boss and removable oblique M3 guide stop.
+
+    The boss is below the rib shell and outside the bolted slider's service
+    corridor. The tip, rather than a trapped screw head, limits slider travel.
+    """
+    angle = 59.0
+    tip_x = (p.maximum_diameter_mm / 2 - _RIB_RADIAL_DEPTH_MM
+             + 0.15 + 1.5 * sin(radians(angle)))
+
+    def axial(shape, start):
+        return shape.rotate((0, 0, 0), (0, 1, 0), 90).translate((start, 0, 6.35))
+
+    boss = _radial_box(13.2, 6.2, 8.0, 2.5, 6.6)
+    bore = axial(cq.Workplane('XY').circle(1.7).extrude(8.0), 12.5)
+    pocket = axial(cq.Workplane('XY').polygon(6, 5.8 / cos(radians(30)))
+                   .extrude(2.8), 14.4)
+    loading = _radial_box(14.4, 2.8, 6.8, 6.35, 5.0)
+    boss = boss.cut(bore).cut(pocket).cut(loading)
+    screw = axial(cq.Workplane('XY').circle(1.5).extrude(20), 0)
+    screw = screw.union(axial(cq.Workplane('XY').circle(2.75).extrude(3), 20))
+    washer = axial(cq.Workplane('XY').circle(3).circle(1.6).extrude(0.6), 19.4)
+    nut = axial(cq.Workplane('XY').polygon(6, 5.5 / cos(radians(30)))
+                .extrude(2.4).cut(cq.Workplane('XY').circle(1.6).extrude(2.4)), 14.6)
+    clearance = axial(cq.Workplane('XY').circle(1.7).extrude(22), -1)
+    return {name: _rotate(shape, angle).translate((tip_x, 4.0, 0))
+            for name, shape in {'boss': boss, 'screw': screw,
+                                'washer': washer, 'nut': nut,
+                                'clearance': clearance}.items()}
+
+
+@lru_cache(maxsize=8)
 def _build_backplate(p: WindingToolParameters) -> cq.Workplane:
     body = _disc(_BACKPLATE_RADIUS_MM, 0, _BACKPLATE_THICKNESS_MM)
 
     # Each guide has a broad lower flange pocket and two overhanging lips.  The
-    # flange cannot lift through the narrow upper opening, while cross-bars at
-    # both ends provide positive stops independently of the cam followers.
+    # flange cannot lift through the narrow upper opening. The inner cross-bar
+    # and removable outer screw stop act independently of the cam followers.
     guide = _radial_box(14.0, 57.0, 2.4, 4.9, 3.6).translate((0, 7.0, 0))
     guide = guide.union(
         _radial_box(14.0, 57.0, 1.4, 7.05, 1.45).translate((0, 5.65, 0)))
@@ -117,15 +153,32 @@ def _build_backplate(p: WindingToolParameters) -> cq.Workplane:
         _SLIDER_INNER_RADIUS_AT_REFERENCE_MM
         + p.minimum_diameter_mm / 2 - p.reference_diameter_mm / 2)
     inner_stop_end = minimum_slider_inner - p.release_travel_mm - 0.15
-    outer_stop_start = p.maximum_diameter_mm / 2 - _RIB_RADIAL_DEPTH_MM + 0.15
     guide = guide.union(
         _radial_box(inner_stop_end - 2.85, 2.85, 16.4, 4.9, 4.1))
-    for offset in (-6.7, 6.7):
-        guide = guide.union(
-            _radial_box(outer_stop_start, 2.85, 3.0, 4.9, 4.1)
-            .translate((0, offset, 0)))
     for index in range(p.rib_count):
         body = body.union(_rotate(guide, index * 360 / p.rib_count))
+
+    guide_floor = _radial_box(inner_stop_end + 0.01,
+                              78 - inner_stop_end, 11.6, 3.35, 1.7)
+    for index in range(p.rib_count):
+        angle = index * 360 / p.rib_count
+        body = body.cut(_rotate(guide_floor, angle))
+
+    # A retained M3 rib bolt crosses both guide walls. Its shank needs a
+    # continuous travel slot; outboard head/nut reliefs leave the guide end
+    # stops intact and keep the inner guide length available for retention.
+    pin_min = p.minimum_diameter_mm / 2 - 7 - p.release_travel_mm
+    bolt_travel = _radial_box(pin_min - 1.75, 80 - pin_min,
+                              17.0, 4.15, 3.5)
+    for y in (-10.9, 10.9):
+        bolt_travel = bolt_travel.union(_radial_box(
+            pin_min - 3.4, 82 - pin_min, 5.2, 2.5, 7.0
+        ).translate((0, y, 0)))
+    for index in range(p.rib_count):
+        angle = index * 360 / p.rib_count
+        body = body.cut(_rotate(bolt_travel, angle))
+        body = body.union(_rotate(_guide_stop(p)['boss'], angle))
+        body = body.cut(_rotate(_guide_stop(p)['clearance'], angle))
 
     # The cam seats on this integral annular shoulder. Clamp compression thus
     # returns directly into the backplate rather than through sliders or guide
@@ -288,12 +341,16 @@ def _build_master_slider(p: WindingToolParameters) -> cq.Workplane:
     slider = slider.cut(socket)
     attachment_pin_radius = reference_contact_radius - 7.0
     slider = slider.cut(_tangential_hole(
-        attachment_pin_radius, 7.15, 1.7, 14.0))
+        attachment_pin_radius, _RIB_PIN_Z_MM, 1.7, 14.0))
 
     follower_hole = _disc(2.1, _SLIDER_BOTTOM_Z_MM - 0.5,
                            height + 1).translate(
                                (_FOLLOWER_RADIUS_AT_REFERENCE_MM, 0, 0))
-    return slider.cut(follower_hole)
+    nut_pocket = (cq.Workplane('XY').polygon(6, 5.8 / cos(radians(30)))
+                  .extrude(4.45).translate(
+                      (_FOLLOWER_RADIUS_AT_REFERENCE_MM, 0,
+                       _SLIDER_BOTTOM_Z_MM - 0.1)))
+    return slider.cut(follower_hole).cut(nut_pocket)
 
 
 def _build_master_rib(p: WindingToolParameters) -> cq.Workplane:
@@ -310,11 +367,11 @@ def _build_master_rib(p: WindingToolParameters) -> cq.Workplane:
     # A low keyed tongue fits the slider fork below the cam plane. The outer
     # riser joins it to the rib shell beyond the cam radius. Both parts share a
     # tangential pin bore for a removable M3-class fastener.
-    tongue = _radial_box(inner_radius - 5.6, 7.0, 6.0, 5.4, 3.5)
-    riser = _radial_box(inner_radius, 1.4, 6.0, 5.4, 5.4)
+    tongue = _radial_box(inner_radius - 5.6, 7.0, 6.0, 3.6, 5.3)
+    riser = _radial_box(inner_radius, 1.4, 6.0, 3.6, 7.2)
     rib = rib.union(tongue).union(riser)
     rib = rib.cut(_tangential_hole(
-        minimum_contact_radius - 7.0, 7.15, 1.7, 14.0))
+        minimum_contact_radius - 7.0, _RIB_PIN_Z_MM, 1.7, 14.0))
 
     # Three rounded, outward-running grooves in each invariant master create
     # all 18 tape stations after polar copying. Top and bottom contact bands
@@ -415,5 +472,9 @@ def build_winding_head(p: WindingToolParameters,
         release_travel_mm=p.release_travel_mm,
         frame_drive_pin_centres_xy_mm=_frame_drive_pin_centres(),
     )
+    hardware = {f'guide_stop_{name}_{i + 1}': _rotate(shape, i * 360 / p.rib_count)
+                for name, shape in _guide_stop(p).items() if name in ('screw', 'washer', 'nut')
+                for i in range(p.rib_count)}
+    stops = tuple(hardware[f'guide_stop_screw_{i + 1}'] for i in range(p.rib_count))
     return WindingHeadParts(backplate, cam, clamp, sliders, ribs,
-                            printable_parts, state)
+                            printable_parts, state, stops, hardware)

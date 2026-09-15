@@ -240,6 +240,12 @@ def _place_head_horizontally(head: WindingHeadParts) -> WindingHeadParts:
                    for index in range(len(head.ribs))),
         printable_parts=placed,
         state=head.state,
+        guide_stop_references=tuple(shape.rotate((0, 0, 0), (0, 1, 0), 90)
+                                    .translate(translation)
+                                    for shape in head.guide_stop_references),
+        guide_stop_hardware={name: shape.rotate((0, 0, 0), (0, 1, 0), 90)
+                             .translate(translation)
+                             for name, shape in head.guide_stop_hardware.items()},
     )
 
 
