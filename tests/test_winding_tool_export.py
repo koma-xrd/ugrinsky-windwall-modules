@@ -20,6 +20,20 @@ from windwall.winding_head import build_winding_head
 from windwall.winding_tool_parameters import DEFAULT_WINDING_TOOL_PARAMETERS
 
 
+class WindingToolReleaseAttributeTests(unittest.TestCase):
+    def test_generated_step_diff_attribute_does_not_affect_sources_or_v5(self):
+        root = Path(__file__).resolve().parents[1]
+        paths = ('release/winding-tool/step/winding_head_rib.step',
+                 'release/winding-tool/assembly/winding_jig.step',
+                 'release/v5/step/base_rotor_module.step',
+                 'release/winding-tool/docs/serpentine-coil-winding-tool-de.md',
+                 'src/windwall/winding_tool_export.py')
+        result = subprocess.run(['git', 'check-attr', 'diff', '--', *paths],
+                                cwd=root, capture_output=True, text=True, check=True)
+        values = [line.rsplit(': ', 1)[-1] for line in result.stdout.splitlines()]
+        self.assertEqual(values, ['unset', 'unset', 'unspecified', 'unspecified', 'unspecified'])
+
+
 class WindingToolPrintabilityTests(unittest.TestCase):
     def test_fresh_rib_builds_export_identical_bytes(self):
         with temporary_build_directory() as destination:
@@ -43,6 +57,42 @@ class WindingToolExportTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.model = build_winding_tool_assemblies()
+
+    def test_release_includes_synchronised_drawings_and_german_guide(self):
+        with temporary_build_directory() as destination:
+            manifest = export_winding_tool(destination)
+            required = {
+                'drawings/winding-jig-reference.png',
+                'drawings/winding-jig-range.png',
+                'drawings/winding-tool-exploded.png',
+                'docs/serpentine-coil-winding-tool-de.md',
+            }
+            self.assertTrue(all((destination / name).is_file() for name in required))
+            data = json.loads(manifest.path.read_text(encoding='utf-8'))
+            self.assertEqual({row['path'] for row in data['supporting_artifacts']}, required)
+            for row in data['supporting_artifacts']:
+                raw = (destination / row['path']).read_bytes()
+                self.assertEqual(hashlib.sha256(raw).hexdigest(), row['sha256'])
+                if row['path'].endswith('.png'):
+                    self.assertEqual(raw[:8], b'\x89PNG\r\n\x1a\n')
+                    self.assertEqual((int.from_bytes(raw[16:20]), int.from_bytes(raw[20:24])),
+                                     (2000, 1400))
+            guide = (destination / 'docs/serpentine-coil-winding-tool-de.md').read_text('utf-8')
+            source_guide = Path(__file__).resolve().parents[1] / 'docs/serpentine-coil-winding-tool-de.md'
+            self.assertEqual(guide, source_guide.read_text('utf-8'))
+            for phrase in ('Ø127 mm', '10-mm-Klebeband',
+                           'Akkuschrauberbetrieb ist nicht freigegeben',
+                           'Schutzbrille', 'Probespule'):
+                self.assertIn(phrase, guide)
+            bom = json.loads((destination / 'bom.json').read_text('utf-8'))
+            for row in bom['hardware'] + bom['printable_parts']:
+                self.assertIn(f"| {row['quantity']} | `{row['item']}` |", guide)
+            listed = required | {'manifest.json', 'bom.json'}
+            listed.update(row['step_path'] for row in data['assemblies'])
+            for row in data['printable_parts']:
+                listed.update((row['step_path'], row['stl_path']))
+            self.assertEqual({p.relative_to(destination).as_posix()
+                              for p in destination.rglob('*') if p.is_file()}, listed)
 
     def test_tooling_export_has_valid_unique_parts_assemblies_bom_and_manifest(self):
         with temporary_build_directory() as destination:
@@ -136,7 +186,7 @@ class WindingToolExportTests(unittest.TestCase):
             self.assertFalse((destination / 'manifest.json').exists())
 
     def test_failed_artifact_or_bom_never_publishes_manifest(self):
-        for target in ('export_part', '_export_step', 'winding_tool_bom'):
+        for target in ('export_part', '_export_step', 'winding_tool_bom', '_export_supporting_artifacts'):
             with self.subTest(target=target), temporary_build_directory() as destination:
                 (destination / 'manifest.json').write_text('{"old_success": true}')
                 # Fault injection at slow CAD/I/O boundaries leaves publication real.

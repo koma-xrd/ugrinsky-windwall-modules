@@ -38,6 +38,7 @@ PROTOTYPE_LIMITS = (
     'STL orientations place the lowest point at Z=0; supports and print process require review.',
 )
 _ASSEMBLY_SOURCE = 'windwall.winding_tool_assembly.build_winding_tool_assemblies'
+_GUIDE_SOURCE = Path(__file__).resolve().parents[2] / 'docs/serpentine-coil-winding-tool-de.md'
 
 
 @dataclass(frozen=True)
@@ -112,14 +113,16 @@ def _exploded_jig(model: WindingToolAssemblies) -> tuple[dict, dict]:
     for name, body in sorted(model.winding_jig.items()):
         dx, dy, dz = 0.0, 0.0, 0.0
         if name.startswith(('rib_', 'slider_', 'cam_follower', 'guide_stop_')):
-            dx = -75.0
+            dx = -180.0
             centre = body.val().Center()
-            dy, dz = centre.y * 0.6, (centre.z - axis_height) * 0.6
+            dy, dz = centre.y * 0.8, (centre.z - axis_height) * 0.8
         elif name in ('cam', 'clamp', 'backplate'):
-            dx = {'backplate': -35.0, 'cam': -120.0, 'clamp': -160.0}[name]
+            dx = {'backplate': -80.0, 'cam': -290.0, 'clamp': -335.0}[name]
         elif name.startswith(('crank', 'grip_')):
             dx = 90.0
-        elif name in ('left_upright', 'right_upright') or name.startswith(('bearing_608_', 'upright_fastener_')):
+        elif name.startswith('bearing_608_'):
+            dz = 100.0
+        elif name in ('left_upright', 'right_upright') or name.startswith('upright_fastener_'):
             dz = 45.0
         translations[name] = [dx, dy, dz]
         parts[name] = body.translate((dx, dy, dz))
@@ -169,6 +172,56 @@ def _export_tool_assembly(name, parts, destination, ownership, inventory):
 def _write_json(path: Path, data: dict) -> None:
     path.write_text(json.dumps(data, indent=2, sort_keys=True, allow_nan=False) + '\n',
                     encoding='utf-8', newline='\n')
+
+
+def _export_supporting_artifacts(model, exploded, destination, bom):
+    """Bind workshop instructions and CAD drawings to this exact release BOM.
+
+    The source guide is complete for the default model. Marked numeric tables
+    are regenerated for custom exports without changing source documentation.
+    Missing source sections or any render/copy error prevents publication.
+    """
+    from scripts.preview_winding_tool import render_winding_tool_drawings
+
+    p = model.parameters
+    config = [
+        ('Wickeldurchmesser min. / Referenz / max.',
+         f'Ø{p.minimum_diameter_mm:g} / Ø{p.reference_diameter_mm:g} / Ø{p.maximum_diameter_mm:g} mm'),
+        ('Rippen / Bandstellen / Winkelraster', f'{p.rib_count} / {p.tape_station_count} / {360/p.tape_station_count:g}°'),
+        ('Bandbreite / freie Passage', f'{p.tape_width_mm:g} / {p.tape_passage_width_mm:g} mm'),
+        ('Radialer Freigabeweg', f'{p.release_travel_mm:g} mm'),
+        ('Teller / Spulendorn', f'Ø{p.platter_diameter_mm:g} / Ø{p.spool_pilot_diameter_mm:g} × {p.spool_pilot_height_mm:g} mm'),
+        ('Welle / Sechskant-Schlüsselweite', f'Ø{p.shaft_diameter_mm:g} / {p.hex_socket_across_flats_mm:g} mm'),
+        ('Maximales Druckbett', f'{p.print_bed_size_mm:g} × {p.print_bed_size_mm:g} mm'),
+    ]
+    sections = {
+        'configuration': '| Merkmal | CAD-Konfiguration dieses Releases |\n| --- | --- |\n' +
+                         '\n'.join(f'| {key} | {value} |' for key, value in config),
+        'print-bom': '| Menge | Druckteil / STL-Stamm | Modul |\n| --- | --- | --- |\n' +
+                     '\n'.join(f"| {row['quantity']} | `{row['item']}` | {row['tool']} |"
+                               for row in bom['printable_parts']),
+        'hardware-bom': '| Menge | Stücklisten-ID | Nennauswahl (CAD) |\n| --- | --- | --- |\n' +
+                        '\n'.join(f"| {row['quantity']} | `{row['item']}` | {row['specification']} |"
+                                  for row in bom['hardware']),
+    }
+    guide = _GUIDE_SOURCE.read_text(encoding='utf-8')
+    for name, table in sections.items():
+        start, end = f'<!-- BEGIN {name} -->', f'<!-- END {name} -->'
+        if guide.count(start) != 1 or guide.count(end) != 1:
+            raise ValueError(f'Guide requires exactly one {name} section')
+        before, remaining = guide.split(start)
+        _, after = remaining.split(end)
+        guide = before + start + '\n' + table + '\n' + end + after
+    guide_path = destination / 'docs' / _GUIDE_SOURCE.name
+    guide_path.parent.mkdir(parents=True, exist_ok=True)
+    guide_path.write_text(guide, encoding='utf-8', newline='\n')
+    artifacts = list(render_winding_tool_drawings(model, exploded, destination / 'drawings'))
+    artifacts.append({'path': guide_path.relative_to(destination).as_posix(),
+                      'source': 'docs/' + _GUIDE_SOURCE.name,
+                      'language': 'de-DE', 'bom_tables_regenerated': True})
+    for artifact in artifacts:
+        artifact['sha256'] = _file_hash(destination / artifact['path'])
+    return sorted(artifacts, key=lambda row: row['path'])
 
 
 def export_winding_tool(
@@ -221,6 +274,7 @@ def export_winding_tool(
         for row in inventory], 'hardware': hardware}
     bom_path = destination / 'bom.json'
     _write_json(bom_path, bom)
+    supporting_artifacts = _export_supporting_artifacts(model, exploded, destination, bom)
     data = {
         'schema_version': 1, 'release': 'winding-tool', 'units': 'mm',
         'parameters': asdict(tool_parameters),
@@ -228,7 +282,7 @@ def export_winding_tool(
         'bearing_parameters': asdict(design_parameters.bearings),
         'shaft_parameters': asdict(design_parameters.shaft),
         'runtime': {'python': python_version(), 'cadquery': version('cadquery'),
-                    'cadquery-ocp': version('cadquery-ocp')},
+                    'cadquery-ocp': version('cadquery-ocp'), 'matplotlib': version('matplotlib')},
         'reference_diameter_mm': tool_parameters.reference_diameter_mm,
         'diameter_range_mm': [tool_parameters.minimum_diameter_mm, tool_parameters.maximum_diameter_mm],
         'reference_setting_status': 'Calculated starting setting; physical calibration required.',
@@ -240,6 +294,7 @@ def export_winding_tool(
         'ownership': {tool: {group: sorted(members) for group, members in groups.items()}
                       for tool, groups in model.ownership.items()},
         'bom_path': 'bom.json', 'bom_sha256': _file_hash(bom_path),
+        'supporting_artifacts': supporting_artifacts,
         'physical_fit_verified': False, 'powered_operation_validated': False,
         'print_ready': False, 'known_limitations': list(PROTOTYPE_LIMITS),
         'mechanically_synchronized': False, 'shared_base': False,

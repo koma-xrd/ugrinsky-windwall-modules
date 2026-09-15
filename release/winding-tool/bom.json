@@ -1,0 +1,417 @@
+{
+  "hardware": [
+    {
+      "item": "51105 thrust bearing",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 1,
+      "service_note": "Lift platter; keep both washers and rolling assembly as one bearing set.",
+      "specification": "25 x 42 x 11 mm, complete purchased bearing"
+    },
+    {
+      "item": "608 bearing",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 2,
+      "service_note": "Two independent upright seats; withdraw shaft to replace.",
+      "specification": "8 x 22 x 7 mm, sealed radial bearing"
+    },
+    {
+      "item": "8 mm shaft",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 1,
+      "service_note": "Three cross-drilled 4.2 mm holes; remove retaining pins before withdrawal.",
+      "specification": "8 mm steel shaft, 194.9 mm long"
+    },
+    {
+      "item": "ISO 4032 M3 preload nut",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 3,
+      "service_note": "Load radially into collar pockets before fitting preload screws.",
+      "specification": "M3, 5.5 mm across flats, 2.4 mm thick"
+    },
+    {
+      "item": "M3 brake adjustment screw",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 1,
+      "service_note": "Trim/select length to preserve 1 mm rigid platter gap at hard stop.",
+      "specification": "M3 socket-head screw, 19.9 mm shank"
+    },
+    {
+      "item": "M3 brake-adjuster nut",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 1,
+      "service_note": "Load into adjuster pocket before inserting adjuster into base; keep screw engaged.",
+      "specification": "ISO 4032 M3, 5.5 mm across flats, 2.4 mm thick"
+    },
+    {
+      "item": "M3 guide stop nut",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 6,
+      "service_note": "Load from above into the outboard boss; install before winding, verify tightness.",
+      "specification": "ISO 4032 M3, 5.5 mm AF x 2.4 mm"
+    },
+    {
+      "item": "M3 guide stop screw",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 6,
+      "service_note": "Remove from the outboard nut boss before sliding a rib/slider out.",
+      "specification": "M3 x 20 mm socket-head screw"
+    },
+    {
+      "item": "M3 guide stop washer",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 6,
+      "service_note": "Fit beneath the outboard stop screw head.",
+      "specification": "6 mm OD x 3.2 mm ID x 0.6 mm"
+    },
+    {
+      "item": "M3 rib attachment pin",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 6,
+      "service_note": "Head and locknut lie outside guide walls; remove nut then withdraw tangentially.",
+      "specification": "M3 x 22 mm socket-head through-bolt"
+    },
+    {
+      "item": "M3 x 10 mm socket-head cap screw",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 3,
+      "service_note": "Back off all three screws before cam adjustment or head release.",
+      "specification": "ISO 4762 M3 x 10, 5.5 mm head diameter, 3 mm head height"
+    },
+    {
+      "item": "M4 upright bolt",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 4,
+      "service_note": "Fit through base and upright feet; verify bench underside access.",
+      "specification": "M4 x 25 mm through-bolt"
+    },
+    {
+      "item": "M4 upright nut",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 4,
+      "service_note": "Inspect tightness before winding.",
+      "specification": "M4 locking nut"
+    },
+    {
+      "item": "M4 upright washer",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 8,
+      "service_note": "One washer under each bolt head and nut.",
+      "specification": "M4 flat washer"
+    },
+    {
+      "item": "brake compression spring",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 1,
+      "service_note": "Spring sits on base cavity floor; choose rate by measured payoff drag.",
+      "specification": "8 mm OD, 4 mm ID, 9.2 mm free length"
+    },
+    {
+      "item": "brake spring washer",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 1,
+      "service_note": "Install between spring and printed adjuster.",
+      "specification": "10 mm OD x 3.4 mm ID x 0.6 mm"
+    },
+    {
+      "item": "cam follower captive nut",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 6,
+      "service_note": "Insert from underside before installing sliders; pocket blocks rotation.",
+      "specification": "ISO 4032 M3, 5.5 mm AF x 2.4 mm"
+    },
+    {
+      "item": "cam follower washer",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 6,
+      "service_note": "Fit above cam; retain 0.2 mm nominal axial clearance to cam.",
+      "specification": "7 mm OD x 4.2 mm ID x 0.6 mm"
+    },
+    {
+      "item": "crank grip",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 1,
+      "service_note": "Purchased freely rotating grip; verify no seizure under hand load.",
+      "specification": "22 mm OD x 24 mm long, 6.6 mm running bore"
+    },
+    {
+      "item": "crank grip axle",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 1,
+      "service_note": "Provide removable end retention outside the two washers; verify fit.",
+      "specification": "6 mm diameter x 41 mm retained axle"
+    },
+    {
+      "item": "crank grip axle retaining ring",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 2,
+      "service_note": "Machine grooves beyond washers; nominal references do not model grooves.",
+      "specification": "External retaining ring for 6 mm grooved axle"
+    },
+    {
+      "item": "crank grip washer",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 2,
+      "service_note": "One at each end of the free-running grip.",
+      "specification": "6.1 mm ID x 14 mm OD x 0.6 mm"
+    },
+    {
+      "item": "crank shaft retaining pin",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 1,
+      "service_note": "Withdraw before removing the manual crank.",
+      "specification": "4 mm diameter x 30 mm removable cross-pin"
+    },
+    {
+      "item": "felt brake pad",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 1,
+      "service_note": "Lower adjuster and remove brake screw to replace pad radially.",
+      "specification": "14 mm OD x 3.4 mm ID x 2 mm uncompressed felt"
+    },
+    {
+      "item": "head collar retaining pin",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 1,
+      "service_note": "Withdraw after releasing the preload screws.",
+      "specification": "4 mm diameter x 22 mm removable cross-pin"
+    },
+    {
+      "item": "head hub retaining pin",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 1,
+      "service_note": "Withdraw to slide hub away from the three printed torque pins.",
+      "specification": "4 mm diameter x 26 mm removable cross-pin"
+    },
+    {
+      "item": "metal cam follower",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 6,
+      "service_note": "Nominal custom shoulder screw; captive nut loads from slider underside before guide insertion. Shoulder preserves cam running clearance.",
+      "specification": "4 mm shoulder x 6.65 mm, M3 threaded tip x 2.6 mm, 5.5 x 3 mm head"
+    },
+    {
+      "item": "removable cross-pin keeper",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 3,
+      "service_note": "Fit to hub, collar, and crank cross-pins; verify retention and hand clearance.",
+      "specification": "Keeper clip matched to each 4 mm cross-pin"
+    },
+    {
+      "item": "rib attachment locknut",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 6,
+      "service_note": "Retains rib bolt; do not tighten across and deform the guide channel.",
+      "specification": "M3 locking nut, 5.5 mm AF x 4 mm"
+    },
+    {
+      "item": "rib attachment washer",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 12,
+      "service_note": "One washer at each rib-bolt end, outside guide walls.",
+      "specification": "6 mm OD x 3.2 mm ID x 0.6 mm"
+    },
+    {
+      "alternative": "bolts",
+      "choice_group": "winding_jig_bench",
+      "item": "winding_jig bench bolt",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 4,
+      "service_note": "Bolted mounting alternative; measure bench and verify underside access.",
+      "specification": "M5 through-bolt; length = bench thickness + 18 mm"
+    },
+    {
+      "alternative": "clamps",
+      "choice_group": "winding_jig_bench",
+      "item": "winding_jig bench clamp",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 2,
+      "service_note": "Alternative to bench bolts; check jaw access and resistance to tipping.",
+      "specification": "Small bench clamp for 13 x 60 mm clamp land"
+    },
+    {
+      "alternative": "bolts",
+      "choice_group": "winding_jig_bench",
+      "item": "winding_jig bench nut",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 4,
+      "service_note": "Use with bench bolts and washers.",
+      "specification": "M5 locking nut"
+    },
+    {
+      "alternative": "bolts",
+      "choice_group": "winding_jig_bench",
+      "item": "winding_jig bench washer",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 8,
+      "service_note": "One under each bolt head and nut when choosing bolted mounting.",
+      "specification": "M5 flat washer"
+    },
+    {
+      "alternative": "bolts",
+      "choice_group": "wire_payoff_bench",
+      "item": "wire_payoff bench bolt",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 4,
+      "service_note": "Bolted mounting alternative; measure bench and verify underside access.",
+      "specification": "M5 through-bolt; length = bench thickness + 18 mm"
+    },
+    {
+      "alternative": "clamps",
+      "choice_group": "wire_payoff_bench",
+      "item": "wire_payoff bench clamp",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 2,
+      "service_note": "Alternative to bench bolts; check jaw access and resistance to tipping.",
+      "specification": "Small bench clamp for 13 x 60 mm clamp land"
+    },
+    {
+      "alternative": "bolts",
+      "choice_group": "wire_payoff_bench",
+      "item": "wire_payoff bench nut",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 4,
+      "service_note": "Use with bench bolts and washers.",
+      "specification": "M5 locking nut"
+    },
+    {
+      "alternative": "bolts",
+      "choice_group": "wire_payoff_bench",
+      "item": "wire_payoff bench washer",
+      "length_selection": "nominal CAD selection",
+      "physical_fit_verified": false,
+      "quantity": 8,
+      "service_note": "One under each bolt head and nut when choosing bolted mounting.",
+      "specification": "M5 flat washer"
+    }
+  ],
+  "printable_parts": [
+    {
+      "item": "winding_frame_base",
+      "physical_fit_verified": false,
+      "quantity": 1,
+      "source_builder": "windwall.winding_frame.build_winding_frame",
+      "tool": "winding_jig"
+    },
+    {
+      "item": "winding_frame_crank",
+      "physical_fit_verified": false,
+      "quantity": 1,
+      "source_builder": "windwall.winding_frame.build_winding_frame",
+      "tool": "winding_jig"
+    },
+    {
+      "item": "winding_frame_head_hub",
+      "physical_fit_verified": false,
+      "quantity": 1,
+      "source_builder": "windwall.winding_frame.build_winding_frame",
+      "tool": "winding_jig"
+    },
+    {
+      "item": "winding_frame_head_retaining_collar",
+      "physical_fit_verified": false,
+      "quantity": 1,
+      "source_builder": "windwall.winding_frame.build_winding_frame",
+      "tool": "winding_jig"
+    },
+    {
+      "item": "winding_frame_upright",
+      "physical_fit_verified": false,
+      "quantity": 2,
+      "source_builder": "windwall.winding_frame.build_winding_frame",
+      "tool": "winding_jig"
+    },
+    {
+      "item": "winding_head_backplate",
+      "physical_fit_verified": false,
+      "quantity": 1,
+      "source_builder": "windwall.winding_head.build_winding_head",
+      "tool": "winding_jig"
+    },
+    {
+      "item": "winding_head_cam",
+      "physical_fit_verified": false,
+      "quantity": 1,
+      "source_builder": "windwall.winding_head.build_winding_head",
+      "tool": "winding_jig"
+    },
+    {
+      "item": "winding_head_clamp",
+      "physical_fit_verified": false,
+      "quantity": 1,
+      "source_builder": "windwall.winding_head.build_winding_head",
+      "tool": "winding_jig"
+    },
+    {
+      "item": "winding_head_rib",
+      "physical_fit_verified": false,
+      "quantity": 6,
+      "source_builder": "windwall.winding_head.build_winding_head",
+      "tool": "winding_jig"
+    },
+    {
+      "item": "winding_head_slider",
+      "physical_fit_verified": false,
+      "quantity": 6,
+      "source_builder": "windwall.winding_head.build_winding_head",
+      "tool": "winding_jig"
+    },
+    {
+      "item": "wire_payoff_adjuster",
+      "physical_fit_verified": false,
+      "quantity": 1,
+      "source_builder": "windwall.wire_payoff.build_wire_payoff",
+      "tool": "wire_payoff"
+    },
+    {
+      "item": "wire_payoff_base",
+      "physical_fit_verified": false,
+      "quantity": 1,
+      "source_builder": "windwall.wire_payoff.build_wire_payoff",
+      "tool": "wire_payoff"
+    },
+    {
+      "item": "wire_payoff_platter",
+      "physical_fit_verified": false,
+      "quantity": 1,
+      "source_builder": "windwall.wire_payoff.build_wire_payoff",
+      "tool": "wire_payoff"
+    }
+  ]
+}
