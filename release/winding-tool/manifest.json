@@ -1183,15 +1183,12 @@
     "wire_contact_envelope": true
   },
   "bearing_parameters": {
-    "coupon_diameter_step_mm": 0.2,
     "radial_bore_diameter_mm": 8.0,
     "radial_height_mm": 7.0,
-    "radial_housing_seat_depth_mm": 7.2,
     "radial_housing_seat_diameter_mm": 22.2,
     "radial_outer_diameter_mm": 22.0,
     "thrust_bore_diameter_mm": 25.0,
     "thrust_height_mm": 11.0,
-    "thrust_housing_seat_depth_mm": 11.2,
     "thrust_housing_seat_diameter_mm": 42.2,
     "thrust_outer_diameter_mm": 42.0,
     "thrust_rotating_pilot_diameter_mm": 24.8
@@ -1214,19 +1211,8 @@
   ],
   "manifest_path_base": "output directory",
   "manufacturing_parameters": {
-    "axial_clearance_mm": 0.25,
     "export_angular_tolerance_rad": 0.12,
-    "export_linear_tolerance_mm": 0.08,
-    "minimum_loaded_wall_mm": 3.0,
-    "nut_pocket_across_flats_mm": 13.3,
-    "nut_pocket_depth_mm": 6.8,
-    "radial_clearance_mm": 0.3,
-    "screw_head_diameter_mm": 5.5,
-    "screw_head_height_mm": 3.0,
-    "screw_length_mm": 12.0,
-    "screw_nominal_diameter_mm": 3.0,
-    "screw_pilot_diameter_mm": 2.3,
-    "washer_outer_diameter_mm": 24.0
+    "export_linear_tolerance_mm": 0.08
   },
   "ownership": {
     "winding_jig": {

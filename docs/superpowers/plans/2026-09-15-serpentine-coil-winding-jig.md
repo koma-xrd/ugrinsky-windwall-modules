@@ -1,5 +1,8 @@
 # Serpentine Coil Winding Jig Implementation Plan
 
+Status: superseded by [the 2026-09-16 simple pin-adjustable coil-winder plan](2026-09-16-simple-pin-adjustable-coil-winder.md).
+This historical plan records the replaced mechanism; do not execute it for the current release.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build and release a hand-cranked, concentrically adjustable round-coil winding jig and a separate 51105-supported copper-wire payoff turntable for forming the V5 generator's 18-station serpentine coil.

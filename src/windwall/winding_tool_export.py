@@ -413,8 +413,18 @@ def _publish_winding_tool(
         'release': 'simple-pin-adjustable-coil-winder',
         'units': 'mm',
         'parameters': asdict(parameters),
-        'manufacturing_parameters': asdict(design_parameters.manufacturing),
-        'bearing_parameters': asdict(design_parameters.bearings),
+        'manufacturing_parameters': {
+            name: getattr(design_parameters.manufacturing, name)
+            for name in ('export_linear_tolerance_mm', 'export_angular_tolerance_rad')
+        },
+        'bearing_parameters': {
+            name: getattr(design_parameters.bearings, name)
+            for name in ('radial_bore_diameter_mm', 'radial_outer_diameter_mm',
+                         'radial_height_mm', 'radial_housing_seat_diameter_mm',
+                         'thrust_bore_diameter_mm', 'thrust_outer_diameter_mm',
+                         'thrust_height_mm', 'thrust_housing_seat_diameter_mm',
+                         'thrust_rotating_pilot_diameter_mm')
+        },
         'runtime': {
             'python': python_version(),
             'cadquery': version('cadquery'),

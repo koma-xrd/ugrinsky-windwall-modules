@@ -131,6 +131,12 @@ construction coordinates, remove the wheel record's axis-height translation and
 rotate -90 degrees about X. Payoff occurrences already use construction coordinates.
 Translate each oriented master's minimum Z to the bed before export.
 
+The release manifest records only design settings consumed by this tooling:
+the two export tessellation tolerances, canonical bearing bore/outer/height
+dimensions, the two housing-seat diameters and the 51105 rotating-pilot diameter.
+Shared fastener, fit-coupon and unused seat-depth settings are omitted; the
+shared V5 parameter model and its release serialization are unchanged.
+
 The wheel's ownership record supplies selected diameter, installed axis height,
 nominal station labels and actual tape angles. Those values do not replace
 geometry checks. Treat occurrence Workplanes as immutable; a model edit replaces

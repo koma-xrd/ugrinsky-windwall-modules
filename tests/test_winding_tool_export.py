@@ -17,6 +17,7 @@ from PIL import Image
 
 from tests.support import temporary_build_directory
 from windwall.export import export_part
+from windwall.parameters import DEFAULT_PARAMETERS
 from windwall.winding_tool_assembly import (
     build_winding_tool_assemblies, winding_tool_bom,
 )
@@ -259,6 +260,30 @@ class WindingToolExportTests(unittest.TestCase):
                 supporting_artifact_exporter=lambda _model, _output, _bom: ()).data
             self.assertEqual(data['coordinate_frames']['assembly_step'],
                              'Two independent origins; winding-jig axis Y (forward -Y) and payoff axis Z.')
+
+    def test_manifest_omits_design_settings_not_used_by_the_tooling(self):
+        """Shared fastener and coupon settings must not imply tooling hardware."""
+        with temporary_build_directory() as destination:
+            data = self.export_reference(destination,
+                supporting_artifact_exporter=lambda _model, _output, _bom: ()).data
+        expected_fields = {
+            'manufacturing_parameters': (
+                DEFAULT_PARAMETERS.manufacturing,
+                ('export_linear_tolerance_mm', 'export_angular_tolerance_rad'),
+            ),
+            'bearing_parameters': (
+                DEFAULT_PARAMETERS.bearings,
+                ('radial_bore_diameter_mm', 'radial_outer_diameter_mm',
+                 'radial_height_mm', 'radial_housing_seat_diameter_mm',
+                 'thrust_bore_diameter_mm', 'thrust_outer_diameter_mm',
+                 'thrust_height_mm', 'thrust_housing_seat_diameter_mm',
+                 'thrust_rotating_pilot_diameter_mm'),
+            ),
+        }
+        for section, (parameters, names) in expected_fields.items():
+            with self.subTest(section=section):
+                self.assertEqual(data[section],
+                                 {name: getattr(parameters, name) for name in names})
 
     def test_support_publication_has_exact_current_drawings_and_synchronized_guide(self):
         # Missing support, a stale guide/BOM, omitted CAD occurrences or obsolete
