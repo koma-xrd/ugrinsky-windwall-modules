@@ -3,9 +3,8 @@
 Task 5 occurrence ownership is the only print-inventory and BOM authority. This
 module orients one representative of each audited printed master, exports the
 two independent assemblies, and publishes a success manifest only after every
-CAD, mesh, STEP, hash, BOM, audit, and optional support-artifact gate passes.
-The default support-artifact hook intentionally publishes an empty inventory;
-drawings and the German guide are supplied by the following release task.
+CAD, mesh, STEP, hash, BOM, audit, drawing and guide gate passes. Supporting
+drawings consume current CAD occurrences; the guide tables consume the same BOM.
 """
 
 from collections import Counter
@@ -266,9 +265,17 @@ def _export_tool_assembly(release_name: str, tool: str, model: WindingToolAssemb
     }
 
 
-def _export_supporting_artifacts(_model, _destination, _bom):
-    """Task 7 hook; the deterministic Task 6 core has no support artifacts."""
-    return ()
+def _export_supporting_artifacts(model, destination, bom):
+    """Publish current drawings and a BOM-synchronized German operating guide."""
+    from scripts.preview_winding_tool import render_winding_tool_drawings, winding_tool_guide
+
+    drawings = render_winding_tool_drawings(model, destination / 'drawings')
+    guide_path = destination / 'docs' / 'serpentine-coil-winding-tool-de.md'
+    guide_path.parent.mkdir(parents=True, exist_ok=True)
+    guide_path.write_text(winding_tool_guide(model, bom), encoding='utf-8', newline='\n')
+    return (*drawings, {'path': 'docs/serpentine-coil-winding-tool-de.md',
+                        'source': 'docs/serpentine-coil-winding-tool-de.md',
+                        'tables_synchronized_with': 'bom.json and current CAD tape angles'})
 
 
 def _supporting_artifact_records(destination: Path, artifacts) -> list[dict]:
@@ -437,7 +444,7 @@ def _publish_winding_tool(
                            'given the recorded release X/Y/Z rotations; the shaft uses an '
                            'equivalent axis-parallel phase that places a planar face on the bed.'),
             'print_stl': 'The print STEP master translated vertically to minimum Z = 0 mm.',
-            'assembly_step': 'Two independent origins; winding-jig axis X and payoff axis Z.',
+            'assembly_step': 'Two independent origins; winding-jig axis Y (forward -Y) and payoff axis Z.',
         },
         'manifest_path_base': 'output directory',
         'determinism': ('Sorted ownership-derived inventory, sorted named assemblies, canonical STEP headers, '

@@ -1,6 +1,8 @@
 # Release checksums describe exact bytes, including on Windows checkouts.
 release/v5/** -text
 release/winding-tool/** -text
+# The default source guide and its hashed release copy must remain byte-identical.
+docs/serpentine-coil-winding-tool-de.md text eol=lf
 # Generated CAD retains OCCT formatting; review geometry, not textual diffs.
 release/winding-tool/**/*.step -diff
 # Translation reviews also hash the source catalogues byte for byte.

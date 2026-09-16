@@ -1,431 +1,290 @@
-# Serpentinen-Spule: Wickelvorrichtung und Drahtabroller
+# Einfaches Steck-Wickelrad und freier Drahtabroller
 
-## Zweck, Grenzen und Sicherheit
+## Zweck und Grenzen
 
-Diese zwei unabhängigen, handbetätigten Werkstatthilfen sind Prototypen:
-Modul A wickelt zunächst eine runde Spule; Modul B lässt die Vorratsspule
-passiv unter leichter Filzreibung ablaufen. Die Module besitzen getrennte
-Grundplatten und keine mechanische Synchronisierung. Sie sind keine
-V5-Produktionsteile. Ausgangsmaterial ist 0,18-mm-Kupferlackdraht.
+Zwei unabhängige, rein manuelle Module helfen beim Vorwickeln einer späteren
+Serpentinenspule aus 0,18-mm-Kupferlackdraht. Das vertikale Wickelrad trägt sechs
+gleiche, vollständig abnehmbare Kontaktschuhe. Eine Handkurbel dreht das Rad über
+eine gedruckte Welle in zwei 608-Lagern. Der separate Abroller trägt die
+aufrechte Vorratsrolle auf einem frei drehenden Teller mit einem 51105-Axiallager.
+Alle Verbindungen der beiden Werkzeuge sind schraubenlose Steck-/Rastverbindungen.
+
+Die elf Markierungen reichen von 100–200 mm in 10-mm-Schritten; die
+Referenzdarstellung verwendet 150 mm. Das Maß bezeichnet die nominale Hülle der
+sechs Kontaktflächen. Die Wicklung bildet ein gerundetes Sechseck, keinen
+zugesicherten Kreis. Alle Druckteile sind PLA-Prototypen. Die Werkzeugteile
+gehören nicht zum V5-Produktionsinventar oder dessen `PRINT_SOURCES`.
 
 Akkuschrauberbetrieb ist nicht freigegeben
 
-Die vorhandene Sechskantaufnahme ist eine zukünftige Schnittstelle und keine
-Betriebsfreigabe. Drehzahl, Drehmomentbegrenzung und Schutzabdeckung sind nicht
-ausgelegt oder validiert. Elektrische Eigenschaften, Festigkeit, Ermüdung,
-gedruckte Passungen, Wickelqualität und Produktionstauglichkeit sind nicht
-physisch validiert. Es gibt keine freigegebene Drehzahl oder Windungszahl.
+Elektrische Eigenschaften, physische Funktion, Festigkeit und Ermüdung der
+gedruckten Welle, Lebensdauer der Rastzungen, Lager- und Steckpassungen,
+Maßhaltigkeit und Wiederholbarkeit, Lackschutz, Standfestigkeit, Stoppverhalten,
+Entnahmekraft, Drehzahl und Produktionstauglichkeit sind nicht physisch validiert.
+Es gibt keine freigegebene Drehzahl, Belastung oder endgültige Windungszahl.
+CAD-, STL- und STEP-Prüfungen ersetzen keine Messung am gedruckten Prototyp.
 
-Schutzbrille tragen. Dünner Draht kann Haut schneiden, sich verheddern, reißen
-und mit seinen Enden in die Augen schlagen. Drahtschlaufen und lose Enden
-kontrollieren; lange Haare binden, Schmuck und lose Kleidung fernhalten.
-Nicht in die laufende Wicklung greifen und Draht nie um Finger wickeln.
-Zum Einstellen, Tapen, Entnehmen oder Lösen einer Verhedderung vollständig
-anhalten, Kurbel sichern und Drahtspannung kontrolliert abbauen. Bei Rissen,
-Klemmen, Abrieb, springendem Draht oder lockeren Verbindungen sofort stoppen.
+## Sicherheit vor jedem Versuch
 
-## Konfiguration und Unterlagen
+Schutzbrille tragen. Dünner Draht kann die Haut schneiden, sich verheddern,
+reißen und zurückschnellen. Lose Enden kontrollieren; Draht nie um Finger wickeln.
+Haare binden und Kleidung, Schmuck, Hände und lose Leitungen aus dem Drehbereich
+halten. Vor Einstellen, Tapen, Entnehmen oder Lösen einer Verhedderung beide
+Module vollständig anhalten und Drahtspannung kontrolliert abbauen.
 
-Die Standardkonfiguration beginnt bei Ø127 mm, einem rechnerischen Startwert.
-Bei abweichend erzeugten Releases gelten die folgenden automatisch aus den
-Parametern erzeugten Tabellen und deren STEP-Dateien; das Standardmaß ersetzt
-keine Messung. Die praktische Kalibrierung weiter unten bleibt erforderlich.
+Vor jedem Einsatz Welle, alle Rastzungen und Schnappringe, Schuhe, Turm und
+Grundplatten auf Risse, Weißbruch, Verformung, Abrieb und gelockerte Verbindungen
+prüfen. Drahtflächen müssen sauber und glatt sein. Beschädigte Teile ersetzen;
+bei Klemmen, ruckendem Draht, Lackabrieb, Kippen oder ungewöhnlicher Reibung stoppen.
+Beide Module auf einer stabilen Werkbank getrennt gegen Rutschen/Kippen sichern.
+Optionale Werkbankzwingen sind Werkstattausrüstung; sie greifen nur an den
+vorgesehenen Klemmlanden und bleiben außerhalb von Kurbel, Draht und Entnahmeweg.
 
-<!-- BEGIN configuration -->
-| Merkmal | CAD-Konfiguration dieses Releases |
-| --- | --- |
-| Wickeldurchmesser min. / Referenz / max. | Ø110 / Ø127 / Ø145 mm |
-| Rippen / Bandstellen / Winkelraster | 6 / 18 / 20° |
-| Bandbreite / freie Passage | 10 / 12 mm |
-| Radialer Freigabeweg | 2 mm |
-| Teller / Spulendorn | Ø150 / Ø15 × 20 mm |
-| Welle / Sechskant-Schlüsselweite | Ø8 / 6.35 mm |
-| Maximales Druckbett | 220 × 220 mm |
-| Abrollerfüße / Werkzeugfreiheit unter Basis | 24 mm / kurzer 2,5-mm-Inbusschlüssel |
-<!-- END configuration -->
+## Release und Zeichnungen
 
-Das Release-Verzeichnis `release/winding-tool/` enthält `manifest.json`,
-`bom.json`, `stl/`, `step/`, `assembly/`, `drawings/` und diese Anleitung
-unter `docs/`. Die Anleitung bleibt dadurch auch im kopierten Release nutzbar.
-Die Tabellen verwenden unveränderte technische IDs aus der maschinenlesbaren
-BOM; OD = Außendurchmesser, ID = Innendurchmesser, AF = Schlüsselweite.
+`release/winding-tool/manifest.json` ist das Dateiinventar mit SHA-256-Prüfsummen,
+Mengen, Druckorientierungen, CAD-Nennmaßen, Besitz-/Bewegungsgruppen und Audits.
+`bom.json` enthält die kanonische Stückliste. Das kopierbare Release enthält
+`stl/`, `step/`, `assembly/`, `drawings/` und diese Anleitung unter `docs/`.
+Jedes STL hat einen gleichnamigen STEP-Master. Die zwei Baugruppen heißen
+`simplified_winding_jig.step` und `free_running_wire_payoff.step`.
 
-Die Zeichnungen im Unterverzeichnis `drawings/`:
+- `winding-jig-reference.png`: beide montierten Module bei 150 mm,
+  Antriebsdetail, aufrechte Vorratsrolle, Drehsinn und Drahtzufuhr B → A.
+- `winding-jig-range.png`: 100/150/200-mm-Hüllen, alle elf Markierungen,
+  18 Stationsidentitäten und tatsächliche Bandwinkel sowie Schuhdetail.
+- `winding-tool-exploded.png`: vollständige getrennte Montagegruppen,
+  Lagerzuordnung, Steckfolge und Entnahme der getapten Spule nach vorn.
 
-- `winding-jig-reference.png`: beide Module montiert, Drahtzufuhr B → A.
-- `winding-jig-range.png`: Kopf bei Ø110 / Ø127 / Ø145 mm, sechs Rippen,
-  18 nummerierte Bandstellen und vollständiger Entnahmeweg.
-- `winding-tool-exploded.png`: getrennte Montagegruppen und Lagerzuordnung.
-  Explosionsabstände sind ausschließlich Darstellungsabstände.
+Die Montagegruppen zeigen jedes Bauglied einmal; Betriebsbilder darunter zeigen
+dieselben Teile in aufeinanderfolgenden Zuständen. Abstände und unterschiedliche
+Ansichtsmaßstäbe dienen der Lesbarkeit. Die gestrichelte Vorratsrolle ist eine
+Beladungsskizze und kein zusätzliches Produktteil.
 
-## Druckteile, Orientierung und Nacharbeit
+## Vollständige Stückliste
 
-14 verschiedene STL-Dateien ergeben 26 Druckteile. Die Dateistämme sind unten
-vollständig aufgeführt. Nur diese Körper drucken; Lager, Welle, Schrauben,
-Griff, Feder, Filz und Sicherungen sind Kauf- oder anzufertigende Metallteile.
+12 unterschiedliche Druckmaster ergeben 19 gedruckte Teile aus PLA. Nur die
+nachfolgend aufgeführten Master drucken. Die Zahlen sind aus den tatsächlichen
+Baugruppen-Vorkommen abgeleitet. Lager sind Kaufteile, keine Druckkörper.
 
 <!-- BEGIN print-bom -->
-| Menge | Druckteil / STL-Stamm | Modul |
-| --- | --- | --- |
-| 1 | `winding_frame_base` | winding_jig |
-| 2 | `winding_frame_bearing_cap` | winding_jig |
-| 1 | `winding_frame_crank` | winding_jig |
-| 1 | `winding_frame_head_hub` | winding_jig |
-| 1 | `winding_frame_head_retaining_collar` | winding_jig |
-| 2 | `winding_frame_upright` | winding_jig |
-| 1 | `winding_head_backplate` | winding_jig |
-| 1 | `winding_head_cam` | winding_jig |
-| 1 | `winding_head_clamp` | winding_jig |
-| 6 | `winding_head_rib` | winding_jig |
-| 6 | `winding_head_slider` | winding_jig |
-| 1 | `wire_payoff_adjuster` | wire_payoff |
-| 1 | `wire_payoff_base` | wire_payoff |
-| 1 | `wire_payoff_platter` | wire_payoff |
+| Menge | Master | STL-Stamm | Material |
+| ---: | --- | --- | --- |
+| 1 | `winding_jig/base` | `winding_jig_base` | PLA |
+| 2 | `winding_jig/bearing_retainer` | `winding_jig_bearing_retainer` | PLA |
+| 1 | `winding_jig/bearing_tower` | `winding_jig_bearing_tower` | PLA |
+| 1 | `winding_jig/coil_wheel` | `winding_jig_coil_wheel` | PLA |
+| 6 | `winding_jig/contact_shoe` | `winding_jig_contact_shoe` | PLA |
+| 1 | `winding_jig/hand_crank` | `winding_jig_hand_crank` | PLA |
+| 1 | `winding_jig/printed_shaft` | `winding_jig_printed_shaft` | PLA |
+| 1 | `winding_jig/rotating_grip` | `winding_jig_rotating_grip` | PLA |
+| 2 | `winding_jig/snap_collar` | `winding_jig_snap_collar` | PLA |
+| 1 | `wire_payoff/base` | `wire_payoff_base` | PLA |
+| 1 | `wire_payoff/platter` | `wire_payoff_platter` | PLA |
+| 1 | `wire_payoff/printed_spindle` | `wire_payoff_printed_spindle` | PLA |
 <!-- END print-bom -->
 
-Die STL-Dateien sind auf Z = 0 gesetzt; das Manifest nennt zusätzlich
-`print_rotation_y_deg`. STEP-Einzelteile verwenden dieselbe Rotation vor
-der vertikalen STL-Verschiebung. Baugruppen-STEPs bleiben in Einbaulage.
-Druckbett und Slicer-Vorschau für jedes Teil prüfen:
-
-- Rahmenbasis mit ihrer breiten Unterseite auf das Bett; die vier offenen
-  Kopfversenkungen von Stützen säubern. Abrollerbasis hat vier integrale
-  24-mm-Füße: beim Druck auf den Füßen braucht die Platte darüber entfernbare
-  Stützen. Alternativ Orientierung im Slicer anpassen und Lagersitz schützen.
-  Ständer stehen in den gelieferten STL-Dateien auf den Füßen; horizontale
-  Lagerbohrungen und Überhänge auf entfernbares Stützmaterial prüfen.
-- Rückplatte, Kurvenring, Klemmring, Rippen, Schieber, Nabe, Haltering, Lagerkappen und Kurbel
-  sind gegenüber der X-Wickelachse um −90° um Y gedreht; die flache axiale
-  Seite liegt unten. Führungsdächer, Mutternfenster und Bandpassagen in jeder
-  Schicht kontrollieren. Rippen-Drahtflächen vor Stützspuren schützen.
-- Der Abrollerteller bleibt einteilig. Sein unterer Lagerpilot zeigt zum Bett;
-  der Tellerüberhang braucht eine im Slicer geprüfte, restlos entfernbare
-  Stützstrategie oder eine begründet geänderte Orientierung. Beide Piloten,
-  Lageranlage und Drahtkontakt dürfen nicht durch Stützen beschädigt werden.
-- Einsteller mit dem breiten Flansch unten drucken. Gewinde wird durch die
-  eingelegte M3-Mutter getragen; keine Schraube in bloßen Kunststoff zwingen.
-
-Material, Schichthöhe, Wandzahl, Füllung und Stützen sind Prozessversuche.
-Keine Druck- oder Festigkeitsfreigabe ableiten. Zuerst passende Lager- und
-Führungsproben sowie eine einzelne Rippe drucken, dann trocken montieren.
-
-Alle drahtberührenden Oberflächen nacharbeiten: jede Rippenkontur, beide
-Mündungen aller Bandpassagen, Schichtnähte, Tellerkante, Spulendorn und
-tatsächliche Drahtzuführung. Grate, Elefantenfuß und Stützreste entfernen,
-Kanten glatt verrunden, reinigen und mit einem Drahtrest bei sehr geringer
-Spannung prüfen. Weder Schraubenenden noch Folien-/Bandkanten dürfen Lack
-abschaben. Nicht durch Nacharbeit unkontrolliert Lager- oder Führungsmaße
-verändern. Beschädigte Rippen ersetzen.
-
-## Vollständige Hardware-Stückliste
-
-Mengen beziehen sich auf beide Module zusammen. Für **jedes** Modul zwischen
-vier Tischschrauben mit acht Scheiben und vier Muttern **oder** zwei Zwingen
-wählen; diese Alternativen nicht addieren. Die CAD-Hardware ist eine nominale
-Auswahl, keine geprüfte Einkaufsliste. Gewindelängen, Köpfe, Scheibenstapel,
-Sicherungen und Bewegungsfreiheit am realen Aufbau prüfen. Sonderteile wie
-Schulterfolger und quergebohrte Welle erfordern geeignete Fertigung.
-
 <!-- BEGIN hardware-bom -->
-| Menge | Stücklisten-ID | Nennauswahl (CAD) |
-| --- | --- | --- |
-| 1 | `51105 thrust bearing` | 25 x 42 x 11 mm, complete purchased bearing |
-| 2 | `608 bearing` | 8 x 22 x 7 mm, sealed radial bearing |
-| 1 | `8 mm shaft` | 8 mm steel shaft, 194.9 mm long |
-| 3 | `ISO 4032 M3 preload nut` | M3, 5.5 mm across flats, 2.4 mm thick |
-| 4 | `M3 bearing cap nut` | ISO 4032 M3, 5.5 mm AF x 2.4 mm |
-| 4 | `M3 bearing cap screw` | M3 x 22 mm socket-head screw |
-| 4 | `M3 bearing cap washer` | 6 mm OD x 3.2 mm ID x 0.6 mm |
-| 1 | `M3 brake adjustment screw` | M3 socket-head screw, 19.9 mm shank |
-| 1 | `M3 brake-adjuster nut` | ISO 4032 M3, 5.5 mm across flats, 2.4 mm thick |
-| 6 | `M3 guide stop nut` | ISO 4032 M3, 5.5 mm AF x 2.4 mm |
-| 6 | `M3 guide stop screw` | M3 x 20 mm socket-head screw |
-| 6 | `M3 guide stop washer` | 6 mm OD x 3.2 mm ID x 0.6 mm |
-| 6 | `M3 rib attachment pin` | M3 x 22 mm socket-head through-bolt |
-| 3 | `M3 x 20 mm socket-head cap screw` | ISO 4762 M3 x 20, 5.5 mm head diameter, 3 mm head height |
-| 4 | `M4 upright bolt` | M4 x 20 mm socket-head bolt, 7 mm OD x 4 mm head |
-| 4 | `M4 upright nut` | M4 locking nut, 7 mm AF x 5 mm |
-| 8 | `M4 upright washer` | 9 mm OD x 4.3 mm ID x 0.8 mm |
-| 1 | `brake compression spring` | 8 mm OD, 4 mm ID, 9.2 mm free length |
-| 1 | `brake spring washer` | 10 mm OD x 3.4 mm ID x 0.6 mm |
-| 6 | `cam follower captive nut` | ISO 4032 M3, 5.5 mm AF x 2.4 mm |
-| 6 | `cam follower washer` | 7 mm OD x 4.2 mm ID x 0.6 mm |
-| 1 | `crank grip` | 22 mm OD x 24 mm long, 6.6 mm running bore |
-| 1 | `crank grip axle` | 6 mm diameter x 41 mm retained axle |
-| 2 | `crank grip axle retaining ring` | External retaining ring for 6 mm grooved axle |
-| 2 | `crank grip washer` | 6.1 mm ID x 14 mm OD x 0.6 mm |
-| 1 | `crank shaft retaining pin` | 4 mm diameter x 30 mm removable cross-pin |
-| 1 | `felt brake pad` | 14 mm OD x 3.4 mm ID x 2 mm uncompressed felt |
-| 1 | `head collar retaining pin` | 4 mm diameter x 32 mm removable cross-pin |
-| 1 | `head hub retaining pin` | 4 mm diameter x 26 mm removable cross-pin |
-| 6 | `metal cam follower` | 4 mm shoulder x 6.65 mm, M3 threaded tip x 2.6 mm, 5.5 x 3 mm head |
-| 3 | `removable cross-pin keeper` | Keeper clip matched to each 4 mm cross-pin |
-| 6 | `rib attachment locknut` | M3 locking nut, 5.5 mm AF x 4 mm |
-| 12 | `rib attachment washer` | 6 mm OD x 3.2 mm ID x 0.6 mm |
-| 2 | `shaft locator pin` | 3 mm diameter x 20 mm removable cross-pin |
-| 2 | `shaft locator pin keeper` | Keeper clip matched to 3 mm locator cross-pin |
-| 2 | `shaft shoulder collar` | Steel: 8.2 mm bore, 10.4 mm OD x 6 mm nose, 16 mm OD x 8 mm body |
-| 4 | `winding_jig bench bolt` | M5 through-bolt; length = bench thickness + 18 mm |
-| 2 | `winding_jig bench clamp` | Small bench clamp for 13 x 60 mm clamp land |
-| 4 | `winding_jig bench nut` | M5 locking nut |
-| 8 | `winding_jig bench washer` | M5 flat washer |
-| 4 | `wire_payoff bench bolt` | M5 through-bolt; length = bench thickness + 42 mm |
-| 2 | `wire_payoff bench clamp` | Small bench clamp for 13 x 60 mm clamp land |
-| 4 | `wire_payoff bench nut` | M5 locking nut |
-| 8 | `wire_payoff bench washer` | M5 flat washer |
+| Menge | Kaufteil | Nennmaße und Umfang |
+| ---: | --- | --- |
+| 2 | `608 bearing` | 8 x 22 x 7 mm |
+| 1 | `51105 thrust bearing` | 25 x 42 x 11 mm; complete set with separate lower and upper washers |
 <!-- END hardware-bom -->
 
-Zusätzlich: 0,18-mm-Kupferlackdraht, 10-mm-Klebeband, Messschieber,
-geeignete Entgratmittel, Handwerkzeug, Markierstift, Schutzbrille und eine
-stabile Werkbank. Band und Reinigungsmittel zunächst auf Lackverträglichkeit
-prüfen. Federkennlinie und Filz sind nach gemessener geringer Ablaufreibung
-auszuwählen; die Hüllgeometrie allein bestimmt keine Bremskraft.
+Die englischen Kaufteil-IDs und Angaben bleiben identisch zu `bom.json`.
+Ein 51105-Satz enthält untere Gehäusescheibe, Wälzkranz und obere Wellenscheibe.
+Die beiden Scheiben bleiben separate Kaufteile; gedruckte Laufbahnen ersetzen
+sie nicht. Zusätzlich benötigt werden Draht, 10-mm-Klebeband, Messmittel,
+Markierstift, geeignete Entgratmittel und Schutzbrille. Band und Reinigungsmittel
+zuerst an einem Drahtrest auf Lackverträglichkeit prüfen.
 
-## Lager: was dreht, was bleibt stehen?
+## PLA drucken und nacharbeiten
 
-Die beiden **608** sind vollständige Radiallager 8 × 22 × 7 mm. Der Außenring
-bleibt jeweils im Ständer, der Innenring folgt der Welle. Die CAD-Hülle ist
-stationär klassifiziert, weil interne Ringe/Wälzkörper nicht einzeln modelliert
-sind. Das bedeutet nicht, dass das ganze reale Lager stillsteht. Montagekraft
-nur in den einzusetzenden Ring einleiten; Welle und Sitze vorher messen.
+Die gelieferten STL-Dateien liegen bereits in ihrer dokumentierten Orientierung
+auf Z = 0. Nicht nochmals blind um die angegebenen Winkel drehen. Das Manifest
+speichert die Drehungen in X/Y/Z-Reihenfolge aus den Konstruktionskoordinaten.
+Alle Master passen geometrisch auf 220 × 220 mm; dies ist keine Druckfreigabe.
 
-Beide Außenringe werden zwischen Ständerschulter und angeschraubter Lagerkappe
-gehalten. Die Anlage beginnt bei Radius 10 mm; der Bereich innerhalb davon ist
-freigestellt. Nur am **linken** 608 begrenzen zwei querverstiftete Stahlbundringe
-die Welle in beiden Axialrichtungen. Ihre Ø10,4-mm-Nasen berühren ausschließlich
-den Innenring; je Seite bleiben nominal 0,1 mm Luft. Die rechte Welle gleitet
-axial im rechten Innenring. Keine Verspannung durch gegeneinander angezogene
-Lager erzeugen. Die tatsächlichen Innen- und Außenring-Anlageflächen des gekauften
-608 prüfen: weder Dichtung noch der jeweils andere Ring dürfen geklemmt werden.
-Die Bundringe und ihre Stifte sind Metallteile, keine Druckteile.
+| Druckteil | Orientierung der gelieferten STL-Datei |
+| --- | --- |
+| Wickelbasis | Breite Werkbankseite auf dem Bett |
+| Lagerturm | Seitenfläche auf dem Bett, Raststege parallel zu den Schichten |
+| Wickelrad | Hintere plane Radfläche auf dem Bett, Markierungen oben |
+| Kontaktschuh | 90° um Konstruktions-X; Stützen nur an innerer Fläche/Fuß |
+| Zwei Außenclips und zwei Schnappringe | Flache Ringseite auf dem Bett |
+| Druckwelle | Achse parallel zum Bett; ebene Antriebsfläche unten, Release-Drehung (90°, −30°, 0°) |
+| Handkurbel | Griffzapfen parallel zum Bett, unteren Nabenbereich unterstützen |
+| Drehgriff | Auf der Stirnfläche |
+| Abrollerbasis | Flache Werkbankfläche unten; kurze innere Nutbrücke prüfen |
+| Abrollerspindel | Achse waagerecht, 90° um Y; Kern unterstützen |
+| Abrollerteller | Ebene Lagerkontakt-Unterseite unten, integraler Dorn nach oben |
 
-Die Nennauswahl berücksichtigt die Abstützmaße des
-[SKF-608-2RSH-Datenblatts](https://www.tme.eu/Document/83a59906c97cb2ff6c50c795411b45d2/SKF608-2RSH.pdf):
-Innenringbund Ø10–10,5 mm, Gehäusebundöffnung höchstens Ø20 mm. Die CAD-Prüfung
-schließt zusätzlich den Dichtungsbereich bis Ø19,2 mm von der Anlage aus;
-andere Fabrikate trotzdem am realen Lager prüfen.
+Slicer-Vorschau jeder Schicht prüfen. Rastschlitze, Lochreihen, Markierungen,
+Bandpassagen und Lagerflächen müssen frei bleiben. Materialprofil, Schichthöhe,
+Wandzahl, Füllung, Stützen und Druckhaftung durch eigene PLA-Proben bestimmen.
+Zuerst eine einzelne Schuhverbindung, einen Ring und die Lagerpassungen prüfen.
+Rastzungen nur über ihre zugänglichen Flächen und mit geringem Weg betätigen;
+bei Weißbruch oder übermäßiger Kraft abbrechen. Welle und Zungen sind austauschbar.
 
-Das **51105** ist ein vollständiges Axiallager 25 × 42 × 11 mm mit drei
-dargestellten Mitgliedern, nicht drei Lager:
+Jede drahtberührende Oberfläche nacharbeiten: sechs Kontaktkonturen, alle
+Passagenmündungen, Startstelle, Schichtnähte, Tellerkante, Dorn und tatsächlicher
+Drahtweg. Grate, Elefantenfuß und Stützspuren restlos entfernen, Kanten glätten
+und reinigen. Mit einem Drahtrest bei geringer Spannung auf Lackabschabung prüfen.
+Lagerzapfen glätten, ohne Passflächen unkontrolliert abzutragen. Beschädigte
+Schuhe ersetzen; eine sichtbare Verrundung allein beweist keinen Lackschutz.
 
-1. Gehäusescheibe (`housing_washer`) bleibt unten im Sitz der Abrollerbasis.
-2. Wälzkranz (`rolling_envelope`) besitzt eigene lagerinterne Bewegung.
-3. Wellenscheibe (`shaft_washer`) dreht oben mit dem Teller.
+## Montage A: Wickelrad mit Ständer
 
-Beide Laufbahnen zeigen zum Wälzkranz. Scheiben anhand der tatsächlichen
-Lagergeometrie und Herstellerkennzeichnung zuordnen. Der Standard-Lagersitz
-Ø42,2 mm und der rotierende Pilot Ø24,8 mm sowie die 608-Sitze Ø22,2 mm sind
-Passungskandidaten, keine garantierten Presspassungen. Das Manifest nennt die
-tatsächlichen Lagerparameter des Releases. Teller abheben und Spule wechseln,
-ohne den stationären Gehäusesitz zu zerlegen.
+1. Rechteckigen Turmschlüssel in die Basis stecken, bis beide seitlich
+   zugänglichen Haken einrasten. Schlüsselflächen tragen die Betriebslast.
+2. Zwei 608 von ihren jeweiligen äußeren Stirnseiten in den Turm einsetzen.
+   Außenclips an den Ohren zusammendrücken, in die Nut einsetzen und entspannen.
+   Beide Clips müssen sitzen; ihre Ohren bleiben durch die Fenster erreichbar.
+3. Druckwelle von der offenen Vorderseite durch beide 8-mm-Lagerbohrungen führen.
+   Das schmale hintere Polygon passiert die Lager. Schlechte Passung nicht erzwingen.
+4. Beide offenen Schnappringe in die Nuten beiderseits des vorderen 608 setzen.
+   Sie begrenzen die Welle axial in beide Richtungen. Zugängliche Ringöffnungen
+   und vollständig sitzende Nuten prüfen.
+5. Kurbel auf das hintere Polygon stecken, bis beide Haken greifen. Geschlitztes
+   Ende des integralen Griffzapfens zusammendrücken und Drehgriff aufschieben.
+   Der Griff muss sich frei drehen; die Kurbel bleibt axial gehalten.
+6. Rad auf das vordere Polygon stecken, bis beide von vorn lösbaren Haken greifen.
+   Formschluss, axialen Halt und einen vollständigen langsamen Handumlauf prüfen.
+7. Alle sechs Schuhe auf dieselbe markierte Einstellung stecken. Beide
+   Schlüsselstifte jedes Schuhs gehören in das zugehörige Lochpaar; beide
+   rückseitigen Rastzungen müssen greifen. Sechs gleiche Zahlen und zwölf
+   vollständig sitzende Stifte kontrollieren.
 
-## Montage A: Wickelvorrichtung
+Die Außenringe beider 608 gehören zum stationären Turm. Schultern und Außenclips
+greifen ausschließlich am Außenring an. Die Innenringe folgen der Druckwelle.
+Nur das vordere Lager ortet die Welle über die beiden Schnappringe; am hinteren
+Außenring bleibt Axialspiel. Die Lager nicht gegeneinander verspannen und keine
+Dichtung belasten. Die CAD-Körper sind vollständige Lagerhüllen, keine einzeln
+modellierten Innen-/Außenringe. Reale Anlageflächen und Passungen prüfen;
+Montagekraft nur in den gerade einzusetzenden Ring einleiten.
 
-1. Sechs M3-Folgermuttern von unten in die Schieber einsetzen. Je Rippe den
-   Schlüssel mit dem Schieber verbinden; M3×22-Querbolzen, je zwei Scheiben
-   und Sicherungsmutter verwenden. Köpfe und Muttern bleiben außerhalb der
-   Führungswände; die Führung nicht zusammendrücken.
-2. Schieber/Rippen von außen in die Rückplatte einschieben. Die sechs
-   abnehmbaren M3-Anschlagschrauben samt Muttern und Scheiben montieren.
-   Ohne diese Anschläge nicht wickeln. Jede Führung muss über den gesamten
-   Verstell- und Freigabeweg gleiten, ohne dass der Schieber austritt.
-3. Kurvenring über die sechs Folgerpositionen setzen. Sechs Metallschulterfolger
-   mit Scheiben in die gefangenen Muttern einsetzen. Der Schulterstapel hält
-   die nominelle 0,2-mm-Bewegungsluft; normale Schrauben unbekannter Länge
-   dürfen den Ring nicht einklemmen. Alle sechs Folger müssen in ihren
-   Kurvenbahnen sitzen. Den separaten Klemmring aufsetzen.
-4. Drei M3-Vorspannmuttern radial in den Haltering einsetzen, dann die drei
-   M3×20-Schrauben lose einsetzen. Der Haltering liegt vor der Rippenseite;
-   sein Ø4×32-Querbolzen lässt sich außerhalb der Wicklung herausziehen.
-   Nabe mit drei formschlüssigen Mitnehmern, Kopf und Haltering zunächst ohne
-   Welle zusammenstecken und auf weicher Unterlage zusammenhalten. Die beiden
-   Kopfquerbolzen erst nach dem Welleneinbau in Schritt 5 einsetzen.
-   Nabenmitnehmer müssen vollständig in der Rückplatte sitzen. Kein Drehmoment
-   allein über eine Druckpassung übertragen.
-5. Ständer mit vier M4×20-Sockelkopfschrauben befestigen: Köpfe und je eine
-   0,8-mm-Scheibe von unten in die 4,9-mm-tiefen Basisversenkungen setzen.
-   Oben je eine Scheibe und M4-Sicherungsmutter auflegen. Die Füße liegen
-   direkt auf der Platte. Kein Teil dieses Stapels darf unter Z=0 vorstehen.
-   Beide 608 einsetzen, je Lager eine Kappe mit zwei M3×22-Schrauben,
-   Außenscheiben und Muttern befestigen. Nur den Außenring erfassen.
-   Eine zweite Person hält den Kopfstapel zwischen den Ständern. Welle von
-   links durch äußeren Stahlbundring, linkes 608 und inneren Stahlbundring,
-   dann Nabe/Kopf/Haltering, rechtes 608 und Kurbel führen. Bundringnasen zum
-   linken Innenring ausrichten.
-   Zwei Ø3×20-Stifte mit Sicherungen an den im STEP/Manifest angegebenen
-   Positionen einsetzen, danach beide Kopfbolzen Ø4 mit ihren Sicherungen.
-   Die drei Antriebsstifte sind Ø4; nicht mit den Bundringstiften verwechseln.
-   Wellenbohrungen entgraten, axialen Freigang und Fluchtung prüfen.
-6. Kurbel mit eigenem Querbolzen und Clip sichern. Griff mit Achse, zwei
-   Scheiben und zwei passenden Sicherungsringen montieren. Nutpositionen der
-   Griffachse am realen Scheibenstapel festlegen; CAD-Hüllen bilden Nuten
-   nicht aus. Der Griff muss frei drehen, alle Sicherungen müssen halten.
-7. Kopf auf Referenz stellen. Die drei Vorspannschrauben gleichmäßig gegen
-   den Klemmring anlegen, sodass der Kurvenring gehalten wird; keine validierten
-   Anzugsmomente vorgeben. Die Reaktion läuft über Rückplatte/Nabe, Querbolzen,
-   Welle und Haltering. Nach Klemmen erneut sechs gleiche Radien prüfen.
-8. Eine volle Umdrehung langsam von Hand prüfen: Kurbel, Handraum, Ständer,
-   Folger, Anschläge und Bandstellen dürfen nicht kollidieren. Bei Widerstand
-   Ursache beseitigen, nicht stärker kurbeln.
+Zum Service Rad an den vorderen Haken lösen, Griffende zusammendrücken und
+Griff abziehen, Kurbelzungen lösen und Kurbel abziehen. Beide Schnappringe
+abnehmen und die Welle nach vorn herausziehen. Außenclips an den Ohren drücken
+und durch ihre offenen Fenster herausnehmen, dann Lager entnehmen. Zum
+Turmausbau beide seitlichen Basiszungen lösen und Schlüssel herausheben.
+Alle Rastteile nach dem Service auf Risse und sicheren Wiedereingriff prüfen.
 
-## Montage B: Abroller und Bremse
+## Montage B: freier Abroller
 
-1. Gehäusescheibe, Wälzkranz und Wellenscheibe in der genannten Reihenfolge
-   montieren. Sitze säubern; keine Kraft über die Wälzkörper einleiten.
-2. M3-Mutter in das seitliche Fenster des gedruckten Einstellers einsetzen.
-   Feder auf den Boden der Basistasche setzen, darüber die Federscheibe,
-   dann Einsteller und Filz. Der Einsteller lässt sich im freien Zustand
-   durch den seitlichen Servicezugang einsetzen. Die zwei geraden Flanschkanten
-   müssen zwischen den Führungswänden liegen; sie verhindern Mitdrehen beim
-   Schraubenverstellen und bleiben im gesamten 1-mm-Hub im Eingriff.
-3. M3-Bremsschraube von unten durch ihren festen Kopfsitz in die Einstellermutter
-   führen. Sie muss im gesamten Einstellbereich eingreifen. Filz liegt zwischen
-   Einsteller und Tellerunterseite; Metallteile dürfen den Teller nicht berühren.
-   Ein kurzer 2,5-mm-Inbusschlüssel passt von der offenen +X-Seite unter die
-   montierte Basis zwischen ihre 24-mm-Füße. Der kurze Schenkel zeigt nach oben.
-   Je 60° verstellen, Schlüssel nach unten aussetzen und neu ansetzen.
-4. Teller mit Lagerpilot aufsetzen. Der obere angefaste Dorn Ø15 × 20 mm
-   zentriert die Vorratsspule in der Standardkonfiguration. Tatsächliches
-   Spulenloch, Schwerpunkt und Entnehmbarkeit prüfen; keine Spule aufpressen.
-5. In freilaufender Stellung beginnen. Die CAD-Einstellung 0…1 entspricht
-   0…1 mm Filzkompression und besitzt 1 mm Abstand zwischen starrem Anschlag
-   und Teller; dies sind keine Umdrehungen am realen Einsteller. Schraube in
-   kleinen Schritten verstellen, reale Filzanlage und Widerstand beobachten.
-   Nur so viel Schleppreibung wählen, dass die Spule beim Anhalten nicht
-   unkontrolliert nachläuft. Kein starres Festklemmen des Tellers zulassen.
-6. Zum Filzwechsel vollständig stoppen, Teller abnehmen, Bremse entspannen
-   und Bremsschraube entfernen. Filz/Einsteller seitlich herausnehmen; Feder
-   und Scheibe kontrolliert halten. Nach Montage freien Lauf erneut prüfen.
+1. Untere 51105-Gehäusescheibe (`lower_washer`) auf den ringförmigen Basisboden
+   legen; sie bleibt stationär. Wälzkranz (`bearing`) und obere Wellenscheibe
+   (`upper_washer`) auflegen. Beide Laufbahnen zeigen zum Wälzkranz. Die obere
+   Scheibe trägt den Teller und dreht mit ihm; der Wälzkranz bewegt sich lagerintern.
+2. Druckspindel einstecken, bis ihre unteren Rastnasen in der umlaufenden Nut
+   greifen. Teller auf den oberen Vierkant drücken, bis die oberen Nasen greifen.
+   Der Teller muss ohne Berührung der Basis frei drehen; der Lagerstapel darf
+   nicht durch die Rastverbindung axial zusammengedrückt werden.
+3. Vorratsrolle aufrecht auf den 150-mm-Teller stellen. Der integrale Dorn
+   Ø15 × 20 mm zentriert sie. Tatsächliche Bohrung, Schwerpunkt und Abstand
+   prüfen; die Rolle nicht aufpressen. Draht tangential und ohne scharfe
+   Umlenkung zum Wickelrad führen. Abstand der unabhängigen Module anpassen.
+4. Beim Anhalten den frei laufenden Teller von Hand stoppen, bis auch die
+   Vorratsrolle stillsteht. Finger und lose Leitungen vom Spalt unter dem
+   Teller fernhalten. Geringe Drahtspannung verwenden, Nachlaufen beobachten.
 
-## Werkbank und Drahtweg
+Zum Beladen/Service Teller senkrecht nach oben abheben; seine rampenförmigen
+Rastnasen lösen. Über dem Teller mindestens 40 mm freien Hub vorsehen und
+zusätzlich Platz für die tatsächliche Rolle lassen. Exponierte Spindel nach
+oben abziehen; anschließend obere Scheibe, Wälzkranz und untere Scheibe einzeln
+abheben. Zwei Fingeraussparungen geben den Rand der unteren Scheibe frei.
+Umgekehrt montieren und freien Lauf wieder prüfen. Entnahmekraft am Prototyp
+testen; bei Klemmen nicht am Draht ziehen.
 
-Beide Grundplatten einzeln gegen Rutschen und Kippen befestigen. Je Modul
-entweder vier M5-Durchgangsschrauben mit Scheiben und Sicherungsmuttern an
-geeigneter Werkbank oder zwei Zwingen auf den zugänglichen 13×60-mm-Klemmlanden
-verwenden. Länge und Unterseitenzugang vor Ort prüfen; Schraubenköpfe,
-Zwingen und Hände müssen außerhalb von Kurbel und Drahtweg bleiben.
-Die Abrollerfüße bleiben auf der Werkbank; keine zusätzliche Tischöffnung für
-die Bremse ist vorgesehen. Den mittleren Raum zwischen den Füßen für den
-Schlüssel freihalten. Bei Schraubmontage reicht die M5-Schraube durch Fuß und
-Platte (32 mm); hierfür gilt Werkbankdicke + 42 mm als Nennauswahl. Am Rahmen
-gilt Werkbankdicke + 18 mm. Die vier Rahmen-M4-Stapel vor Tischmontage prüfen.
-Links neben der Wickelwelle mindestens 220 mm freien Auszugsraum und über dem
-Kopf mindestens 200 mm Hebeweg für die Entnahme reservieren.
+## Durchmesser und Bandstellen
 
-Abroller so ausrichten, dass der Draht von der Vorratsspule tangential und
-ohne scharfe Umlenkung zu den Rippen läuft. Abstand und Winkel am realen
-Spulentyp bestimmen; die Zeichnung legt keinen Zwangsvorschub oder gemeinsamen
-Sockel fest. Freies Drahtende sicher halten und zunächst ohne Wicklung testen.
+Im Stillstand alle sechs Schuhe auf dieselbe Zahl setzen: 100, 110, 120, 130,
+140, 150, 160, 170, 180, 190 oder 200 mm. Ein Lochschritt entspricht 5 mm Radius.
+An drei gegenüberliegenden Schuhpaaren messen; die gedruckte Zahl ist keine
+Kalibrierung. Für Einstellwechsel beide Rastzungen lösen und den Schuh ganz
+abziehen, dann im neuen Lochpaar einrasten.
 
-## Durchmesser einstellen, Band einlegen, von Hand wickeln
+Es gibt drei Bandöffnungen pro Schuh und 18 Bandstellen insgesamt. Jede Passage
+besitzt mindestens 12 mm axiale CAD-Freiheit für 10-mm-Band. Drei Streifen je
+Schuh vorbereiten, mit zugänglichen Enden und Klebeseite zum späteren Umschließen.
+Keine freie Bandfahne darf während des Drehens in Lager oder Kurbel geraten.
 
-1. Vollständig anhalten. Alle drei Vorspannschrauben lösen, bis der Kurvenring
-   frei verstellbar ist. Ring gleichmäßig auf den Sollwert drehen; sechs
-   Rippen müssen synchron radial folgen. Referenzmarke Ø127 mm zunächst
-   als Startwert verwenden, dann gegenüberliegende Kontaktflächen messen.
-2. Kurvenring mit den drei Schrauben wieder halten. Gleichmäßige Rippenradien
-   und sicheren Eingriff aller sechs Folger kontrollieren. Die äußeren
-   Anschläge bleiben montiert; nicht über die Nennlimits hinaus wickeln.
-3. 18 ausreichend lange Streifen 10-mm-Klebeband in die nummerierten Stationen
-   1…18 legen. Klebeseite so orientieren, dass die fertige Wicklung umschlossen
-   werden kann. Freie Enden zugänglich halten; Band darf weder Folger noch
-   Kurvenring oder Welle berühren. Jede Passage ist nominell mindestens 12 mm
-   breit, ihre Druckausführung muss die tatsächliche Bandbreite frei passieren lassen.
-4. Startleitung **A** markieren und am Band mit weichem, lösbarem Halt sichern.
-   Draht nicht an Schraube, scharfem Loch oder engem Knick verankern.
-   Eine kleine Probespule beginnen; noch keine endgültige Windungszahl festlegen.
-5. Kurbel von Hand betätigen und Draht nur leicht führen. In der Frontansicht
-   auf die Rippen gegen den Uhrzeigersinn wickeln (Zeichnung 02). Auf der
-   Gegenseite erscheint dieselbe Rotation umgekehrt. Den gewählten Drehsinn
-   auf der Spule markieren und während einer Spule beibehalten.
-6. Windungen sauber nebeneinander führen. Nicht durch hohe Drahtspannung
-   zusammenpressen. Bei Nachlaufen, Verheddern oder Lackabrieb anhalten,
-   Drahtspannung abbauen und Drahtweg/Bremse korrigieren.
-7. Nach der gewählten Zahl von Runden anhalten. Die 18 vorbereiteten Streifen
-   um die Wicklung schließen, ohne Draht einzuschneiden. Ende **B** mit
-   ausreichender Anschlusslänge markieren und kontrolliert abtrennen;
-   Enden gegen Zurückschnellen sichern.
+Die Identitäten 1–18 bilden die nominale Stationsfolge; es gibt keine gleichmäßige physische 20°-Teilung.
+Die sechs Schuhmitten liegen 60° auseinander, doch die unveränderten Schuhe
+werden radial versetzt. Daher ändern sich die tatsächlichen Winkel der äußeren
+Passagen. Dies gilt auch bei 150 mm. Die Tabelle zeigt die aus dem aktuellen CAD
+bestimmten Winkel relativ zur jeweiligen Schuhmitte; für Schuh k die Mitte
+(k − 1) × 60° addieren und modulo 360° lesen. `actual_tape_angles_deg` im
+Manifest enthält alle 18 ungerundeten Werte je Einstellung.
 
-## Spule lösen und serpentinenförmig legen
+<!-- BEGIN tape-angles -->
+| Markierung / Nennhülle (mm) | Physische Winkel je Schuhmitte |
+| ---: | --- |
+| 100 | −19.65° / 0° / +19.65° |
+| 110 | −17.70° / 0° / +17.70° |
+| 120 | −16.09° / 0° / +16.09° |
+| 130 | −14.74° / 0° / +14.74° |
+| 140 | −13.60° / 0° / +13.60° |
+| 150 | −12.62° / 0° / +12.62° |
+| 160 | −11.77° / 0° / +11.77° |
+| 170 | −11.02° / 0° / +11.02° |
+| 180 | −10.37° / 0° / +10.37° |
+| 190 | −9.78° / 0° / +9.78° |
+| 200 | −9.26° / 0° / +9.26° |
+<!-- END tape-angles -->
 
-Alle drei Vorspannschrauben lösen. Kurvenring nach innen verstellen, bis jede
-Rippe mindestens **2 mm radial** von der gewickelten Kontur zurücksteht
-(bei abweichender Konfiguration den Freigabeweg der Tabelle verwenden).
-Bei der kleinsten Wickelstellung ist dieser zusätzliche Weg nur zur Entnahme
-vorgesehen. Er erweitert den nominalen Wickelbereich nicht.
-Band darf nicht in der Rippe hängen; nicht am Kupfer ziehen oder die Wicklung
-gewaltsam abhebeln.
+## Von Hand wickeln, tapen und entnehmen
 
-Die Spule kann erst nach dem folgenden vollständigen Ausbauweg aus dem
-geschlossenen Zwei-Ständer-Rahmen entnommen werden (Zeichnung 02):
+1. Nach Riss-, Passungs- und Freilaufkontrolle Startleitung A markieren. Draht
+   an einer geglätteten Schuhfläche mit einem weichen, lösbaren Bandhalt sichern.
+   Keine scharfe Kante oder enge Drahtschlinge als Verankerung verwenden.
+2. Langsam nur mit der Handkurbel wickeln. Zeichnung 02 zeigt gegen den
+   Uhrzeigersinn in der Frontansicht; gewählten Drehsinn markieren und während
+   einer Spule beibehalten. Draht leicht führen und Windungen ordentlich legen.
+3. Zunächst eine kleine Probespule herstellen. Bei Verheddern, springendem Draht,
+   Lackabrieb oder ungewöhnlichem Widerstand stoppen und Ursache beseitigen.
+   Beim Wickelstopp den Abroller von Hand stoppen und Enden gegen Rückschlag sichern.
+4. Im Stillstand alle 18 Bandstreifen um die Wicklung schließen, ohne sie
+   einzuschneiden. Ende B mit Anschlusslänge markieren und kontrolliert trennen.
+   A/B, Drehsinn und Windungszahl dauerhaft dokumentieren.
+5. Eine Hilfsperson unterstützt die getapte Spule. Jetzt alle sechs Schuhe vollständig
+   entfernen: je beide rückseitigen Zungen lösen, den Schuh ganz nach vorn
+   ausziehen, Zungen entspannen lassen und den Schuh außerhalb des Entnahmewegs
+   ablegen. Sechsmal wiederholen. Ein einzelner Lochschritt nach innen ist kein
+   zulässiger Ersatz; bei 100 mm würden Nachbarschuhenden zusammenstoßen.
+6. Erst nach Abnahme aller sechs Schuhe und mindestens 2 mm radialer Entlastung
+   die gehaltene Spule mit sämtlichen geschlossenen Bandstellen nach vorn
+   abziehen. Rad, Welle, Kurbel und Ständer bleiben dabei montiert. Nicht am
+   Kupfer ziehen oder die Spule über eine Kante hebeln; bei Hängenbleiben stoppen.
 
-1. Drahtenden sichern und 18 Bandstellen schließen. Kopf/Rippen mindestens
-   2 mm radial lösen. Eine zweite Person unterstützt Kopf, Nabe und Haltering
-   gemeinsam, hält den Ringstapel zusammen und sichert Kurbel und Bundringe.
-2. Alle fünf Querbolzen entsichern: zwei Kopfbolzen Ø4, Kurbelbolzen Ø4 und
-   zwei linke Bundringbolzen Ø3. Kopf- und Bundringbolzen nach oben herausziehen;
-   den Kurbelbolzen seitlich ziehen. Lagerkappen und Ständer bleiben fest montiert.
-3. Die entgratete Welle **220 mm nach links** ganz herausziehen. Lose Teile
-   kontrolliert halten; die zweite Person unterstützt weiter den Kopf samt Spule.
-4. Kopf mit Nabe/Haltering und getapter Spule gemeinsam **200 mm nach oben**
-   zwischen den Ständern herausheben. Auf einer weichen Unterlage den Kopf
-   zusammenhalten. Jetzt liegt die Spule oberhalb des gesamten Rahmens.
-5. Die Spule **50 mm axial zur Rippenseite** abziehen. Nicht am Draht ziehen.
-   Der CAD-Entnahmeversuch umfasst bis 10 mm Wicklungsbreite, 3 mm radialen
-   Aufbau und 0,5 mm nach innen stehendes Band. Größere oder unregelmäßige
-   Wicklungen vorab separat prüfen; bei Hängenbleiben abbrechen.
+Der geprüfte CAD-Serviceweg zieht jeden Schuh 40 mm vor und parkt ihn 40 mm
+radial außen; die Spule wird anschließend 120 mm vorgezogen. Dies sind
+Freiraumdarstellungen, keine gemessenen Entnahmekräfte. Die CAD-Prüfhülle umfasst
+9 mm axiale Wicklungsbreite, 1 mm radialen Aufbau und 18 geschlossene Bandhüllen
+(4 mm radial × 10 mm axial, 1 mm tangential, 0,25 mm Wand). Größere oder unregelmäßige
+Wicklungen benötigen eine eigene Prüfung des vollständigen Entnahmewegs.
 
-Zum Wiederaufbau Welle, alle fünf Stifte und Sicherungen einsetzen, das linke
-Axialspiel und den freien Lauf prüfen und erst dann den nächsten Wickelversuch
-beginnen. Die Spule anschließend ohne scharfe Knicke an den
-18 Bandpositionen in die offene Serpentinenform bringen. In der V5-Kassette
-abwechselnd an der inneren und äußeren Seite der 18 gerundeten Führungen
-entlanglegen. Bandstellen gleichmäßig verteilen, Lack und Anschlussleitungen
-vor Druckstellen schützen. **Ein vollständiger Umlauf um alle 18 Führungen
-ist eine elektrische Windung**. A/B und Wickeldrehsinn vor dem Einsetzen
-dauerhaft dokumentieren. Die Vorrichtung beweist weder korrekte Polung noch
-elektrische Addition der Abschnitte.
+## Serpentinenform und Kontrolle der Probespule
 
-Für einen Rippenwechsel Kopf nach Entspannen von der Welle abnehmen,
-Folger und zugehörigen äußeren Anschlag entfernen und Rippe/Schieber nach
-außen ausziehen. Erst dann den tangentialen Rippenbolzen lösen. Eine normale
-Spulenentnahme erfordert keinen Ausbau dieser Verbindung.
+Getapte Wicklung ohne scharfe Knicke in die geplante Serpentinenform legen.
+Bandstellen dabei nach Bedarf umverteilen: ihre physischen Ausgangswinkel sind
+nicht gleichmäßig. Beim Vergleich mit einer Kassette an deren vorgesehenen
+Führungen abwechselnd innen und außen entlanglegen. Anschlussweg und A/B-Marken
+erhalten; die Vorrichtung bestätigt weder korrekte Polung noch elektrische Addition.
 
-## Physische Ø127-mm-Kalibrierung und Kontrolle der Probespule
+Nach jeder Probespule Drahtlack an allen Schuh-, Band- und Führungskontakten unter
+Vergrößerung auf Kratzer, Einschnitte und blankes Kupfer prüfen. Gekreuzte/lose
+Windungen, verdrillte Anschlüsse, klemmendes Band und bleibende Verformung prüfen.
+Gemessene Durchmesser, Windungszahl, Draht-/Bandcharge, Drehsinn, A/B, Nachlaufen,
+Entnahmekraft-Beobachtung und Passung in der vorgesehenen Serpentinenform notieren.
+Danach sämtliche PLA-Verbindungen, Welle, Lager und Drahtflächen erneut prüfen.
+Fehlerhafte Probe kennzeichnen und nicht als Betriebswicklung verwenden.
+Widerstand und Isolation nur mit einem geeigneten Messverfahren beurteilen;
+ein Durchgangstest allein erteilt keine elektrische Freigabe.
 
-Ø127 mm ist aus der aktuellen Führungsmittellinie berechnet. Banddicke,
-Lackdraht, Windungszahl, gedruckte Radien und Umformung verändern den realen
-Bedarf. Vor einer längeren Wicklung:
+## Reproduzieren
 
-1. Referenzmarke anfahren und klemmen. An drei gegenüberliegenden
-   Rippenpaaren den tatsächlichen Durchmesser messen; Messpunkte,
-   Abweichung, Material und Druckeinstellungen notieren.
-2. Eine kleine Probespule mit dokumentierter Windungszahl, Drahtcharge,
-   Bandart und geringer Spannung wickeln, tapen und mit mindestens 2 mm
-   radialer Entlastung abnehmen. Nicht allein nach der Gravur urteilen.
-3. In der Kassette serpentinenförmig einlegen. Länge, Lage der 18 Bandstellen,
-   Anschlussweg, Wicklungshöhe und Abstand zu angrenzenden Bauteilen prüfen.
-   Bei Bedarf Durchmesser innerhalb 110…145 mm vorsichtig anpassen und
-   die Probe wiederholen; tatsächlichen Einstellwert und Messdurchmesser notieren.
-4. Nach jeder Probespule Drahtlack an Rippen- und Bandkontaktstellen unter
-   Vergrößerung auf Kratzer, Einschnitte und blankes Kupfer prüfen. Auf
-   gekreuzte/lose Windungen, verdrillte Leitungen und klemmende Bandstellen achten.
-5. Rippen, Führungen, Kurvenfolger, Anschläge, Klemmschrauben, Sicherungen,
-   Lager und Filz auf Abrieb, Risse, Lockerung und ungewollte Erwärmung prüfen.
-   Freien Handlauf und geringes Nachlaufen erneut kontrollieren.
-6. Widerstand und Isolation nur mit geeignetem Messverfahren beurteilen;
-   keine elektrische Freigabe aus Geometrie oder bloßem Durchgang ableiten.
-   Fehlerhafte Probe kennzeichnen und nicht als Betriebswicklung verwenden.
-
-Protokoll mindestens mit Datum, gemessenem Durchmesser an drei Paaren,
-Windungszahl, Wickeldrehsinn, A/B, Draht-/Banddaten, Bremsbeobachtung, Lackzustand,
-Entnehmbarkeit und Kassettenpassung führen. Erst physische Versuche können
-Passung und Prozess bestätigen; diese Veröffentlichung enthält solche
-Mess- oder Produktionsnachweise nicht.
-
-## Reproduzieren und prüfen
-
-Aus dem Repository-Hauptverzeichnis mit dem eingerichteten CAD-Python:
+Aus dem Repository-Hauptverzeichnis mit eingerichtetem CAD-Python:
 
 ```powershell
 $env:PYTHONPATH = "$PWD;$PWD/src"
@@ -433,9 +292,11 @@ python scripts/run_geometry.py scripts/build_winding_tool.py
 python scripts/run_geometry.py -m unittest tests.test_winding_tool_export -v
 ```
 
-Der Builder erzeugt Geometrie, Stückliste, drei Zeichnungen und Anleitung
-zusammen; erst danach erscheint das Erfolgsmanifest mit SHA-256-Prüfsummen.
-Tabellen zwischen den HTML-Markierungen werden aus Parametern und BOM
-aktualisiert. Geometrie- und Dateiprüfungen sind keine physische Validierung.
-Ein bekannter nativer OCP-Fehler beim Prozessende kann nach bestandenen
-Python-Tests auftreten; Testergebnis und Prozessstatus getrennt protokollieren.
+Für eigene Prüfungen `--output-dir build/winding-tool-check` nutzen. Der Builder
+erzeugt CAD, BOM, drei PNGs mit je 2000 × 1400 Pixeln und diese Anleitung. Die
+markierten Stücklisten- und Winkeltabellen werden aus der aktuellen BOM und CAD
+synchronisiert. Erst nach bestandenen Audits und Hashprüfungen erscheint das
+Erfolgsmanifest. Quell- und Release-Anleitung der Standardkonfiguration sind
+byte-identisch. Ein bekannter nativer OCP-Fehler beim Prozessende kann nach
+bestandenen Tests oder fertiger Veröffentlichung auftreten; Testergebnis und
+nativen Prozessstatus getrennt protokollieren.

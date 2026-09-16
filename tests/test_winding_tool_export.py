@@ -13,6 +13,7 @@ import unittest
 from unittest.mock import patch
 
 import cadquery as cq
+from PIL import Image
 
 from tests.support import temporary_build_directory
 from windwall.export import export_part
@@ -20,9 +21,11 @@ from windwall.winding_tool_assembly import (
     build_winding_tool_assemblies, winding_tool_bom,
 )
 from windwall.winding_tool_export import (
-    _print_inventory, _supporting_artifact_records, export_winding_tool,
+    _export_supporting_artifacts, _print_inventory, _supporting_artifact_records,
+    export_winding_tool,
 )
 from windwall.winding_tool_parameters import diameter_settings_mm
+from windwall.winding_tool_service import coil_removal_stages, installed_shape
 
 
 def copied_ownership(model):
@@ -52,6 +55,14 @@ def assert_no_publisher_manifests(test_case, destination):
     test_case.assertFalse((destination / 'manifest.pending.json').exists())
 
 
+SUPPORT_PATHS = {
+    'drawings/winding-jig-reference.png',
+    'drawings/winding-jig-range.png',
+    'drawings/winding-tool-exploded.png',
+    'docs/serpentine-coil-winding-tool-de.md',
+}
+
+
 class WindingToolReleaseAttributeTests(unittest.TestCase):
     def test_generated_step_diff_attribute_does_not_affect_sources_or_v5(self):
         root = Path(__file__).resolve().parents[1]
@@ -64,6 +75,33 @@ class WindingToolReleaseAttributeTests(unittest.TestCase):
                                 cwd=root, capture_output=True, text=True, check=True)
         values = [line.rsplit(': ', 1)[-1] for line in result.stdout.splitlines()]
         self.assertEqual(values, ['unset', 'unset', 'unspecified', 'unspecified', 'unspecified'])
+
+    def test_windows_checkout_keeps_source_and_release_guide_byte_identical(self):
+        root = Path(__file__).resolve().parents[1]
+        source = 'docs/serpentine-coil-winding-tool-de.md'
+        release = f'release/winding-tool/{source}'
+        guide_bytes = (root / source).read_bytes()
+        with temporary_build_directory() as fixture:
+            (fixture / '.gitattributes').write_bytes((root / '.gitattributes').read_bytes())
+            for relative in (source, release):
+                path = fixture / relative
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(guide_bytes)
+            try:
+                for arguments in (('init', '-q'), ('add', '--', '.gitattributes', source, release),
+                                  ('checkout-index', '--all', '--prefix=checkout/')):
+                    subprocess.run(['git', '-c', 'core.autocrlf=true', '-c', 'core.safecrlf=false',
+                                    *arguments], cwd=fixture, capture_output=True, check=True)
+                checked_source = (fixture / 'checkout' / source).read_bytes()
+                checked_release = (fixture / 'checkout' / release).read_bytes()
+                self.assertEqual(checked_source, checked_release)
+                self.assertEqual(checked_source, guide_bytes)
+            finally:
+                # Git creates read-only objects on Windows; this isolated test
+                # repository must remain removable by the fixture's normal cleanup.
+                for path in (fixture / '.git').rglob('*'):
+                    if path.is_file():
+                        path.chmod(0o666)
 
 
 class WindingToolExportTests(unittest.TestCase):
@@ -199,12 +237,110 @@ class WindingToolExportTests(unittest.TestCase):
             self.assertFalse(data['powered_operation'])
             self.assertFalse(data['physical_validation_verified'])
             self.assertTrue(data['known_limitations'])
-            self.assertEqual(data['supporting_artifacts'], [])
+            self.assertEqual({row['path'] for row in data['supporting_artifacts']}, SUPPORT_PATHS)
             for filename in ('bom.json', 'manifest.json'):
                 raw = (destination / filename).read_bytes()
                 self.assertNotIn(b'\r', raw)
                 self.assertEqual(raw.decode(), json.dumps(json.loads(raw), indent=2,
                                                           sort_keys=True) + '\n')
+
+    def test_manifest_assembly_axis_matches_installed_geometry_and_forward_service(self):
+        height = self.model.ownership['winding_jig']['wheel']['axis_height_mm']
+        probe = cq.Workplane('XY').box(1, 1, 1)
+        origin = installed_shape(probe, height).val().Center()
+        forward = installed_shape(probe.translate((0, 0, 1)), height).val().Center().sub(origin)
+        for actual, expected in zip(forward.toTuple(), (0, -1, 0)):
+            self.assertAlmostEqual(actual, expected, places=6)
+        removal = cq.Vector(*coil_removal_stages(self.model)[-1]['translation_mm'])
+        self.assertAlmostEqual(removal.cross(forward).Length, 0, places=6)
+        self.assertGreater(removal.dot(forward), 0)
+        with temporary_build_directory() as destination:
+            data = self.export_reference(destination,
+                supporting_artifact_exporter=lambda _model, _output, _bom: ()).data
+            self.assertEqual(data['coordinate_frames']['assembly_step'],
+                             'Two independent origins; winding-jig axis Y (forward -Y) and payoff axis Z.')
+
+    def test_support_publication_has_exact_current_drawings_and_synchronized_guide(self):
+        # Missing support, a stale guide/BOM, omitted CAD occurrences or obsolete
+        # release instructions must fail before a success manifest is published.
+        root = Path(__file__).resolve().parents[1]
+        with temporary_build_directory() as destination:
+            records = _supporting_artifact_records(destination, _export_supporting_artifacts(
+                self.model, destination, {'items': self.bom_rows}))
+            self.assertEqual({row['path'] for row in records}, SUPPORT_PATHS)
+            self.assertEqual(set(file_hashes(destination)), SUPPORT_PATHS)
+            for record in records:
+                path = destination / record['path']
+                self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(), record['sha256'])
+                if path.suffix == '.png':
+                    with Image.open(path) as drawing:
+                        self.assertEqual(drawing.size, (2000, 1400))
+                    self.assertEqual((record['width_px'], record['height_px']), (2000, 1400))
+
+            guide = (destination / 'docs/serpentine-coil-winding-tool-de.md').read_bytes()
+            self.assertEqual(guide, (root / 'docs/serpentine-coil-winding-tool-de.md').read_bytes())
+            content = guide.decode('utf-8')
+            for phrase in ('Schutzbrille', 'Probespule', 'PLA',
+                           'Akkuschrauberbetrieb ist nicht freigegeben',
+                           'alle sechs Schuhe vollständig', 'nach vorn',
+                           'von Hand stoppen', '100–200 mm', '10-mm-Schritten',
+                           'drei Bandöffnungen pro Schuh', '18 Bandstellen',
+                           'keine gleichmäßige physische 20°-Teilung',
+                           'nicht physisch validiert'):
+                self.assertIn(phrase, content)
+            for stale in ('Kurvenring', 'Kurvenfolger', 'Klemmring', 'Filz', 'Bremseinsteller',
+                          'Stahlbundring', 'Ø127', 'winding_frame_', 'winding_head_',
+                          'wire_payoff_adjuster', 'M3', 'M4', 'M8', '220 mm nach links'):
+                self.assertNotIn(stale, content)
+            print_block = content.split('<!-- BEGIN print-bom -->')[1].split('<!-- END print-bom -->')[0]
+            printed = {}
+            for line in print_block.splitlines():
+                cells = [cell.strip() for cell in line.split('|')[1:-1]]
+                if cells and cells[0].isdigit():
+                    printed[cells[1].strip('`')] = int(cells[0])
+            self.assertEqual(printed, {row['master']: row['quantity'] for row in self.bom_rows
+                                       if row['source'] == 'printed'})
+            for row in self.bom_rows:
+                if row['source'] == 'purchased':
+                    self.assertIn(f"| {row['quantity']} | `{row['name']}` | {row['specification']} |", content)
+
+            exploded = next(row for row in records if row['path'].endswith('winding-tool-exploded.png'))
+            for tool in ('winding_jig', 'wire_payoff'):
+                groups = exploded['exploded_groups'][tool]
+                members = [name for group in groups for name in group['members']]
+                self.assertEqual(Counter(members), Counter(getattr(self.model, tool).keys()))
+                for group in groups:
+                    self.assertEqual(group['ownership'], {
+                        name: self.model.ownership[tool][name] for name in group['members']})
+
+    def test_two_independent_support_renders_have_identical_bytes(self):
+        with temporary_build_directory() as destination:
+            first, second = destination / 'first', destination / 'second'
+            _export_supporting_artifacts(self.model, first, {'items': self.bom_rows})
+            clear_winding_tool_geometry_caches()
+            with patch('windwall.winding_tool_assembly.audit_winding_tool_assemblies',
+                       return_value={'fixture_assembly_audit': True}):
+                fresh = build_winding_tool_assemblies()
+            _export_supporting_artifacts(fresh, second, {'items': winding_tool_bom(fresh)})
+            self.assertEqual(set(file_hashes(first)), SUPPORT_PATHS)
+            self.assertEqual(file_hashes(first), file_hashes(second))
+            for relative in SUPPORT_PATHS:
+                self.assertEqual((first / relative).read_bytes(), (second / relative).read_bytes())
+
+    def test_manifest_lists_every_release_artifact_and_valid_support_hashes(self):
+        with temporary_build_directory() as destination:
+            data = self.export_reference(destination).data
+            expected = {data['bom_path']: data['bom_sha256']}
+            for part in data['printable_parts']:
+                for kind in ('step', 'stl'):
+                    expected[part[f'{kind}_path']] = part[f'{kind}_sha256']
+            for assembly in data['assemblies']:
+                expected[assembly['step_path']] = assembly['step_sha256']
+            self.assertEqual({row['path'] for row in data['supporting_artifacts']}, SUPPORT_PATHS)
+            expected.update({row['path']: row['sha256'] for row in data['supporting_artifacts']})
+            actual = file_hashes(destination)
+            actual.pop('manifest.json')
+            self.assertEqual(actual, expected)
 
     def test_malformed_ownership_and_quantity_mismatches_cannot_form_inventory(self):
         cases = []
@@ -351,7 +487,7 @@ class WindingToolExportTests(unittest.TestCase):
                 export_winding_tool(destination, supporting_artifact_exporter=fail_after_writing)
             assert_no_publisher_manifests(self, destination)
 
-    def test_two_fresh_real_audited_builds_have_identical_core_artifact_bytes(self):
+    def test_two_fresh_real_audited_builds_have_identical_release_artifact_bytes(self):
         with temporary_build_directory() as destination:
             clear_winding_tool_geometry_caches()
             export_winding_tool(destination / 'first')
