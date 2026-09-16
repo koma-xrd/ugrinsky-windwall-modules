@@ -1,5 +1,7 @@
-"""Tool releases certify actual geometry, inventory and reproducible bytes."""
+"""The simple winding-tool release is ownership-derived and fail closed."""
 
+from collections import Counter
+from contextlib import contextmanager
 from dataclasses import replace
 import hashlib
 import json
@@ -14,17 +16,30 @@ import cadquery as cq
 
 from tests.support import temporary_build_directory
 from windwall.export import export_part
-from windwall.winding_tool_assembly import build_winding_tool_assemblies
+from windwall.winding_tool_assembly import (
+    build_winding_tool_assemblies, winding_tool_bom,
+)
 from windwall.winding_tool_export import export_winding_tool, _print_inventory
-from windwall.winding_head import build_winding_head
-from windwall.winding_tool_parameters import DEFAULT_WINDING_TOOL_PARAMETERS
+from windwall.winding_tool_parameters import diameter_settings_mm
+
+
+def copied_ownership(model):
+    return {tool: {name: dict(owner) for name, owner in records.items()}
+            for tool, records in model.ownership.items()}
+
+
+def file_hashes(root):
+    if not root.exists():
+        return {}
+    return {path.relative_to(root).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
+            for path in sorted(root.rglob('*')) if path.is_file()}
 
 
 class WindingToolReleaseAttributeTests(unittest.TestCase):
     def test_generated_step_diff_attribute_does_not_affect_sources_or_v5(self):
         root = Path(__file__).resolve().parents[1]
-        paths = ('release/winding-tool/step/winding_head_rib.step',
-                 'release/winding-tool/assembly/winding_jig.step',
+        paths = ('release/winding-tool/step/winding_jig_coil_wheel.step',
+                 'release/winding-tool/assembly/simplified_winding_jig.step',
                  'release/v5/step/base_rotor_module.step',
                  'release/winding-tool/docs/serpentine-coil-winding-tool-de.md',
                  'src/windwall/winding_tool_export.py')
@@ -34,207 +49,253 @@ class WindingToolReleaseAttributeTests(unittest.TestCase):
         self.assertEqual(values, ['unset', 'unset', 'unspecified', 'unspecified', 'unspecified'])
 
 
-class WindingToolPrintabilityTests(unittest.TestCase):
-    def test_bearing_caps_are_exported_as_one_master_with_two_occurrences(self):
-        with patch('windwall.winding_tool_assembly.audit_winding_tool_assemblies',
-                   return_value={'valid': True}):
-            model = build_winding_tool_assemblies()
-        inventory = _print_inventory(model)
-        caps = [row for row in inventory if row['name'] == 'winding_frame_bearing_cap']
-        self.assertEqual(len(caps), 1)
-        self.assertEqual(caps[0]['quantity'], 2)
-        self.assertEqual(set(caps[0]['members']), {'left_bearing_cap', 'right_bearing_cap'})
-
-    def test_fresh_rib_builds_export_identical_bytes(self):
-        with temporary_build_directory() as destination:
-            digests = []
-            for index in range(4):
-                rib = build_winding_head(DEFAULT_WINDING_TOOL_PARAMETERS, 127.0).ribs[0]
-                result = export_part('rib', rib, destination / str(index))
-                digests.append((result.step_sha256, result.stl_sha256))
-            self.assertEqual(len(set(digests)), 1, digests)
-
-    def test_rib_master_exports_without_collapsed_corner_triangles(self):
-        rib = build_winding_head(DEFAULT_WINDING_TOOL_PARAMETERS, 127.0).ribs[0]
-        with temporary_build_directory() as destination:
-            result = export_part('rib', rib, destination)
-            self.assertEqual(result.mesh.degenerate_face_count, 0)
-            self.assertEqual(result.mesh.boundary_edge_count, 0)
-            self.assertEqual(result.mesh.nonmanifold_edge_count, 0)
-
-
 class WindingToolExportTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.model = build_winding_tool_assemblies()
+        # Component geometry stays real. The exhaustive Task 5 audit is tested
+        # in its owning module and once in final integrated verification.
+        with patch('windwall.winding_tool_assembly.audit_winding_tool_assemblies',
+                   return_value={'fixture_assembly_audit': True}):
+            cls.model = build_winding_tool_assemblies()
+        cls.bom_rows = winding_tool_bom(cls.model)
 
-    def test_release_includes_synchronised_drawings_and_german_guide(self):
-        with temporary_build_directory() as destination:
+    @contextmanager
+    def reference_dependencies(self, audit=None):
+        audit = {'fixture_assembly_audit': True,
+                 'complete_coil_removal': True} if audit is None else audit
+        with patch('windwall.winding_tool_export.build_winding_tool_assemblies',
+                   return_value=self.model), patch(
+                       'windwall.winding_tool_export.audit_winding_tool_assemblies',
+                       return_value=audit):
+            yield
+
+    def export_reference(self, destination, **kwargs):
+        with self.reference_dependencies():
+            return export_winding_tool(destination, **kwargs)
+
+    def test_release_excludes_every_superseded_part(self):
+        with temporary_build_directory() as destination, self.reference_dependencies():
             manifest = export_winding_tool(destination)
-            required = {
-                'drawings/winding-jig-reference.png',
-                'drawings/winding-jig-range.png',
-                'drawings/winding-tool-exploded.png',
-                'docs/serpentine-coil-winding-tool-de.md',
-            }
-            self.assertTrue(all((destination / name).is_file() for name in required))
-            data = json.loads(manifest.path.read_text(encoding='utf-8'))
-            self.assertEqual({row['path'] for row in data['supporting_artifacts']}, required)
-            for row in data['supporting_artifacts']:
-                raw = (destination / row['path']).read_bytes()
-                self.assertEqual(hashlib.sha256(raw).hexdigest(), row['sha256'])
-                if row['path'].endswith('.png'):
-                    self.assertEqual(raw[:8], b'\x89PNG\r\n\x1a\n')
-                    self.assertEqual((int.from_bytes(raw[16:20]), int.from_bytes(raw[20:24])),
-                                     (2000, 1400))
-            guide = (destination / 'docs/serpentine-coil-winding-tool-de.md').read_text('utf-8')
-            source_guide = Path(__file__).resolve().parents[1] / 'docs/serpentine-coil-winding-tool-de.md'
-            self.assertEqual(guide, source_guide.read_text('utf-8'))
-            for phrase in ('Ø127 mm', '10-mm-Klebeband',
-                           'Akkuschrauberbetrieb ist nicht freigegeben',
-                           'Schutzbrille', 'Probespule'):
-                self.assertIn(phrase, guide)
-            bom = json.loads((destination / 'bom.json').read_text('utf-8'))
-            for row in bom['hardware'] + bom['printable_parts']:
-                self.assertIn(f"| {row['quantity']} | `{row['item']}` |", guide)
-            listed = required | {'manifest.json', 'bom.json'}
-            listed.update(row['step_path'] for row in data['assemblies'])
-            for row in data['printable_parts']:
-                listed.update((row['step_path'], row['stl_path']))
-            self.assertEqual({p.relative_to(destination).as_posix()
-                              for p in destination.rglob('*') if p.is_file()}, listed)
+            names = '\n'.join(item['name'] for item in manifest.data['printable_parts']).lower()
+            for stale in ('cam', 'slider', 'rib', 'clamp', 'brake', 'adjuster', 'upright'):
+                self.assertNotIn(stale, names)
+            self.assertIn('coil_wheel', names)
+            self.assertIn('contact_shoe', names)
 
-    def test_custom_export_keeps_physical_labels_and_setting_tables_in_agreement(self):
-        parameters = replace(DEFAULT_WINDING_TOOL_PARAMETERS,
-                             minimum_diameter_mm=112.0,
-                             reference_diameter_mm=128.5, maximum_diameter_mm=144.0)
-        with temporary_build_directory() as destination:
-            manifest = export_winding_tool(destination, parameters)
-            data = json.loads(manifest.path.read_text('utf-8'))
-            self.assertEqual(data.get('engraved_diameter_labels'), ['112', '128.5', '144'])
-            guide = (destination / 'docs/serpentine-coil-winding-tool-de.md').read_text('utf-8')
-            self.assertIn('Ø112 / Ø128.5 / Ø144 mm', guide)
-            self.assertEqual(data['reference_diameter_mm'], 128.5)
-            self.assertTrue(data['assembly_audit']['valid'])
+    def test_unique_master_set_and_quantities_are_derived_from_occurrence_ownership(self):
+        expected = Counter(
+            f'{tool}/{owner["master"]}'
+            for tool, records in self.model.ownership.items()
+            for owner in records.values()
+            if owner['source'] == 'printed'
+        )
+        inventory = _print_inventory(self.model, self.bom_rows)
+        actual = {row['master']: row['quantity'] for row in inventory}
+        self.assertEqual(actual, dict(sorted(expected.items())))
+        self.assertEqual(sum(actual.values()), sum(expected.values()))
+        self.assertEqual({row['name'] for row in inventory},
+                         {master.replace('/', '_') for master in expected})
 
-    def test_tooling_export_has_valid_unique_parts_assemblies_bom_and_manifest(self):
+    def test_printed_shaft_uses_a_stable_planar_bed_phase_without_geometry_repair(self):
+        inventory = _print_inventory(self.model, self.bom_rows)
+        shaft = next(row for row in inventory
+                     if row['master'] == 'winding_jig/printed_shaft')
+        self.assertEqual(shaft['ownership_print_rotations_deg'], (90, 0, 0))
+        self.assertEqual(shaft['print_rotations_deg'], (90, -30, 0))
+        source = self.model.winding_jig['shaft']
+        self.assertAlmostEqual(shaft['shape'].val().Volume(), source.val().Volume(), places=5)
         with temporary_build_directory() as destination:
-            manifest = export_winding_tool(destination)
-            data = json.loads(manifest.path.read_text(encoding='utf-8'))
-            quantities = {part.name: part.quantity for part in manifest.printable_parts}
-            self.assertEqual(quantities, {
-                'winding_head_backplate': 1, 'winding_head_cam': 1,
-                'winding_head_clamp': 1, 'winding_head_slider': 6, 'winding_head_rib': 6,
-                'winding_frame_base': 1, 'winding_frame_upright': 2,
-                'winding_frame_bearing_cap': 2,
-                'winding_frame_head_hub': 1, 'winding_frame_head_retaining_collar': 1,
-                'winding_frame_crank': 1, 'wire_payoff_base': 1,
-                'wire_payoff_platter': 1, 'wire_payoff_adjuster': 1,
-            })
-            self.assertEqual(data['printable_quantity'], 26)
-            self.assertEqual(list(quantities), sorted(quantities))
-            self.assertEqual(len(list((destination / 'stl').glob('*.stl'))), len(quantities))
-            self.assertEqual(len(list((destination / 'step').glob('*.step'))), len(quantities))
-            self.assertEqual(data['reference_diameter_mm'], 127.0)
-            self.assertEqual(data['diameter_range_mm'], [110.0, 145.0])
-            self.assertEqual(data['tape_layout']['station_angles_deg'], list(range(0, 360, 20)))
-            self.assertFalse(data['physical_fit_verified'])
-            self.assertFalse(data['powered_operation_validated'])
-            self.assertTrue(data['assembly_audit']['valid'])
-            self.assertEqual(data['ownership']['wire_payoff']['bearing_internal'], ['rolling_envelope'])
-            self.assertIn('housing_washer', data['ownership']['wire_payoff']['stationary'])
-            self.assertIn('shaft_washer', data['ownership']['wire_payoff']['rotating'])
-            self.assertTrue(any('Powered' in limit for limit in data['known_limitations']))
-            for record, part in zip(data['printable_parts'], manifest.printable_parts):
-                self.assertTrue(record['source_builder'].startswith('windwall.'))
-                self.assertEqual(record['known_limitations'], data['known_limitations'])
-                self.assertTrue(record['topology_result']['stl_closed_manifold'])
-                self.assertEqual(part.mesh.component_count, 1)
-                self.assertAlmostEqual(part.mesh.minimum_xyz[2], 0, places=5)
-                for extension in ('step', 'stl'):
-                    path = destination / record[f'{extension}_path']
+            part = export_part(shaft['name'], shaft['shape'], destination)
+        self.assertEqual(part.mesh.boundary_edge_count, 0)
+        self.assertEqual(part.mesh.nonmanifold_edge_count, 0)
+        self.assertEqual(part.mesh.degenerate_face_count, 0)
+        self.assertAlmostEqual(part.mesh.minimum_xyz[2], 0, places=5)
+
+    def test_every_print_master_passes_topology_step_orientation_and_hash_gates(self):
+        expected_masters = {f'{tool}/{owner["master"]}'
+                            for tool, records in self.model.ownership.items()
+                            for owner in records.values() if owner['source'] == 'printed'}
+        with temporary_build_directory() as destination:
+            manifest = self.export_reference(destination)
+            self.assertEqual(manifest.data, json.loads(manifest.path.read_text('utf-8')))
+            self.assertEqual(len(manifest.printable_parts), len(expected_masters))
+            for record, part in zip(manifest.data['printable_parts'], manifest.printable_parts):
+                with self.subTest(master=record['master']):
+                    self.assertEqual(record['material'], 'PLA')
+                    self.assertLessEqual(max(record['print_bed_footprint_mm']), 220)
+                    self.assertEqual(len(record['print_orientation']['rotations_deg']), 3)
+                    self.assertTrue(record['topology_result']['stl_closed_manifold'])
+                    self.assertEqual(part.mesh.component_count, 1)
+                    self.assertEqual(part.mesh.boundary_edge_count, 0)
+                    self.assertEqual(part.mesh.nonmanifold_edge_count, 0)
+                    self.assertEqual(part.mesh.degenerate_face_count, 0)
+                    self.assertAlmostEqual(part.mesh.minimum_xyz[2], 0, places=5)
+                    for extension in ('step', 'stl'):
+                        relative = record[f'{extension}_path']
+                        self.assertFalse(Path(relative).is_absolute())
+                        artifact = destination / relative
+                        self.assertEqual(hashlib.sha256(artifact.read_bytes()).hexdigest(),
+                                         record[f'{extension}_sha256'])
+                    imported = cq.importers.importStep(str(part.step_path)).val()
+                    self.assertTrue(imported.isValid())
+                    self.assertEqual(len(imported.Solids()), 1)
+
+    def test_two_named_assemblies_preserve_members_ownership_and_hashes(self):
+        with temporary_build_directory() as destination:
+            manifest = self.export_reference(destination)
+            expected_names = {'simplified_winding_jig': 'winding_jig',
+                              'free_running_wire_payoff': 'wire_payoff'}
+            self.assertEqual({row['name'] for row in manifest.assemblies}, set(expected_names))
+            self.assertEqual(len(manifest.assemblies), 2)
+            for assembly in manifest.assemblies:
+                tool = expected_names[assembly['name']]
+                with self.subTest(assembly=assembly['name']):
+                    self.assertEqual({row['name'] for row in assembly['components']},
+                                     set(getattr(self.model, tool)))
+                    self.assertEqual({row['name']: row['ownership']
+                                      for row in assembly['components']},
+                                     self.model.ownership[tool])
+                    path = destination / assembly['step_path']
+                    imported = cq.importers.importStep(str(path)).val()
+                    self.assertTrue(imported.isValid())
+                    self.assertEqual(len(imported.Solids()), len(getattr(self.model, tool)))
                     self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(),
-                                     record[f'{extension}_sha256'])
-                imported = cq.importers.importStep(str(part.step_path)).val()
-                self.assertTrue(imported.isValid())
-                self.assertEqual(len(imported.Solids()), 1)
-            self.assertEqual({item['name'] for item in manifest.assemblies},
-                             {'winding_jig', 'wire_payoff', 'winding_jig_exploded'})
-            assemblies = {item['name']: item for item in data['assemblies']}
-            for assembly in assemblies.values():
-                path = destination / assembly['step_path']
-                imported = cq.importers.importStep(str(path)).val()
-                self.assertTrue(imported.isValid())
-                self.assertEqual(len(imported.Solids()), assembly['cad_solid_count'])
-                self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(), assembly['step_sha256'])
-                text = path.read_text(encoding='utf-8')
-                for component in assembly['components']:
-                    self.assertIn(component['name'], text)
-                    self.assertEqual(component['printable'], 'print_part' in component)
-                    if component['printable']:
-                        self.assertIn(component['print_part'], quantities)
-            self.assertNotEqual(assemblies['winding_jig']['cad_bounds_mm'],
-                                assemblies['winding_jig_exploded']['cad_bounds_mm'])
-            bom = json.loads((destination / 'bom.json').read_text(encoding='utf-8'))
-            self.assertEqual({row['item']: row['quantity'] for row in bom['printable_parts']}, quantities)
-            hardware = {row['item']: row['quantity'] for row in bom['hardware']}
-            self.assertEqual(hardware['608 bearing'], 2)
-            self.assertEqual(hardware['51105 thrust bearing'], 1)
-            self.assertEqual(hashlib.sha256((destination / 'bom.json').read_bytes()).hexdigest(),
+                                     assembly['step_sha256'])
+
+    def test_manifest_serializes_canonical_bom_settings_and_prototype_semantics(self):
+        with temporary_build_directory() as destination:
+            manifest = self.export_reference(destination)
+            data = manifest.data
+            bom = json.loads((destination / data['bom_path']).read_text('utf-8'))
+            self.assertEqual(bom['items'], list(self.bom_rows))
+            purchased = {row['name']: row['quantity'] for row in bom['items']
+                         if row['source'] == 'purchased'}
+            self.assertEqual(purchased, {'608 bearing': 2, '51105 thrust bearing': 1})
+            self.assertEqual(hashlib.sha256((destination / data['bom_path']).read_bytes()).hexdigest(),
                              data['bom_sha256'])
+            settings = data['wheel_settings']
+            self.assertEqual(tuple(row['nominal_diameter_mm'] for row in settings),
+                             diameter_settings_mm(self.model.parameters))
+            self.assertTrue(all(len(row['actual_tape_angles_deg']) == 18 for row in settings))
+            self.assertEqual(data['tape_angle_semantics']['nominal_pitch_deg'], 20)
+            self.assertEqual(data['tape_angle_semantics']['nominal_use'], 'sequence labels only')
+            self.assertFalse(data['powered_operation'])
+            self.assertFalse(data['physical_validation_verified'])
+            self.assertTrue(data['known_limitations'])
+            self.assertEqual(data['supporting_artifacts'], [])
             for filename in ('bom.json', 'manifest.json'):
                 raw = (destination / filename).read_bytes()
                 self.assertNotIn(b'\r', raw)
-                self.assertEqual(raw.decode(), json.dumps(json.loads(raw), indent=2, sort_keys=True) + '\n')
+                self.assertEqual(raw.decode(), json.dumps(json.loads(raw), indent=2,
+                                                          sort_keys=True) + '\n')
 
-    def test_fresh_builds_have_identical_artifact_bytes(self):
-        with temporary_build_directory() as destination:
-            export_winding_tool(destination / 'first')
-            export_part('unrelated', cq.Workplane('XY').box(1, 2, 3), destination / 'other')
-            export_winding_tool(destination / 'second')
-            files = sorted(path.relative_to(destination / 'first')
-                           for path in (destination / 'first').rglob('*') if path.is_file())
-            for name in files:
-                self.assertEqual((destination / 'first' / name).read_bytes(),
-                                 (destination / 'second' / name).read_bytes(), name)
-
-    def test_failed_audit_removes_stale_manifest(self):
+    def test_malformed_ownership_and_quantity_mismatches_cannot_form_inventory(self):
+        cases = []
+        owners = copied_ownership(self.model)
+        owners['winding_jig']['obsolete_cam'] = {
+            'master': 'cam', 'group': 'rotating', 'source': 'printed',
+            'print_rotations_deg': (0, 0, 0),
+        }
         members = dict(self.model.winding_jig)
-        del members['slider_6']
-        invalid = replace(self.model, winding_jig=members)
-        with temporary_build_directory() as destination:
-            (destination / 'manifest.json').write_text('{"old_success": true}')
-            with patch('windwall.winding_tool_export.build_winding_tool_assemblies', return_value=invalid):
-                with self.assertRaisesRegex(ValueError, 'audit'):
-                    export_winding_tool(destination)
+        members['obsolete_cam'] = members['wheel']
+        cases.append(('stale old part', replace(self.model, winding_jig=members, ownership=owners)))
+
+        owners = copied_ownership(self.model)
+        owners['winding_jig']['wheel']['source'] = 'purchased'
+        cases.append(('hidden print body', replace(self.model, ownership=owners)))
+
+        members = dict(self.model.winding_jig)
+        members.pop('shoe_6')
+        cases.append(('missing occurrence', replace(self.model, winding_jig=members)))
+
+        owners = copied_ownership(self.model)
+        owners['winding_jig']['wheel_copy'] = dict(owners['winding_jig']['wheel'])
+        members = dict(self.model.winding_jig)
+        members['wheel_copy'] = members['wheel']
+        cases.append(('duplicate occurrence', replace(self.model, winding_jig=members,
+                                                       ownership=owners)))
+        for name, mutant in cases:
+            with self.subTest(case=name), self.assertRaises(ValueError):
+                _print_inventory(mutant)
+
+        rows = [dict(row) for row in self.bom_rows]
+        next(row for row in rows if row.get('master') == 'winding_jig/contact_shoe')['quantity'] += 1
+        with self.subTest(case='quantity mismatch'), self.assertRaisesRegex(ValueError, 'quantity'):
+            _print_inventory(self.model, tuple(rows))
+
+    def test_noncanonical_bom_cannot_publish(self):
+        rows = [dict(row) for row in self.bom_rows]
+        next(row for row in rows if row['name'] == '51105 thrust bearing')['quantity'] = 2
+        with temporary_build_directory() as destination, self.reference_dependencies(), patch(
+                'windwall.winding_tool_export.winding_tool_bom', return_value=tuple(rows)):
+            with self.assertRaisesRegex(ValueError, 'BOM'):
+                export_winding_tool(destination)
             self.assertFalse((destination / 'manifest.json').exists())
 
-    def test_failed_artifact_or_bom_never_publishes_manifest(self):
-        for target in ('export_part', '_export_step', 'winding_tool_bom', '_export_supporting_artifacts'):
-            with self.subTest(target=target), temporary_build_directory() as destination:
+    def test_failed_assembly_or_service_audit_removes_stale_manifest(self):
+        for failed_gate in ('valid_solids', 'complete_coil_removal'):
+            with self.subTest(gate=failed_gate), temporary_build_directory() as destination:
                 (destination / 'manifest.json').write_text('{"old_success": true}')
-                # Fault injection at slow CAD/I/O boundaries leaves publication real.
-                with patch('windwall.winding_tool_export.build_winding_tool_assemblies', return_value=self.model):
-                    with patch(f'windwall.winding_tool_export.{target}', side_effect=ValueError('injected failure')):
-                        with self.assertRaisesRegex(ValueError, 'injected failure'):
-                            export_winding_tool(destination)
+                audit = {'valid_solids': True, 'complete_coil_removal': True}
+                audit[failed_gate] = False
+                with self.reference_dependencies(audit):
+                    with self.assertRaisesRegex(ValueError, 'audit'):
+                        export_winding_tool(destination)
                 self.assertFalse((destination / 'manifest.json').exists())
 
-    def test_cli_builds_to_explicit_directory_and_propagates_failure(self):
-        root = Path(__file__).resolve().parents[1]
+    def test_part_mesh_step_assembly_bom_inventory_and_support_fail_closed(self):
+        failures = (
+            ('export_part', 'invalid STL mesh'),
+            ('_export_step', 'failed STEP reimport'),
+            ('winding_tool_bom', 'noncanonical BOM'),
+            ('_print_inventory', 'inventory mismatch'),
+            ('_export_supporting_artifacts', 'drawing or guide failure'),
+            ('_verify_artifact_hashes', 'artifact hash failure'),
+        )
+        for target, message in failures:
+            with self.subTest(target=target), temporary_build_directory() as destination:
+                (destination / 'manifest.json').write_text('{"old_success": true}')
+                with self.reference_dependencies(), patch(
+                        f'windwall.winding_tool_export.{target}', side_effect=ValueError(message)):
+                    with self.assertRaisesRegex(ValueError, message):
+                        export_winding_tool(destination)
+                self.assertFalse((destination / 'manifest.json').exists())
+
+    def test_tampered_artifact_hash_prevents_manifest_publication(self):
+        def tamper_print(_model, destination, _bom):
+            part = next((destination / 'stl').glob('*.stl'))
+            part.write_bytes(part.read_bytes() + b'tampered')
+            return ()
+
+        with temporary_build_directory() as destination, self.reference_dependencies():
+            with self.assertRaisesRegex(ValueError, 'hash'):
+                export_winding_tool(destination, supporting_artifact_exporter=tamper_print)
+            self.assertFalse((destination / 'manifest.json').exists())
+
+    def test_fresh_builds_in_different_directories_have_identical_artifact_bytes(self):
         with temporary_build_directory() as destination:
-            # Check the application's exit separately from the known Windows
-            # OCP interpreter-teardown failure; never suppress the host status.
+            self.export_reference(destination / 'first')
+            export_part('unrelated', cq.Workplane('XY').box(1, 2, 3), destination / 'other')
+            self.export_reference(destination / 'second')
+            first = file_hashes(destination / 'first')
+            second = file_hashes(destination / 'second')
+            self.assertEqual(first, second)
+            self.assertTrue(first)
+
+    def test_cli_builds_explicit_destination_without_mutating_tracked_release(self):
+        root = Path(__file__).resolve().parents[1]
+        release_before = file_hashes(root / 'release/winding-tool')
+        with temporary_build_directory() as destination, self.reference_dependencies():
             with patch.object(sys, 'argv', ['build_winding_tool.py', '--output-dir', str(destination)]):
                 with self.assertRaises(SystemExit) as result:
                     runpy.run_path(str(root / 'scripts/build_winding_tool.py'), run_name='__main__')
             self.assertEqual(result.exception.code, 0)
             self.assertTrue((destination / 'manifest.json').is_file())
-            # A file cannot serve as an output directory; the CLI must exit nonzero.
             failed = subprocess.run([sys.executable, str(root / 'scripts/run_geometry.py'),
                                      str(root / 'scripts/build_winding_tool.py'),
                                      '--output-dir', str(destination / 'bom.json')], capture_output=True)
             self.assertNotEqual(failed.returncode, 0)
+        self.assertEqual(file_hashes(root / 'release/winding-tool'), release_before)
 
 
 if __name__ == '__main__':

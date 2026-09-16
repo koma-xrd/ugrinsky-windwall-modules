@@ -7,6 +7,9 @@ from math import atan2, cos, degrees, radians, sin
 
 import cadquery as cq
 
+from tests.support import temporary_build_directory
+from windwall.parameters import DEFAULT_PARAMETERS
+from windwall.reference_mesh import analyze_binary_stl
 from windwall.winding_head import (
     WindingHeadParts, WindingHeadState, build_winding_head, tape_station_angles,
 )
@@ -42,6 +45,19 @@ def assert_rounded_mouths(test, shape):
                      for candidate in face.Edges())]
         test.assertTrue(any(face.geomType() in ('TORUS', 'CYLINDER', 'BSPLINE')
                             for face in adjacent))
+
+
+def raw_release_mesh(shape, destination, name):
+    bounds = shape.val().BoundingBox()
+    printable = shape.translate((0, 0, -bounds.zmin))
+    path = destination / f'{name}.stl'
+    manufacturing = DEFAULT_PARAMETERS.manufacturing
+    printable.val().exportStl(
+        str(path), tolerance=manufacturing.export_linear_tolerance_mm,
+        angularTolerance=manufacturing.export_angular_tolerance_rad,
+        ascii=False, relative=False, parallel=False,
+    )
+    return analyze_binary_stl(path)
 
 
 class WindingHeadTests(unittest.TestCase):
@@ -219,6 +235,15 @@ class WindingHeadTests(unittest.TestCase):
             self.assertLessEqual(bounds.xlen, 220)
             self.assertLessEqual(bounds.ylen, 220)
         self.assertIn('shoe_master', head.metadata['print_orientations'])
+
+    def test_fresh_shoe_master_raw_release_mesh_has_no_topology_defects(self):
+        shoe = build_winding_head(P, 150).shoe_master.rotate(
+            (0, 0, 0), (1, 0, 0), 90)
+        with temporary_build_directory() as destination:
+            mesh = raw_release_mesh(shoe, destination, 'contact_shoe')
+        self.assertEqual((mesh.component_count, mesh.boundary_edge_count,
+                          mesh.nonmanifold_edge_count, mesh.degenerate_face_count),
+                         (1, 0, 0, 0))
 
     def test_fresh_master_builds_have_stable_geometry_signatures(self):
         import windwall.winding_head as module

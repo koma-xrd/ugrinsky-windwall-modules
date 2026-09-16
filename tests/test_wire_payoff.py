@@ -4,8 +4,10 @@ import unittest
 
 import cadquery as cq
 
+from tests.support import temporary_build_directory
 from windwall.bearings import build_51105_reference
-from windwall.parameters import DesignParameters
+from windwall.parameters import DEFAULT_PARAMETERS, DesignParameters
+from windwall.reference_mesh import analyze_binary_stl
 from windwall.winding_tool_parameters import WindingToolParameters
 from windwall.wire_payoff import build_wire_payoff
 
@@ -28,6 +30,19 @@ def squeeze_tabs(spindle, lower=True):
         result = result.cut(region).union(tongue.translate(
             (-sign * (0.6 if lower else 0.4), 0, 0)))
     return result
+
+
+def raw_release_mesh(shape, destination, name):
+    bounds = shape.val().BoundingBox()
+    printable = shape.translate((0, 0, -bounds.zmin))
+    path = destination / f'{name}.stl'
+    manufacturing = DEFAULT_PARAMETERS.manufacturing
+    printable.val().exportStl(
+        str(path), tolerance=manufacturing.export_linear_tolerance_mm,
+        angularTolerance=manufacturing.export_angular_tolerance_rad,
+        ascii=False, relative=False, parallel=False,
+    )
+    return analyze_binary_stl(path)
 
 
 class WirePayoffTests(unittest.TestCase):
@@ -210,6 +225,15 @@ class WirePayoffTests(unittest.TestCase):
         self.assertAlmostEqual(self.parts.platter.val().BoundingBox().zmax, 43)
         self.assertTrue(any(face.geomType() == 'CONE'
                             for face in self.parts.platter.val().Faces()))
+
+    def test_fresh_spindle_raw_release_mesh_is_closed_manifold(self):
+        spindle = build_wire_payoff(WindingToolParameters(), DesignParameters()).spindle
+        spindle = spindle.rotate((0, 0, 0), (0, 1, 0), 90)
+        with temporary_build_directory() as destination:
+            mesh = raw_release_mesh(spindle, destination, 'printed_spindle')
+        self.assertEqual((mesh.component_count, mesh.boundary_edge_count,
+                          mesh.nonmanifold_edge_count, mesh.degenerate_face_count),
+                         (1, 0, 0, 0))
 
     def test_fresh_builds_have_stable_geometry_signatures(self):
         rebuilt = build_wire_payoff(WindingToolParameters(), DesignParameters())

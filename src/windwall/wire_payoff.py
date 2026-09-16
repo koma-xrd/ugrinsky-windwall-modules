@@ -106,8 +106,10 @@ def _build_spindle(pilot_radius, bearing_top):
                       x=sign * 2.1, bottom=bearing_top + 2)
         spindle = spindle.cut(relief.edges('|Y').fillet(0.3))
         for y in (-2.3, 2.3):
-            spindle = spindle.cut(_box(4, 0.6, _DRIVE_HEIGHT_MM,
-                x=sign * 4.5, y=y, bottom=bearing_top + 2))
+            # Overlap the longitudinal relief by 0.1 mm. Exact face contact at
+            # x=+/-2.5 left four exterior sheets on each shared knife edge.
+            spindle = spindle.cut(_box(4.1, 0.6, _DRIVE_HEIGHT_MM,
+                x=sign * 4.45, y=y, bottom=bearing_top + 2))
         detent = _detent(3.5, 4.45, bearing_top + 6.9, 2, 1.8)
         spindle = spindle.union(detent if sign == 1 else detent.mirror('YZ'))
     return _single_solid(spindle, 'payoff spindle')

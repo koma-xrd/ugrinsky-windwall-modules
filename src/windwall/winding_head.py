@@ -25,6 +25,7 @@ _PIN_ROWS = (-5.0, 5.0)
 _SHOE_BOTTOM = 5.2
 _TAPE_BOTTOM = 11.0
 _MOUTH_RADIUS = .8
+_AXIAL_EDGE_RADIUS = .45
 _RELEASE_LIFT = 40.0
 
 
@@ -120,6 +121,36 @@ def _passage_probes(p):
                       20, 3, p.tape_clearance_mm) for offset in _passage_offsets(p))
 
 
+def _rounded_annulus(outer_radius, wall, bottom, top):
+    """Revolve a rounded axial profile without collapsing three-way fillet caps."""
+    inner = outer_radius - wall
+    radius = _AXIAL_EDGE_RADIUS
+    return (cq.Workplane('XZ').moveTo(inner + radius, bottom)
+            .lineTo(outer_radius - radius, bottom)
+            .radiusArc((outer_radius, bottom + radius), radius)
+            .lineTo(outer_radius, top - radius)
+            .radiusArc((outer_radius - radius, top), radius)
+            .lineTo(inner + radius, top)
+            .radiusArc((inner, top - radius), radius)
+            .lineTo(inner, bottom + radius)
+            .radiusArc((inner + radius, bottom), radius)
+            .close().revolve(360, (0, 0), (0, 1)))
+
+
+def _mouth_lip_filler(offset, side, half_width, top):
+    """Analytic concave quarter-round replacing an unstable edge fillet."""
+    radius = _MOUTH_RADIUS
+    overlap = .02
+    filler = _box(-18, half_width - radius, top - radius - overlap,
+                  20, radius + overlap, radius + 2 * overlap)
+    cylinder = (cq.Workplane('YZ').center(half_width - radius, top - radius)
+                .circle(radius).extrude(20).translate((-18, 0, 0)))
+    filler = filler.cut(cylinder)
+    if side < 0:
+        filler = filler.mirror('XZ', union=False)
+    return filler.translate((0, offset, 0))
+
+
 def _keyed_pin(row):
     # Rigid rectangular key and separate 0.8 mm flexure share a broad root.
     # The 0.2 mm hook interference implies roughly 0.9% outer-fiber strain
@@ -144,24 +175,29 @@ def _keyed_pin(row):
 def _build_shoe(p: WindingToolParameters) -> cq.Workplane:
     minimum_radius = p.minimum_diameter_mm / 2
     top = _TAPE_BOTTOM + p.tape_clearance_mm + 6.2
-    shell = (cq.Workplane('XY').circle(minimum_radius)
-             .circle(minimum_radius - 6).extrude(top - _SHOE_BOTTOM)
-             .translate((0, 0, _SHOE_BOTTOM)))
+    shell = _rounded_annulus(minimum_radius, 6, _SHOE_BOTTOM, top)
     sector = (cq.Workplane('XY').polyline([
         (0, 0), (minimum_radius + 10, -(minimum_radius + 10) * tan(radians(29.8))),
         (minimum_radius + 10, (minimum_radius + 10) * tan(radians(29.8)))])
         .close().extrude(top + 1))
     shell = shell.intersect(sector).translate((-minimum_radius, 0, 0))
+    shell_envelope = shell
+    passage_top = _TAPE_BOTTOM + p.tape_clearance_mm + _MOUTH_RADIUS
     for offset in _passage_offsets(p):
         half_width = 1.8
         # Leave the front bridge, but open every channel through the rear rim.
         # A closed tape loop's inner leg must not meet a trailing contact rim
         # when the shoe is withdrawn forward.
         shell = shell.cut(_box(-18, offset - half_width, -1,
-                              20, 2 * half_width,
-                              _TAPE_BOTTOM + p.tape_clearance_mm + _MOUTH_RADIUS + 1))
-    # One fillet operation resolves the three-way mouth corners consistently.
-    shell = _fillet(shell, shell.edges().vals(), _MOUTH_RADIUS)
+                              20, 2 * half_width, passage_top + 1))
+    # Round vertical exits first, then form the six upper mouth lips with
+    # explicit analytic quarter-rounds. This preserves the 0.8 mm mouth radius
+    # but avoids the collapsing caps produced by an all-edge fillet.
+    shell = shell.edges('|Z').fillet(_MOUTH_RADIUS)
+    for offset in _passage_offsets(p):
+        for side in (-1, 1):
+            filler = _mouth_lip_filler(offset, side, 1.8, passage_top)
+            shell = shell.union(filler.intersect(shell_envelope))
     foot = _box(-12, -8, _SHOE_BOTTOM, 9, 16, 3)
     foot = _fillet(foot, foot.edges('|Z').vals(), 1)
     shoe = shell.union(foot)

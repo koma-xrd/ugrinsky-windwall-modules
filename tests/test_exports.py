@@ -16,7 +16,10 @@ import cadquery as cq
 
 from tests.support import temporary_build_directory
 from windwall.assembly import RotorAssembly
-from windwall.export import _export_assembly, _integrate_top_support, export_all, export_part, validate_mesh
+from windwall.export import (
+    PRINT_SOURCES, _export_assembly, _integrate_top_support, export_all,
+    export_part, validate_mesh,
+)
 from windwall.parameters import DEFAULT_PARAMETERS
 
 
@@ -50,7 +53,7 @@ class ExportTests(unittest.TestCase):
                 'release/v5/drawings/README.md': b'Drawing inventory\n',
                 'release/v5/audits/manual.json': b'{"structural_checks_passed": true}\n',
                 'release/winding-tool/manifest.json': b'{"release": "winding-tool"}\n',
-                'release/winding-tool/step/winding_head_rib.step': b'ISO-10303-21;\nEND-ISO-10303-21;\n',
+                'release/winding-tool/step/winding_jig_coil_wheel.step': b'ISO-10303-21;\nEND-ISO-10303-21;\n',
             }
             for name, payload in samples.items():
                 path = destination / name
@@ -84,6 +87,12 @@ class ExportTests(unittest.TestCase):
                 self.assertEqual(part.mesh.component_count, 1)
 
     def test_all_unique_parts_export_as_valid_step_and_stl(self):
+        tooling_masters = {
+            'base', 'bearing_tower', 'coil_wheel', 'contact_shoe',
+            'bearing_retainer', 'printed_shaft', 'snap_collar', 'hand_crank',
+            'rotating_grip', 'printed_spindle', 'platter',
+        }
+        self.assertTrue(set(PRINT_SOURCES).isdisjoint(tooling_masters))
         with temporary_build_directory() as destination:
             manifest = export_all(destination)
             self.assertNotIn('winding_head_backplate', manifest.part_names())
@@ -93,6 +102,7 @@ class ExportTests(unittest.TestCase):
                 'lower_magnet_rotor', 'generator_housing', 'coil_cassette',
                 'generator_cover', 'top_support',
             })
+            self.assertTrue(manifest.part_names().isdisjoint(tooling_masters))
             self.assertEqual({part.name for part in manifest.coupons}, {
                 'bayonet_male', 'bayonet_female', 'joint_male', 'joint_female',
                 'magnet_pocket_coupon',
