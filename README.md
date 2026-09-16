@@ -244,6 +244,17 @@ charge regulation, reverse-current blocking, cable and short-circuit protection,
 safe isolation and energy dissipation without a load. Any dump load needs thermal
 and electrical design. No approved charging schematic is included.
 
+## Serpentine coil winding tool
+
+The [German build and operating guide](docs/serpentine-coil-winding-tool-de.md)
+and [tooling release manifest](release/winding-tool/manifest.json) describe two
+independent manual modules: an adjustable six-rib winding jig and a passive
+wire-spool payoff turntable. These are prototype workshop aids, not V5 production
+parts. Printed fits, winding quality and the calculated Ø127 mm starting setting
+require physical tests. Akkuschrauberbetrieb ist nicht freigegeben.
+
+Build the separate release with `python scripts/run_geometry.py scripts/build_winding_tool.py`.
+
 ## Repository and release layout
 
 ```text
