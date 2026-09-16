@@ -3,7 +3,7 @@
 import unittest
 from dataclasses import fields
 from itertools import combinations
-from math import cos, radians, sin
+from math import atan2, cos, degrees, radians, sin
 
 import cadquery as cq
 
@@ -153,18 +153,21 @@ class WindingHeadTests(unittest.TestCase):
                 blocked = head.shoes[index // 3].union(probe)
                 self.assertGreater(overlap(blocked, probe), 1)
 
-    def test_actual_tape_angles_preserve_identity_and_match_reference_only(self):
+    def test_actual_tape_angles_describe_physical_corridors_without_nominal_claims(self):
         self.assertEqual(tape_station_angles(P), tuple(range(0, 360, 20)))
         actual = build_winding_head(P, 150).metadata['actual_tape_angles_deg']
         self.assertEqual(len(actual), 18)
-        for got, want in zip(sorted(actual), range(0, 360, 20)):
-            self.assertAlmostEqual(got, want, places=6)
         small = build_winding_head(P, 100).metadata['actual_tape_angles_deg']
         large = build_winding_head(P, 200).metadata['actual_tape_angles_deg']
-        self.assertGreater(small[2], 20)
-        self.assertLess(large[2], 20)
-        for angles in (small, large):
-            self.assertEqual(len(set(angles)), 18)
+        self.assertGreater(small[2], actual[2])
+        self.assertGreater(actual[2], large[2])
+        for diameter in diameter_settings_mm(P):
+            head = build_winding_head(P, diameter)
+            for angle, probe in zip(head.metadata['actual_tape_angles_deg'],
+                                    head.metadata['tape_passage_probes']):
+                centre = probe.val().Center()
+                measured = degrees(atan2(centre.y, centre.x)) % 360
+                self.assertAlmostEqual(angle, measured, places=6)
 
     def test_complete_removal_releases_coil_and_preserves_six_service_occurrences(self):
         for diameter in (100, 150, 200):
@@ -230,3 +233,50 @@ class WindingHeadTests(unittest.TestCase):
         for diameter in (99, 201, 105, float('nan'), float('inf'), True, '150'):
             with self.subTest(diameter=diameter), self.assertRaises(ValueError):
                 build_winding_head(P, diameter)
+
+    def test_closed_tape_ring_clears_the_entire_forward_removal_sweep(self):
+        """An exterior-only winding surrogate misses the closed inner tape leg."""
+        for diameter in (100, 150, 200):
+            head = build_winding_head(P, diameter)
+            sweeps = []
+            for offset, inner in ((-15, -3), (0, -.5), (15, -3)):
+                tape = box(inner, offset - .5, 12, 4, 1, 10).cut(
+                    box(inner + .25, offset - 1, 12.25, 3.5, 2, 9.5))
+                self.assertTrue(tape.val().isValid())
+                self.assertEqual(len(tape.val().Solids()), 1)
+                positioned = tape.translate((diameter / 2, 0, 0))
+                self.assertLess(overlap(head.shoes[0], positioned), 1e-6)
+                # Horizontal tape legs sweep overlapping axial intervals.
+                # Their exact union over a 40 mm forward withdrawal is this
+                # inverse-motion box, covering every point of the path.
+                sweep = box(inner, offset - .5, -28, 4, 1, 50)
+                for angle in range(0, 360, 60):
+                    sweeps.append(sweep.translate((diameter / 2, 0, 0)).rotate(
+                        (0, 0, 0), (0, 0, 1), angle).val())
+            all_sweeps = cq.Workplane('XY').newObject([cq.Compound.makeCompound(sweeps)])
+            # Rotation symmetry covers each shoe; include all 18 tape rings
+            # so the check also catches a neighboring ring in the path.
+            self.assertLess(overlap(head.shoes[0], all_sweeps), 1e-6)
+
+    def test_station_identity_order_is_preserved_at_all_eleven_settings(self):
+        for diameter in diameter_settings_mm(P):
+            angles = build_winding_head(P, diameter).metadata['actual_tape_angles_deg']
+            ordered = (*angles[1:], angles[0], 360.0)
+            for before, after in zip(ordered, ordered[1:]):
+                with self.subTest(diameter=diameter, before=before, after=after):
+                    self.assertLess(before, after)
+
+    def test_neighboring_physical_passages_are_disjoint_at_all_eleven_settings(self):
+        for diameter in diameter_settings_mm(P):
+            head = build_winding_head(P, diameter)
+            probes = head.metadata['tape_passage_probes']
+            for (first_index, first), (second_index, second) in combinations(enumerate(probes), 2):
+                first_box, second_box = first.val().BoundingBox(), second.val().BoundingBox()
+                if (first_box.xmin > second_box.xmax or second_box.xmin > first_box.xmax
+                        or first_box.ymin > second_box.ymax or second_box.ymin > first_box.ymax):
+                    continue
+                with self.subTest(diameter=diameter, first=first_index, second=second_index):
+                    self.assertLess(overlap(first, second), 1e-6)
+            all_probes = cq.Workplane('XY').newObject([
+                cq.Compound.makeCompound([probe.val() for probe in probes])])
+            self.assertLess(overlap(head.shoes[0], all_probes), 1e-6)

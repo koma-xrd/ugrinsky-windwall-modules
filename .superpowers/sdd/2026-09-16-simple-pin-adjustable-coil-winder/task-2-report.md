@@ -11,6 +11,9 @@
 
 ## Coordinator rulings and the geometric obstruction
 
+The following records the initial rulings. The fix-round-1 section below
+supersedes the midpoint-angle ruling and the original release verification.
+
 The original task brief required three fixed global station rays per invariant
 shoe at every diameter. The coordinator first permitted elongated corridors but
 required them to remain in the 100 mm six-sector envelope. This is impossible:
@@ -62,10 +65,11 @@ metadata, located 40 mm forward and excluded from the winding-support envelope.
 - The short contact arc uses the minimum envelope curvature. One constant
   solid serves every setting. All final contact and tape-mouth edges receive
   0.8 mm fillets in one stable, geometrically sorted operation.
-- Tape width is **axial Z**, with 12 mm clear width for 10 mm tape. The central
-  relief is a slot; the other two open at the shoe ends. Positive contact lands
-  remain between the three reliefs. Actual guide angles are computed from the
-  transformed corridor anchors; passage identity is stable across all settings.
+- Tape width is **axial Z**, with 12 mm clear width for 10 mm tape. All
+  three reliefs open through the rear contact rim. Their fixed local centers are
+  Y=-15, 0 and +15 mm at the default parameters, with positive contact lands
+  between them. Actual guide angles use the transformed corridor centers;
+  passage identity/order and physical separation are verified at all settings.
 - `WindingHeadState(diameter_mm, shoe_radius_mm, release_radius_mm)` records the
   requested setting and assembled support radius. The future completely removed
   support radius is zero; in a released head the current support radius is also
@@ -156,3 +160,119 @@ mesh quality remain unvalidated.
 
 Commit message: `feat: add pin-adjustable coil wheel`. The containing commit hash
 is returned separately in the task handoff.
+
+## Fix round 1 — current release and tape-station contract
+
+This section supersedes the earlier midpoint-angle ruling and the earlier
+release proof. Review identified two real defects in the first implementation:
+
+1. The continuous rear/lower contact rim swept through a closed tape loop's
+   inner leg during forward shoe removal. The old surrogate outside the winding
+   radius could not detect this.
+2. Outer corridor identities reversed at 100 mm, and neighboring feed corridors
+   overlapped at 100, 110 and 120 mm. Checking only unique angles and each
+   corridor's own shoe missed both defects.
+
+### Why the exact midpoint physical angle was removed
+
+For a passage anchor inside the minimum 50 mm radius and its +/-30-degree shoe
+sector, translating outward by 25 mm must produce a 20-degree angle at the
+150 mm setting under the former ruling. The outermost admissible point obeys:
+
+    theta = 20 degrees + asin(0.5 * sin(20 degrees))
+          = 29.84655194 degrees
+    (x,y) = (43.36806916, 24.88394215) mm
+
+Its neighboring shoe's symmetric anchor is at most
+`2 * 50 * sin(30 degrees - theta) = 0.26781707 mm` away. Anchors at smaller
+radius approach the sector boundary further, reducing that separation to zero.
+Thus exact midpoint angles are incompatible with distinct 3 mm feed corridors
+inside this invariant-shoe envelope. Enlarging corridors cannot resolve this.
+
+The coordinator explicitly removed **all** exact-20-degree physical-center
+requirements. `tape_station_angles()` now supplies conceptual sequence labels
+only; it makes no geometric claim at any diameter. The obsolete
+`reference_diameter_mm` metadata key was removed.
+
+The new fixed side offsets are 15% of minimum diameter: +/-15 mm by default.
+Guide centers have local X=-8 mm, so their actual side angles are:
+
+| Setting | Actual side guide angle |
+| --- | --- |
+| 100 mm | +/-19.65382406 degrees |
+| 150 mm | +/-12.61932229 degrees |
+| 200 mm | +/-9.26022153 degrees |
+
+At 100 mm neighboring outer guide anchors are 16.01923789 mm apart. Even the
+inner corner of each 3 mm-wide feed probe stays within its sector: its largest
+absolute angle is `atan2(16.5,32) = 27.27676338 degrees`. Separation increases
+as the shoes move outward. Tests verify strict cyclic identity order, honest
+angles measured from the actual CAD corridor centers, all-pair corridor
+disjointness and clearance from the assembled shoes at all eleven settings.
+
+### Continuous closed-tape release proof
+
+All three relief cuts now continue through the rear/lower contact rim. The
+front/upper bridge keeps the shoe connected; there is no trailing outer rim
+behind a tape inner leg. The foot remains inward of the central tape fixture.
+
+The regression uses a real closed rectangular tape ring: radial span 4 mm,
+axial span 10 mm, 0.25 mm wall thickness, 1 mm tangential width. The central
+inner leg starts at local X=-0.5 mm; outer-station inner legs at X=-3 mm and
+Y=+/-15 mm follow the curved contact face. Each closed ring is checked clear in
+the seated pose.
+
+For the 40 mm axial withdrawal, the exact inverse-motion sweep of each ring is
+the rectangular prism covering its radial span and Z=-28 through +22 mm. The
+horizontal legs' swept intervals overlap, making this an exact continuous
+envelope, not a sparse set of sampled poses. The compound includes all 18 tape
+rings; zero overlap with the representative shoe proves its whole withdrawal
+clear of its own and neighboring rings. Six-fold rotation symmetry covers all
+shoes. This is checked at 100, 150 and 200 mm. It remains a CAD clearance proof
+for the explicit fixture dimensions, not a force/friction or elastic-tape model.
+
+### RED/GREEN evidence
+
+All commands used the existing geometry interpreter and launcher shown above.
+
+Initial RED command:
+
+```powershell
+& 'C:/Users/fi87roy/Documents/GitHub/windwall/.venv/Scripts/python.exe' scripts/run_geometry.py -m unittest tests.test_winding_head.WindingHeadTests.test_closed_tape_ring_clears_the_entire_forward_removal_sweep tests.test_winding_head.WindingHeadTests.test_station_identity_order_is_preserved_at_all_eleven_settings tests.test_winding_head.WindingHeadTests.test_neighboring_physical_passages_are_disjoint_at_all_eleven_settings -v
+```
+
+RED result: **3 tests, 25 failed assertions/subtests, 20.827 seconds**. The
+continuous closed-tape sweep overlapped the shoe by **2.232737385 mm³**. At
+100 mm, neighboring identity angles were **30.1402724 then 29.8597276 degrees**.
+Passage overlap was **124.707658145 mm³** at the minimum, with additional overlap
+at 110 and 120 mm. These failures preceded the production corrections.
+
+P1-only GREEN command selected
+`test_closed_tape_ring_clears_the_entire_forward_removal_sweep` after opening the
+rear rims: **1 test, OK, 14.819 seconds**, process exit 1 after native teardown.
+
+Combined focused GREEN selected the three RED tests plus
+`test_actual_tape_angles_describe_physical_corridors_without_nominal_claims`:
+**4 tests, OK, 17.470 seconds**, process exit 1 after native teardown. Coverage
+was then expanded from the central ring to all three rings and all 18 global
+sweeps, and from nearest-neighbor pairs to every physical corridor pair.
+
+Final complete head-module command:
+
+```powershell
+& 'C:/Users/fi87roy/Documents/GitHub/windwall/.venv/Scripts/python.exe' scripts/run_geometry.py -m unittest tests.test_winding_head -v
+```
+
+Result: **18 tests, unittest OK, 264.508 seconds**. The launcher exited **1**
+after the successful unittest summary, consistent with the existing native OCP
+teardown behavior. `git diff --check` also passed.
+
+### Scope and residual limits
+
+Only `src/windwall/winding_head.py`, `tests/test_winding_head.py`, and this report
+changed. No downstream consumers were edited. The public dataclass/function
+contract, two keyed pins, wheel geometry, six invariant shoe occurrences,
+nominal envelope and complete-removal service state are preserved. Physical
+PLA behavior, real tape friction/compliance, and binary export quality remain
+prototype-validation work. The native OCP exit status remains separately
+reported from unittest results.

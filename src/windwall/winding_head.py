@@ -3,8 +3,9 @@
 Coordinates use the winding axis as Z: wheel rear is Z=0, front is Z=5.
 The shoe master has its outer contact at X=0 and is translated to the selected
 radius before rotation. Only placement changes with diameter. Three axial tape
-reliefs per shoe have nominal 20-degree station spacing at the range midpoint;
-their actual angles change with diameter. This is a rounded six-point envelope.
+reliefs per shoe have fixed local centers. Nominal 20-degree labels identify the
+conceptual sequence; actual physical angles change with diameter and are never
+claimed to be equally spaced. This is a rounded six-point envelope.
 The frame owns the mating printed shaft; this module supplies its hex socket.
 """
 
@@ -44,7 +45,7 @@ class WindingHeadParts:
 
 
 def tape_station_angles(p: WindingToolParameters) -> tuple[float, ...]:
-    """Nominal/reference station angles, not the actual angles at every setting."""
+    """Conceptual station labels only; these are not physical corridor angles."""
     diameter_settings_mm(p)
     return tuple(index * 360.0 / p.tape_station_count
                  for index in range(p.tape_station_count))
@@ -107,8 +108,9 @@ def _build_wheel(p: WindingToolParameters) -> cq.Workplane:
 
 
 def _passage_offsets(p):
-    reference_radius = (p.minimum_diameter_mm + p.maximum_diameter_mm) / 4
-    side = (reference_radius - _PIN_SETBACK) * tan(radians(20))
+    # Keep even the inner end of each 3 mm feed corridor inside its own sector
+    # at the smallest setting. Larger settings only increase neighbor spacing.
+    side = p.minimum_diameter_mm * .15
     return (-side, 0.0, side)
 
 
@@ -151,9 +153,13 @@ def _build_shoe(p: WindingToolParameters) -> cq.Workplane:
         .close().extrude(top + 1))
     shell = shell.intersect(sector).translate((-minimum_radius, 0, 0))
     for offset in _passage_offsets(p):
-        half_width = 4.5 if offset else 1.8
-        shell = shell.cut(_box(-18, offset - half_width, _TAPE_BOTTOM - _MOUTH_RADIUS,
-                              20, 2 * half_width, p.tape_clearance_mm + 2 * _MOUTH_RADIUS))
+        half_width = 1.8
+        # Leave the front bridge, but open every channel through the rear rim.
+        # A closed tape loop's inner leg must not meet a trailing contact rim
+        # when the shoe is withdrawn forward.
+        shell = shell.cut(_box(-18, offset - half_width, -1,
+                              20, 2 * half_width,
+                              _TAPE_BOTTOM + p.tape_clearance_mm + _MOUTH_RADIUS + 1))
     # One fillet operation resolves the three-way mouth corners consistently.
     shell = _fillet(shell, shell.edges().vals(), _MOUTH_RADIUS)
     foot = _box(-12, -8, _SHOE_BOTTOM, 9, 16, 3)
@@ -200,8 +206,7 @@ def build_winding_head(p: WindingToolParameters, diameter_mm: float,
         'actual_tape_angles_deg': actual_angles,
         'tape_passage_probes': probes,
         'tape_clearance_mm': p.tape_clearance_mm,
-        'tape_width_direction': 'axial Z; outer two reliefs open at shoe ends',
-        'reference_diameter_mm': (p.minimum_diameter_mm + p.maximum_diameter_mm) / 2,
+        'tape_width_direction': 'axial Z; all three reliefs open through the rear rim',
         'release_lift_mm': _RELEASE_LIFT,
         'release_method': 'press both rear tabs and remove each shoe forward',
         'detached_shoes': detached,
