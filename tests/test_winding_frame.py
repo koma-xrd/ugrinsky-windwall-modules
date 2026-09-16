@@ -281,6 +281,44 @@ class WindingFrameTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'seat'):
             build_winding_frame(P, invalid)
 
+    def test_compressed_bearing_clips_clear_the_entire_outward_withdrawal(self):
+        tower = local(self.frame.tower)
+        for installed, direction, outer_face in zip(
+                self.frame.bearing_retainers, (-1, 1), (-44, -18.5)):
+            clip = local(installed)
+            bounds = clip.val().BoundingBox()
+            # A bounded planar contraction of the actual CAD clip reduces the
+            # 11.9 mm ring radius by 0.9 mm. Preserve the actual uncompressed
+            # ears as an additional conservative envelope; squeezing them
+            # inward cannot need a wider or taller opening.
+            scale = 11 / 11.9
+            contraction = cq.Matrix([[scale, 0, 0, 0], [0, scale, 0, 0],
+                                    [0, 0, 1, 0], [0, 0, 0, 1]])
+            compressed = cq.Workplane('XY').newObject([
+                clip.val().transformGeometry(contraction)])
+            ears = clip.intersect(box(-5, 10, bounds.zmin, 10, 5, bounds.zlen))
+            compressed = compressed.union(ears)
+            self.assertAlmostEqual(compressed.val().BoundingBox().ymax, 14.4, places=6)
+            final = compressed.translate((0, 0, direction * 6))
+            if direction < 0:
+                self.assertLess(final.val().BoundingBox().zmax, outer_face)
+            else:
+                self.assertGreater(final.val().BoundingBox().zmin, outer_face)
+            # The clip is a constant-section extrusion: extending its axial
+            # thickness produces the exact continuous six-millimeter sweep.
+            stretch = cq.Matrix([[1, 0, 0, 0], [0, 1, 0, 0],
+                                 [0, 0, (bounds.zlen + 6) / bounds.zlen, 0],
+                                 [0, 0, 0, 1]])
+            sweep = cq.Workplane('XY').newObject([
+                compressed.translate((0, 0, -bounds.zmin)).val().transformGeometry(stretch)
+            ]).translate((0, 0, bounds.zmin + min(0, direction * 6)))
+            with self.subTest(direction=direction):
+                self.assertLess(overlap(tower, sweep), 1e-6)
+            # Restoring a thin lip at the exit must break the same path check.
+            blocked = tower.union(box(-5, 11.1, outer_face - .1, 10, 4, .2))
+            with self.assertRaises(AssertionError):
+                self.assertLess(overlap(blocked, sweep), 1e-6)
+
 
 if __name__ == '__main__':
     unittest.main()

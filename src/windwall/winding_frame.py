@@ -85,8 +85,10 @@ def _base_and_tower(height, seat_radius):
     tower = tower.union(rear).union(front)
     for z in (-42.2, -21.0):
         tower = tower.cut(_cylinder(12.1, z, 1.7))
-        # Open squeeze-ear access; the opening remains narrower than a bearing.
-        tower = tower.cut(_box(-5, 10, z - .1, 10, 15, 1.9))
+    # Ears need an uninterrupted exit through each outward housing face.
+    # Lower and side groove lips retain the seated clip positively.
+    for start, end in ((-44.1, -40.4), (-21.1, -18.4)):
+        tower = tower.cut(_box(-5, 10, start, 10, 15, end - start))
     # The central service gap exposes the rear locating collar completely.
     tower = tower.cut(_box(-18, -10, -31, 36, 35, 2.7))
     for z in (-30.3, -20.8):

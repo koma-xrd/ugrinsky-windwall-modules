@@ -220,3 +220,57 @@ approve production use. The native OCP teardown status remains a separate
 environment concern from the unittest outcomes.
 
 Commit message: `feat: add screwless printed wheel stand`.
+
+## Fix round 1 — continuous outer-clip ear withdrawal
+
+Review found that the squeeze-ear windows covered the seated clips but stopped
+before the housing's outward faces. The ears therefore hit an end lip after
+leaving the annular groove. The original seated-access test could not establish
+the documented service path. This section supersedes that service-clearance
+claim in the original report.
+
+The rear ear window now runs from local Z=-44.1 to -40.4, beyond the rear
+housing face at -44. The front window runs from -21.1 to -18.4, beyond the
+front housing face at -18.5. Both remain 10 mm wide, with their lower edge at
+Y=10. The bearing seats, groove dimensions, clip masters, and lower/side
+retaining lips are unchanged. Only the tower's two exit openings changed.
+
+The new regression uses the actual clip CAD. It contracts the annular body
+from 11.9 to 11.0 mm radius and retains the original uncompressed ears as a
+conservative additional envelope. Thus the full 14.4 mm ear height remains
+in the test; clearance cannot be obtained by replacing the clip with a small
+ring or shrinking away the offending ears. As each clip has a constant axial
+section, extending that section over six millimeters gives its continuous
+outward withdrawal sweep. Both final clip positions are wholly beyond the
+corresponding housing face. A deliberately restored thin exit lip is rejected
+by the same intersection check on each side.
+
+This is a bounded geometric compression/withdrawal proof. It does not simulate
+clip strain, squeeze force or fatigue. The original physical-fit limitations
+remain in effect.
+
+Focused RED and GREEN command:
+
+```powershell
+$env:PYTHONPATH = "$PWD;$PWD/src"
+& 'C:/Users/fi87roy/Documents/GitHub/windwall/.venv/Scripts/python.exe' scripts/run_geometry.py -m unittest tests.test_winding_frame.WindingFrameTests.test_compressed_bearing_clips_clear_the_entire_outward_withdrawal -v
+```
+
+- Before production changes, the final conservative fixture ran one test in
+  **13.756 seconds**, failing both direction subtests. The continuous sweep
+  intersected the old tower by **29.467300564 mm³ rear** and **1.733371176 mm³
+  front**. An earlier uniformly contracted-ear fixture also failed both sides;
+  the final fixture intentionally preserves the full ear height instead.
+- After extending only the exit openings, the same focused regression ran
+  **one test in 13.643 seconds; unittest OK**. The process then exited **1**
+  during the known native OCP teardown.
+- Final complete frame and unchanged head command:
+  `scripts/run_geometry.py -m unittest tests.test_winding_frame tests.test_winding_head -v`.
+  Combined result: **38 tests in 246.284 seconds; unittest OK** (20 frame
+  tests and 18 head tests). The launcher subsequently exited **1** during the
+  known native OCP teardown. `git diff --check` passed.
+
+Changed files for this fix are the frame source, its test module, and this
+report. No downstream files or Task 2 source/tests changed. Self-review confirms
+that the original axial/radial bearing engagement tests remain in the complete
+regression and the new negative case detects a reintroduced exit obstruction.
