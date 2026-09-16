@@ -165,3 +165,45 @@ tests occur solely in rejection regressions.
 
 Committed with `refactor: simplify free-running wire payoff`; the commit hash
 is supplied in the task handoff.
+
+## Review fix round 1 — completed print-envelope validation
+
+Addressed Important P2: the pilot diameter was not bounded by the nominal disc
+check, so a 221 mm pilot could create a valid but oversized completed platter.
+The builder now measures each completed printed member in its documented print
+orientation (base/platter flat; spindle rotated 90 degrees about Y), and rejects
+either bed-plane dimension exceeding `min(print_bed_mm, 220)` with a 1e-6 mm CAD
+tolerance. The error identifies the oversized member and applicable bed limit.
+This checks the actual finished shape, including integral features.
+
+Focused RED command:
+
+```powershell
+$env:PYTHONPATH = "$PWD;$PWD/src"
+& '..\..\.venv\Scripts\python.exe' scripts/run_geometry.py -m unittest tests.test_wire_payoff.WirePayoffTests.test_rejects_completed_platter_that_exceeds_the_print_bed -v
+```
+
+Before the production change: **1 test, 3 failing subtests, 1.572 s**. Each
+failed with `ValueError not raised`: 221 mm pilot on the 220 mm bed, 221 mm pilot
+despite a requested 300 mm bed, and 201 mm pilot on a requested 200 mm bed.
+
+A positive boundary regression also builds a completed 200 mm diameter platter
+on a 200 mm bed and measures all three actual shapes in their documented print
+orientations. This boundary fixture checks printability only; it does not extend
+the default 15 mm pilot's physical stability or wire-roll fit validation.
+
+The incidental P3 cleanup was small: the axial contact annulus radii and spindle
+sweep journal radius now derive from the shared `DesignParameters` fixture
+instead of repeating canonical radii 21, 12.5, and 12.4 mm in the test helper.
+
+Final GREEN command:
+
+```powershell
+$env:PYTHONPATH = "$PWD;$PWD/src"
+& '..\..\.venv\Scripts\python.exe' scripts/run_geometry.py -m unittest tests.test_wire_payoff tests.test_winding_tool_parameters tests.test_parameters -v
+```
+
+**Unittest: 25 tests, OK, 6.477 s; no failures, errors, or skips** (16 payoff and
+9 parameter tests). **Native launcher teardown: process exit 1 after `OK`**, as
+previously recorded. The existing physical-validation limits remain unchanged.
+Only the Task 4 source, tests, and this report changed in the fix.

@@ -157,6 +157,17 @@ def build_wire_payoff(
     base = _build_base(bearing_parameters, lower.val().BoundingBox().zlen)
     spindle = _build_spindle(pilot_radius, bearing_top)
     platter = _build_platter(tool_parameters, bearing_top)
+    # Check finished geometry in the documented bed orientations: features
+    # such as the integral pilot can exceed a nominal disc/journal dimension.
+    bed_limit = min(tool_parameters.print_bed_mm, 220.0)
+    for name, oriented_shape in (
+            ('base', base),
+            ('spindle', spindle.rotate((0, 0, 0), (0, 1, 0), 90)),
+            ('platter', platter)):
+        bounds = oriented_shape.val().BoundingBox()
+        if max(bounds.xlen, bounds.ylen) > bed_limit + 1e-6:
+            raise ValueError(f'Payoff {name} exceeds the {bed_limit:g} mm print-bed '
+                             'envelope in its documented print orientation')
     metadata = {
         'pilot': {'diameter_mm': tool_parameters.spool_pilot_diameter_mm,
                   'height_mm': tool_parameters.spool_pilot_height_mm},

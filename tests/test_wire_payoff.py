@@ -33,7 +33,8 @@ def squeeze_tabs(spindle, lower=True):
 class WirePayoffTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.parts = build_wire_payoff(WindingToolParameters(), DesignParameters())
+        cls.design_parameters = DesignParameters()
+        cls.parts = build_wire_payoff(WindingToolParameters(), cls.design_parameters)
 
     def test_payoff_is_free_running_and_contains_no_brake_parts(self):
         parts = build_wire_payoff(WindingToolParameters(), DesignParameters())
@@ -59,7 +60,9 @@ class WirePayoffTests(unittest.TestCase):
             self.assertLess(volume_overlap(supporting, supported), 1e-6)
             self.assertAlmostEqual(supporting.val().distance(supported.val()), 0, places=6)
             # A 0.05 mm axial probe checks actual annular face coverage.
-            area = pi * (21**2 - 12.5**2)
+            bearing = self.design_parameters.bearings
+            area = pi * ((bearing.thrust_outer_diameter_mm / 2)**2
+                         - (bearing.thrust_bore_diameter_mm / 2)**2)
             fraction = volume_overlap(
                 supporting, supported.translate((0, 0, -0.05))) / (area * 0.05)
             self.assertGreater(fraction, 0.75)
@@ -76,7 +79,8 @@ class WirePayoffTests(unittest.TestCase):
     def assert_free_motion(self, parts):
         # Conservative solids of revolution cover every angle, including
         # angles between the explicit rigid-motion samples below.
-        spindle_sweep = (cq.Workplane('XY').circle(12.4).extrude(28.5)
+        pilot_radius = self.design_parameters.bearings.thrust_rotating_pilot_diameter_mm / 2
+        spindle_sweep = (cq.Workplane('XY').circle(pilot_radius).extrude(28.5)
                          .translate((0, 0, 1.5)))
         spindle_sweep = spindle_sweep.union(
             cq.Workplane('XY').circle(13.0).extrude(2).translate((0, 0, 2.8)))
@@ -233,6 +237,26 @@ class WirePayoffTests(unittest.TestCase):
                         {'print_bed_mm': 180, 'maximum_diameter_mm': 180}):
             with self.subTest(changes=changes), self.assertRaises(ValueError):
                 build_wire_payoff(replace(WindingToolParameters(), **changes))
+
+    def test_rejects_completed_platter_that_exceeds_the_print_bed(self):
+        for pilot_diameter, requested_bed in ((221, 220), (221, 300), (201, 200)):
+            with self.subTest(pilot=pilot_diameter, bed=requested_bed):
+                parameters = replace(WindingToolParameters(),
+                    spool_pilot_diameter_mm=pilot_diameter, print_bed_mm=requested_bed)
+                with self.assertRaisesRegex(ValueError, 'platter.*print-bed'):
+                    build_wire_payoff(parameters, DesignParameters())
+
+    def test_completed_printed_parts_fit_at_the_permitted_bed_boundary(self):
+        parts = build_wire_payoff(replace(WindingToolParameters(),
+            spool_pilot_diameter_mm=200, print_bed_mm=200), DesignParameters())
+        self.assertAlmostEqual(parts.platter.val().BoundingBox().xlen, 200)
+        self.assertAlmostEqual(parts.platter.val().BoundingBox().ylen, 200)
+        printed = (parts.base, parts.spindle.rotate((0, 0, 0), (0, 1, 0), 90),
+                   parts.platter)
+        for shape in printed:
+            bounds = shape.val().BoundingBox()
+            self.assertLessEqual(bounds.xlen, 200 + 1e-6)
+            self.assertLessEqual(bounds.ylen, 200 + 1e-6)
 
     def test_mutations_detect_displaced_washers_and_missing_support(self):
         for name in ('lower_washer', 'upper_washer'):
