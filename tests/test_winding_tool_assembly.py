@@ -3,6 +3,7 @@
 import unittest
 from dataclasses import fields, replace
 from functools import lru_cache
+from math import sqrt
 from unittest.mock import patch
 import cadquery as cq
 
@@ -259,10 +260,34 @@ class WindingToolAssemblyTests(unittest.TestCase):
 
 
 class WindingToolServiceTests(unittest.TestCase):
+    def test_tape_fixtures_are_ten_mm_tangential_closed_strips_around_the_winding(self):
+        for diameter in (100, 150, 200):
+            fixture = service_module._winding_fixture(DEFAULT_WINDING_TOOL_PARAMETERS, diameter)
+            for index in range(18):
+                with self.subTest(diameter=diameter, tape=index + 1):
+                    tape = fixture[f'tape_{index + 1}']
+                    local = tape.rotate((0, 0, 0), (0, 0, 1), -(index // 3) * 60)
+                    bounds = local.val().BoundingBox()
+                    self.assertAlmostEqual(bounds.ylen, 10)
+                    self.assertAlmostEqual(bounds.zlen, 10)
+                    self.assertTrue(tape.val().isValid())
+                    self.assertEqual(len(tape.val().Solids()), 1)
+                    self.assertLess(tape.intersect(fixture['coil']).val().Volume(), 1e-5)
+                    offset = (-15, 0, 15)[index % 3]
+                    center_x = diameter / 2 - 50
+                    # Wide reliefs let taut wire bridge slightly inside the
+                    # nominal arc. The conservative loop must surround that
+                    # chord envelope as well as the ideal circular bundle.
+                    for radius, height, occupied in ((48.1, 17, True), (49.8, 17, False),
+                                                      (50.5, 17, False), (51.9, 17, True),
+                                                      (50.5, 12.1, True)):
+                        point = (center_x + sqrt(radius ** 2 - offset ** 2), offset, height)
+                        self.assertEqual(local.val().isInside(point), occupied)
+
     def test_moving_the_entire_tool_cannot_hide_insufficient_tape_clearance(self):
         with patch('windwall.winding_tool_assembly.audit_winding_tool_assemblies', return_value={}):
             model = build_winding_tool_assemblies()
-        wall = installed(box(78.7, -130, 12, 1, 131, 10))
+        wall = installed(box(77.2, -130, 12, 1, 131, 10))
         model = changed(model, 'winding_jig', 'base', model.winding_jig['base'].union(wall))
         self.assertEqual(len(model.winding_jig['base'].val().Solids()), 1)
         stages = list(coil_removal_stages(model))

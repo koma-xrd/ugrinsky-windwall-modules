@@ -236,7 +236,7 @@ def _range(model):
                            'Beide Lochreihen nutzen; zwölf Rastzungen prüfen.',
                            'Die sechs Schuhmitten liegen jeweils 60° auseinander.',
                            'Drei getrennte Bandöffnungen pro Schuh = 18 insgesamt.',
-                           f'Je Öffnung ≥{p.tape_clearance_mm:g} mm axial für 10-mm-Band.',
+                           f'Je ≥{p.tape_clearance_mm:g} mm tangential und axial; 10-mm-Band.',
                            'Drehsinn der Frontansicht markieren; nur Handkurbel.'), spacing=.030, size=12)
 
     head = build_winding_head(p, 150)

@@ -165,6 +165,8 @@ class WindingHeadTests(unittest.TestCase):
             for index, probe in enumerate(probes):
                 self.assertGreater(probe.val().Volume(), 1)
                 self.assertAlmostEqual(probe.val().BoundingBox().zlen, 12)
+                local = probe.rotate((0, 0, 0), (0, 0, 1), -(index // 3) * 60)
+                self.assertAlmostEqual(local.val().BoundingBox().ylen, 12)
                 self.assertLess(overlap(head.shoes[index // 3], probe), 1e-6)
                 blocked = head.shoes[index // 3].union(probe)
                 self.assertGreater(overlap(blocked, probe), 1)
@@ -260,23 +262,26 @@ class WindingHeadTests(unittest.TestCase):
                 build_winding_head(P, diameter)
 
     def test_closed_tape_ring_clears_the_entire_forward_removal_sweep(self):
-        """An exterior-only winding surrogate misses the closed inner tape leg."""
+        """Real 10 mm tangential strips must clear, including their inner legs."""
         for diameter in (100, 150, 200):
             head = build_winding_head(P, diameter)
             sweeps = []
-            for offset, inner in ((-15, -3), (0, -.5), (15, -3)):
-                tape = box(inner, offset - .5, 12, 4, 1, 10).cut(
-                    box(inner + .25, offset - 1, 12.25, 3.5, 2, 9.5))
+            outer = cq.Workplane('XY').circle(52).circle(48).extrude(10).translate((0, 0, 12))
+            cavity = cq.Workplane('XY').circle(51.75).circle(48.25).extrude(9.5).translate((0, 0, 12.25))
+            for offset in (-15, 0, 15):
+                width = box(32, offset - 5, 11, 21, 10, 12)
+                tape = outer.cut(cavity).intersect(width)
                 self.assertTrue(tape.val().isValid())
                 self.assertEqual(len(tape.val().Solids()), 1)
-                positioned = tape.translate((diameter / 2, 0, 0))
+                positioned = tape.translate((diameter / 2 - 50, 0, 0))
                 self.assertLess(overlap(head.shoes[0], positioned), 1e-6)
                 # Horizontal tape legs sweep overlapping axial intervals.
-                # Their exact union over a 40 mm forward withdrawal is this
-                # inverse-motion box, covering every point of the path.
-                sweep = box(inner, offset - .5, -28, 4, 1, 50)
+                # Their exact union over 40 mm inverse withdrawal is the full
+                # curved strip, rather than a 1 mm tangential surrogate.
+                sweep = cq.Workplane('XY').circle(52).circle(48).extrude(50).translate((0, 0, -28))
+                sweep = sweep.intersect(box(32, offset - 5, -29, 21, 10, 52))
                 for angle in range(0, 360, 60):
-                    sweeps.append(sweep.translate((diameter / 2, 0, 0)).rotate(
+                    sweeps.append(sweep.translate((diameter / 2 - 50, 0, 0)).rotate(
                         (0, 0, 0), (0, 0, 1), angle).val())
             all_sweeps = cq.Workplane('XY').newObject([cq.Compound.makeCompound(sweeps)])
             # Rotation symmetry covers each shoe; include all 18 tape rings

@@ -1,5 +1,11 @@
 # Task 8: final simple coil-winder verification
 
+> Historical Task 8 evidence below predates the final-review tape-width fix.
+> The former fixture was only 1 mm wide tangentially, so its successful runs
+> did not establish clearance for the specified 10 mm tape. The final-review
+> addendum at the end records the correction and supersedes the geometry,
+> angle, release-hash and readiness statements for the final tree.
+
 Status: complete with explicit runtime and physical-validation limitations.
 
 ## Scope and cleanup
@@ -309,3 +315,172 @@ actual hand force. Powered operation is not approved.
 The Windows/OCP native process-end failure remains unresolved and is recorded
 separately from application/test results. No merge, push, worktree removal or
 final independent whole-branch review is part of this Task 8 execution.
+
+## Final-review tape-width correction
+
+Status: complete with separate native-runtime and physical-validation limits;
+ready for the single independent re-review. No merge or push performed.
+
+The final reviewer identified an axis error: 10 mm described the tape loop's
+axial height, while the modeled strip was only 1 mm wide tangentially and the
+shoe slots were 3.6 mm wide. Three focused regressions ran against the original
+source and failed as expected: **3 tests / 56 failures in 13.715 s**. The new
+assertions require actual 10 mm tangential strip width, a 12 mm tangential
+passage, a closed cavity around the curved winding and an exact continuous
+40 mm withdrawal sweep including every neighboring tape station.
+
+The shoe now provides three 12 mm tangential by 12 mm axial clear gauges.
+The slot cuts retain 0.3 mm extra width per side. Their radial gauges cover
+the contact shell without crossing into a neighboring minimum-size sector.
+Consequently the honest passage-center angles now use the gauge center at
+radius minus 5 mm: the default 100/150/200 mm offsets are ±18.43°, ±12.09°
+and ±8.97°. Physical station spacing is still not uniformly 20°.
+
+The service fixture is a real closed curved strip: 10 mm tangential width,
+10 mm axial loop height, 4 mm radial contour separation and 0.25 mm wall.
+Its cavity surrounds the 9 mm axial / 1 mm radial winding without intersecting
+it. A 10 mm projected tangential width is conservative for a tape width
+measured along the slightly longer curved arc. All six shoes still release,
+withdraw completely, relax and park before the winding moves forward.
+
+An initial tight 1.5 mm radial tape envelope was widened back to the original
+4 mm contract before final verification. This conservatively includes inward
+wire chords bridging the wider slots. The extra fixture regression was RED:
+**1 test / 54 failures in 14.650 s**, followed by native status -1073741819
+(16.6766064 s wall). The interim full suites were intentionally interrupted;
+their partial passes are not counted as final results. The interim CLI output
+in `build/final-fix-release-a` is retained only as diagnostic evidence and is
+not the final release.
+
+Widening the slots initially made a combined 0.8 mm vertical-edge fillet fail.
+Individual-edge diagnostics located the cause at the two short inner sector
+returns, where adjacent fillets did not fit the roughly 0.65 mm land. Only
+those four inner edges now use a 0.2 mm radius; the external wire-contact and
+upper mouth edges retain 0.8 mm. No mesh repair/filtering was introduced.
+
+The first focused GREEN run reports **3 tests in 17.361 s, OK**. The geometry shell
+reported exit 1; this first focused command did not separately capture the
+native child status. The complete verification commands below capture it
+explicitly. The pure parameter suite reports **5 tests in 0.001 s, OK,
+native status 0**.
+
+The final conservative fixture's focused GREEN run reports **3 tests in
+17.557 s, OK**, zero failures/errors/skips, followed by native status
+**-1073740940** (19.3354701 s wall). It ran the two head corridor/continuous
+sweep regressions and the integrated fixture-width/cavity regression. The
+complete affected suites use these commands against the frozen source:
+
+```powershell
+python scripts/run_geometry.py -m unittest tests.test_winding_head tests.test_winding_tool_assembly -v
+python scripts/run_geometry.py -m unittest tests.test_winding_tool_export -v
+```
+
+The complete head/assembly/service run reports **45 tests in 1556.744 s, OK**,
+zero failures/errors/skips. Native status **-1073741819** followed the complete
+summary; wall duration was **1558.7157943 s**. This includes all new tape
+regressions, continuous full-width withdrawal at 100/150/200 mm, actual-cavity
+and collision checks, blocked routes, missing pins/retainers, member ownership,
+the real 0.2 mm obstruction and the whole-tool-translation counterexample.
+
+The consumer scan also found direct `build_winding_head` calls in the frame
+suite. Its complete `python scripts/run_geometry.py -m unittest
+tests.test_winding_frame -v` run reports **20 tests in 29.817 s, OK**, zero
+failures/errors/skips, followed by native status **-1073741819**
+(31.4250877 s wall). This includes shoe latch accessibility and complete
+withdrawal at 100/150/200 mm and positive wheel/crank drive engagement.
+Its log is `build/final-fix-frame-tests.log`.
+
+The complete exporter run reports **24 tests in 2331.080 s, OK**, zero
+failures/errors/skips, followed by native status **-1073740940**
+(2333.7800926 s wall). It includes two genuinely fresh real-audited releases
+with an unrelated intervening export, exact equality of every artifact byte,
+two independent support renders, all twelve STL/STEP/master/orientation/hash
+gates, both named assemblies, canonical BOM/ownership, Windows checkout byte
+preservation and the fail-closed mutation cases. In total, the affected owning
+and direct-consumer suites plus the parameter suite report **94 passing tests**;
+the focused RED/GREEN cases are repeated subsets, not additional unique tests.
+
+Logs are
+`build/final-fix-head-assembly-final.log` and
+`build/final-fix-export-tests-final.log`. The earlier interrupted log files
+without the `-final` suffix do not count as completed verification.
+
+### Final-source release and visual evidence
+
+Two fresh separate-process CLI builds used verified absent destinations:
+
+```powershell
+python scripts/run_geometry.py scripts/build_winding_tool.py --output-dir build/final-fix-release-b
+python scripts/run_geometry.py scripts/build_winding_tool.py --output-dir build/final-fix-release-c
+python build/final-fix-audit-release.py build/final-fix-release-b --compare build/final-fix-release-c
+```
+
+Both published their application success manifests. Build B took
+**352.405223 s** wall; build C took **350.6283928 s** wall. Each was followed
+by native status **-1073741819**. The independent read-only validator exited
+**0**: all **32 paths and bytes** are identical, all **31 artifact hashes**
+match, all **40 assembly gates** pass, all **12 masters** are manifold/valid
+with valid STEP records and print-bed orientations, and the inventory remains
+**19 printed occurrences, two 608s and one complete 51105**.
+
+A third explicit cold process used
+`python scripts/run_geometry.py build/task-7-diagnose-service.py` and completed
+in **219.3032205 s** wall, followed by native status **-1073741819**. Its retained
+`build/final-fix-cold-audit.log` shows **40/40 assembly gates** and **7/7 service
+gates at each of 100, 150 and 200 mm**. All three service results have empty
+collision/error arrays, continuous checking enabled, **2.0 mm** support
+clearance, and explicit fixture dimensions **10 mm tangential / 4 mm radial /
+10 mm axial**. Together with builds B/C this supplies three separate-process
+cold real default assembly checks. The builder within the complete owning
+suite also passed all 40 gates. None reproduced the earlier Task 7 removal-gate
+failure; its old cause remains unresolved.
+
+After comparison, native PowerShell moved the original tracked release to
+`build/final-fix-pre-review-release` and moved verified build B to
+`release/winding-tool`. Both exact absolute source/destination paths, worktree
+containment, parent directories, 32-file inventories and absence of reparse
+points were checked first. No file was deleted and the previous release is
+recoverable from that backup or commit `e50921e`. The validator was rerun on
+the installed release against build C and again exited **0**.
+
+Final manifest SHA-256:
+`9a1a1bd6c8d00b71e4eaaba3138aa1c1b433b81a90aa168bd0a17bc0f10740e5`.
+Source/release guide SHA-256:
+`22d643e3d12aca686f4c8a90a27257681a452d4cb1250c88d3433ba0a132ce37`.
+The final 32 files total **68,276,209 bytes**.
+
+All three final-source PNGs were opened at their original **2000 x 1400**
+resolution. The range detail visibly shows three wide open passages and the
+two keyed retention pins; its text explicitly distinguishes tangential and
+axial clearance, with updated ±18.43° / ±12.09° / ±8.97° offsets. The reference
+retains both independent modules, the upright payoff and the printed drive
+detail. The exploded/removal sequence now shows the full-width green tape
+strips around the winding before and after every shoe is parked. Labels,
+parts and footer text remain within the image; measured non-white bounds
+also stay strictly inside all four canvas edges. No additional hardware,
+missing occurrence or stale mechanism was introduced.
+
+Exactly eight release artifacts change: the contact-shoe STL and STEP,
+the winding-jig assembly STEP, all three PNGs, German guide and manifest.
+The other 24 release files remain unchanged. Application changes are limited
+to `winding_head.py`, `winding_tool_service.py`, the one renderer caption,
+the two owning test files and the English/German guides. The global exporter,
+shared parameters, V5 builder and `release/v5` have no diff from `e50921e`.
+No physical printing, fit, force, fatigue or powered-operation validation is
+claimed. The Windows/OCP shutdown failure remains separately unresolved.
+
+The final whitespace checks pass. All 32 release files and the source German
+guide (33 paths) match their exact raw staged Git blobs, preserving the hashes
+through commit. Initial normal staging could not create the shared worktree
+index lock; authorized scoped staging succeeded. Git reported the ignored
+`.superpowers` parent while still staging its already tracked report; the
+final report is explicitly force-staged and the exact 16-path index is checked
+before committing. No build/diagnostic/backup directory is staged.
+
+The whole-repository suite was not repeated after this narrowly scoped fix.
+Its earlier Task 8 results above are historical, not a claim about a newly
+executed final-tree repository-wide run. All changed production modules and
+their direct test consumers were rerun; the untouched global exporter,
+shared parameters, V5 builder and V5 artifact bytes remain checked by exact
+Git isolation. Physical PLA printing, fit, retention/fatigue, wire protection,
+actual tape application and release force still require the first prototype.

@@ -93,7 +93,9 @@ lower washer's edge. Check release force on the printed prototype first.
 ## Tape, wind and release
 
 Prepare three 10 mm tape strips through each shoe's three passages. Each passage
-has at least 12 mm axial clearance. There are 18 distinct, ordered passages.
+has at least 12 mm tangential clearance for the strip width and a separate
+12 mm axial clearance for the winding bundle. Tape width runs along local Y,
+not along the axial Z loop height. There are 18 distinct, ordered passages.
 The nominal 20-degree sequence numbers identify stations only: physical passage
 angles vary with diameter and are not equally spaced, including at 150 mm.
 Drawings and assembly metadata report the actual angles. Adjust the tape's final
@@ -165,8 +167,14 @@ preserve the shaft and spindle journal interfaces while covering full rotation.
 The winding follows the circular contact arcs
 and their taut straight connecting spans: a rounded hexagon at larger settings,
 reducing to a circle at 100 mm. The fixture is deliberately bounded: a 9 mm
-axial winding with 1 mm radial build, and 18 closed tape loops with 4 mm radial
-span, 10 mm axial span, 1 mm tangential width and 0.25 mm walls. Released hook
+axial winding with 1 mm radial build, and 18 closed tape loops with 10 mm
+tangential strip width, 10 mm axial loop height and 0.25 mm walls. Their inner
+and outer contours follow the curved contact arcs, separated radially by
+4 mm; the cavity conservatively encloses the winding, including the inward
+chords across the wide tape slots, without crossing it. The width gauge
+is conservative for a strip measured along the slightly longer curved arc.
+The widened passages retain 0.8 mm outer/mouth radii, with 0.2 mm radii on
+the short inner returns at the sector ends. Released hook
 envelopes describe limited deflection clearance, not elastic behavior or force.
 
 No physical validation is claimed. Actual shaft strength, PLA snap fit and

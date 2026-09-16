@@ -3,7 +3,8 @@
 The authoritative assembly solids remain in every pose. A bounded compressed
 hook envelope represents released PLA tabs; it is not an elastic/force model.
 The explicit fixture is a 9 mm axial winding with 1 mm radial build and eighteen
-closed tape loops. It does not certify larger coils, fit, fatigue or hand force.
+closed tape loops, each 10 mm wide tangentially. It does not certify larger
+coils, fit, fatigue or hand force.
 """
 
 from functools import lru_cache
@@ -177,13 +178,19 @@ def _winding_band(parameters, diameter, inner_offset, outer_offset, bottom, heig
 def _winding_fixture(parameters, diameter):
     head = head_reference(parameters, diameter)
     radius = diameter / 2
+    contact_radius = parameters.minimum_diameter_mm / 2
     shapes = {'coil': _winding_band(parameters, diameter, .02, 1, 12.5, 9)}
+    # Follow the same circular contact arc as the winding. A straight rectangle
+    # at each old slot center intersects the curved bundle when widened to a
+    # real strip. Keep a conservative 4 mm radial envelope so the cavity also
+    # surrounds the inward chords where wire bridges the wide tape slots.
+    tape_envelope = ring(contact_radius + 2, contact_radius - 2, 12, 10).cut(
+        ring(contact_radius + 1.75, contact_radius - 1.75, 12.25, 9.5))
+    tape_envelope = tape_envelope.translate((radius - contact_radius, 0, 0))
     for index, corridor in enumerate(head.metadata['tape_passage_probes']):
         local = corridor.rotate((0, 0, 0), (0, 0, 1), -(index // 3) * 60)
         offset = local.val().Center().y
-        inner = -.5 if index % 3 == 1 else -3
-        tape = box(radius + inner, offset - .5, 12, 4, 1, 10).cut(
-            box(radius + inner + .25, offset - 1, 12.25, 3.5, 2, 9.5))
+        tape = tape_envelope.intersect(box(radius - 12, offset - 5, 11, 14, 10, 12))
         shapes[f'tape_{index + 1}'] = tape.rotate((0, 0, 0), (0, 0, 1), (index // 3) * 60)
     return shapes
 
@@ -331,6 +338,7 @@ def audit_winding_tool_service(model, stages=None):
               'continuous_translation_checks': True,
               'fixture_mm': {'winding_radial_build': 1, 'winding_axial_width': 9,
                              'tape_radial_span': 4, 'tape_axial_span': 10,
+                             'tape_tangential_width': 10,
                              'tape_wall': .25}}
     try:
         diameter, height = head_datum(model)

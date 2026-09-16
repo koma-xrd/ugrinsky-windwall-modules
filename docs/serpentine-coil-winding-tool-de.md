@@ -205,8 +205,10 @@ Kalibrierung. Für Einstellwechsel beide Rastzungen lösen und den Schuh ganz
 abziehen, dann im neuen Lochpaar einrasten.
 
 Es gibt drei Bandöffnungen pro Schuh und 18 Bandstellen insgesamt. Jede Passage
-besitzt mindestens 12 mm axiale CAD-Freiheit für 10-mm-Band. Drei Streifen je
-Schuh vorbereiten, mit zugänglichen Enden und Klebeseite zum späteren Umschließen.
+besitzt mindestens 12 mm tangentiale CAD-Freiheit für die 10-mm-Bandbreite und
+zusätzlich 12 mm axiale Freiheit für das Wickelpaket. Die Bandbreite verläuft
+quer zur Spulenachse entlang des Umfangs. Drei Streifen je Schuh vorbereiten,
+mit zugänglichen Enden und Klebeseite zum späteren Umschließen.
 Keine freie Bandfahne darf während des Drehens in Lager oder Kurbel geraten.
 
 Die Identitäten 1–18 bilden die nominale Stationsfolge; es gibt keine gleichmäßige physische 20°-Teilung.
@@ -220,17 +222,17 @@ Manifest enthält alle 18 ungerundeten Werte je Einstellung.
 <!-- BEGIN tape-angles -->
 | Markierung / Nennhülle (mm) | Physische Winkel je Schuhmitte |
 | ---: | --- |
-| 100 | −19.65° / 0° / +19.65° |
-| 110 | −17.70° / 0° / +17.70° |
-| 120 | −16.09° / 0° / +16.09° |
-| 130 | −14.74° / 0° / +14.74° |
-| 140 | −13.60° / 0° / +13.60° |
-| 150 | −12.62° / 0° / +12.62° |
-| 160 | −11.77° / 0° / +11.77° |
-| 170 | −11.02° / 0° / +11.02° |
-| 180 | −10.37° / 0° / +10.37° |
-| 190 | −9.78° / 0° / +9.78° |
-| 200 | −9.26° / 0° / +9.26° |
+| 100 | −18.43° / 0° / +18.43° |
+| 110 | −16.70° / 0° / +16.70° |
+| 120 | −15.26° / 0° / +15.26° |
+| 130 | −14.04° / 0° / +14.04° |
+| 140 | −12.99° / 0° / +12.99° |
+| 150 | −12.09° / 0° / +12.09° |
+| 160 | −11.31° / 0° / +11.31° |
+| 170 | −10.62° / 0° / +10.62° |
+| 180 | −10.01° / 0° / +10.01° |
+| 190 | −9.46° / 0° / +9.46° |
+| 200 | −8.97° / 0° / +8.97° |
 <!-- END tape-angles -->
 
 ## Von Hand wickeln, tapen und entnehmen
@@ -261,8 +263,12 @@ Der geprüfte CAD-Serviceweg zieht jeden Schuh 40 mm vor und parkt ihn 40 mm
 radial außen; die Spule wird anschließend 120 mm vorgezogen. Dies sind
 Freiraumdarstellungen, keine gemessenen Entnahmekräfte. Die CAD-Prüfhülle umfasst
 9 mm axiale Wicklungsbreite, 1 mm radialen Aufbau und 18 geschlossene Bandhüllen
-(4 mm radial × 10 mm axial, 1 mm tangential, 0,25 mm Wand). Größere oder unregelmäßige
-Wicklungen benötigen eine eigene Prüfung des vollständigen Entnahmewegs.
+(10 mm tangentiale Streifenbreite, 10 mm axiale Schleifenhöhe, 4 mm radialer
+Abstand zwischen Innen- und Außenkontur, 0,25 mm Wand). Die Bandhüllen folgen
+den gekrümmten Kontaktflächen und umschließen konservativ auch die nach innen
+laufenden Drahtsehnen über den Bandöffnungen. Die 10 mm axiale
+Schleifenhöhe ist nicht die Bandbreite. Größere oder unregelmäßige Wicklungen
+benötigen eine eigene Prüfung des vollständigen Entnahmewegs.
 
 ## Serpentinenform und Kontrolle der Probespule
 

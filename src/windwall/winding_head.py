@@ -2,8 +2,9 @@
 
 Coordinates use the winding axis as Z: wheel rear is Z=0, front is Z=5.
 The shoe master has its outer contact at X=0 and is translated to the selected
-radius before rotation. Only placement changes with diameter. Three axial tape
-reliefs per shoe have fixed local centers. Nominal 20-degree labels identify the
+radius before rotation. Only placement changes with diameter. Three tape
+reliefs per shoe provide tangential strip width and axial bundle clearance.
+Their fixed local centers and nominal 20-degree labels identify the
 conceptual sequence; actual physical angles change with diameter and are never
 claimed to be equally spaced. This is a rounded six-point envelope.
 The frame owns the mating printed shaft; this module supplies its hex socket.
@@ -24,6 +25,8 @@ _PIN_SETBACK = 8.0
 _PIN_ROWS = (-5.0, 5.0)
 _SHOE_BOTTOM = 5.2
 _TAPE_BOTTOM = 11.0
+_PASSAGE_INNER_X = -12.0
+_PASSAGE_OUTER_X = 2.0
 _MOUTH_RADIUS = .8
 _AXIAL_EDGE_RADIUS = .45
 _RELEASE_LIFT = 40.0
@@ -109,16 +112,19 @@ def _build_wheel(p: WindingToolParameters) -> cq.Workplane:
 
 
 def _passage_offsets(p):
-    # Keep even the inner end of each 3 mm feed corridor inside its own sector
-    # at the smallest setting. Larger settings only increase neighbor spacing.
+    # The 12 mm wide feed corridors remain inside their own sectors at the
+    # minimum setting when their radial probes cover only the contact shell.
     side = p.minimum_diameter_mm * .15
     return (-side, 0.0, side)
 
 
 def _passage_probes(p):
-    # Tape width is axial (Z); radial/tangential depth is the feed corridor.
-    return tuple(_box(-18, offset - 1.5, _TAPE_BOTTOM,
-                      20, 3, p.tape_clearance_mm) for offset in _passage_offsets(p))
+    # Tape width lies along local Y (tangent), independent of the axial Z
+    # winding envelope. Both directions reserve the declared clearance.
+    return tuple(_box(_PASSAGE_INNER_X, offset - p.tape_clearance_mm / 2, _TAPE_BOTTOM,
+                      _PASSAGE_OUTER_X - _PASSAGE_INNER_X,
+                      p.tape_clearance_mm, p.tape_clearance_mm)
+                 for offset in _passage_offsets(p))
 
 
 def _rounded_annulus(outer_radius, wall, bottom, top):
@@ -183,20 +189,23 @@ def _build_shoe(p: WindingToolParameters) -> cq.Workplane:
     shell = shell.intersect(sector).translate((-minimum_radius, 0, 0))
     shell_envelope = shell
     passage_top = _TAPE_BOTTOM + p.tape_clearance_mm + _MOUTH_RADIUS
+    half_width = p.tape_clearance_mm / 2 + .3
     for offset in _passage_offsets(p):
-        half_width = 1.8
         # Leave the front bridge, but open every channel through the rear rim.
         # A closed tape loop's inner leg must not meet a trailing contact rim
         # when the shoe is withdrawn forward.
         shell = shell.cut(_box(-18, offset - half_width, -1,
                               20, 2 * half_width, passage_top + 1))
-    # Round vertical exits first, then form the six upper mouth lips with
-    # explicit analytic quarter-rounds. This preserves the 0.8 mm mouth radius
-    # but avoids the collapsing caps produced by an all-edge fillet.
-    shell = shell.edges('|Z').fillet(_MOUTH_RADIUS)
+    # The widened side slots leave short inner returns at the sector ends.
+    # Their adjacent radii must fit that 0.65 mm land; the outer wire-contact
+    # exits and six upper mouth lips retain the full 0.8 mm radius.
+    inner_edges = [edge for edge in shell.edges('|Z').vals() if edge.Center().x < -10]
+    shell = _fillet(shell, inner_edges, .2)
+    outer_edges = [edge for edge in shell.edges('|Z').vals() if edge.Center().x > -10]
+    shell = _fillet(shell, outer_edges, _MOUTH_RADIUS)
     for offset in _passage_offsets(p):
         for side in (-1, 1):
-            filler = _mouth_lip_filler(offset, side, 1.8, passage_top)
+            filler = _mouth_lip_filler(offset, side, half_width, passage_top)
             shell = shell.union(filler.intersect(shell_envelope))
     foot = _box(-12, -8, _SHOE_BOTTOM, 9, 16, 3)
     foot = _fillet(foot, foot.edges('|Z').vals(), 1)
@@ -228,7 +237,8 @@ def build_winding_head(p: WindingToolParameters, diameter_mm: float,
     detached = tuple(shoe.translate((0, 0, _RELEASE_LIFT)) for shoe in seated) if released else ()
     probes = tuple(_rotate(probe.translate((radius, 0, 0)), index * 60)
                    for index in range(p.spoke_count) for probe in _passage_probes(p))
-    actual_angles = tuple((degrees(atan2(offset, radius - _PIN_SETBACK))
+    passage_center_x = radius + (_PASSAGE_INNER_X + _PASSAGE_OUTER_X) / 2
+    actual_angles = tuple((degrees(atan2(offset, passage_center_x))
                            + index * 60) % 360
                           for index in range(p.spoke_count)
                           for offset in _passage_offsets(p))
@@ -242,7 +252,7 @@ def build_winding_head(p: WindingToolParameters, diameter_mm: float,
         'actual_tape_angles_deg': actual_angles,
         'tape_passage_probes': probes,
         'tape_clearance_mm': p.tape_clearance_mm,
-        'tape_width_direction': 'axial Z; all three reliefs open through the rear rim',
+        'tape_width_direction': 'tangential local Y; axial Z is bundle clearance; rear rim open',
         'release_lift_mm': _RELEASE_LIFT,
         'release_method': 'press both rear tabs and remove each shoe forward',
         'detached_shoes': detached,
