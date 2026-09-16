@@ -48,6 +48,60 @@ def changed(model, tool, name, shape):
 
 
 class WindingToolAssemblyTests(unittest.TestCase):
+    def test_noncanonical_51105_configuration_is_rejected_before_auditing(self):
+        design = replace(DEFAULT_PARAMETERS, bearings=replace(
+            DEFAULT_PARAMETERS.bearings, thrust_height_mm=12))
+        with patch('windwall.winding_tool_assembly.audit_winding_tool_assemblies', return_value={}):
+            with self.assertRaisesRegex(ValueError, '51105'):
+                build_winding_tool_assemblies(design_parameters=design)
+
+    def test_noncanonical_bearing_records_or_actual_stack_cannot_publish_a_bom(self):
+        with patch('windwall.winding_tool_assembly.audit_winding_tool_assemblies', return_value={}):
+            model = build_winding_tool_assemblies()
+        valid_row = next(row for row in winding_tool_bom(model) if row['name'] == '51105 thrust bearing')
+        self.assertTrue(valid_row['specification'].startswith('25 x 42 x 11 mm'))
+        owners = {tool: {name: dict(owner) for name, owner in records.items()}
+                  for tool, records in model.ownership.items()}
+        for name in ('lower_washer', 'bearing', 'upper_washer'):
+            owners['wire_payoff'][name]['nominal_dimensions_mm'] = (25, 42, 12)
+        design = replace(DEFAULT_PARAMETERS, bearings=replace(
+            DEFAULT_PARAMETERS.bearings, thrust_height_mm=12))
+        payoff = build_wire_payoff(model.parameters, design)
+        members = {name: getattr(payoff, name) for name in model.wire_payoff}
+        for case, mutant in (
+            ('incorrect record', replace(model, ownership=owners)),
+            ('incorrect actual stack with canonical record', replace(model, wire_payoff=members)),
+            ('incorrect stack and record', replace(model, wire_payoff=members, ownership=owners)),
+        ):
+            with self.subTest(case=case):
+                with self.assertRaisesRegex(ValueError, '51105'):
+                    winding_tool_bom(mutant)
+                self.assertFalse(all(audit_winding_tool_assemblies(mutant).values()))
+
+    def test_shaft_and_collar_rotation_cannot_cross_stationary_tower_material(self):
+        with patch('windwall.winding_tool_assembly.audit_winding_tool_assemblies', return_value={}):
+            model = build_winding_tool_assemblies()
+        original = {name: service_module.local_shape(shape, 130)
+                    for name, shape in model.winding_jig.items()}
+        nominal = assembly_module._frame_checks(tuple(original.items()), 130,
+            DEFAULT_PARAMETERS.bearings.radial_nominal_dimensions_mm)
+        self.assertTrue(all(nominal.values()), nominal)
+        collar_wall = box(-1, 4.3, -30, 2, 11.7, .4).union(
+            box(-1, 14, -31.2, 2, 2, 1.6))
+        for name, obstacle, angle in (
+            ('shaft', box(-1, 6.5, -18.6, 8, 2.5, 1.6), 30),
+            ('snap_collar_1', collar_wall, 90),
+        ):
+            with self.subTest(rotating=name):
+                parts = {**original, 'tower': original['tower'].union(obstacle)}
+                self.assertEqual(len(parts['tower'].val().Solids()), 1)
+                self.assertLess(parts[name].intersect(parts['tower']).val().Volume(), 1e-6)
+                rotated = parts[name].rotate((0, 0, 0), (0, 0, 1), angle)
+                self.assertGreater(rotated.intersect(parts['tower']).val().Volume(), .1)
+                checks = assembly_module._frame_checks(tuple(parts.items()), 130,
+                    DEFAULT_PARAMETERS.bearings.radial_nominal_dimensions_mm)
+                self.assertFalse(all(checks.values()), checks)
+
     def test_each_rear_shoe_hook_must_retain_its_own_pin(self):
         with patch('windwall.winding_tool_assembly.audit_winding_tool_assemblies', return_value={}):
             model = build_winding_tool_assemblies()
@@ -205,6 +259,32 @@ class WindingToolAssemblyTests(unittest.TestCase):
 
 
 class WindingToolServiceTests(unittest.TestCase):
+    def test_moving_the_entire_tool_cannot_hide_insufficient_tape_clearance(self):
+        with patch('windwall.winding_tool_assembly.audit_winding_tool_assemblies', return_value={}):
+            model = build_winding_tool_assemblies()
+        wall = installed(box(78.7, -130, 12, 1, 131, 10))
+        model = changed(model, 'winding_jig', 'base', model.winding_jig['base'].union(wall))
+        self.assertEqual(len(model.winding_jig['base'].val().Solids()), 1)
+        stages = list(coil_removal_stages(model))
+        tape = stages[0]['fixed']['tape_2']
+        self.assertAlmostEqual(model.winding_jig['base'].val().distance(tape.val()), .2, places=5)
+        final = stages[-1]
+        all_members = {**final['fixed'], **final['moving']}
+        stages.insert(-1, {'name': 'translate_entire_tool', 'moving': all_members,
+            'fixed': {}, 'translation_mm': (250, 0, 0), 'groups': dict(final['groups']),
+            'released': {}, 'restored': {}})
+        stages[-1] = {**final, **{role: {name: shape.translate((250, 0, 0))
+            for name, shape in final[role].items()} for role in ('fixed', 'moving')}}
+        service = audit_winding_tool_service(model, stages)
+        self.assertFalse(service['errors'], service)
+        self.assertTrue(service['checks']['route_continuity'], service)
+        with self.subTest(requirement='permitted motion ownership'):
+            self.assertFalse(service['checks'].get('motion_ownership', True), service)
+        with self.subTest(requirement='clearance at actual winding pose'):
+            self.assertFalse(service['checks']['radial_support_clearance'], service)
+            self.assertEqual(service['radial_support_clearance_mm'], 0)
+        self.assertFalse(service['checks']['complete_coil_removal'], service)
+
     def test_coil_surrogate_includes_the_taut_spans_between_rounded_shoes(self):
         # At 150/200 mm the unsupported spans lie inside the nominal circle.
         for diameter, point in ((100, (50.5, 0, 17)),

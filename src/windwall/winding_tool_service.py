@@ -227,11 +227,11 @@ def coil_removal_stages(model):
             local_shape(parts[name], height), model.parameters, diameter, index), height)
         stage(f'release_{name}', (name,), released={name: compressed})
         stage(f'withdraw_{name}', (name,), (0, -lift, 0))
+        groups[name] = 'service_detached'
         stage(f'relax_{name}', (name,), restored={
             name: translated(model.winding_jig[name], (0, -lift, 0))})
         angle = radians(index * 60)
         stage(f'park_{name}', (name,), (lift * cos(angle), 0, lift * sin(angle)))
-        groups[name] = 'service_detached'
     stage('shoes_detached')
     winding = tuple(_winding_fixture(model.parameters, diameter))
     stage('remove_taped_coil', winding, (0, -120, 0))
@@ -261,6 +261,61 @@ def audit_snap_access(model):
     return all(clear(probe, local[name]) for probe, names in access for name in names)
 
 
+def _motion_ownership(model, stages):
+    """Permit only shoe release/parking and the final held-winding translation."""
+    diameter, _ = head_datum(model)
+    lift = head_reference(model.parameters, diameter).metadata['release_lift_mm']
+    winding = set(_winding_fixture(model.parameters, diameter))
+    states = {f'shoe_{i}': 'latched' for i in range(1, 7)}
+    initial_groups = {name: owner['group'] for name, owner in model.ownership['winding_jig'].items()}
+    initial_groups.update({name: 'held_winding' for name in winding})
+    transitions = {'release': ('latched', 'released'), 'withdraw': ('released', 'withdrawn'),
+                   'relax': ('withdrawn', 'relaxed'), 'park': ('relaxed', 'parked')}
+    valid = bool(stages)
+    for index, stage in enumerate(stages):
+        groups = dict(initial_groups)
+        groups.update({name: 'service_detached' for name, state in states.items()
+                       if state in ('withdrawn', 'relaxed', 'parked')})
+        valid &= stage['groups'] == groups
+        vector = tuple(stage['translation_mm'])
+        if len(vector) != 3 or not all(isfinite(value) for value in vector):
+            return False
+        name = stage['name']
+        moving, released, restored = set(stage['moving']), set(stage.get('released', {})), set(stage.get('restored', {}))
+        expected_moving = expected_released = expected_restored = set()
+        expected_vector = (0, 0, 0)
+        if name == 'wound_latched':
+            valid &= index == 0 and all(state == 'latched' for state in states.values())
+        elif name == 'shoes_detached':
+            valid &= all(state == 'parked' for state in states.values())
+        elif name == 'remove_taped_coil':
+            valid &= index == len(stages) - 1 and all(state == 'parked' for state in states.values())
+            valid &= vector[1] < -100
+            expected_moving = winding
+            expected_vector = (0, vector[1], 0)
+        else:
+            action, _, shoe = name.partition('_')
+            if action not in transitions or shoe not in states:
+                valid = False
+                continue
+            before, after = transitions[action]
+            valid &= states[shoe] == before
+            states[shoe] = after
+            expected_moving = {shoe}
+            if action == 'release':
+                expected_released = {shoe}
+            elif action == 'withdraw':
+                expected_vector = (0, -lift, 0)
+            elif action == 'relax':
+                expected_restored = {shoe}
+            else:
+                angle = radians((int(shoe.split('_')[1]) - 1) * 60)
+                expected_vector = (lift * cos(angle), 0, lift * sin(angle))
+        valid &= (moving == expected_moving and released == expected_released and restored == expected_restored
+                  and all(abs(actual - expected) <= 1e-6 for actual, expected in zip(vector, expected_vector)))
+    return bool(valid and all(state == 'parked' for state in states.values()))
+
+
 def audit_winding_tool_service(model, stages=None):
     """Inspect the standard route or a supplied drawing/service route.
 
@@ -269,7 +324,7 @@ def audit_winding_tool_service(model, stages=None):
     The return is JSON-safe; the pose builder itself intentionally returns CAD.
     """
     checks = {name: False for name in ('snap_access', 'wound_closed_tape',
-        'route_continuity', 'all_shoes_detached', 'radial_support_clearance',
+        'route_continuity', 'motion_ownership', 'all_shoes_detached', 'radial_support_clearance',
         'complete_coil_removal')}
     result = {'checks': checks, 'collisions': [], 'errors': [],
               'radial_support_clearance_mm': 0.0,
@@ -280,6 +335,7 @@ def audit_winding_tool_service(model, stages=None):
     try:
         diameter, height = head_datum(model)
         stages = coil_removal_stages(model) if stages is None else tuple(stages)
+        checks['motion_ownership'] = _motion_ownership(model, stages)
         checks['snap_access'] = audit_snap_access(model)
         expected = dict(model.winding_jig)
         fixture = {name: installed_shape(shape, height)
@@ -341,11 +397,17 @@ def audit_winding_tool_service(model, stages=None):
         margin = model.parameters.release_clearance_mm
         support_band = installed_shape(_winding_band(model.parameters, diameter,
             -4 - margin, 4 + margin, 12, 10), height)
-        clearance = all(clear(support_band, shape) for shape in final['fixed'].values())
+        winding_pose_known = set(final['moving']) == set(fixture)
+        if winding_pose_known:
+            offset = final['moving']['coil'].val().Center().sub(fixture['coil'].val().Center()).toTuple()
+            winding_pose_known = all(_same_shape(final['moving'][name], translated(shape, offset))
+                                     for name, shape in fixture.items())
+            support_band = translated(support_band, offset)
+        clearance = winding_pose_known and all(clear(support_band, shape) for shape in final['fixed'].values())
         checks['radial_support_clearance'] = bool(clearance and checks['all_shoes_detached'])
         result['radial_support_clearance_mm'] = margin if checks['radial_support_clearance'] else 0.0
         checks['complete_coil_removal'] = bool(
-            checks['wound_closed_tape'] and checks['route_continuity']
+            checks['wound_closed_tape'] and checks['route_continuity'] and checks['motion_ownership']
             and checks['all_shoes_detached'] and checks['radial_support_clearance']
             and not result['collisions']
             and set(final['moving']) == set(fixture)

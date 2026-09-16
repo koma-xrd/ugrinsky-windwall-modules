@@ -15,6 +15,7 @@ from math import atan2, cos, degrees, hypot, isfinite, radians, sin
 
 import cadquery as cq
 
+from windwall.bearings import build_51105_reference, build_608_reference
 from windwall.parameters import DEFAULT_PARAMETERS, DesignParameters
 from windwall.winding_frame import build_winding_frame
 from windwall.winding_head import build_winding_head
@@ -56,6 +57,10 @@ _PAYOFF_LAYOUT = {
     'upper_washer': ('51105 thrust bearing', 'rotating'),
 }
 _PURCHASES = frozenset(('608 bearing', '51105 thrust bearing'))
+_BEARING_DIMENSIONS = {
+    '608': DEFAULT_PARAMETERS.bearings.radial_nominal_dimensions_mm,
+    '51105': DEFAULT_PARAMETERS.bearings.thrust_nominal_dimensions_mm,
+}
 
 
 def _owners(layout):
@@ -70,6 +75,12 @@ def build_winding_tool_assemblies(
         diameter_mm: float = 150.0,
 ) -> WindingToolAssemblies:
     """Install all members, evaluate every labeled setting, and fail closed."""
+    for designation, dimensions in (
+        ('608', design_parameters.bearings.radial_nominal_dimensions_mm),
+        ('51105', design_parameters.bearings.thrust_nominal_dimensions_mm),
+    ):
+        if dimensions != _BEARING_DIMENSIONS[designation]:
+            raise ValueError(f'{designation} requires canonical dimensions {_BEARING_DIMENSIONS[designation]} mm')
     head = build_winding_head(tool_parameters, diameter_mm)
     frame = build_winding_frame(tool_parameters, design_parameters)
     payoff = build_wire_payoff(tool_parameters, design_parameters)
@@ -125,6 +136,46 @@ def _ownership_checks(model):
                ('lower_washer', 'bearing', 'upper_washer')} == {'51105_1'}
     return {'required_members': bool(required), 'ownership': bool(correct),
             'bearing_51105_ownership': bool(thrust)}
+
+
+@lru_cache(maxsize=1)
+def _bearing_references():
+    return {'608': build_608_reference(DEFAULT_PARAMETERS),
+            '51105': build_51105_reference(DEFAULT_PARAMETERS)}
+
+
+def _validated_bearing_inventory(model):
+    """Validate every size record and the real catalog-shaped purchased stack."""
+    references = _bearing_references()
+    dimensions = {}
+    for designation, tool, names in (
+        ('608', 'winding_jig', ('bearing_608_1', 'bearing_608_2')),
+        ('51105', 'wire_payoff', ('lower_washer', 'bearing', 'upper_washer')),
+    ):
+        for name in names:
+            record = model.ownership[tool][name].get('nominal_dimensions_mm', ())
+            if not isinstance(record, (tuple, list)) or tuple(record) != _BEARING_DIMENSIONS[designation]:
+                raise ValueError(f'{designation} occurrence {name} has noncanonical bearing dimensions')
+            dimensions[designation] = tuple(record)
+    _, height = head_datum(model)
+    actual_and_gauge = []
+    for name in ('bearing_608_1', 'bearing_608_2'):
+        actual = local_shape(model.winding_jig[name], height)
+        center = actual.val().Center()
+        actual = translated(actual, (-center.x, -center.y, -bounds(actual).zmin))
+        actual_and_gauge.append(('608', actual, references['608'].parts['sealed_envelope']))
+    lower = model.wire_payoff['lower_washer']
+    center = lower.val().Center()
+    offset = (-center.x, -center.y, -bounds(lower).zmin)
+    for name, reference_name in (('lower_washer', 'housing_washer'),
+                                 ('bearing', 'rolling_envelope'), ('upper_washer', 'shaft_washer')):
+        actual_and_gauge.append(('51105', translated(model.wire_payoff[name], offset),
+                                 references['51105'].parts[reference_name]))
+    for designation, actual, gauge in actual_and_gauge:
+        if (actual.cut(gauge).val().Volume() > VOLUME_TOLERANCE
+                or gauge.cut(actual).val().Volume() > VOLUME_TOLERANCE):
+            raise ValueError(f'{designation} actual bearing geometry does not match its canonical stack')
+    return dimensions
 
 
 @lru_cache(maxsize=32)
@@ -203,6 +254,62 @@ def _head_checks(member_items, parameters, diameter):
 
 
 @lru_cache(maxsize=128)
+def _rotation_envelope(shape, split_axially=False):
+    """Conservative full revolution, proven to contain the supplied solid.
+
+    Shaft/spindle sections preserve their narrow bearing journals instead of
+    extending the enlarged drive or snap radius across a bearing interface.
+    Every axial interval is covered continuously; no angular samples are used.
+    """
+    bb = bounds(shape)
+    levels = [bb.zmin]
+    if split_axially:
+        for z in sorted(vertex.Center().z for vertex in shape.val().Vertices()):
+            if z - levels[-1] > 1e-6 and bb.zmax - z > 1e-6:
+                levels.append(z)
+    levels.append(bb.zmax)
+    reach = hypot(max(abs(bb.xmin), abs(bb.xmax)), max(abs(bb.ymin), abs(bb.ymax)))
+    cylinders = []
+    section_tolerance = VOLUME_TOLERANCE / (len(levels) - 1)
+    for bottom, top in zip(levels, levels[1:]):
+        section = (shape.intersect(box(-reach, -reach, bottom, 2 * reach, 2 * reach, top - bottom))
+                   if split_axially else shape)
+        if section.val().Volume() <= VOLUME_TOLERANCE:
+            continue
+        sb = bounds(section)
+        x, y = max(abs(sb.xmin), abs(sb.xmax)), max(abs(sb.ymin), abs(sb.ymax))
+        radius = max(x, y, *(hypot(vertex.Center().x, vertex.Center().y)
+                              for vertex in section.val().Vertices()))
+        envelope = ring(radius, 0, bottom, top - bottom)
+        maximum_radius = hypot(x, y)
+        while section.cut(envelope).val().Volume() > section_tolerance:
+            if radius >= maximum_radius:
+                raise ValueError('Rotation envelope does not contain an axial section')
+            radius = min(maximum_radius, radius * 1.05)
+            envelope = ring(radius, 0, bottom, top - bottom)
+        cylinders.append(envelope)
+    # Fuse adjacent intervals: a compound of touching cylinders is not a valid
+    # Boolean cutter at shared axial faces in OCCT.
+    sweep = cylinders[0]
+    for cylinder in cylinders[1:]:
+        sweep = sweep.union(cylinder)
+    if shape.cut(sweep).val().Volume() > VOLUME_TOLERANCE:
+        raise ValueError('Rotation envelope does not contain the complete occurrence')
+    return sweep
+
+
+def _all_rotating_clearance(parts, layout):
+    stationary = [parts[name] for name, (_, group) in layout.items() if group != 'rotating']
+    for name, (_, group) in layout.items():
+        if group != 'rotating':
+            continue
+        sweep = _rotation_envelope(parts[name], name in ('shaft', 'spindle'))
+        if not all(clear(sweep, fixed) for fixed in stationary):
+            return False
+    return True
+
+
+@lru_cache(maxsize=128)
 def _frame_checks(member_items, height, bearing_dimensions):
     parts = dict(member_items)
     shaft, tower = parts['shaft'], parts['tower']
@@ -265,6 +372,7 @@ def _frame_checks(member_items, height, bearing_dimensions):
             'locating_floating_load_path': bool(engaged and floating and seal_clear and located),
             'shaft_axial_restraint': bool(located), 'positive_polygon_drives': bool(drives),
             'crank_full_rotation': bool(crank_clear and free_grip),
+            'jig_full_rotation_clearance': _all_rotating_clearance(parts, _JIG_LAYOUT),
             'stand_snap_joint': bool(mount), 'member_collision_clearance': bool(nominal_clear)}
 
 
@@ -298,6 +406,7 @@ def _payoff_checks(member_items, journal_diameter):
     # A continuous upward envelope reserves room to lift the platter and reach
     # the upper plug. An overhead guard can block service while rotation is clear.
     access_sweep = ring(max(pb.xlen, pb.ylen) / 2, 0, pb.zmin, pb.zlen + 40)
+    rotating &= _all_rotating_clearance(parts, _PAYOFF_LAYOUT)
     return {'bearing_51105_load_path': bool(load_path), 'payoff_free_rotation': bool(rotating and floating),
             'payoff_top_access': bool(clear(access_sweep, parts['base']))}
 
@@ -350,11 +459,11 @@ def audit_winding_tool_assemblies(model: WindingToolAssemblies) -> dict[str, boo
     Each setting repositions the actual six shoes and physically probes them.
     Mutations therefore remain present in all settings and service checks.
     """
-    checks = {name: False for name in ('required_members', 'ownership', 'valid_solids',
+    checks = {name: False for name in ('required_members', 'ownership', 'valid_solids', 'bearing_catalog_dimensions',
         'independent_tools', 'equal_shoe_positions', 'wire_contact_envelope', 'two_pin_engagement',
         'tape_corridors', 'actual_tape_angles', 'head_rotation_clearance', 'bearing_608_engagement',
         'locating_floating_load_path', 'shaft_axial_restraint', 'positive_polygon_drives',
-        'crank_full_rotation', 'stand_snap_joint', 'member_collision_clearance',
+        'crank_full_rotation', 'jig_full_rotation_clearance', 'stand_snap_joint', 'member_collision_clearance',
         'bearing_51105_ownership', 'bearing_51105_load_path', 'payoff_free_rotation', 'payoff_top_access',
         'snap_access', 'complete_coil_removal', 'print_bed')}
     try:
@@ -370,6 +479,8 @@ def audit_winding_tool_assemblies(model: WindingToolAssemblies) -> dict[str, boo
             and isfinite(s.val().Volume()) and s.val().Volume() > 0 for s in shapes)
         if not checks['valid_solids']:
             return checks
+        _validated_bearing_inventory(model)
+        checks['bearing_catalog_dimensions'] = True
         diameter, height = head_datum(model)
         local = {name: local_shape(shape, height) for name, shape in model.winding_jig.items()}
         current, measured = _head_checks(tuple(local.items()), model.parameters, diameter)
@@ -389,7 +500,7 @@ def audit_winding_tool_assemblies(model: WindingToolAssemblies) -> dict[str, boo
         checks['independent_tools'] = not any(a.val().isSame(b.val())
             for a in model.winding_jig.values() for b in model.wire_payoff.values())
         if not all(checks[name] for name in ('bearing_608_engagement', 'locating_floating_load_path',
-            'shaft_axial_restraint', 'positive_polygon_drives', 'crank_full_rotation',
+            'shaft_axial_restraint', 'positive_polygon_drives', 'crank_full_rotation', 'jig_full_rotation_clearance',
             'stand_snap_joint', 'member_collision_clearance', 'bearing_51105_load_path',
             'payoff_free_rotation', 'payoff_top_access')):
             return checks
@@ -416,6 +527,9 @@ def winding_tool_bom(model: WindingToolAssemblies) -> tuple[dict, ...]:
     ownership = _ownership_checks(model)
     if not all(ownership.values()):
         raise ValueError('Cannot derive a BOM from incomplete or incorrect occurrence ownership')
+    dimensions = _validated_bearing_inventory(model)
+    specifications = {name: ' x '.join(f'{value:g}' for value in values) + ' mm'
+                      for name, values in dimensions.items()}
     counts = Counter()
     for tool, records in model.ownership.items():
         counts.update(f'{tool}/{owner["master"]}' for owner in records.values() if owner['source'] == 'printed')
@@ -427,9 +541,9 @@ def winding_tool_bom(model: WindingToolAssemblies) -> tuple[dict, ...]:
                 if owner['source'] == 'purchased']
     rows.append({'name': '608 bearing', 'source': 'purchased',
                  'quantity': sum(owner['master'] == '608 bearing' for owner in bearings),
-                 'specification': '8 x 22 x 7 mm', 'physical_fit_verified': False})
+                 'specification': specifications['608'], 'physical_fit_verified': False})
     rows.append({'name': '51105 thrust bearing', 'source': 'purchased',
                  'quantity': len({owner['purchase_set'] for owner in bearings if owner['master'] == '51105 thrust bearing'}),
-                 'specification': '25 x 42 x 11 mm; complete set with separate lower and upper washers',
+                 'specification': specifications['51105'] + '; complete set with separate lower and upper washers',
                  'physical_fit_verified': False})
     return tuple(rows)

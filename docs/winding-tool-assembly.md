@@ -71,6 +71,11 @@ stationary base; the upper washer supports and turns with the platter. The
 rolling envelope is bearing-internal. Printed bearing races are not substitutes
 for the supplied washers.
 
+The integrated tool accepts only canonical 8 x 22 x 7 mm 608 bearings and a
+25 x 42 x 11 mm 51105 set. Every stored size record and the actual purchased CAD
+members are checked against their catalog envelopes before assembly or BOM
+approval. The BOM specification is formatted from those validated records.
+
 Push the printed spindle into the base until its lower detents engage the
 annular groove. Push the platter over its square upper plug until the upper
 detents engage. The platter must remain free to rotate without touching the
@@ -105,6 +110,8 @@ the winding's forward path. Repeat for all six shoes. Do not substitute a one-ho
 neighboring shoes interfere at the smallest setting. The modeled route withdraws
 each shoe 40 mm forward and parks it 40 mm radially outward. Every detached shoe
 remains represented as a separate service occurrence throughout removal.
+Its ownership becomes service-detached immediately after complete withdrawal,
+before tab relaxation and parking.
 
 Only after all six shoes are detached and the support clearance is at least
 2 mm may the taped winding move forward. The wheel, printed shaft, tower,
@@ -137,10 +144,19 @@ from occurrence records and groups the three 51105 members into one purchase.
 `coil_removal_stages(model)` returns CAD poses with moving/fixed members,
 translations, release envelopes and motion ownership. `audit_winding_tool_service`
 can check the normal route or a supplied drawing route, including continuity.
+The permitted-motion gate allows only each shoe's release, withdrawal, relaxation
+and parking, followed by the held winding's forward translation. Structural
+members must stay fixed, ownership transitions must match the release state, and
+the clearance band is located at the actual winding pose. Moving the entire
+tool cannot create an artificial clearance result.
 Each translation is checked continuously using the initial solid and swept
 boundary faces. Relaxed shoes recover their complete original geometry before
 parking; that full solid also bounds tab relaxation. Full revolutions use
-enclosing solids whose containment is checked against actual geometry. The winding follows the circular contact arcs
+enclosing solids whose containment is checked against actual geometry.
+Every rotating occurrence is checked against stationary members, including the
+shaft, both collars and the payoff's upper washer. Fused axial envelope sections
+preserve the shaft and spindle journal interfaces while covering full rotation.
+The winding follows the circular contact arcs
 and their taut straight connecting spans: a rounded hexagon at larger settings,
 reducing to a circle at 100 mm. The fixture is deliberately bounded: a 9 mm
 axial winding with 1 mm radial build, and 18 closed tape loops with 4 mm radial

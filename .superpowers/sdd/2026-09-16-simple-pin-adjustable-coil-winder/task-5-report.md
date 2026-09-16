@@ -231,3 +231,103 @@ German operating guide and generated release await their later tasks.
 
 Commit message: `refactor: assemble simple winding tools`. The commit hash is
 returned in the handoff rather than embedded self-referentially in this report.
+
+## Fix round 1 — complete rotation, permitted service motion, canonical bearings
+
+The three reviewer findings were reproduced before their respective production
+fixes. Only the Task 5 assembly/service modules, integration tests, assembly guide
+and this report change. Component builders/tests and all downstream files remain
+unchanged.
+
+### Rotation coverage
+
+The regression adds connected tower material that clears the nominal shaft but
+intersects it at 30 degrees, plus a connected wall in the first collar's open
+throat that intersects the collar at 90 degrees. Both previously left every frame
+gate true: **RED: 1 test, 2 failing subtests, 31.111 s**.
+
+Every rotating occurrence now receives a continuous enclosing solid checked
+against every non-rotating member in its tool, including the shaft, both collars,
+spindle and upper 51105 washer. Actual-solid containment is mandatory. Shaft and
+spindle envelopes are split at actual axial vertex levels so enlarged drives or
+detents do not incorrectly extend through bearing journals. Axial intervals are
+fused into one Boolean cutter, and radial bounds grow only when a real containment
+check requires it. Intentional zero-volume bearing-face contacts are retained.
+
+The first focused negative run was **2 tests, OK, 55.650 s**, but a subsequently
+added nominal assertion exposed over-conservative wheel bounds and an OCCT
+compound-cutter issue: **3 tests, 1 failure, 40.811 s**. Diagnostics isolated the
+wheel/base false contact and the shaft/spindle containment residuals. Those
+intermediate results are not treated as completion evidence.
+
+### Service motion and actual-pose clearance
+
+An independently placed connected base wall is only **0.2 mm** from a closed tape
+loop. Inserting a continuous 250 mm translation of every occurrence before the
+final coil motion previously produced all-true service gates and a reported
+2 mm clearance. **RED: 1 test, 3 failed assertions/subtests, 230.477 s**.
+
+A separate motion-ownership gate now enforces the allowed shoe state transitions
+and moving sets. Structural members stay fixed; the winding stays held until all
+six shoes are parked. Shoes become service-detached immediately after complete
+withdrawal. Supplied route groups must match the actual phase. Geometric pose
+continuity remains a separate check, so a continuous but unauthorized whole-tool
+translation is explicitly rejected.
+
+The pre-removal support band is translated to the actual coil's pose. All 18 tape
+loops must share that same rigid placement; a malformed winding pose cannot
+publish a radial clearance. The translated-wall exploit must therefore report
+insufficient clearance independently of its forbidden motion ownership.
+
+### Canonical purchased geometry and BOM
+
+A 12 mm 51105 configuration, incorrect stored dimensions, a 12 mm actual stack
+with forged canonical records, and a consistently incorrect stack/record pair
+were accepted before the fix. **RED: 2 tests, 4 failed assertions/subtests,
+21.181 s**.
+
+The builder rejects noncanonical 608/51105 parameters before geometry or audits.
+Assembly auditing and BOM creation validate every occurrence's size record and
+compare the real purchased members with the canonical bearing envelopes. The
+three 51105 members are compared in one shared stack frame; individual members
+cannot be independently recentered to hide a misplaced washer. BOM dimensions
+are formatted from the validated records, not a separate hardcoded specification.
+Inventory and catalog dimensions remain unchanged.
+
+### Fix-round verification
+
+The unchanged component regression command was:
+
+```powershell
+$env:PYTHONPATH = "$PWD;$PWD/src"
+& 'C:/Users/fi87roy/Documents/GitHub/windwall/.venv/Scripts/python.exe' scripts/run_geometry.py -m unittest tests.test_winding_tool_parameters tests.test_parameters tests.test_winding_head tests.test_winding_frame tests.test_wire_payoff -v
+```
+
+Result: **63 tests, unittest OK, 277.980 s**, no failures, errors or skips
+(9 parameter, 18 head, 20 frame and 16 payoff tests). The launcher then exited
+**1** during native shutdown, separately from unittest `OK`.
+
+The full integration command was:
+
+```powershell
+& 'C:/Users/fi87roy/Documents/GitHub/windwall/.venv/Scripts/python.exe' scripts/run_geometry.py -m unittest tests.test_winding_tool_assembly -v
+```
+
+Result: **25 tests, unittest OK, 1279.695 s**, no failures, errors or skips
+(17 assembly and 8 service tests). This includes the three reviewer findings,
+all eleven settings, and complete taped removal at 100/150/200 mm. The launcher
+then exited **1** during native shutdown, separately from unittest `OK`.
+Together the two completed fix-round suites cover **88 tests**.
+
+No source or test changed after the full commands started. The final diff check
+completed with exit **0**, and the production modules/guide contain no obsolete
+mechanism names. The temporary rotation diagnostic was removed after its results
+were recorded. Physical prototype limitations and the native shutdown issue
+remain unchanged; no physical validation or downstream release is claimed.
+
+After the envelope corrections, the nominal/shaft/collar and bearing-record/stack
+focused command completed **2 tests, OK, 54.116 s**, followed by native exit **1**.
+The independent translated-service exploit completed **1 test, OK, 212.993 s**,
+followed by native exit **1**. The early-configuration rejection also passed in
+the preceding three-test command; that command's nominal-envelope failure is
+recorded above rather than presented as a passing suite.
