@@ -19,7 +19,9 @@ from windwall.export import export_part
 from windwall.winding_tool_assembly import (
     build_winding_tool_assemblies, winding_tool_bom,
 )
-from windwall.winding_tool_export import export_winding_tool, _print_inventory
+from windwall.winding_tool_export import (
+    _print_inventory, _supporting_artifact_records, export_winding_tool,
+)
 from windwall.winding_tool_parameters import diameter_settings_mm
 
 
@@ -33,6 +35,21 @@ def file_hashes(root):
         return {}
     return {path.relative_to(root).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
             for path in sorted(root.rglob('*')) if path.is_file()}
+
+
+def clear_winding_tool_geometry_caches():
+    from windwall import winding_head, winding_tool_assembly, winding_tool_service
+
+    for module in (winding_head, winding_tool_assembly, winding_tool_service):
+        for value in vars(module).values():
+            clear = getattr(value, 'cache_clear', None)
+            if clear is not None:
+                clear()
+
+
+def assert_no_publisher_manifests(test_case, destination):
+    test_case.assertFalse((destination / 'manifest.json').exists())
+    test_case.assertFalse((destination / 'manifest.pending.json').exists())
 
 
 class WindingToolReleaseAttributeTests(unittest.TestCase):
@@ -230,18 +247,19 @@ class WindingToolExportTests(unittest.TestCase):
                 'windwall.winding_tool_export.winding_tool_bom', return_value=tuple(rows)):
             with self.assertRaisesRegex(ValueError, 'BOM'):
                 export_winding_tool(destination)
-            self.assertFalse((destination / 'manifest.json').exists())
+            assert_no_publisher_manifests(self, destination)
 
     def test_failed_assembly_or_service_audit_removes_stale_manifest(self):
         for failed_gate in ('valid_solids', 'complete_coil_removal'):
             with self.subTest(gate=failed_gate), temporary_build_directory() as destination:
                 (destination / 'manifest.json').write_text('{"old_success": true}')
+                (destination / 'manifest.pending.json').write_text('{"old_pending": true}')
                 audit = {'valid_solids': True, 'complete_coil_removal': True}
                 audit[failed_gate] = False
                 with self.reference_dependencies(audit):
                     with self.assertRaisesRegex(ValueError, 'audit'):
                         export_winding_tool(destination)
-                self.assertFalse((destination / 'manifest.json').exists())
+                assert_no_publisher_manifests(self, destination)
 
     def test_part_mesh_step_assembly_bom_inventory_and_support_fail_closed(self):
         failures = (
@@ -255,11 +273,12 @@ class WindingToolExportTests(unittest.TestCase):
         for target, message in failures:
             with self.subTest(target=target), temporary_build_directory() as destination:
                 (destination / 'manifest.json').write_text('{"old_success": true}')
+                (destination / 'manifest.pending.json').write_text('{"old_pending": true}')
                 with self.reference_dependencies(), patch(
                         f'windwall.winding_tool_export.{target}', side_effect=ValueError(message)):
                     with self.assertRaisesRegex(ValueError, message):
                         export_winding_tool(destination)
-                self.assertFalse((destination / 'manifest.json').exists())
+                assert_no_publisher_manifests(self, destination)
 
     def test_tampered_artifact_hash_prevents_manifest_publication(self):
         def tamper_print(_model, destination, _bom):
@@ -270,17 +289,87 @@ class WindingToolExportTests(unittest.TestCase):
         with temporary_build_directory() as destination, self.reference_dependencies():
             with self.assertRaisesRegex(ValueError, 'hash'):
                 export_winding_tool(destination, supporting_artifact_exporter=tamper_print)
-            self.assertFalse((destination / 'manifest.json').exists())
+            assert_no_publisher_manifests(self, destination)
 
-    def test_fresh_builds_in_different_directories_have_identical_artifact_bytes(self):
+    def test_support_inventory_rejects_reserved_publisher_names_and_aliases(self):
+        aliases = (
+            'manifest.json', './manifest.json', 'MANIFEST.JSON',
+            'manifest.json.', 'manifest.json ',
+            'manifest.pending.json', './MANIFEST.PENDING.JSON',
+            'manifest.pending.json.', 'manifest.pending.json ',
+        )
         with temporary_build_directory() as destination:
-            self.export_reference(destination / 'first')
+            (destination / 'manifest.json').write_bytes(b'provider manifest')
+            (destination / 'manifest.pending.json').write_bytes(b'provider pending')
+            for alias in aliases:
+                with self.subTest(alias=alias), self.assertRaisesRegex(ValueError, 'manifest'):
+                    _supporting_artifact_records(destination, ({'path': alias},))
+
+    def test_support_inventory_rejects_external_windows_paths_and_normalizes_relative_paths(self):
+        with temporary_build_directory() as fixture:
+            destination = fixture / 'release'
+            destination.mkdir()
+            outside = fixture / 'outside.txt'
+            outside.write_bytes(b'external source must never be hashed')
+            invalid = (
+                '../outside.txt', r'..\outside.txt', str(outside.resolve()),
+                outside.resolve().as_posix(), r'\outside.txt', '/outside.txt',
+                'C:/outside.txt', r'C:\outside.txt', 'docs/../../outside.txt',
+            )
+            for path in invalid:
+                with self.subTest(path=path), self.assertRaisesRegex(ValueError, 'path'):
+                    _supporting_artifact_records(destination, ({'path': path},))
+
+            artifact = destination / 'docs' / 'guide.txt'
+            artifact.parent.mkdir()
+            artifact.write_bytes(b'portable')
+            records = _supporting_artifact_records(
+                destination, ({'path': './docs//guide.txt'},))
+            self.assertEqual(records[0]['path'], 'docs/guide.txt')
+
+    def test_reserved_support_manifest_paths_cannot_publish_or_survive(self):
+        for reserved_name in ('manifest.json', 'manifest.pending.json'):
+            with self.subTest(path=reserved_name), temporary_build_directory() as destination:
+                def reserved(_model, output, _bom):
+                    (output / 'manifest.json').write_bytes(b'provider manifest')
+                    (output / 'manifest.pending.json').write_bytes(b'provider pending')
+                    return ({'path': reserved_name},)
+
+                with self.reference_dependencies():
+                    with self.assertRaisesRegex(ValueError, 'manifest'):
+                        export_winding_tool(destination, supporting_artifact_exporter=reserved)
+                assert_no_publisher_manifests(self, destination)
+
+    def test_support_provider_exception_removes_both_publisher_manifests(self):
+        def fail_after_writing(_model, destination, _bom):
+            (destination / 'manifest.json').write_bytes(b'provider manifest')
+            (destination / 'manifest.pending.json').write_bytes(b'provider pending')
+            raise RuntimeError('support provider failed after writing manifests')
+
+        with temporary_build_directory() as destination, self.reference_dependencies():
+            with self.assertRaisesRegex(RuntimeError, 'after writing manifests'):
+                export_winding_tool(destination, supporting_artifact_exporter=fail_after_writing)
+            assert_no_publisher_manifests(self, destination)
+
+    def test_two_fresh_real_audited_builds_have_identical_core_artifact_bytes(self):
+        with temporary_build_directory() as destination:
+            clear_winding_tool_geometry_caches()
+            export_winding_tool(destination / 'first')
             export_part('unrelated', cq.Workplane('XY').box(1, 2, 3), destination / 'other')
-            self.export_reference(destination / 'second')
-            first = file_hashes(destination / 'first')
-            second = file_hashes(destination / 'second')
-            self.assertEqual(first, second)
-            self.assertTrue(first)
+            clear_winding_tool_geometry_caches()
+            export_winding_tool(destination / 'second')
+            first_root = destination / 'first'
+            second_root = destination / 'second'
+            first_paths = sorted(path.relative_to(first_root).as_posix()
+                                 for path in first_root.rglob('*') if path.is_file())
+            second_paths = sorted(path.relative_to(second_root).as_posix()
+                                  for path in second_root.rglob('*') if path.is_file())
+            self.assertEqual(first_paths, second_paths)
+            self.assertTrue(first_paths)
+            for relative in first_paths:
+                with self.subTest(artifact=relative):
+                    self.assertEqual((first_root / relative).read_bytes(),
+                                     (second_root / relative).read_bytes())
 
     def test_cli_builds_explicit_destination_without_mutating_tracked_release(self):
         root = Path(__file__).resolve().parents[1]

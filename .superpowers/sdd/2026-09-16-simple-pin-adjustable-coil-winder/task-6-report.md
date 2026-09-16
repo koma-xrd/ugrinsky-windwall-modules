@@ -157,3 +157,73 @@ and tracked generated releases did not change.
   only is recorded; powered operation is not approved.
 - Task 7 must provide and verify the new drawings and German operating guide via
   the retained support hook before committing a complete tracked release.
+
+## Review round 1: publication boundary hardening
+
+This round closes the three Task 6 P2 findings without adding Task 7 content,
+changing the default empty support inventory, altering source CAD, filtering or
+repairing a mesh, or committing a generated release.
+
+- Supporting-artifact inventory paths can no longer claim the publisher-owned
+  root `manifest.json` or `manifest.pending.json`. Validation is
+  case-insensitive and rejects Windows aliases such as trailing dots/spaces;
+  existing filesystem aliases to either publisher manifest are also rejected.
+- Support paths are parsed as portable POSIX-relative paths. Backslashes,
+  rooted/absolute paths, drive or alternate-data-stream colons, traversal,
+  control characters and non-portable trailing-dot/space components are
+  rejected. Accepted paths are normalized, resolved against the release root,
+  proven to remain beneath it and only then hashed. Duplicate Windows aliases
+  and duplicate resolved targets are rejected.
+- The public export boundary now owns cleanup for both publisher manifests.
+  Both are removed before a build and again in a `finally` block on every
+  unsuccessful exit, including a support provider that writes either file and
+  then returns a reserved inventory entry or raises.
+
+### Review-round TDD evidence
+
+The reserved-name and external-path tests were added before the hardening.
+Against the pre-fix implementation, the two focused tests failed in 14.963 s
+with 15 failing subtests: all nine publisher-name aliases were accepted, while
+Windows traversal, drive/rooted and external paths were either accepted or
+reached hashing outside the release. The two publication-cleanup regressions
+then failed in 123.069 s: reserved manifest inventory published with the wrong
+hash, and a provider exception left its written success manifest behind.
+
+The focused GREEN reruns passed the two path tests in 16.901 s and the two
+publication-cleanup tests in 122.379 s. Existing BOM, audit, six-boundary and
+tamper failure tests now seed or check both publisher manifests, proving the
+cleanup invariant across every unsuccessful export boundary in this module.
+
+The previous report sentence saying exporter coverage included "two complete
+builds in different directories" was imprecise: that former test reused the
+fixture model and mocked successful audits. It has been replaced by an exact
+fresh-source test. The new test clears every winding-tool geometry cache before
+each build, calls the public exporter twice without dependency or audit mocks,
+inserts an unrelated export between them, and compares every emitted core file
+byte-for-byte across both release trees. The fresh build and real-audit form of
+this test already passed against the pre-hardening production path in 595.267 s,
+demonstrating that it adds real determinism coverage rather than disguising a
+behavior fix.
+
+### Review-round GREEN verification
+
+All commands used the assigned worktree, repository virtual environment,
+`scripts/run_geometry.py` and `PYTHONPATH=$PWD;$PWD/src`.
+
+| Suite | Result | Runtime | Launcher status after `OK` |
+| --- | --- | ---: | ---: |
+| `tests.test_winding_tool_export` | 18 tests, `OK` | 1335.935 s | 1 |
+| `tests.test_exports` | 11 tests, `OK` | 142.138 s | 1 |
+| focused fresh shoe + spindle raw-STL topology tests | 2 tests, `OK` | 13.891 s | 1 |
+
+The full exporter run includes the two uncached, independently constructed,
+real-audit builds and byte comparison. The focused source checks still report
+zero boundary, nonmanifold and degenerate facets at unchanged release
+tolerances. As in the original verification, status 1 is the known Windows/OCP
+native shutdown after unittest printed `OK`; no clean process exit is claimed.
+
+Files changed in this review round are
+`src/windwall/winding_tool_export.py`,
+`tests/test_winding_tool_export.py` and this report. The earlier source CAD
+repairs, approved dimensions/interfaces, shared V5 sources and tracked release
+content remain unchanged.

@@ -47,6 +47,7 @@ _ASSEMBLY_NAMES = {
     'winding_jig': 'simplified_winding_jig',
     'wire_payoff': 'free_running_wire_payoff',
 }
+_PUBLISHER_MANIFEST_NAMES = frozenset(('manifest.json', 'manifest.pending.json'))
 # The Task 5 shaft orientation puts its axis parallel to the bed. This equivalent
 # Euler representation adds a 30 degree phase around that axis so an actual
 # planar drive face, rather than an inward-tessellated cylinder tangent, defines
@@ -274,18 +275,40 @@ def _supporting_artifact_records(destination: Path, artifacts) -> list[dict]:
     if artifacts is None:
         raise ValueError('Supporting-artifact exporter must return an inventory')
     records = []
-    seen = set()
+    release_root = destination.resolve()
+    seen_aliases = set()
+    seen_targets = set()
     for artifact in artifacts:
         if not isinstance(artifact, dict) or not isinstance(artifact.get('path'), str):
             raise ValueError('Supporting artifacts require portable relative paths')
-        relative = PurePosixPath(artifact['path'])
-        if relative.is_absolute() or '..' in relative.parts or str(relative) in ('', '.'):
-            raise ValueError(f'Invalid supporting-artifact path: {relative}')
+        raw_path = artifact['path']
+        if ('\\' in raw_path or any(ord(character) < 32 for character in raw_path)):
+            raise ValueError(f'Invalid supporting-artifact path: {raw_path!r}')
+        relative = PurePosixPath(raw_path)
+        if (relative.is_absolute() or '..' in relative.parts
+                or str(relative) in ('', '.') or any(':' in part for part in relative.parts)):
+            raise ValueError(f'Invalid supporting-artifact path: {raw_path!r}')
+        alias_parts = tuple(part.rstrip(' .').casefold() for part in relative.parts)
+        if len(alias_parts) == 1 and alias_parts[0] in _PUBLISHER_MANIFEST_NAMES:
+            raise ValueError(f'Supporting artifact cannot replace publisher manifest: {raw_path!r}')
+        if any(not alias or alias != part.casefold()
+               for alias, part in zip(alias_parts, relative.parts)):
+            raise ValueError(f'Invalid Windows-portable supporting-artifact path: {raw_path!r}')
         portable = relative.as_posix()
-        if portable in seen:
+        target = (release_root / Path(*relative.parts)).resolve()
+        try:
+            target.relative_to(release_root)
+        except ValueError as error:
+            raise ValueError(f'Supporting-artifact path leaves the release: {raw_path!r}') from error
+        for name in _PUBLISHER_MANIFEST_NAMES:
+            publisher = release_root / name
+            if target.exists() and publisher.exists() and target.samefile(publisher):
+                raise ValueError(f'Supporting artifact aliases publisher manifest: {raw_path!r}')
+        if alias_parts in seen_aliases or target in seen_targets:
             raise ValueError(f'Duplicate supporting-artifact path: {portable}')
-        seen.add(portable)
-        digest = _file_hash(destination / Path(*relative.parts))
+        seen_aliases.add(alias_parts)
+        seen_targets.add(target)
+        digest = _file_hash(target)
         if artifact.get('sha256') not in (None, digest):
             raise ValueError(f'Supporting-artifact hash mismatch: {portable}')
         records.append({**artifact, 'path': portable, 'sha256': digest})
@@ -320,21 +343,14 @@ def _wheel_settings(parameters: WindingToolParameters) -> list[dict]:
     return rows
 
 
-def export_winding_tool(
+def _publish_winding_tool(
         destination: Path,
-        parameters: WindingToolParameters = DEFAULT_WINDING_TOOL_PARAMETERS,
-        design_parameters: DesignParameters = DEFAULT_PARAMETERS,
-        *,
-        supporting_artifact_exporter=None,
+        parameters: WindingToolParameters,
+        design_parameters: DesignParameters,
+        supporting_artifact_exporter,
+        manifest_path: Path,
+        pending_path: Path,
 ) -> WindingToolManifest:
-    """Publish the audited core release atomically at the manifest boundary."""
-    destination = Path(destination)
-    destination.mkdir(parents=True, exist_ok=True)
-    manifest_path = destination / 'manifest.json'
-    pending_path = destination / 'manifest.pending.json'
-    manifest_path.unlink(missing_ok=True)
-    pending_path.unlink(missing_ok=True)
-
     _validate_tolerances(design_parameters)
     model = build_winding_tool_assemblies(parameters, design_parameters)
     audit = audit_winding_tool_assemblies(model)
@@ -431,3 +447,31 @@ def export_winding_tool(
     _write_json(pending_path, data)
     pending_path.replace(manifest_path)
     return WindingToolManifest(prints, assemblies, manifest_path, data)
+
+
+def export_winding_tool(
+        destination: Path,
+        parameters: WindingToolParameters = DEFAULT_WINDING_TOOL_PARAMETERS,
+        design_parameters: DesignParameters = DEFAULT_PARAMETERS,
+        *,
+        supporting_artifact_exporter=None,
+) -> WindingToolManifest:
+    """Publish successfully or remove both publisher-owned manifest files."""
+    destination = Path(destination)
+    destination.mkdir(parents=True, exist_ok=True)
+    manifest_path = destination / 'manifest.json'
+    pending_path = destination / 'manifest.pending.json'
+    manifest_path.unlink(missing_ok=True)
+    pending_path.unlink(missing_ok=True)
+    published = False
+    try:
+        result = _publish_winding_tool(
+            destination, parameters, design_parameters, supporting_artifact_exporter,
+            manifest_path, pending_path,
+        )
+        published = True
+        return result
+    finally:
+        if not published:
+            manifest_path.unlink(missing_ok=True)
+            pending_path.unlink(missing_ok=True)
