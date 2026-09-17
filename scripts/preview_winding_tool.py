@@ -241,9 +241,18 @@ def _range(model):
 
     head = build_winding_head(p, 150)
     _project(fig, (.65, .145, .31, .19), {'shoe_1': head.shoe_master}, (-2.5, -.7, -1.4))
-    fig.text(.65, .370, 'EIN SCHUH · RÜCKSEITE / BANDZUGANG', fontsize=12, weight='bold', color=INK)
-    fig.text(.65, .120, 'Drei offene Passagen · zwei Schlüsselstifte mit Rastzungen', fontsize=11, color=INK)
-    return fig
+    annotations = {
+        'wheel_side': ('Radseite links: nominaler Auslauf '
+                       f'+{head.metadata["rear_shoulder_height_mm"]:.1f} mm').replace('.', ','),
+        'free_front': ('Frei vorn rechts: Schutzschulter '
+                       f'+{head.metadata["free_shoulder_height_mm"]:.1f} mm').replace('.', ','),
+    }
+    fig.text(.65, .370, 'EIN SCHUH · FREIE VORDERSEITE RECHTS',
+             fontsize=12, weight='bold', color=INK)
+    fig.text(.65, .130, 'Drei offene Passagen · zwei Schlüsselstifte mit Rastzungen',
+             fontsize=10.5, color=INK)
+    _labels(fig, .65, .108, annotations.values(), spacing=.019, size=10.5)
+    return fig, annotations
 
 
 def _exploded_groups(model):
@@ -352,7 +361,8 @@ def render_winding_tool_drawings(model, destination: Path) -> tuple[dict, ...]:
         figures = []
         try:
             figures.append(_reference(model))
-            figures.append(_range(model))
+            range_figure, cradle_annotations = _range(model)
+            figures.append(range_figure)
             exploded, groups = _exploded(model)
             figures.append(exploded)
             for filename, fig in zip(DRAWING_NAMES, figures):
@@ -364,6 +374,7 @@ def render_winding_tool_drawings(model, destination: Path) -> tuple[dict, ...]:
         finally:
             for fig in figures:
                 plt.close(fig)
+    records[1]['cradle_profile_annotations'] = cradle_annotations
     records[-1]['exploded_groups'] = groups
     return tuple(records)
 

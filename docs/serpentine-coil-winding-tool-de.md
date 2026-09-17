@@ -15,6 +15,14 @@ sechs Kontaktflächen. Die Wicklung bildet ein gerundetes Sechseck, keinen
 zugesicherten Kreis. Alle Druckteile sind PLA-Prototypen. Die Werkzeugteile
 gehören nicht zum V5-Produktionsinventar oder dessen `PRINT_SOURCES`.
 
+Die gerundete Kontaktführung hat an der freien Vorderseite eine 2,7 mm hohe
+Schutzschulter. Der radseitige hintere Auslauf bleibt ohne erhöhte Sperrlippe
+auf dem nominalen Wickelradius; das eingestellte Maß bezieht sich auf diesen
+Auflageboden, nicht auf die Schulterspitze. Beim Standardschuh reicht der
+nominale Auslauf durch Wicklung und obere Bandmündung bis Konstruktions-Z =
+23,8 mm. Erst danach steigt die glatte Rundung bis Z = 26,5 mm zur freien
+Vorderschulter an.
+
 Akkuschrauberbetrieb ist nicht freigegeben
 
 Elektrische Eigenschaften, physische Funktion, Festigkeit und Ermüdung der
@@ -222,17 +230,17 @@ Manifest enthält alle 18 ungerundeten Werte je Einstellung.
 <!-- BEGIN tape-angles -->
 | Markierung / Nennhülle (mm) | Physische Winkel je Schuhmitte |
 | ---: | --- |
-| 100 | −18.43° / 0° / +18.43° |
-| 110 | −16.70° / 0° / +16.70° |
-| 120 | −15.26° / 0° / +15.26° |
-| 130 | −14.04° / 0° / +14.04° |
-| 140 | −12.99° / 0° / +12.99° |
-| 150 | −12.09° / 0° / +12.09° |
-| 160 | −11.31° / 0° / +11.31° |
-| 170 | −10.62° / 0° / +10.62° |
-| 180 | −10.01° / 0° / +10.01° |
-| 190 | −9.46° / 0° / +9.46° |
-| 200 | −8.97° / 0° / +8.97° |
+| 100 | −18.23° / 0° / +18.23° |
+| 110 | −16.53° / 0° / +16.53° |
+| 120 | −15.11° / 0° / +15.11° |
+| 130 | −13.91° / 0° / +13.91° |
+| 140 | −12.89° / 0° / +12.89° |
+| 150 | −12.00° / 0° / +12.00° |
+| 160 | −11.23° / 0° / +11.23° |
+| 170 | −10.55° / 0° / +10.55° |
+| 180 | −9.94° / 0° / +9.94° |
+| 190 | −9.41° / 0° / +9.41° |
+| 200 | −8.92° / 0° / +8.92° |
 <!-- END tape-angles -->
 
 ## Von Hand wickeln, tapen und entnehmen
@@ -269,6 +277,11 @@ den gekrümmten Kontaktflächen und umschließen konservativ auch die nach innen
 laufenden Drahtsehnen über den Bandöffnungen. Die 10 mm axiale
 Schleifenhöhe ist nicht die Bandbreite. Größere oder unregelmäßige Wicklungen
 benötigen eine eigene Prüfung des vollständigen Entnahmewegs.
+
+Beim reinen Vorziehen bewegt sich die hohe Vorderschulter von der fest
+gehaltenen Wicklung weg; der nominale hintere Auslauf gleitet unter ihr heraus.
+Der geprüfte Weg setzt weder eine radiale Schuhentlastung noch Drahtdehnung,
+Bandschlupf oder ein Biegen über eine hintere Lippe voraus.
 
 ## Serpentinenform und Kontrolle der Probespule
 

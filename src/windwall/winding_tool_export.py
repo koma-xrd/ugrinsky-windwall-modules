@@ -350,6 +350,19 @@ def _wheel_settings(parameters: WindingToolParameters) -> list[dict]:
     return rows
 
 
+def _winding_head_manifest(parameters: WindingToolParameters) -> dict:
+    metadata = build_winding_head(parameters, parameters.minimum_diameter_mm).metadata
+    return {
+        name: metadata[name]
+        for name in (
+            'cradle_bottom_radius_offset_mm',
+            'rear_shoulder_height_mm',
+            'free_shoulder_height_mm',
+            'wire_guidance',
+        )
+    }
+
+
 def _publish_winding_tool(
         destination: Path,
         parameters: WindingToolParameters,
@@ -430,6 +443,7 @@ def _publish_winding_tool(
             'cadquery': version('cadquery'),
             'cadquery-ocp': version('cadquery-ocp'),
         },
+        'winding_head': _winding_head_manifest(parameters),
         'wheel_settings': _wheel_settings(parameters),
         'tape_angle_semantics': {
             'nominal_angles_deg': nominal_angles,

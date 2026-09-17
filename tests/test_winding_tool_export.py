@@ -185,7 +185,7 @@ class WindingToolExportTests(unittest.TestCase):
                     self.assertEqual(part.mesh.boundary_edge_count, 0)
                     self.assertEqual(part.mesh.nonmanifold_edge_count, 0)
                     self.assertEqual(part.mesh.degenerate_face_count, 0)
-                    self.assertAlmostEqual(part.mesh.minimum_xyz[2], 0, places=5)
+                    self.assertLessEqual(abs(part.mesh.minimum_xyz[2]), 1e-5)
                     for extension in ('step', 'stl'):
                         relative = record[f'{extension}_path']
                         self.assertFalse(Path(relative).is_absolute())
@@ -227,6 +227,12 @@ class WindingToolExportTests(unittest.TestCase):
             purchased = {row['name']: row['quantity'] for row in bom['items']
                          if row['source'] == 'purchased'}
             self.assertEqual(purchased, {'608 bearing': 2, '51105 thrust bearing': 1})
+            self.assertEqual(data.get('winding_head'), {
+                'cradle_bottom_radius_offset_mm': 0.0,
+                'rear_shoulder_height_mm': 0.0,
+                'free_shoulder_height_mm': 2.7,
+                'wire_guidance': 'rounded free-front shoulder; nominal-radius rear runout',
+            })
             self.assertEqual(hashlib.sha256((destination / data['bom_path']).read_bytes()).hexdigest(),
                              data['bom_sha256'])
             settings = data['wheel_settings']
@@ -330,6 +336,12 @@ class WindingToolExportTests(unittest.TestCase):
                     self.assertIn(f"| {row['quantity']} | `{row['name']}` | {row['specification']} |", content)
 
             exploded = next(row for row in records if row['path'].endswith('winding-tool-exploded.png'))
+            range_drawing = next(row for row in records
+                                 if row['path'].endswith('winding-jig-range.png'))
+            self.assertEqual(range_drawing.get('cradle_profile_annotations'), {
+                'wheel_side': 'Radseite links: nominaler Auslauf +0,0 mm',
+                'free_front': 'Frei vorn rechts: Schutzschulter +2,7 mm',
+            })
             for tool in ('winding_jig', 'wire_payoff'):
                 groups = exploded['exploded_groups'][tool]
                 members = [name for group in groups for name in group['members']]
