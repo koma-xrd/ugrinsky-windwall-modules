@@ -3013,13 +3013,24 @@
     },
     {
       "cradle_profile_annotations": {
-        "free_front": "Frei vorn rechts: Schutzschulter +2,7 mm",
-        "wheel_side": "Radseite links: nominaler Auslauf +0,0 mm"
+        "free_front": "Frei vorn oben: Schutzschulter +2,7 mm",
+        "wheel_side": "Radseite unten: nominaler Auslauf +0,0 mm"
+      },
+      "cradle_profile_projection": {
+        "local_negative_z_feature": "wheel_side",
+        "local_negative_z_screen_direction": "below",
+        "local_positive_z_feature": "free_front",
+        "local_positive_z_screen_direction": "above",
+        "view_direction": [
+          -2.5,
+          -0.7,
+          -1.4
+        ]
       },
       "height_px": 1400,
       "path": "drawings/winding-jig-range.png",
       "presentation_only": true,
-      "sha256": "b6ecc1b26c20894bf53d0f23c2076472fcb81250f64ab6d920fce40b6fa061b8",
+      "sha256": "c70a7068fc2f3d2b3b0faae88649ff29a4c473f8ceae7267533fa557e707c1a7",
       "source_builder": "scripts.preview_winding_tool.render_winding_tool_drawings",
       "width_px": 2000
     },

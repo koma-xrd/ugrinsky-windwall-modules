@@ -41,6 +41,7 @@ COLORS = {'structure': '#397f8b', 'wheel': '#4e74a2', 'shoe': '#e6a338',
 DRAWING_NAMES = ('winding-jig-reference.png', 'winding-jig-range.png',
                  'winding-tool-exploded.png')
 CAMERA = (1.5, -3.5, 1.7)
+CRADLE_PROFILE_VIEW_DIRECTION = (-2.5, -0.7, -1.4)
 
 
 def _color(name):
@@ -81,6 +82,21 @@ def _basis(direction):
         right = np.array((1., 0., 0.))
     right /= np.linalg.norm(right)
     return view, right, np.cross(view, right)
+
+
+def _cradle_profile_projection_contract():
+    """Describe the unrotated shoe axes in drawing 02's screen projection."""
+    _, _, screen_up = _basis(CRADLE_PROFILE_VIEW_DIRECTION)
+    positive_z_screen_y = float(np.dot((0., 0., 1.), screen_up))
+    if positive_z_screen_y <= 0:
+        raise ValueError('Drawing 02 must project the shoe free-front +Z side above the wheel side')
+    return {
+        'view_direction': list(CRADLE_PROFILE_VIEW_DIRECTION),
+        'local_positive_z_feature': 'free_front',
+        'local_positive_z_screen_direction': 'above',
+        'local_negative_z_feature': 'wheel_side',
+        'local_negative_z_screen_direction': 'below',
+    }
 
 
 def _project(fig, rectangle, parts, direction=CAMERA, padding=.09):
@@ -240,19 +256,21 @@ def _range(model):
                            'Drehsinn der Frontansicht markieren; nur Handkurbel.'), spacing=.030, size=12)
 
     head = build_winding_head(p, 150)
-    _project(fig, (.65, .145, .31, .19), {'shoe_1': head.shoe_master}, (-2.5, -.7, -1.4))
+    projection = _cradle_profile_projection_contract()
+    _project(fig, (.65, .145, .31, .19), {'shoe_1': head.shoe_master},
+             CRADLE_PROFILE_VIEW_DIRECTION)
     annotations = {
-        'wheel_side': ('Radseite links: nominaler Auslauf '
+        'wheel_side': ('Radseite unten: nominaler Auslauf '
                        f'+{head.metadata["rear_shoulder_height_mm"]:.1f} mm').replace('.', ','),
-        'free_front': ('Frei vorn rechts: Schutzschulter '
+        'free_front': ('Frei vorn oben: Schutzschulter '
                        f'+{head.metadata["free_shoulder_height_mm"]:.1f} mm').replace('.', ','),
     }
-    fig.text(.65, .370, 'EIN SCHUH · FREIE VORDERSEITE RECHTS',
+    fig.text(.65, .370, 'EIN SCHUH · FREIE VORDERSEITE OBEN',
              fontsize=12, weight='bold', color=INK)
     fig.text(.65, .130, 'Drei offene Passagen · zwei Schlüsselstifte mit Rastzungen',
              fontsize=10.5, color=INK)
     _labels(fig, .65, .108, annotations.values(), spacing=.019, size=10.5)
-    return fig, annotations
+    return fig, annotations, projection
 
 
 def _exploded_groups(model):
@@ -361,7 +379,7 @@ def render_winding_tool_drawings(model, destination: Path) -> tuple[dict, ...]:
         figures = []
         try:
             figures.append(_reference(model))
-            range_figure, cradle_annotations = _range(model)
+            range_figure, cradle_annotations, cradle_projection = _range(model)
             figures.append(range_figure)
             exploded, groups = _exploded(model)
             figures.append(exploded)
@@ -375,6 +393,7 @@ def render_winding_tool_drawings(model, destination: Path) -> tuple[dict, ...]:
             for fig in figures:
                 plt.close(fig)
     records[1]['cradle_profile_annotations'] = cradle_annotations
+    records[1]['cradle_profile_projection'] = cradle_projection
     records[-1]['exploded_groups'] = groups
     return tuple(records)
 

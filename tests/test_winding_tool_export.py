@@ -339,8 +339,15 @@ class WindingToolExportTests(unittest.TestCase):
             range_drawing = next(row for row in records
                                  if row['path'].endswith('winding-jig-range.png'))
             self.assertEqual(range_drawing.get('cradle_profile_annotations'), {
-                'wheel_side': 'Radseite links: nominaler Auslauf +0,0 mm',
-                'free_front': 'Frei vorn rechts: Schutzschulter +2,7 mm',
+                'wheel_side': 'Radseite unten: nominaler Auslauf +0,0 mm',
+                'free_front': 'Frei vorn oben: Schutzschulter +2,7 mm',
+            })
+            self.assertEqual(range_drawing.get('cradle_profile_projection'), {
+                'view_direction': [-2.5, -0.7, -1.4],
+                'local_positive_z_feature': 'free_front',
+                'local_positive_z_screen_direction': 'above',
+                'local_negative_z_feature': 'wheel_side',
+                'local_negative_z_screen_direction': 'below',
             })
             for tool in ('winding_jig', 'wire_payoff'):
                 groups = exploded['exploded_groups'][tool]
