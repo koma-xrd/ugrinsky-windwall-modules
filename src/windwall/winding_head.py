@@ -1,9 +1,9 @@
 """Printable six-spoke wheel and six congruent plug-in contact shoes.
 
 Coordinates use the winding axis as Z: wheel rear is Z=0, front is Z=5.
-The shoe master's cradle bottom is at nominal radius, X=0 on its centerline;
-only its rounded shoulders extend outward. It is translated to the selected
-radius before rotation. Only placement changes with diameter. Three tape
+The shoe master's rear runout is at nominal radius, X=0 on its centerline;
+only its rounded free-front shoulder extends outward. It is translated to the
+selected radius before rotation. Only placement changes with diameter. Three tape
 reliefs per shoe provide tangential strip width and axial bundle clearance.
 Their fixed local centers and nominal 20-degree labels identify the
 conceptual sequence; actual physical angles change with diameter and are never
@@ -25,11 +25,11 @@ _WHEEL_THICKNESS = 5.0
 _PIN_SETBACK = 8.0
 _PIN_ROWS = (-5.0, 5.0)
 _SHOE_BOTTOM = 5.2
-_REAR_SHOULDER_HEIGHT = 2.7
-_FREE_SHOULDER_HEIGHT = 1.3
+_REAR_SHOULDER_HEIGHT = 0.0
+_FREE_SHOULDER_HEIGHT = 2.7
 _TAPE_BOTTOM = 11.0
 _PASSAGE_INNER_X = -12.0
-_PASSAGE_OUTER_X = _REAR_SHOULDER_HEIGHT + .4
+_PASSAGE_OUTER_X = max(_REAR_SHOULDER_HEIGHT, _FREE_SHOULDER_HEIGHT) + .4
 _MOUTH_RADIUS = .8
 _AXIAL_EDGE_RADIUS = .45
 _RELEASE_LIFT = 40.0
@@ -132,24 +132,27 @@ def _passage_probes(p):
 
 def _asymmetric_shoe_shell(minimum_radius: float, bottom: float,
                            top: float) -> cq.Workplane:
-    """Revolve the cradle directly, preserving the inner wall and nominal bottom.
+    """Revolve a nominal-radius runout and the rounded protective front shoulder.
 
-    Cubic segments meet with vertical tangents at both shoulders and the cradle
-    bottom. Fixed axial end margins let their span follow the tape clearance.
+    The runout extends under the full winding width. Its cubic front transition
+    meets both axial segments tangentially. Positive-Z removal moves the front
+    shoulder away from the fixed winding; no rear lip must pass through it.
+    Fixed axial end margins let the profile follow the tape clearance.
     The translated sector retains the mounting side of the old shell; tape
     passages and the unchanged foot/pins are applied by ``_build_shoe``.
     """
     inner = minimum_radius - 6
     radius = _AXIAL_EDGE_RADIUS
-    # Preserve the default 6.5/16.5/26.5 mm landmarks without letting a shorter
-    # accepted shoe reverse the profile between its front shoulder and end.
+    # Keep the full winding and upper tape mouth on the nominal cylinder.
+    # Starting the rise below the mouth creates an unstable three-surface
+    # fillet junction and an open triangle wedge in the otherwise valid CAD.
     rear_shoulder_z = bottom + 1.3
     free_shoulder_z = top - 2.7
-    cradle_bottom_z = (rear_shoulder_z + free_shoulder_z) / 2
+    runout_front_z = top - 6.2 + _MOUTH_RADIUS
     outer_points = (
         (minimum_radius + _REAR_SHOULDER_HEIGHT, bottom + 1.0),
         (minimum_radius + _REAR_SHOULDER_HEIGHT, rear_shoulder_z),
-        (minimum_radius, cradle_bottom_z),
+        (minimum_radius, runout_front_z),
         (minimum_radius + _FREE_SHOULDER_HEIGHT, free_shoulder_z),
         (minimum_radius + _FREE_SHOULDER_HEIGHT, top - 1.0),
     )
@@ -157,12 +160,13 @@ def _asymmetric_shoe_shell(minimum_radius: float, bottom: float,
     profile = (cq.Workplane('XZ').moveTo(inner + radius, bottom)
                .lineTo(rear_radius - radius, bottom)
                .radiusArc((rear_radius, bottom + radius), radius)
-               .lineTo(*outer_points[0]).lineTo(*outer_points[1]))
-    for start, end in zip(outer_points[1:3], outer_points[2:4]):
-        handle = (end[1] - start[1]) / 3
-        profile = profile.bezier([
-            (start[0], start[1] + handle),
-            (end[0], end[1] - handle), end], includeCurrent=True)
+               .lineTo(*outer_points[0]).lineTo(*outer_points[1])
+               .lineTo(*outer_points[2]))
+    start, end = outer_points[2:4]
+    handle = (end[1] - start[1]) / 3
+    profile = profile.bezier([
+        (start[0], start[1] + handle),
+        (end[0], end[1] - handle), end], includeCurrent=True)
     shell = (profile.lineTo(*outer_points[-1]).lineTo(free_radius, top - radius)
             .radiusArc((free_radius - radius, top), radius)
             .lineTo(inner + radius, top)
@@ -279,7 +283,8 @@ def build_winding_head(p: WindingToolParameters, diameter_mm: float,
         'cradle_bottom_radius_offset_mm': 0.0,
         'rear_shoulder_height_mm': _REAR_SHOULDER_HEIGHT,
         'free_shoulder_height_mm': _FREE_SHOULDER_HEIGHT,
-        'wire_guidance': 'rounded asymmetric U-cradle; lower free-front shoulder',
+        'wire_guidance': 'rounded free-front shoulder; nominal-radius rear runout',
+        'nominal_runout_end_z_mm': _TAPE_BOTTOM + p.tape_clearance_mm + _MOUTH_RADIUS,
         'wheel_thickness_mm': _WHEEL_THICKNESS,
         'drive_socket': {'polygon_sides': 6, 'circumdiameter_mm': 14.4},
         'nominal_tape_angles_deg': tape_station_angles(p),

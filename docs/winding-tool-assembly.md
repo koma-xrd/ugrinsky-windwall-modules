@@ -12,6 +12,13 @@ The normal drawing setting is 150 mm. The eleven labeled settings are 100, 110,
 rounded six-sided form, so the setting is not a promise of a perfectly circular
 finished winding or a measured diameter under wire tension.
 
+The rounded contact guide has a 2.7 mm protective shoulder at the free front.
+Its wheel-side rear runout stays at the nominal winding radius without a raised
+lip. The selected diameter is measured at this contact bottom, not at the
+shoulder tip. On the default shoe the nominal-radius runout extends through
+construction Z=23.8 mm, covering the winding and upper tape mouth; the smooth
+front rise reaches the shoulder at Z=26.5 mm.
+
 ## Print and inspect
 
 Print the wheel with its rear face on the bed; the contact shoes with a
@@ -112,6 +119,9 @@ the winding's forward path. Repeat for all six shoes. Do not substitute a one-ho
 neighboring shoes interfere at the smallest setting. The modeled route withdraws
 each shoe 40 mm forward and parks it 40 mm radially outward. Every detached shoe
 remains represented as a separate service occurrence throughout removal.
+The high front shoulder moves away from the held winding during this motion;
+the nominal-radius rear runout slides out beneath it. No radial shoe relief,
+wire stretching, tape slip or bending over a rear lip is assumed.
 Its ownership becomes service-detached immediately after complete withdrawal,
 before tab relaxation and parking.
 
@@ -164,7 +174,7 @@ enclosing solids whose containment is checked against actual geometry.
 Every rotating occurrence is checked against stationary members, including the
 shaft, both collars and the payoff's upper washer. Fused axial envelope sections
 preserve the shaft and spindle journal interfaces while covering full rotation.
-The winding follows the circular contact arcs
+The winding follows the nominal-radius contact arcs
 and their taut straight connecting spans: a rounded hexagon at larger settings,
 reducing to a circle at 100 mm. The fixture is deliberately bounded: a 9 mm
 axial winding with 1 mm radial build, and 18 closed tape loops with 10 mm
@@ -173,6 +183,12 @@ and outer contours follow the curved contact arcs, separated radially by
 4 mm; the cavity conservatively encloses the winding, including the inward
 chords across the wide tape slots, without crossing it. The width gauge
 is conservative for a strip measured along the slightly longer curved arc.
+The winding occupies construction Z=12.5..21.5 mm with its inner surface
+0.02 mm outside the nominal contact envelope. Its full axial width lies on the
+constant-radius rear runout. The assembly checks this contact radius separately
+from the front shoulder's outer limit and includes the shoulder in its rotation
+envelope. A rigid 20 mm axial ring spanning both contact and shoulder is not
+the declared winding fixture and would intersect the seated protective shoulder.
 The widened passages retain 0.8 mm outer/mouth radii, with 0.2 mm radii on
 the short inner returns at the sector ends. Released hook
 envelopes describe limited deflection clearance, not elastic behavior or force.

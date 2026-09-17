@@ -72,7 +72,7 @@ class WindingHeadTests(unittest.TestCase):
             self.assertEqual(len(shape.val().Solids()), 1)
             self.assertGreater(shape.val().Volume(), 0)
 
-    def test_contact_surface_is_a_rounded_asymmetric_wire_cradle(self):
+    def test_contact_surface_has_a_nominal_rear_runout_and_rounded_front_shoulder(self):
         head = build_winding_head(P, 150)
         shoe = head.shoe_master
 
@@ -87,19 +87,18 @@ class WindingHeadTests(unittest.TestCase):
         bottom = outer_radius_offset_at(16.5)
         free = outer_radius_offset_at(26.5)
         self.assertAlmostEqual(bottom, 0.0, delta=.15)
-        self.assertGreaterEqual(rear - bottom, 2.5)
-        self.assertLessEqual(rear - bottom, 3.0)
-        self.assertGreaterEqual(free - bottom, 1.0)
-        self.assertLessEqual(free - bottom, 1.5)
-        self.assertGreater(rear, free)
+        self.assertAlmostEqual(rear - bottom, 0.0, delta=.01)
+        self.assertGreaterEqual(free - bottom, 2.5)
+        self.assertLessEqual(free - bottom, 3.0)
+        self.assertGreater(free, rear)
         bounds = shoe.val().BoundingBox()
         self.assertLessEqual(bounds.xmin, -12.0)
         self.assertEqual(head.metadata['pin_rows_y_mm'], (-5.0, 5.0))
         self.assertEqual(head.metadata['cradle_bottom_radius_offset_mm'], 0.0)
-        self.assertEqual(head.metadata['rear_shoulder_height_mm'], 2.7)
-        self.assertEqual(head.metadata['free_shoulder_height_mm'], 1.3)
+        self.assertEqual(head.metadata['rear_shoulder_height_mm'], 0.0)
+        self.assertEqual(head.metadata['free_shoulder_height_mm'], 2.7)
         self.assertEqual(head.metadata['wire_guidance'],
-                         'rounded asymmetric U-cradle; lower free-front shoulder')
+                         'rounded free-front shoulder; nominal-radius rear runout')
 
     def test_cradle_fits_a_valid_reduced_tape_clearance(self):
         p = WindingToolParameters(tape_clearance_mm=6.0)
@@ -127,9 +126,9 @@ class WindingHeadTests(unittest.TestCase):
                 reference = signatures
             self.assertEqual(signatures, reference)
             rear_excess = cq.Workplane('XY').circle(diameter / 2 + 30).circle(
-                diameter / 2 + 2.701).extrude(40).translate((0, 0, 5))
+                diameter / 2 + .001).extrude(18.8).translate((0, 0, 5))
             front_excess = cq.Workplane('XY').circle(diameter / 2 + 30).circle(
-                diameter / 2 + 1.301).extrude(14).translate((0, 0, 16.5))
+                diameter / 2 + 2.701).extrude(6).translate((0, 0, 23.8))
             for index, shoe in enumerate(head.shoes):
                 self.assertTrue(shoe.val().isValid())
                 self.assertLess(overlap(shoe, rear_excess), 1e-6)
@@ -256,7 +255,9 @@ class WindingHeadTests(unittest.TestCase):
             insufficient = build_winding_head(P, diameter).shoes[0].translate((-.5, 0, 10))
             self.assertGreater(overlap(insufficient, outer), .1)
 
-    def test_pressed_latches_allow_axial_pin_withdrawal_inside_wound_envelope(self):
+    def test_pressed_latches_allow_continuous_forward_removal_inside_fixed_winding(self):
+        from windwall.winding_tool_service import _linear_collision, _winding_fixture
+
         for diameter in (100, 150, 200):
             head = build_winding_head(P, diameter)
             # The interference lobe lies 0.2 mm outside the hole. Its compressed
@@ -266,8 +267,16 @@ class WindingHeadTests(unittest.TestCase):
             for row in (-5, 5):
                 y = row + 1.65 if row > 0 else row - 3
                 compressed = compressed.cut(box(x - 1.1, y, -2, 2.2, 1.35, 2))
-            winding = cq.Workplane('XY').circle(diameter / 2 + 1).circle(
-                diameter / 2 + .02).extrude(20).translate((0, 0, 8))
+            # Use the declared 9 mm axial x 1 mm radial winding, including
+            # taut connecting spans at larger settings. A uniform 20 mm band
+            # covered the protective shoulder even before any motion.
+            winding = _winding_fixture(P, diameter)['coil']
+            self.assertAlmostEqual(winding.val().BoundingBox().zmin, 12.5)
+            self.assertAlmostEqual(winding.val().BoundingBox().zlen, 9)
+            self.assertLess(_linear_collision(compressed, winding, (0, 0, 40)), 1e-6)
+            self.assertLess(_linear_collision(compressed, head.wheel, (0, 0, 40)), 1e-6)
+            for neighbor in head.shoes[1:]:
+                self.assertLess(_linear_collision(compressed, neighbor, (0, 0, 40)), 1e-6)
             for lift in (0, 1, 3, 5, 10, 20, 40):
                 moved = compressed.translate((0, 0, lift))
                 self.assertLess(overlap(head.wheel, moved), 1e-6)

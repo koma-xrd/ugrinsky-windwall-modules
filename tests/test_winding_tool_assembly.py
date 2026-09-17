@@ -171,6 +171,32 @@ class WindingToolAssemblyTests(unittest.TestCase):
         for diameter in (100, 150, 200):
             self.assertTrue(audit[f'removal_{diameter}'])
 
+    def test_nominal_runout_and_front_shoulder_have_separate_physical_gauges(self):
+        with patch('windwall.winding_tool_assembly.audit_winding_tool_assemblies', return_value={}):
+            model = build_winding_tool_assemblies()
+        parts = {name: service_module.local_shape(shape, 130)
+                 for name, shape in model.winding_jig.items()}
+        for diameter in (100, 150, 200):
+            head = build_winding_head(model.parameters, diameter)
+            parts.update({f'shoe_{i}': shoe for i, shoe in enumerate(head.shoes, 1)})
+            checks, _ = assembly_module._head_checks(tuple(parts.items()), model.parameters, diameter)
+            self.assertTrue(all(checks.values()), (diameter, checks))
+        original = parts['shoe_1']
+        for case, protrusion in (
+            ('nominal runout', box(99, 7.2, 16, 2, .5, .5)),
+            ('front shoulder', box(101.9, 7.2, 26.5, 1.5, .5, .5)),
+        ):
+            with self.subTest(case=case):
+                mutant = original.union(protrusion)
+                # Preserve the position gauge's center so that the independent
+                # physical radial limit, rather than a centroid shift, fails.
+                mutant = mutant.translate(original.val().Center().sub(mutant.val().Center()).toTuple())
+                self.assertTrue(mutant.val().isValid())
+                self.assertEqual(len(mutant.val().Solids()), 1)
+                modified = {**parts, 'shoe_1': mutant}
+                checks, _ = assembly_module._head_checks(tuple(modified.items()), model.parameters, 200)
+                self.assertFalse(checks['wire_contact_envelope'], checks)
+
     def test_audit_rejects_a_shoe_in_a_different_numbered_position(self):
         model = model_at()
         mutant = changed(model, 'winding_jig', 'shoe_1',
@@ -260,6 +286,22 @@ class WindingToolAssemblyTests(unittest.TestCase):
 
 
 class WindingToolServiceTests(unittest.TestCase):
+    def test_tape_passages_cut_through_both_cradle_shoulders(self):
+        for diameter in (100, 150, 200):
+            head = build_winding_head(DEFAULT_WINDING_TOOL_PARAMETERS, diameter)
+            for index, probe in enumerate(head.metadata['tape_passage_probes']):
+                with self.subTest(diameter=diameter, passage=index + 1):
+                    self.assertLess(head.shoes[index // 3].intersect(probe).val().Volume(), 1e-6)
+
+    def test_declared_winding_and_full_width_closed_tape_clear_every_seated_shoe(self):
+        for diameter in (100, 150, 200):
+            head = build_winding_head(DEFAULT_WINDING_TOOL_PARAMETERS, diameter)
+            fixture = service_module._winding_fixture(DEFAULT_WINDING_TOOL_PARAMETERS, diameter)
+            for name, shape in fixture.items():
+                for index, shoe in enumerate(head.shoes):
+                    with self.subTest(diameter=diameter, fixture=name, shoe=index + 1):
+                        self.assertLess(shape.intersect(shoe).val().Volume(), 1e-6)
+
     def test_tape_fixtures_are_ten_mm_tangential_closed_strips_around_the_winding(self):
         for diameter in (100, 150, 200):
             fixture = service_module._winding_fixture(DEFAULT_WINDING_TOOL_PARAMETERS, diameter)
@@ -356,6 +398,11 @@ class WindingToolServiceTests(unittest.TestCase):
             self.assertEqual(set(last['moving']), {'coil', *(f'tape_{i}' for i in range(1, 19))})
             self.assertEqual(sum(group == 'service_detached' for group in last['groups'].values()), 6)
             service = audit_winding_tool_service(model, stages)
+            self.assertEqual(service['fixture_mm'], {
+                'winding_radial_build': 1, 'winding_axial_width': 9,
+                'tape_radial_span': 4, 'tape_axial_span': 10,
+                'tape_tangential_width': 10, 'tape_wall': .25,
+            })
             self.assertTrue(all(service['checks'].values()), service)
             self.assertGreaterEqual(service['radial_support_clearance_mm'], 2)
             self.assertFalse(service['collisions'])

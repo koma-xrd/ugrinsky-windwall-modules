@@ -2,9 +2,11 @@
 
 The authoritative assembly solids remain in every pose. A bounded compressed
 hook envelope represents released PLA tabs; it is not an elastic/force model.
-The explicit fixture is a 9 mm axial winding with 1 mm radial build and eighteen
-closed tape loops, each 10 mm wide tangentially. It does not certify larger
-coils, fit, fatigue or hand force.
+The explicit fixture is a fixed 9 mm axial winding with 1 mm radial build on
+the nominal-radius rear runout, and eighteen closed tape loops, each 10 mm
+wide tangentially. The protective front shoulder moves away during forward
+shoe removal. No wire deformation or radial shoe relief is assumed. This does
+not certify larger coils, fit, fatigue or hand force.
 """
 
 from functools import lru_cache
@@ -179,6 +181,9 @@ def _winding_fixture(parameters, diameter):
     head = head_reference(parameters, diameter)
     radius = diameter / 2
     contact_radius = parameters.minimum_diameter_mm / 2
+    # The full winding sits on the constant-radius runout ending at Z=23.8.
+    # Its 0.02 mm inner gap is the existing geometric clearance, not an
+    # allowance for lifting the bundle over a rear lip during withdrawal.
     shapes = {'coil': _winding_band(parameters, diameter, .02, 1, 12.5, 9)}
     # Follow the same circular contact arc as the winding. A straight rectangle
     # at each old slot center intersects the curved bundle when widened to a

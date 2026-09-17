@@ -10,6 +10,7 @@ from windwall.parameters import DEFAULT_PARAMETERS
 from windwall.winding_frame import WindingFrameParts, build_winding_frame
 from windwall.winding_tool_parameters import WindingToolParameters
 from windwall.winding_head import build_winding_head
+from windwall.winding_tool_service import _linear_collision
 
 
 P = WindingToolParameters()
@@ -189,6 +190,7 @@ class WindingFrameTests(unittest.TestCase):
                 self.assertGreater(shoe.val().BoundingBox().zmin, -5)
                 for part in fixed:
                     self.assertLess(overlap(part, shoe), 1e-6)
+                    self.assertLess(_linear_collision(shoe, part, (0, 0, 40)), 1e-6)
 
     def test_full_crank_grip_sweep_clears_stand_wheel_clamps_and_bench(self):
         # Exact rotational superset: discs cover the arm and grip at every angle.

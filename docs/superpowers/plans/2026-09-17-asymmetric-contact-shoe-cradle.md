@@ -1,5 +1,14 @@
 # Asymmetric Contact-Shoe Cradle Implementation Plan
 
+> **Task 2 mechanical correction:** The original shoulder orientation and the
+> corresponding Task 1/2 snippets below are historical and superseded by the
+> updated design spec. Physical tests showed that either a 2.7 mm or 1.3 mm rear
+> shoulder crosses the fixed winding before the pins clear the wheel. The final
+> design therefore has a zero-height nominal-radius rear runout through Z=23.8
+> and a rounded 2.7 mm free-front shoulder at Z=26.5. The declared winding and
+> 10 × 4 × 10 mm tape fixtures remain unchanged; each shoe withdraws purely
+> forward. Use the updated spec and implemented regressions for acceptance.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Replace the winding shoe's flat wire-contact surface with a directly constructed rounded asymmetric U-cradle that guides the wire without obstructing tape application or coil removal.

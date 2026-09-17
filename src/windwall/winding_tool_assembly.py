@@ -207,15 +207,28 @@ def _head_checks(member_items, parameters, diameter):
     metadata = reference.metadata
     radius = diameter / 2
     shoes = [local[f'shoe_{i}'] for i in range(1, 7)]
-    equal = pins = retained = True
-    excess = ring(radius + 40, radius + .001, 5, 40)
-    contact_band = ring(radius + .001, radius - .05, 5, 40)
+    equal = envelope = pins = retained = True
+    contact_radius = parameters.minimum_diameter_mm / 2
+    arc_center = (radius - contact_radius, 0, 0)
+    runout_end = metadata['nominal_runout_end_z_mm']
+    # Check the translated master arc, not a full nominal-diameter circle:
+    # off-center contact lands lie inside that circle at larger settings.
+    runout_excess = translated(ring(contact_radius + 40, contact_radius + .001,
+                                   5, runout_end - 5), arc_center)
+    shoulder_excess = translated(ring(contact_radius + 40,
+        contact_radius + metadata['free_shoulder_height_mm'] + .001,
+        runout_end, 40 - runout_end), arc_center)
+    contact_band = translated(ring(contact_radius + .001, contact_radius - .05,
+                                  runout_end - .2, .2), arc_center)
+    # Evaluate both mass centers in the same frame: OCCT's default integration
+    # of curved faces differs slightly if the master is measured before moving.
+    expected_center = reference.shoes[0].val().Center()
     for index, shoe in enumerate(shoes):
         seat = seats[index]
         normalized = shoe.rotate((0, 0, 0), (0, 0, 1), -index * 60)
-        expected_center = reference.shoe_master.val().Center().add(cq.Vector(radius, 0, 0))
         equal &= normalized.val().Center().sub(expected_center).Length < 1e-5
-        equal &= clear(shoe, excess) and intersection_volume(shoe, contact_band) > .001
+        envelope &= (clear(normalized, runout_excess) and clear(normalized, shoulder_excess)
+                     and intersection_volume(normalized, contact_band) > .001)
         for row in metadata['pin_rows_y_mm']:
             x = radius - metadata['pin_setback_mm']
             core = box(x - .8, row - .5 if row > 0 else row + .1,
@@ -242,13 +255,14 @@ def _head_checks(member_items, parameters, diameter):
     pair_clear = all(clear(a, b) for a, b in combinations(shoes, 2))
     # A conservative continuous revolution contains every wheel/shoe occurrence.
     head_members = [wheel, *shoes]
-    max_radius = max(parameters.maximum_diameter_mm, diameter) / 2 + .01
+    max_radius = (max(parameters.maximum_diameter_mm, diameter) / 2
+                  + metadata['free_shoulder_height_mm'] + .01)
     bottom, top = min(bounds(s).zmin for s in head_members), max(bounds(s).zmax for s in head_members)
     sweep = ring(max_radius, 0, bottom, top - bottom)
     contained = all(shape.cut(sweep).val().Volume() < VOLUME_TOLERANCE for shape in head_members)
     head_clear = all(clear(sweep, local[name]) for name in ('base', 'tower', 'bearing_retainer_1',
                                                           'bearing_retainer_2', 'bearing_608_1', 'bearing_608_2'))
-    return {'equal_shoe_positions': bool(equal), 'wire_contact_envelope': bool(equal),
+    return {'equal_shoe_positions': bool(equal), 'wire_contact_envelope': bool(envelope),
             'two_pin_engagement': bool(pins and retained), 'tape_corridors': bool(tape),
             'head_rotation_clearance': bool(contained and head_clear and pair_clear)}, measured
 
