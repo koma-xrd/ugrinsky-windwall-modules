@@ -25,10 +25,8 @@ _WHEEL_THICKNESS = 5.0
 _PIN_SETBACK = 8.0
 _PIN_ROWS = (-5.0, 5.0)
 _SHOE_BOTTOM = 5.2
-_CRADLE_BOTTOM_Z = 16.5
 _REAR_SHOULDER_HEIGHT = 2.7
 _FREE_SHOULDER_HEIGHT = 1.3
-_CRADLE_HALF_WIDTH = 10.0
 _TAPE_BOTTOM = 11.0
 _PASSAGE_INNER_X = -12.0
 _PASSAGE_OUTER_X = _REAR_SHOULDER_HEIGHT + .4
@@ -137,16 +135,22 @@ def _asymmetric_shoe_shell(minimum_radius: float, bottom: float,
     """Revolve the cradle directly, preserving the inner wall and nominal bottom.
 
     Cubic segments meet with vertical tangents at both shoulders and the cradle
-    bottom. The translated sector retains the mounting side of the old shell;
-    tape passages and the unchanged foot/pins are applied by ``_build_shoe``.
+    bottom. Fixed axial end margins let their span follow the tape clearance.
+    The translated sector retains the mounting side of the old shell; tape
+    passages and the unchanged foot/pins are applied by ``_build_shoe``.
     """
     inner = minimum_radius - 6
     radius = _AXIAL_EDGE_RADIUS
+    # Preserve the default 6.5/16.5/26.5 mm landmarks without letting a shorter
+    # accepted shoe reverse the profile between its front shoulder and end.
+    rear_shoulder_z = bottom + 1.3
+    free_shoulder_z = top - 2.7
+    cradle_bottom_z = (rear_shoulder_z + free_shoulder_z) / 2
     outer_points = (
         (minimum_radius + _REAR_SHOULDER_HEIGHT, bottom + 1.0),
-        (minimum_radius + _REAR_SHOULDER_HEIGHT, _CRADLE_BOTTOM_Z - _CRADLE_HALF_WIDTH),
-        (minimum_radius, _CRADLE_BOTTOM_Z),
-        (minimum_radius + _FREE_SHOULDER_HEIGHT, _CRADLE_BOTTOM_Z + _CRADLE_HALF_WIDTH),
+        (minimum_radius + _REAR_SHOULDER_HEIGHT, rear_shoulder_z),
+        (minimum_radius, cradle_bottom_z),
+        (minimum_radius + _FREE_SHOULDER_HEIGHT, free_shoulder_z),
         (minimum_radius + _FREE_SHOULDER_HEIGHT, top - 1.0),
     )
     rear_radius, free_radius = outer_points[0][0], outer_points[-1][0]

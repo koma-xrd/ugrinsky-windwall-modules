@@ -101,6 +101,19 @@ class WindingHeadTests(unittest.TestCase):
         self.assertEqual(head.metadata['wire_guidance'],
                          'rounded asymmetric U-cradle; lower free-front shoulder')
 
+    def test_cradle_fits_a_valid_reduced_tape_clearance(self):
+        p = WindingToolParameters(tape_clearance_mm=6.0)
+        self.assertIn(100, diameter_settings_mm(p))
+        head = build_winding_head(p, 100)
+        solid = head.shoe_master.val()
+        self.assertTrue(solid.isValid())
+        self.assertEqual(len(solid.Solids()), 1)
+        self.assertGreater(solid.Volume(), 0)
+        self.assertAlmostEqual(solid.BoundingBox().zmax, 23.2, places=5)
+        for shoe_index in range(6):
+            for probe in head.metadata['tape_passage_probes'][3 * shoe_index:3 * shoe_index + 3]:
+                self.assertLess(overlap(head.shoes[shoe_index], probe), 1e-6)
+
     def test_six_identical_shoes_define_each_requested_envelope(self):
         reference = None
         for diameter in diameter_settings_mm(P):
