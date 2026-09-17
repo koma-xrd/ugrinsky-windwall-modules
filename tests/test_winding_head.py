@@ -3,7 +3,7 @@
 import unittest
 from dataclasses import fields
 from itertools import combinations
-from math import atan2, cos, degrees, radians, sin
+from math import atan2, cos, degrees, hypot, radians, sin
 
 import cadquery as cq
 
@@ -72,6 +72,35 @@ class WindingHeadTests(unittest.TestCase):
             self.assertEqual(len(shape.val().Solids()), 1)
             self.assertGreater(shape.val().Volume(), 0)
 
+    def test_contact_surface_is_a_rounded_asymmetric_wire_cradle(self):
+        head = build_winding_head(P, 150)
+        shoe = head.shoe_master
+
+        def outer_radius_offset_at(z):
+            sample = shoe.intersect(box(-6, 7.2, z - .2, 10, .6, .4))
+            self.assertGreater(sample.val().Volume(), 0)
+            # The sample starts off-axis at Y=7.2; X alone includes the
+            # curvature of the nominal 50 mm master rather than its height.
+            return hypot(sample.val().BoundingBox().xmax + 50, 7.2) - 50
+
+        rear = outer_radius_offset_at(7.0)
+        bottom = outer_radius_offset_at(16.5)
+        free = outer_radius_offset_at(26.5)
+        self.assertAlmostEqual(bottom, 0.0, delta=.15)
+        self.assertGreaterEqual(rear - bottom, 2.5)
+        self.assertLessEqual(rear - bottom, 3.0)
+        self.assertGreaterEqual(free - bottom, 1.0)
+        self.assertLessEqual(free - bottom, 1.5)
+        self.assertGreater(rear, free)
+        bounds = shoe.val().BoundingBox()
+        self.assertLessEqual(bounds.xmin, -12.0)
+        self.assertEqual(head.metadata['pin_rows_y_mm'], (-5.0, 5.0))
+        self.assertEqual(head.metadata['cradle_bottom_radius_offset_mm'], 0.0)
+        self.assertEqual(head.metadata['rear_shoulder_height_mm'], 2.7)
+        self.assertEqual(head.metadata['free_shoulder_height_mm'], 1.3)
+        self.assertEqual(head.metadata['wire_guidance'],
+                         'rounded asymmetric U-cradle; lower free-front shoulder')
+
     def test_six_identical_shoes_define_each_requested_envelope(self):
         reference = None
         for diameter in diameter_settings_mm(P):
@@ -84,14 +113,22 @@ class WindingHeadTests(unittest.TestCase):
             if reference is None:
                 reference = signatures
             self.assertEqual(signatures, reference)
-            excess = cq.Workplane('XY').circle(diameter / 2 + 30).circle(
-                diameter / 2 + .001).extrude(40).translate((0, 0, 5))
-            band = cq.Workplane('XY').circle(diameter / 2 + .001).circle(
-                diameter / 2 - .05).extrude(40).translate((0, 0, 5))
-            for shoe in head.shoes:
+            rear_excess = cq.Workplane('XY').circle(diameter / 2 + 30).circle(
+                diameter / 2 + 2.701).extrude(40).translate((0, 0, 5))
+            front_excess = cq.Workplane('XY').circle(diameter / 2 + 30).circle(
+                diameter / 2 + 1.301).extrude(14).translate((0, 0, 16.5))
+            for index, shoe in enumerate(head.shoes):
                 self.assertTrue(shoe.val().isValid())
-                self.assertLess(overlap(shoe, excess), 1e-6)
-                self.assertGreater(overlap(shoe, band), .001)
+                self.assertLess(overlap(shoe, rear_excess), 1e-6)
+                self.assertLess(overlap(shoe, front_excess), 1e-6)
+                local = shoe.rotate((0, 0, 0), (0, 0, 1), -index * 60)
+                bottom = local.intersect(box(diameter / 2 - 6, 7.2, 16.49, 10, .6, .02))
+                self.assertGreater(bottom.val().Volume(), 0)
+                # The circular master is translated, not rescaled, at larger
+                # settings. Measure from that arc's physical center.
+                center_x = diameter / 2 - 50
+                measured = hypot(bottom.val().BoundingBox().xmax - center_x, 7.2)
+                self.assertAlmostEqual(measured, 50, delta=.01)
 
     def test_wheel_has_two_keyed_rows_at_every_setting_and_physical_labels(self):
         head = build_winding_head(P, 100)
@@ -153,7 +190,10 @@ class WindingHeadTests(unittest.TestCase):
     def test_mismatched_position_is_detected_by_physical_envelope(self):
         head = build_winding_head(P, 150)
         mismatched = head.shoes[0].translate((5, 0, 0))
-        excess = cq.Workplane('XY').circle(90).circle(75.1).extrude(40)
+        # The nominal diameter is defined at the cradle bottom; shoulders
+        # deliberately extend beyond it elsewhere in the axial profile.
+        excess = (cq.Workplane('XY').circle(90).circle(75.1).extrude(.4)
+                  .translate((0, 0, 16.3)))
         self.assertLess(overlap(head.shoes[0], excess), 1e-6)
         self.assertGreater(overlap(mismatched, excess), 1)
 

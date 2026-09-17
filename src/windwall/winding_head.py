@@ -1,7 +1,8 @@
 """Printable six-spoke wheel and six congruent plug-in contact shoes.
 
 Coordinates use the winding axis as Z: wheel rear is Z=0, front is Z=5.
-The shoe master has its outer contact at X=0 and is translated to the selected
+The shoe master's cradle bottom is at nominal radius, X=0 on its centerline;
+only its rounded shoulders extend outward. It is translated to the selected
 radius before rotation. Only placement changes with diameter. Three tape
 reliefs per shoe provide tangential strip width and axial bundle clearance.
 Their fixed local centers and nominal 20-degree labels identify the
@@ -24,9 +25,13 @@ _WHEEL_THICKNESS = 5.0
 _PIN_SETBACK = 8.0
 _PIN_ROWS = (-5.0, 5.0)
 _SHOE_BOTTOM = 5.2
+_CRADLE_BOTTOM_Z = 16.5
+_REAR_SHOULDER_HEIGHT = 2.7
+_FREE_SHOULDER_HEIGHT = 1.3
+_CRADLE_HALF_WIDTH = 10.0
 _TAPE_BOTTOM = 11.0
 _PASSAGE_INNER_X = -12.0
-_PASSAGE_OUTER_X = 2.0
+_PASSAGE_OUTER_X = _REAR_SHOULDER_HEIGHT + .4
 _MOUTH_RADIUS = .8
 _AXIAL_EDGE_RADIUS = .45
 _RELEASE_LIFT = 40.0
@@ -127,20 +132,45 @@ def _passage_probes(p):
                  for offset in _passage_offsets(p))
 
 
-def _rounded_annulus(outer_radius, wall, bottom, top):
-    """Revolve a rounded axial profile without collapsing three-way fillet caps."""
-    inner = outer_radius - wall
+def _asymmetric_shoe_shell(minimum_radius: float, bottom: float,
+                           top: float) -> cq.Workplane:
+    """Revolve the cradle directly, preserving the inner wall and nominal bottom.
+
+    Cubic segments meet with vertical tangents at both shoulders and the cradle
+    bottom. The translated sector retains the mounting side of the old shell;
+    tape passages and the unchanged foot/pins are applied by ``_build_shoe``.
+    """
+    inner = minimum_radius - 6
     radius = _AXIAL_EDGE_RADIUS
-    return (cq.Workplane('XZ').moveTo(inner + radius, bottom)
-            .lineTo(outer_radius - radius, bottom)
-            .radiusArc((outer_radius, bottom + radius), radius)
-            .lineTo(outer_radius, top - radius)
-            .radiusArc((outer_radius - radius, top), radius)
+    outer_points = (
+        (minimum_radius + _REAR_SHOULDER_HEIGHT, bottom + 1.0),
+        (minimum_radius + _REAR_SHOULDER_HEIGHT, _CRADLE_BOTTOM_Z - _CRADLE_HALF_WIDTH),
+        (minimum_radius, _CRADLE_BOTTOM_Z),
+        (minimum_radius + _FREE_SHOULDER_HEIGHT, _CRADLE_BOTTOM_Z + _CRADLE_HALF_WIDTH),
+        (minimum_radius + _FREE_SHOULDER_HEIGHT, top - 1.0),
+    )
+    rear_radius, free_radius = outer_points[0][0], outer_points[-1][0]
+    profile = (cq.Workplane('XZ').moveTo(inner + radius, bottom)
+               .lineTo(rear_radius - radius, bottom)
+               .radiusArc((rear_radius, bottom + radius), radius)
+               .lineTo(*outer_points[0]).lineTo(*outer_points[1]))
+    for start, end in zip(outer_points[1:3], outer_points[2:4]):
+        handle = (end[1] - start[1]) / 3
+        profile = profile.bezier([
+            (start[0], start[1] + handle),
+            (end[0], end[1] - handle), end], includeCurrent=True)
+    shell = (profile.lineTo(*outer_points[-1]).lineTo(free_radius, top - radius)
+            .radiusArc((free_radius - radius, top), radius)
             .lineTo(inner + radius, top)
             .radiusArc((inner, top - radius), radius)
             .lineTo(inner, bottom + radius)
             .radiusArc((inner + radius, bottom), radius)
             .close().revolve(360, (0, 0), (0, 1)))
+    sector = (cq.Workplane('XY').polyline([
+        (0, 0), (minimum_radius + 10, -(minimum_radius + 10) * tan(radians(29.8))),
+        (minimum_radius + 10, (minimum_radius + 10) * tan(radians(29.8)))])
+        .close().extrude(top + 1))
+    return shell.intersect(sector).translate((-minimum_radius, 0, 0))
 
 
 def _mouth_lip_filler(offset, side, half_width, top):
@@ -181,12 +211,8 @@ def _keyed_pin(row):
 def _build_shoe(p: WindingToolParameters) -> cq.Workplane:
     minimum_radius = p.minimum_diameter_mm / 2
     top = _TAPE_BOTTOM + p.tape_clearance_mm + 6.2
-    shell = _rounded_annulus(minimum_radius, 6, _SHOE_BOTTOM, top)
-    sector = (cq.Workplane('XY').polyline([
-        (0, 0), (minimum_radius + 10, -(minimum_radius + 10) * tan(radians(29.8))),
-        (minimum_radius + 10, (minimum_radius + 10) * tan(radians(29.8)))])
-        .close().extrude(top + 1))
-    shell = shell.intersect(sector).translate((-minimum_radius, 0, 0))
+    shell = _print_master(_asymmetric_shoe_shell(minimum_radius, _SHOE_BOTTOM, top),
+                          'shoe shell', p.print_bed_mm)
     shell_envelope = shell
     passage_top = _TAPE_BOTTOM + p.tape_clearance_mm + _MOUTH_RADIUS
     half_width = p.tape_clearance_mm / 2 + .3
@@ -195,7 +221,7 @@ def _build_shoe(p: WindingToolParameters) -> cq.Workplane:
         # A closed tape loop's inner leg must not meet a trailing contact rim
         # when the shoe is withdrawn forward.
         shell = shell.cut(_box(-18, offset - half_width, -1,
-                              20, 2 * half_width, passage_top + 1))
+                              _PASSAGE_OUTER_X + 18, 2 * half_width, passage_top + 1))
     # The widened side slots leave short inner returns at the sector ends.
     # Their adjacent radii must fit that 0.65 mm land; the outer wire-contact
     # exits and six upper mouth lips retain the full 0.8 mm radius.
@@ -246,6 +272,10 @@ def build_winding_head(p: WindingToolParameters, diameter_mm: float,
         'diameter_labels': tuple(f'{value:g}' for value in settings),
         'pin_rows_y_mm': _PIN_ROWS,
         'pin_setback_mm': _PIN_SETBACK,
+        'cradle_bottom_radius_offset_mm': 0.0,
+        'rear_shoulder_height_mm': _REAR_SHOULDER_HEIGHT,
+        'free_shoulder_height_mm': _FREE_SHOULDER_HEIGHT,
+        'wire_guidance': 'rounded asymmetric U-cradle; lower free-front shoulder',
         'wheel_thickness_mm': _WHEEL_THICKNESS,
         'drive_socket': {'polygon_sides': 6, 'circumdiameter_mm': 14.4},
         'nominal_tape_angles_deg': tape_station_angles(p),
