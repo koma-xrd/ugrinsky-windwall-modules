@@ -1,5 +1,8 @@
 # Serpentine Coil Winding Jig Design
 
+Status: superseded by [the 2026-09-16 simple pin-adjustable coil-winder design](2026-09-16-simple-pin-adjustable-coil-winder-design.md).
+This historical specification records the replaced mechanism; it is not the current build or operating guide.
+
 ## Purpose and scope
 
 Add two independent, manually operated workshop modules for producing the

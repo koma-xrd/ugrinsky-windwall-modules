@@ -248,10 +248,16 @@ and electrical design. No approved charging schematic is included.
 
 The [German build and operating guide](docs/serpentine-coil-winding-tool-de.md)
 and [tooling release manifest](release/winding-tool/manifest.json) describe two
-independent manual modules: an adjustable six-rib winding jig and a passive
-wire-spool payoff turntable. These are prototype workshop aids, not V5 production
-parts. Printed fits, winding quality and the calculated Ø127 mm starting setting
-require physical tests. Akkuschrauberbetrieb ist nicht freigegeben.
+simple independent manual modules: a vertical hand-cranked wheel with six removable
+contact shoes, and a free-running turntable for an upright wire roll. All six
+shoes use the same marked setting, from 100–200 mm in 10 mm steps. The screwless
+PLA prototype uses a printed shaft, snap connections, two 608 bearings and one
+51105 bearing. Fits, strength, winding quality and operation require physical
+testing. Akkuschrauberbetrieb ist nicht freigegeben.
+
+The tooling release is isolated from the V5 production inventory and
+`PRINT_SOURCES`. It includes the canonical BOM, current drawings and a synchronized
+German guide; the manifest lists their hashes alongside the STL and STEP files.
 
 Build the separate release with `python scripts/run_geometry.py scripts/build_winding_tool.py`.
 

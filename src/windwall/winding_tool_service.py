@@ -1,212 +1,430 @@
-"""Service routes and mounting/retention gauges for the winding tools.
+"""Tool-free service poses and continuous straight-line collision checks.
 
-Consumes authoritative assembly dictionaries without rebuilding component CAD.
-The coil surrogate bounds a 10 mm axial winding, 3 mm radial build and 0.5 mm
-inward tape allowance. Routes assume a helper supports loose members and the
-head; they do not certify hand clearance, strength or arbitrary coil sizes.
+The authoritative assembly solids remain in every pose. A bounded compressed
+hook envelope represents released PLA tabs; it is not an elastic/force model.
+The explicit fixture is a fixed 9 mm axial winding with 1 mm radial build on
+the nominal-radius rear runout, and eighteen closed tape loops, each 10 mm
+wide tangentially. The protective front shoulder moves away during forward
+shoe removal. No wire deformation or radial shoe relief is assumed. This does
+not certify larger coils, fit, fatigue or hand force.
 """
 
 from functools import lru_cache
-from math import cos, radians, sin
+from math import cos, isfinite, radians, sin
 
 import cadquery as cq
+from OCP.BRepPrimAPI import BRepPrimAPI_MakePrism
+from OCP.gp import gp_Vec
+
+from windwall.winding_head import build_winding_head
+
+
+VOLUME_TOLERANCE = 1e-5
+
+
+@lru_cache(maxsize=16384)
+def bounds(shape):
+    return shape.val().BoundingBox()
+
+
+def _boxes_overlap(a, b):
+    return not (a.xmax < b.xmin or b.xmax < a.xmin or a.ymax < b.ymin
+                or b.ymax < a.ymin or a.zmax < b.zmin or b.zmax < a.zmin)
+
+
+@lru_cache(maxsize=32768)
+def intersection_volume(first, second):
+    if not _boxes_overlap(bounds(first), bounds(second)):
+        return 0.0
+    volume = first.intersect(second).val().Volume()
+    if not isfinite(volume):
+        raise ValueError('Non-finite CAD intersection')
+    return volume
+
+
+def clear(first, second):
+    return intersection_volume(first, second) <= VOLUME_TOLERANCE
+
+
+def box(x, y, z, dx, dy, dz):
+    return cq.Workplane('XY').box(dx, dy, dz, centered=False).translate((x, y, z))
+
+
+def ring(outer, inner, bottom, height):
+    sketch = cq.Workplane('XY').circle(outer)
+    if inner:
+        sketch = sketch.circle(inner)
+    return sketch.extrude(height).translate((0, 0, bottom))
 
 
 @lru_cache(maxsize=4096)
-def _box(body):
-    return body.val().BoundingBox()
+def installed_shape(shape, height):
+    return shape.rotate((0, 0, 0), (1, 0, 0), 90).translate((0, 0, height))
 
 
-def _overlap(first, second):
-    a, b = _box(first), _box(second)
-    if (a.xmax < b.xmin or b.xmax < a.xmin or a.ymax < b.ymin
-            or b.ymax < a.ymin or a.zmax < b.zmin or b.zmax < a.zmin):
+@lru_cache(maxsize=4096)
+def local_shape(shape, height):
+    return shape.translate((0, 0, -height)).rotate((0, 0, 0), (1, 0, 0), -90)
+
+
+def head_datum(model):
+    record = model.ownership['winding_jig']['wheel']
+    return record['diameter_mm'], record['axis_height_mm']
+
+
+@lru_cache(maxsize=32)
+def head_reference(parameters, diameter):
+    """Use component-owned dimensions only to construct independent gauges."""
+    return build_winding_head(parameters, diameter)
+
+
+@lru_cache(maxsize=2048)
+def translated(shape, vector):
+    return shape.translate(vector)
+
+
+def _same_shape(first, second):
+    if first is second or first.val().isSame(second.val()):
+        return True
+    a, b = bounds(first), bounds(second)
+    if any(abs(getattr(a, key) - getattr(b, key)) > 1e-6
+           for key in ('xmin', 'ymin', 'zmin', 'xmax', 'ymax', 'zmax')):
+        return False
+    return (abs(first.val().Volume() - second.val().Volume()) < VOLUME_TOLERANCE
+            and first.cut(second).val().Volume() < VOLUME_TOLERANCE)
+
+
+@lru_cache(maxsize=4096)
+def _linear_collision(moving, fixed, vector):
+    """Exact boundary-prism union for an entire translation, including endpoints.
+
+    Any newly occupied point crosses an original boundary face. Sweeping every
+    face therefore covers the translated solid continuously; parallel faces
+    yield zero-volume shells. Bounding boxes only reject disjoint candidates.
+    """
+    end = translated(moving, vector)
+    a, b, c = bounds(moving), bounds(end), bounds(fixed)
+    swept_bounds = a.add(b)
+    if not _boxes_overlap(swept_bounds, c):
         return 0.0
-    return first.intersect(second).val().Volume()
+    # Trim remote detail (especially wheel markings) before testing each face.
+    # No point of the translation can leave this enclosing box.
+    if len(fixed.val().Faces()) > max(64, 2 * len(moving.val().Faces())):
+        mask = box(swept_bounds.xmin - .001, swept_bounds.ymin - .001, swept_bounds.zmin - .001,
+                   swept_bounds.xlen + .002, swept_bounds.ylen + .002, swept_bounds.zlen + .002)
+        fixed = fixed.intersect(mask)
+        if fixed.val().Volume() <= VOLUME_TOLERANCE:
+            return 0.0
+        c = bounds(fixed)
+    for pose in (moving, end):
+        overlap = intersection_volume(pose, fixed)
+        if overlap > VOLUME_TOLERANCE:
+            return overlap
+    if not any(vector):
+        return 0.0
+    # Sweeping the simpler fixed body in the inverse direction describes the
+    # same relative motion, often reducing a shoe/tape check to twelve faces.
+    if len(fixed.val().Faces()) < len(moving.val().Faces()):
+        return _linear_collision(fixed, moving, tuple(-value for value in vector))
+    for face in moving.val().Faces():
+        first = face.BoundingBox()
+        last = face.translate(vector).BoundingBox()
+        if not _boxes_overlap(first.add(last), c):
+            continue
+        swept = cq.Shape.cast(BRepPrimAPI_MakePrism(face.wrapped, gp_Vec(*vector)).Shape())
+        solids = [solid for solid in swept.Solids() if solid.Volume() > VOLUME_TOLERANCE]
+        if not solids:
+            continue
+        probe = cq.Workplane('XY').newObject([cq.Compound.makeCompound(solids)])
+        overlap = intersection_volume(probe, fixed)
+        if overlap > VOLUME_TOLERANCE:
+            return overlap
+    return 0.0
 
 
-def _clear(first, second):
-    return _overlap(first, second) < 1e-5
+@lru_cache(maxsize=256)
+def _compressed_shoe(shoe, parameters, diameter, index):
+    # Same bounded hook-clearance envelope proven by the head regressions.
+    # Only the outer 0.25 mm interference strip changes; keyed posts remain.
+    shape = shoe.rotate((0, 0, 0), (0, 0, 1), -index * 60)
+    metadata = head_reference(parameters, diameter).metadata
+    pin_x = diameter / 2 - metadata['pin_setback_mm']
+    for row in metadata['pin_rows_y_mm']:
+        y = row + 1.65 if row > 0 else row - 3
+        shape = shape.cut(box(pin_x - 1.1, y, -2, 2.2, 1.35, 2))
+    return shape.rotate((0, 0, 0), (0, 0, 1), index * 60)
 
 
-def _x_ring(outer, inner, start, length, height=95):
-    return (cq.Workplane('XY').circle(outer).circle(inner).extrude(length)
-            .rotate((0, 0, 0), (0, 1, 0), 90).translate((start, 0, height)))
+@lru_cache(maxsize=32)
+def _winding_band(parameters, diameter, inner_offset, outer_offset, bottom, height):
+    """Offset the convex hull of the six translated circular contact arcs.
+
+    The arc centers form a regular hexagon; its circular offset gives both the
+    contact arcs and the taut straight spans. At the minimum setting it reduces
+    to a circle. A nominal-diameter circular ring misses those inward spans.
+    """
+    contact_radius = parameters.minimum_diameter_mm / 2
+    center_radius = diameter / 2 - contact_radius
+    if abs(center_radius) < 1e-8:
+        return ring(contact_radius + outer_offset, contact_radius + inner_offset, bottom, height)
+
+    def envelope(offset, depth, z):
+        return (cq.Workplane('XY').polygon(6, center_radius * 2)
+                .offset2D(contact_radius + offset, kind='arc').extrude(depth)
+                .translate((0, 0, z)))
+
+    return envelope(outer_offset, height, bottom).cut(envelope(inner_offset, height + 2, bottom - 1))
+
+
+@lru_cache(maxsize=32)
+def _winding_fixture(parameters, diameter):
+    head = head_reference(parameters, diameter)
+    radius = diameter / 2
+    contact_radius = parameters.minimum_diameter_mm / 2
+    # The full winding sits on the constant-radius runout ending at Z=23.8.
+    # Its 0.02 mm inner gap is the existing geometric clearance, not an
+    # allowance for lifting the bundle over a rear lip during withdrawal.
+    shapes = {'coil': _winding_band(parameters, diameter, .02, 1, 12.5, 9)}
+    # Follow the same circular contact arc as the winding. A straight rectangle
+    # at each old slot center intersects the curved bundle when widened to a
+    # real strip. Keep a conservative 4 mm radial envelope so the cavity also
+    # surrounds the inward chords where wire bridges the wide tape slots.
+    tape_envelope = ring(contact_radius + 2, contact_radius - 2, 12, 10).cut(
+        ring(contact_radius + 1.75, contact_radius - 1.75, 12.25, 9.5))
+    tape_envelope = tape_envelope.translate((radius - contact_radius, 0, 0))
+    for index, corridor in enumerate(head.metadata['tape_passage_probes']):
+        local = corridor.rotate((0, 0, 0), (0, 0, 1), -(index // 3) * 60)
+        offset = local.val().Center().y
+        tape = tape_envelope.intersect(box(radius - 12, offset - 5, 11, 14, 10, 12))
+        shapes[f'tape_{index + 1}'] = tape.rotate((0, 0, 0), (0, 0, 1), (index // 3) * 60)
+    return shapes
 
 
 def coil_removal_stages(model):
-    """Return physical translations after release, in required service order.
+    """Return drawing-ready poses with explicit motion and service ownership.
 
-    The shaft exits left after its five pins and keeper clips are removed.
-    Both uprights remain bolted to the bench. A helper supports the head stack,
-    crank and loose collars; the head and taped coil then lift together before
-    the coil slides axially off the ribs above the frame.
+    Each shoe is unlatched, withdrawn 40 mm forward, then parked radially
+    outside the winding. The taped coil stays put until all six shoes are
+    detached. Fixed members, including parked shoes, are never discarded.
+    Positive local Z is world negative Y. A helper supports the taped winding.
     """
+    diameter, height = head_datum(model)
+    head = head_reference(model.parameters, diameter)
     parts = dict(model.winding_jig)
-    p = model.parameters
-    height = model.frame.shaft_reference.val().BoundingBox().center.z
-    rear = model.frame.head.backplate.val().BoundingBox().xmin
-    for i in range(1, 7):
-        angle = radians((i - 1) * 60)
-        vector = (0, -p.release_travel_mm * sin(angle), p.release_travel_mm * cos(angle))
-        for prefix in ('slider', 'rib', 'cam_follower', 'cam_follower_nut',
-                       'cam_follower_washer', 'rib_pin', 'rib_locknut',
-                       'rib_washer_inner', 'rib_washer_outer'):
-            name = f'{prefix}_{i}'
-            parts[name] = parts[name].translate(vector)
-    for step in range(1, 49):
-        turned = parts['cam'].rotate((0, 0, height), (1, 0, height), step*.5)
-        if all(_clear(turned, parts[f'cam_follower_{i}']) for i in range(1, 7)):
-            parts['cam'] = turned
-            break
-    else:
-        raise ValueError('Cam cannot reach the complete coil-removal state')
-    radius = model.head.state.requested_diameter_mm / 2
-    parts['coil'] = _x_ring(radius + 3, radius - .5, rear + 14, 10, height)
+    parts.update({name: installed_shape(shape, height)
+                  for name, shape in _winding_fixture(model.parameters, diameter).items()})
+    groups = {name: owner['group'] for name, owner in model.ownership['winding_jig'].items()}
+    groups.update({name: 'held_winding' for name in parts if name not in groups})
     stages = []
 
-    def stage(name, members, vector, remove=False):
-        moving = {key: parts[key] for key in sorted(members)}
-        fixed = {key: body for key, body in parts.items() if key not in members}
-        stages.append({'name': name, 'moving': moving, 'fixed': fixed,
-                       'translation_mm': vector})
-        for key in members:
-            body = parts.pop(key)
-            if not remove:
-                parts[key] = body.translate(vector)
+    def stage(name, names=(), vector=(0, 0, 0), released=None, restored=None):
+        moving = {key: parts[key] for key in names}
+        stages.append({'name': name, 'moving': moving,
+                       'fixed': {key: value for key, value in parts.items() if key not in names},
+                       'translation_mm': vector, 'groups': dict(groups),
+                       'released': {} if released is None else released,
+                       'restored': {} if restored is None else restored})
+        for key, value in moving.items():
+            parts[key] = translated(value, vector)
+        if released:
+            parts.update(released)
+        if restored:
+            parts.update(restored)
 
-    stage('withdraw_head_and_locator_pins',
-          {'head_retaining_pin_1', 'head_retaining_pin_2',
-           'shaft_locator_pin_1', 'shaft_locator_pin_2'}, (0, 0, 40), remove=True)
-    stage('withdraw_crank_pin', {'crank_pin'}, (0, 40, 0), remove=True)
-    stage('withdraw_shaft', {'shaft'}, (-220, 0, 0), remove=True)
-    head_members = set(model.head.printable_parts) | {
-        'head_hub', 'head_retaining_collar', 'coil'}
-    head_members |= {name for name in parts if name.startswith(
-        ('preload_', 'cam_follower', 'rib_', 'guide_stop_'))}
-    stage('lift_head_and_coil', head_members, (0, 0, 200))
-    stage('remove_coil', {'coil'}, (50, 0, 0))
+    stage('wound_latched')
+    lift = head.metadata['release_lift_mm']
+    for index in range(model.parameters.spoke_count):
+        name = f'shoe_{index + 1}'
+        compressed = installed_shape(_compressed_shoe(
+            local_shape(parts[name], height), model.parameters, diameter, index), height)
+        stage(f'release_{name}', (name,), released={name: compressed})
+        stage(f'withdraw_{name}', (name,), (0, -lift, 0))
+        groups[name] = 'service_detached'
+        stage(f'relax_{name}', (name,), restored={
+            name: translated(model.winding_jig[name], (0, -lift, 0))})
+        angle = radians(index * 60)
+        stage(f'park_{name}', (name,), (lift * cos(angle), 0, lift * sin(angle)))
+    stage('shoes_detached')
+    winding = tuple(_winding_fixture(model.parameters, diameter))
+    stage('remove_taped_coil', winding, (0, -120, 0))
     return tuple(stages)
 
 
-def _route_audit(stages):
-    collisions = []
-    for stage in stages:
-        for step in range(21):
-            vector = tuple(value * step / 20 for value in stage['translation_mm'])
-            for name, body in stage['moving'].items():
-                moved = body.translate(vector)
-                for fixed_name, fixed in stage['fixed'].items():
-                    volume = _overlap(moved, fixed)
-                    if volume > 1e-5:
-                        collisions.append({'stage': stage['name'], 'sample': step,
-                                           'moving': name, 'fixed': fixed_name,
-                                           'volume_mm3': volume})
-                        return collisions
-    return collisions
+def audit_snap_access(model):
+    diameter, height = head_datum(model)
+    setback = head_reference(model.parameters, diameter).metadata['pin_setback_mm']
+    local = {name: local_shape(shape, height) for name, shape in model.winding_jig.items()}
+    access = []
+    for index in range(6):
+        probe = box(diameter / 2 - setback - 2, -9, -16, 4, 18, 12).rotate(
+            (0, 0, 0), (0, 0, 1), index * 60)
+        access.append((probe, ('base', 'tower', 'wheel', 'shaft', 'crank')))
+    for name in ('snap_collar_1', 'snap_collar_2'):
+        z = bounds(local[name]).zmin
+        access.append((box(-8, 5.2, z - .1, 16, 18, 2), ('base', 'tower', 'wheel', 'crank')))
+    for name in ('bearing_retainer_1', 'bearing_retainer_2'):
+        z = bounds(local[name]).zmin
+        access.append((box(-5, 12, z, 10, 12, 1.5), ('tower', 'base')))
+    for x in (-24, 17):
+        access.append((box(x, -height + 18, -40, 7, 12, 18), ('base',)))
+    access.append((box(-9, -4, 7.5, 18, 8, 12), ('base', 'tower', 'wheel')))
+    access.append((box(-2, 5, -68, 4, 10, 12), ('base', 'tower', 'shaft')))
+    access.append((box(47, -5, -95, 10, 10, 10), ('base', 'tower', 'grip')))
+    return all(clear(probe, local[name]) for probe, names in access for name in names)
 
 
-def _spindle_location(jig):
-    bearing = jig['bearing_608_1']
-    bb = bearing.val().BoundingBox()
-    height = (bb.zmin + bb.zmax)/2
-    evidence = []
-    for index, direction in ((1, 1), (2, -1)):
-        collar, pin = jig[f'shaft_locator_{index}'], jig[f'shaft_locator_pin_{index}']
-        gap = collar.val().distance(bearing.val())
-        outside_inner_ring = _x_ring(11, 5.25, bb.xmin-.3, bb.xlen+.6, height)
-        valid = (0 <= gap <= .2 and _clear(collar, bearing)
-                 and _overlap(collar.translate((direction*.25, 0, 0)), bearing) > 0
-                 and _clear(collar, outside_inner_ring) and _clear(collar, pin)
-                 and _clear(jig['shaft'], pin)
-                 and _overlap(collar.translate((.25, 0, 0)), pin) > 0
-                 and _overlap(jig['shaft'].translate((.25, 0, 0)), pin) > 0)
-        evidence.append({'gap_mm': gap, 'valid': bool(valid)})
-    caps_valid = True
-    for index, side, inward in ((1, 'left', 1), (2, 'right', -1)):
-        bearing, cap, upright = (jig[name] for name in
-                                (f'bearing_608_{index}', f'{side}_bearing_cap', f'{side}_upright'))
-        bearing_bounds = _box(bearing)
-        # SKF 608-2RSH seal/recess exclusion, conservative flush end faces.
-        seals = _x_ring(9.6, 5.25, bearing_bounds.xmin, bearing_bounds.xlen, height)
-        caps_valid &= (_clear(bearing, cap)
-                       and _overlap(bearing.translate((inward*.35, 0, 0)), cap) > 0
-                       and _overlap(bearing.translate((-inward*.35, 0, 0)), upright) > 0
-                       and _clear(seals.translate((inward*.35, 0, 0)), cap)
-                       and _clear(seals.translate((-inward*.35, 0, 0)), upright))
-        for screw_index in range(2*index-1, 2*index+1):
-            screw = jig[f'bearing_cap_screw_{screw_index}']
-            caps_valid &= (_clear(screw, cap) and _clear(screw, upright)
-                           and _overlap(screw.translate((0, .3, 0)), cap) > 0
-                           and _overlap(screw.translate((0, .3, 0)), upright) > 0)
-    return all(row['valid'] for row in evidence) and bool(caps_valid), evidence
+def _motion_ownership(model, stages):
+    """Permit only shoe release/parking and the final held-winding translation."""
+    diameter, _ = head_datum(model)
+    lift = head_reference(model.parameters, diameter).metadata['release_lift_mm']
+    winding = set(_winding_fixture(model.parameters, diameter))
+    states = {f'shoe_{i}': 'latched' for i in range(1, 7)}
+    initial_groups = {name: owner['group'] for name, owner in model.ownership['winding_jig'].items()}
+    initial_groups.update({name: 'held_winding' for name in winding})
+    transitions = {'release': ('latched', 'released'), 'withdraw': ('released', 'withdrawn'),
+                   'relax': ('withdrawn', 'relaxed'), 'park': ('relaxed', 'parked')}
+    valid = bool(stages)
+    for index, stage in enumerate(stages):
+        groups = dict(initial_groups)
+        groups.update({name: 'service_detached' for name, state in states.items()
+                       if state in ('withdrawn', 'relaxed', 'parked')})
+        valid &= stage['groups'] == groups
+        vector = tuple(stage['translation_mm'])
+        if len(vector) != 3 or not all(isfinite(value) for value in vector):
+            return False
+        name = stage['name']
+        moving, released, restored = set(stage['moving']), set(stage.get('released', {})), set(stage.get('restored', {}))
+        expected_moving = expected_released = expected_restored = set()
+        expected_vector = (0, 0, 0)
+        if name == 'wound_latched':
+            valid &= index == 0 and all(state == 'latched' for state in states.values())
+        elif name == 'shoes_detached':
+            valid &= all(state == 'parked' for state in states.values())
+        elif name == 'remove_taped_coil':
+            valid &= index == len(stages) - 1 and all(state == 'parked' for state in states.values())
+            valid &= vector[1] < -100
+            expected_moving = winding
+            expected_vector = (0, vector[1], 0)
+        else:
+            action, _, shoe = name.partition('_')
+            if action not in transitions or shoe not in states:
+                valid = False
+                continue
+            before, after = transitions[action]
+            valid &= states[shoe] == before
+            states[shoe] = after
+            expected_moving = {shoe}
+            if action == 'release':
+                expected_released = {shoe}
+            elif action == 'withdraw':
+                expected_vector = (0, -lift, 0)
+            elif action == 'relax':
+                expected_restored = {shoe}
+            else:
+                angle = radians((int(shoe.split('_')[1]) - 1) * 60)
+                expected_vector = (lift * cos(angle), 0, lift * sin(angle))
+        valid &= (moving == expected_moving and released == expected_released and restored == expected_restored
+                  and all(abs(actual - expected) <= 1e-6 for actual, expected in zip(vector, expected_vector)))
+    return bool(valid and all(state == 'parked' for state in states.values()))
 
 
-def _frame_mounting(jig):
-    bench = cq.Workplane('XY').box(400, 400, 10, centered=(True, True, False)).translate((0, 0, -10))
-    names = [f'{prefix}_{i}' for prefix, count in
-             (('upright_fastener', 4), ('upright_washer', 8), ('upright_nut', 4))
-             for i in range(1, count+1)]
-    clear = all(_clear(jig[name], bench) and _clear(jig[name], jig['base']) for name in names)
-    minimum = min(jig[name].val().BoundingBox().zmin for name in names)
-    for i in range(1, 5):
-        lower = jig[f'upright_washer_{2*i-1}']
-        clear &= (lower.val().distance(jig['base'].val()) < 1e-5
-                  and _overlap(lower.translate((0, 0, .1)), jig['base']) > 0)
-    return bool(clear), minimum
+def audit_winding_tool_service(model, stages=None):
+    """Inspect the standard route or a supplied drawing/service route.
 
-
-def brake_access_key():
-    """Nominal short 2.5 mm hex-key envelope, inserted from the open +X side."""
-    stem = (cq.Workplane('XY').polygon(6, 2.4/(3**.5/2)).extrude(9.5)
-            .translate((55, 0, -8)))
-    arm = (cq.Workplane('XY').circle(1.5).extrude(90)
-           .rotate((0, 0, 0), (0, 1, 0), 90).translate((55, 0, -8)))
-    return stem.union(arm)
-
-
-def _brake_service(parts):
-    base, adjuster = parts['base'], parts['adjuster']
-    remaining = adjuster.val().distance(parts['platter'].val()) - 1
-    keyed = True
-    for travel in (remaining-1, remaining):
-        shifted = adjuster.translate((0, 0, travel))
-        keyed &= _clear(shifted, base)
-        for angle in (-10, 10):
-            keyed &= _overlap(shifted.rotate((55, 0, 0), (55, 0, 1), angle), base) > .01
-    bottom = base.val().BoundingBox().zmin
-    bench = (cq.Workplane('XY').box(400, 400, 10, centered=(True, True, False))
-             .translate((0, 0, bottom-10)))
-    key = brake_access_key()
-    accessible = _clear(base, bench)
-    for angle in range(-30, 31, 10):
-        turned = key.rotate((55, 0, 0), (55, 0, 1), angle)
-        screw = parts['screw'].rotate((55, 0, 0), (55, 0, 1), angle)
-        accessible &= all(_clear(turned, fixed) for fixed in (bench, base, screw))
-    # Lower the key out of its socket before inserting/removing it sideways.
-    for travel in range(0, 61, 10):
-        accessible &= _clear(key.translate((travel, 0, -3)), base)
-    return bool(keyed), bool(accessible), -9.5-bottom
-
-
-def audit_winding_tool_service(model):
-    """Return measured service evidence; missing or displaced hardware fails."""
-    _box.cache_clear()
-    checks = {name: False for name in ('spindle_axial_location', 'complete_coil_removal',
-                                      'frame_flush_mounting', 'brake_anti_rotation',
-                                      'brake_mounted_access')}
-    result = {'checks': checks, 'route_sample_count_per_stage': 21,
-              'coil_surrogate_mm': {'axial_width': 10, 'radial_build': 3,
-                                     'inward_tape_allowance': .5}, 'errors': []}
+    The supplied route is validated against the model's first pose, bounded
+    latch-state changes, every intervening pose and the final removal motion.
+    The return is JSON-safe; the pose builder itself intentionally returns CAD.
+    """
+    checks = {name: False for name in ('snap_access', 'wound_closed_tape',
+        'route_continuity', 'motion_ownership', 'all_shoes_detached', 'radial_support_clearance',
+        'complete_coil_removal')}
+    result = {'checks': checks, 'collisions': [], 'errors': [],
+              'radial_support_clearance_mm': 0.0,
+              'continuous_translation_checks': True,
+              'fixture_mm': {'winding_radial_build': 1, 'winding_axial_width': 9,
+                             'tape_radial_span': 4, 'tape_axial_span': 10,
+                             'tape_tangential_width': 10,
+                             'tape_wall': .25}}
     try:
-        checks['spindle_axial_location'], result['shaft_locators'] = _spindle_location(model.winding_jig)
-        stages = coil_removal_stages(model)
-        result['coil_removal_collisions'] = _route_audit(stages)
-        checks['complete_coil_removal'] = not result['coil_removal_collisions']
-        result['coil_removal_translations_mm'] = {stage['name']: list(stage['translation_mm']) for stage in stages}
-        checks['frame_flush_mounting'], result['upright_hardware_bench_clearance_mm'] = _frame_mounting(model.winding_jig)
-        (checks['brake_anti_rotation'], checks['brake_mounted_access'],
-         result['brake_key_bench_clearance_mm']) = _brake_service(model.wire_payoff)
-    except (KeyError, ValueError, RuntimeError) as error:
+        diameter, height = head_datum(model)
+        stages = coil_removal_stages(model) if stages is None else tuple(stages)
+        checks['motion_ownership'] = _motion_ownership(model, stages)
+        checks['snap_access'] = audit_snap_access(model)
+        expected = dict(model.winding_jig)
+        fixture = {name: installed_shape(shape, height)
+                   for name, shape in _winding_fixture(model.parameters, diameter).items()}
+        expected.update(fixture)
+        checks['wound_closed_tape'] = all(clear(shape, body)
+            for shape in fixture.values() for body in model.winding_jig.values())
+        continuous = bool(stages and stages[0]['name'] == 'wound_latched'
+                          and stages[-1]['name'] == 'remove_taped_coil')
+        for stage in stages:
+            present = {**stage['fixed'], **stage['moving']}
+            continuous &= (not stage['fixed'].keys() & stage['moving'].keys()
+                           and present.keys() == expected.keys()
+                           and all(_same_shape(present[name], body) for name, body in expected.items()))
+            vector = tuple(stage['translation_mm'])
+            for name, moving in stage['moving'].items():
+                for fixed_name, fixed in stage['fixed'].items():
+                    overlap = _linear_collision(moving, fixed, vector)
+                    if overlap > VOLUME_TOLERANCE:
+                        result['collisions'].append({'stage': stage['name'], 'moving': name,
+                            'fixed': fixed_name, 'overlap_mm3': overlap})
+                        break
+                expected[name] = translated(moving, vector)
+            for name, released in stage.get('released', {}).items():
+                index = int(name.split('_')[-1]) - 1
+                permitted = installed_shape(_compressed_shoe(
+                    local_shape(expected[name], height), model.parameters, diameter, index), height)
+                continuous &= (stage['name'] == f'release_{name}' and not any(vector)
+                               and _same_shape(released, permitted))
+                expected[name] = released
+            for name, restored in stage.get('restored', {}).items():
+                index = int(name.split('_')[-1]) - 1
+                original = model.winding_jig[name]
+                lift = head_reference(model.parameters, diameter).metadata['release_lift_mm']
+                permitted = translated(original, (0, -lift, 0))
+                compressed = installed_shape(_compressed_shoe(local_shape(original, height),
+                    model.parameters, diameter, index), height)
+                continuous &= (stage['name'] == f'relax_{name}' and not any(vector)
+                               and _same_shape(restored, permitted)
+                               and _same_shape(expected[name], translated(compressed, (0, -lift, 0))))
+                # The relaxed solid contains the entire bounded tab-relaxation
+                # envelope, so an obstacle cannot hide in the restored strip.
+                for fixed_name, fixed in stage['fixed'].items():
+                    overlap = intersection_volume(restored, fixed)
+                    if overlap > VOLUME_TOLERANCE:
+                        result['collisions'].append({'stage': stage['name'], 'moving': name,
+                            'fixed': fixed_name, 'overlap_mm3': overlap})
+                expected[name] = restored
+        checks['route_continuity'] = bool(continuous)
+        final = stages[-1]
+        shoes = [f'shoe_{i}' for i in range(1, 7)]
+        checks['all_shoes_detached'] = all(
+            final['groups'].get(name) == 'service_detached'
+            and local_shape(final['fixed'][name], height).val().BoundingBox().zmin > 30
+            for name in shoes)
+        # Enlarge the entire closed taped winding inward and outward by the
+        # required radial margin, over its axial span. Any retained shoe or
+        # obstructing structural member then fails before winding motion.
+        margin = model.parameters.release_clearance_mm
+        support_band = installed_shape(_winding_band(model.parameters, diameter,
+            -4 - margin, 4 + margin, 12, 10), height)
+        winding_pose_known = set(final['moving']) == set(fixture)
+        if winding_pose_known:
+            offset = final['moving']['coil'].val().Center().sub(fixture['coil'].val().Center()).toTuple()
+            winding_pose_known = all(_same_shape(final['moving'][name], translated(shape, offset))
+                                     for name, shape in fixture.items())
+            support_band = translated(support_band, offset)
+        clearance = winding_pose_known and all(clear(support_band, shape) for shape in final['fixed'].values())
+        checks['radial_support_clearance'] = bool(clearance and checks['all_shoes_detached'])
+        result['radial_support_clearance_mm'] = margin if checks['radial_support_clearance'] else 0.0
+        checks['complete_coil_removal'] = bool(
+            checks['wound_closed_tape'] and checks['route_continuity'] and checks['motion_ownership']
+            and checks['all_shoes_detached'] and checks['radial_support_clearance']
+            and not result['collisions']
+            and set(final['moving']) == set(fixture)
+            and final['translation_mm'][1] < -100)
+    except (KeyError, ValueError, RuntimeError, TypeError, IndexError) as error:
         result['errors'].append(f'{type(error).__name__}: {error}')
     return result
