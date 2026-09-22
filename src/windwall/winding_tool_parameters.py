@@ -12,7 +12,7 @@ class WindingToolParameters:
     maximum_diameter_mm: float = 200.0
     diameter_step_mm: float = 10.0
     spoke_count: int = 6
-    shoe_pin_count: int = 2
+    shoe_tongue_count: int = 2
     tape_station_count: int = 18
     tape_clearance_mm: float = 12.0
     release_clearance_mm: float = 2.0
@@ -37,8 +37,8 @@ def validate_winding_tool_parameters(p: WindingToolParameters) -> None:
     diameter_steps = (p.maximum_diameter_mm - p.minimum_diameter_mm) / p.diameter_step_mm
     if diameter_steps != round(diameter_steps):
         raise ValueError('Diameter range must be exactly divisible by the diameter step')
-    if (p.spoke_count, p.shoe_pin_count, p.tape_station_count) != (6, 2, 18):
-        raise ValueError('The coil wheel requires six spokes, two shoe pins, and 18 tape stations')
+    if (p.spoke_count, p.shoe_tongue_count, p.tape_station_count) != (6, 2, 18):
+        raise ValueError('The coil wheel requires six spokes, two shoe tongues, and 18 tape stations')
     bed_limit_mm = min(p.print_bed_mm, _PRINT_BED_ENVELOPE_MM)
     if p.maximum_diameter_mm > bed_limit_mm:
         raise ValueError('The maximum winding diameter must fit the 220 mm print-bed envelope')

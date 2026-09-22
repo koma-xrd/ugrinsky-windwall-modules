@@ -179,12 +179,12 @@ def _validated_bearing_inventory(model):
 
 
 @lru_cache(maxsize=32)
-def _pin_seats(wheel, parameters):
+def _tongue_seats(wheel, parameters):
     metadata = head_reference(parameters, parameters.minimum_diameter_mm).metadata
-    rows = metadata['pin_rows_y_mm']
-    strip = box(parameters.minimum_diameter_mm / 2 - metadata['pin_setback_mm'] - 2,
+    rows = metadata['tongue_rows_y_mm']
+    strip = box(parameters.minimum_diameter_mm / 2 - metadata['tongue_setback_mm'] - 2,
                 min(rows) - 3, -1,
-                (parameters.maximum_diameter_mm - parameters.minimum_diameter_mm) / 2 + 4,
+                (parameters.maximum_diameter_mm - parameters.minimum_diameter_mm) / 2 + 8,
                 max(rows) - min(rows) + 6, metadata['wheel_thickness_mm'] + 2)
     regions = [strip.rotate((0, 0, 0), (0, 0, 1), index * 60).val() for index in range(6)]
     clipped = wheel.intersect(cq.Workplane('XY').newObject([cq.Compound.makeCompound(regions)]))
@@ -194,7 +194,7 @@ def _pin_seats(wheel, parameters):
         index = round(degrees(atan2(center.y, center.x)) / 60) % 6
         sectors[index].append(solid)
     if any(not shapes for shapes in sectors):
-        raise ValueError('Wheel has no pin-seat material in one or more spoke sectors')
+        raise ValueError('Wheel has no tongue-seat material in one or more spoke sectors')
     return tuple(cq.Workplane('XY').newObject([cq.Compound.makeCompound(shapes)]) for shapes in sectors)
 
 
@@ -203,11 +203,11 @@ def _head_checks(member_items, parameters, diameter):
     local = dict(member_items)
     reference = head_reference(parameters, diameter)
     wheel = local['wheel']
-    seats = _pin_seats(wheel, parameters)
+    seats = _tongue_seats(wheel, parameters)
     metadata = reference.metadata
     radius = diameter / 2
     shoes = [local[f'shoe_{i}'] for i in range(1, 7)]
-    equal = envelope = pins = retained = True
+    equal = envelope = friction_fit = True
     contact_radius = parameters.minimum_diameter_mm / 2
     arc_center = (radius - contact_radius, 0, 0)
     runout_end = metadata['nominal_runout_end_z_mm']
@@ -229,19 +229,20 @@ def _head_checks(member_items, parameters, diameter):
         equal &= normalized.val().Center().sub(expected_center).Length < 1e-5
         envelope &= (clear(normalized, runout_excess) and clear(normalized, shoulder_excess)
                      and intersection_volume(normalized, contact_band) > .001)
-        for row in metadata['pin_rows_y_mm']:
-            x = radius - metadata['pin_setback_mm']
-            core = box(x - .8, row - .5 if row > 0 else row + .1,
-                       .2, 1.6, .4, metadata['wheel_thickness_mm'] - .5)
+        for row in metadata['tongue_rows_y_mm']:
+            x = radius - metadata['tongue_setback_mm']
+            core = box(x - 1.9, row - 1.39, -.8, 3.8, 2.78,
+                       metadata['wheel_thickness_mm'] + .6)
             core = core.rotate((0, 0, 0), (0, 0, 1), index * 60)
-            pins &= (intersection_volume(shoe, core) > .99 * core.val().Volume()
-                     and clear(seat, core))
-            hook_y = row + 1.75 if row > 0 else row - 1.85
-            hook = box(x - .8, hook_y, -.6, 1.6, .1, .3).rotate(
-                (0, 0, 0), (0, 0, 1), index * 60)
-            retained &= (intersection_volume(shoe, hook) > .99 * hook.val().Volume()
-                         and intersection_volume(seat, translated(hook, (0, 0, 1))) > .99 * hook.val().Volume())
-        pins &= clear(seat, shoe)
+            friction_fit &= (intersection_volume(shoe, core) > .99 * core.val().Volume()
+                             and clear(seat, core))
+        angle = radians(index * 60)
+        radial = (.011 * cos(angle), .011 * sin(angle), 0)
+        tangential = (-.011 * sin(angle), .011 * cos(angle), 0)
+        friction_fit &= (clear(seat, shoe)
+                         and intersection_volume(seat, translated(shoe, radial)) > .001
+                         and intersection_volume(seat, translated(shoe, tangential)) > .001
+                         and intersection_volume(seat, translated(shoe, (0, 0, -.011))) > .001)
     corridors = metadata['tape_passage_probes']
     all_corridors = cq.Workplane('XY').newObject([
         cq.Compound.makeCompound([shape.val() for shape in corridors])])
@@ -263,7 +264,7 @@ def _head_checks(member_items, parameters, diameter):
     head_clear = all(clear(sweep, local[name]) for name in ('base', 'tower', 'bearing_retainer_1',
                                                           'bearing_retainer_2', 'bearing_608_1', 'bearing_608_2'))
     return {'equal_shoe_positions': bool(equal), 'wire_contact_envelope': bool(envelope),
-            'two_pin_engagement': bool(pins and retained), 'tape_corridors': bool(tape),
+            'two_tongue_friction_fit': bool(friction_fit), 'tape_corridors': bool(tape),
             'head_rotation_clearance': bool(contained and head_clear and pair_clear)}, measured
 
 
@@ -474,7 +475,7 @@ def audit_winding_tool_assemblies(model: WindingToolAssemblies) -> dict[str, boo
     Mutations therefore remain present in all settings and service checks.
     """
     checks = {name: False for name in ('required_members', 'ownership', 'valid_solids', 'bearing_catalog_dimensions',
-        'independent_tools', 'equal_shoe_positions', 'wire_contact_envelope', 'two_pin_engagement',
+        'independent_tools', 'equal_shoe_positions', 'wire_contact_envelope', 'two_tongue_friction_fit',
         'tape_corridors', 'actual_tape_angles', 'head_rotation_clearance', 'bearing_608_engagement',
         'locating_floating_load_path', 'shaft_axial_restraint', 'positive_polygon_drives',
         'crank_full_rotation', 'jig_full_rotation_clearance', 'stand_snap_joint', 'member_collision_clearance',

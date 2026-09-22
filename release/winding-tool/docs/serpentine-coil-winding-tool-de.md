@@ -7,7 +7,8 @@ Serpentinenspule aus 0,18-mm-Kupferlackdraht. Das vertikale Wickelrad trägt sec
 gleiche, vollständig abnehmbare Kontaktschuhe. Eine Handkurbel dreht das Rad über
 eine gedruckte Welle in zwei 608-Lagern. Der separate Abroller trägt die
 aufrechte Vorratsrolle auf einem frei drehenden Teller mit einem 51105-Axiallager.
-Alle Verbindungen der beiden Werkzeuge sind schraubenlose Steck-/Rastverbindungen.
+Alle Verbindungen der beiden Werkzeuge sind schraubenlose Steck-, Rast- oder
+Reibpassungen.
 
 Die elf Markierungen reichen von 100–200 mm in 10-mm-Schritten; die
 Referenzdarstellung verwendet 150 mm. Das Maß bezeichnet die nominale Hülle der
@@ -26,7 +27,7 @@ Vorderschulter an.
 Akkuschrauberbetrieb ist nicht freigegeben
 
 Elektrische Eigenschaften, physische Funktion, Festigkeit und Ermüdung der
-gedruckten Welle, Lebensdauer der Rastzungen, Lager- und Steckpassungen,
+gedruckten Welle, Lebensdauer der Reibzungen, Lager- und Steckpassungen,
 Maßhaltigkeit und Wiederholbarkeit, Lackschutz, Standfestigkeit, Stoppverhalten,
 Entnahmekraft, Drehzahl und Produktionstauglichkeit sind nicht physisch validiert.
 Es gibt keine freigegebene Drehzahl, Belastung oder endgültige Windungszahl.
@@ -158,10 +159,11 @@ Schuhe ersetzen; eine sichtbare Verrundung allein beweist keinen Lackschutz.
    Der Griff muss sich frei drehen; die Kurbel bleibt axial gehalten.
 6. Rad auf das vordere Polygon stecken, bis beide von vorn lösbaren Haken greifen.
    Formschluss, axialen Halt und einen vollständigen langsamen Handumlauf prüfen.
-7. Alle sechs Schuhe auf dieselbe markierte Einstellung stecken. Beide
-   Schlüsselstifte jedes Schuhs gehören in das zugehörige Lochpaar; beide
-   rückseitigen Rastzungen müssen greifen. Sechs gleiche Zahlen und zwölf
-   vollständig sitzende Stifte kontrollieren.
+7. Alle sechs Schuhe auf dieselbe markierte Einstellung stecken. Die beiden
+   mittleren Schienen jedes Schuhs verjüngen sich zu 3,98 × 2,98 mm großen
+   Reibzungen für die zugehörigen 4,00 × 3,00-mm-Öffnungen. Beide Schultern
+   müssen plan an der Radvorderseite anschlagen. Sechs gleiche Zahlen und zwölf
+   vollständig sitzende Zungen kontrollieren.
 
 Die Außenringe beider 608 gehören zum stationären Turm. Schultern und Außenclips
 greifen ausschließlich am Außenring an. Die Innenringe folgen der Druckwelle.
@@ -209,8 +211,8 @@ testen; bei Klemmen nicht am Draht ziehen.
 Im Stillstand alle sechs Schuhe auf dieselbe Zahl setzen: 100, 110, 120, 130,
 140, 150, 160, 170, 180, 190 oder 200 mm. Ein Lochschritt entspricht 5 mm Radius.
 An drei gegenüberliegenden Schuhpaaren messen; die gedruckte Zahl ist keine
-Kalibrierung. Für Einstellwechsel beide Rastzungen lösen und den Schuh ganz
-abziehen, dann im neuen Lochpaar einrasten.
+Kalibrierung. Für Einstellwechsel den Schuh gleichmäßig und gerade vollständig
+abziehen, dann beide Reibzungen gemeinsam in das neue Öffnungspaar drücken.
 
 Es gibt drei Bandöffnungen pro Schuh und 18 Bandstellen insgesamt. Jede Passage
 besitzt mindestens 12 mm tangentiale CAD-Freiheit für die 10-mm-Bandbreite und
@@ -258,16 +260,17 @@ Manifest enthält alle 18 ungerundeten Werte je Einstellung.
    einzuschneiden. Ende B mit Anschlusslänge markieren und kontrolliert trennen.
    A/B, Drehsinn und Windungszahl dauerhaft dokumentieren.
 5. Eine Hilfsperson unterstützt die getapte Spule. Jetzt alle sechs Schuhe vollständig
-   entfernen: je beide rückseitigen Zungen lösen, den Schuh ganz nach vorn
-   ausziehen, Zungen entspannen lassen und den Schuh außerhalb des Entnahmewegs
-   ablegen. Sechsmal wiederholen. Ein einzelner Lochschritt nach innen ist kein
+   entfernen: jeden Schuh gleichmäßig an beiden Schienen greifen, die straffe
+   Reibpassung überwinden, ganz nach vorn ausziehen und außerhalb des Entnahmewegs
+   ablegen. Nicht einseitig verkanten oder an nur einer Schiene hebeln. Sechsmal
+   wiederholen. Ein einzelner Lochschritt nach innen ist kein
    zulässiger Ersatz; bei 100 mm würden Nachbarschuhenden zusammenstoßen.
 6. Erst nach Abnahme aller sechs Schuhe und mindestens 2 mm radialer Entlastung
    die gehaltene Spule mit sämtlichen geschlossenen Bandstellen nach vorn
    abziehen. Rad, Welle, Kurbel und Ständer bleiben dabei montiert. Nicht am
    Kupfer ziehen oder die Spule über eine Kante hebeln; bei Hängenbleiben stoppen.
 
-Der geprüfte CAD-Serviceweg zieht jeden Schuh 40 mm vor und parkt ihn 40 mm
+Der geprüfte CAD-Serviceweg zieht jeden starren Schuh 40 mm vor und parkt ihn 40 mm
 radial außen; die Spule wird anschließend 120 mm vorgezogen. Dies sind
 Freiraumdarstellungen, keine gemessenen Entnahmekräfte. Die CAD-Prüfhülle umfasst
 9 mm axiale Wicklungsbreite, 1 mm radialen Aufbau und 18 geschlossene Bandhüllen

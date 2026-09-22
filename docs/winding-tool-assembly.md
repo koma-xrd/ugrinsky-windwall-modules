@@ -51,9 +51,10 @@ loose, rough or distorted parts. PLA fit, creep and fatigue remain unvalidated.
    split end of its integral grip journal and slide on the freely rotating grip.
 6. Push the wheel onto the front polygon until the two front-accessible hooks
    engage. Check both axial retention directions and free hand rotation.
-7. Insert all six shoes at the same numbered diameter. Both keyed pins on every
-   shoe must occupy the matching position, with both rear tabs engaged. Count six
-   matching labels and twelve seated pins before winding.
+7. Insert all six shoes at the same numbered diameter. Each shoe's two middle
+   rails narrow directly into 3.98 x 2.98 mm friction tongues for matching
+   4.00 x 3.00 mm wheel openings. Both shoulders must stop flat against the
+   wheel front. Count six matching labels and twelve seated tongues before winding.
 
 The 608 outer rings belong to the stationary tower. Their shoulders and clips
 contact only the outer-ring lands. The front bearing alone locates the printed
@@ -111,11 +112,12 @@ distribution when forming the later serpentine if required.
 Guide the 0.18 mm enamelled wire gently, using a rounded start attachment that
 does not cut the enamel. Turn only by the hand crank. Stop the payoff platter
 by hand when winding stops. Close all 18 tape wraps and mark winding direction
-and leads while the six shoes remain latched.
+and leads while the six shoes remain friction fitted.
 
-Support the taped winding with a helper. Release both rear tabs of the first
-shoe, withdraw it completely forward, let both tabs relax, then set it outside
-the winding's forward path. Repeat for all six shoes. Do not substitute a one-hole inward shift:
+Support the taped winding with a helper. Grip the first shoe evenly at both
+rails, overcome the close friction fit without canting, withdraw it completely
+forward, then set it outside the winding's forward path. Repeat for all six
+shoes. Do not substitute a one-hole inward shift:
 neighboring shoes interfere at the smallest setting. The modeled route withdraws
 each shoe 40 mm forward and parks it 40 mm radially outward. Every detached shoe
 remains represented as a separate service occurrence throughout removal.
@@ -123,7 +125,7 @@ The high front shoulder moves away from the held winding during this motion;
 the nominal-radius rear runout slides out beneath it. No radial shoe relief,
 wire stretching, tape slip or bending over a rear lip is assumed.
 Its ownership becomes service-detached immediately after complete withdrawal,
-before tab relaxation and parking.
+before parking.
 
 Only after all six shoes are detached and the support clearance is at least
 2 mm may the taped winding move forward. The wheel, printed shaft, tower,
@@ -160,16 +162,15 @@ actual shoes, preserving any defects, and tests complete removal at 100, 150 and
 from occurrence records and groups the three 51105 members into one purchase.
 
 `coil_removal_stages(model)` returns CAD poses with moving/fixed members,
-translations, release envelopes and motion ownership. `audit_winding_tool_service`
+translations and motion ownership. `audit_winding_tool_service`
 can check the normal route or a supplied drawing route, including continuity.
-The permitted-motion gate allows only each shoe's release, withdrawal, relaxation
-and parking, followed by the held winding's forward translation. Structural
-members must stay fixed, ownership transitions must match the release state, and
+The permitted-motion gate allows only each rigid shoe's straight withdrawal and
+parking, followed by the held winding's forward translation. Structural
+members must stay fixed, ownership transitions must match the service state, and
 the clearance band is located at the actual winding pose. Moving the entire
 tool cannot create an artificial clearance result.
 Each translation is checked continuously using the initial solid and swept
-boundary faces. Relaxed shoes recover their complete original geometry before
-parking; that full solid also bounds tab relaxation. Full revolutions use
+boundary faces. Full revolutions use
 enclosing solids whose containment is checked against actual geometry.
 Every rotating occurrence is checked against stationary members, including the
 shaft, both collars and the payoff's upper washer. Fused axial envelope sections
@@ -190,12 +191,14 @@ from the front shoulder's outer limit and includes the shoulder in its rotation
 envelope. A rigid 20 mm axial ring spanning both contact and shoulder is not
 the declared winding fixture and would intersect the seated protective shoulder.
 The widened passages retain 0.8 mm outer/mouth radii, with 0.2 mm radii on
-the short inner returns at the sector ends. Released hook
-envelopes describe limited deflection clearance, not elastic behavior or force.
+the short inner returns at the sector ends. The 3.98 x 2.98 mm tongues retain
+0.01 mm nominal clearance per side in 4.00 x 3.00 mm openings. Their narrowed
+transition leaves positive shoulders against the wheel front, and their chamfered
+rear tips project 1 mm for insertion and optional push-out access.
 
-No physical validation is claimed. Actual shaft strength, PLA snap fit and
-fatigue, bearing fit, winding dimensions, enamel protection, roll stability,
-release force and continuous-use suitability require prototype tests. The payoff
+No physical validation is claimed. Actual shaft strength, PLA friction fit and
+wear, bearing fit, winding dimensions, enamel protection, roll stability,
+withdrawal force and continuous-use suitability require prototype tests. The payoff
 stability estimate assumes light feed; clamp the tools where sliding or tipping
 is possible. Wear eye protection and keep hair, clothing, fingers and loose wire
 clear. Stop immediately if any printed component is damaged.

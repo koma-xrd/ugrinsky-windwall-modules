@@ -222,7 +222,7 @@ def _range(model):
     p = model.parameters
     diameters = (p.minimum_diameter_mm, 150., p.maximum_diameter_mm)
     fig = _page('02  ·  Gleiche Schuhpositionen, ehrliche Bandwinkel',
-                '100–200 mm in 10-mm-Schritten · alle sechs Schuhe auf dieselbe Markierung · zwei Stifte je Schuh')
+                '100–200 mm in 10-mm-Schritten · alle sechs Schuhe auf dieselbe Markierung · zwei Reibzungen je Schuh')
     for index, diameter in enumerate(diameters):
         head = build_winding_head(p, diameter)
         parts = {'wheel': head.wheel, **{f'shoe_{i}': shoe for i, shoe in enumerate(head.shoes, 1)}}
@@ -249,7 +249,7 @@ def _range(model):
     fig.text(.035, .370, 'ELF MARKIERTE EINSTELLUNGEN (mm)', fontsize=13, weight='bold', color=INK)
     fig.text(.035, .337, setting_text, fontsize=16, weight='bold', color=INK)
     _labels(fig, .035, .293, ('Ein Schritt = 10 mm Durchmesser / 5 mm radial.',
-                           'Beide Lochreihen nutzen; zwölf Rastzungen prüfen.',
+                           'Beide Öffnungsreihen nutzen; zwölf Reibzungen prüfen.',
                            'Die sechs Schuhmitten liegen jeweils 60° auseinander.',
                            'Drei getrennte Bandöffnungen pro Schuh = 18 insgesamt.',
                            f'Je ≥{p.tape_clearance_mm:g} mm tangential und axial; 10-mm-Band.',
@@ -267,7 +267,7 @@ def _range(model):
     }
     fig.text(.65, .370, 'EIN SCHUH · FREIE VORDERSEITE OBEN',
              fontsize=12, weight='bold', color=INK)
-    fig.text(.65, .130, 'Drei offene Passagen · zwei Schlüsselstifte mit Rastzungen',
+    fig.text(.65, .130, 'Drei offene Passagen · zwei massive Schienen-Reibzungen',
              fontsize=10.5, color=INK)
     _labels(fig, .65, .108, annotations.values(), spacing=.019, size=10.5)
     return fig, annotations, projection
@@ -348,7 +348,7 @@ def _exploded(model):
                 '2  Alle sechs Schuhe vollständig abnehmen.',
                 '3  Getapte Spule zusammen nach vorn abziehen.')
     notes = ('Helfer hält die Spule; Leitungen A/B markieren.',
-             'Je zwei Zungen lösen; vorziehen und beiseitelegen.',
+             'Schuhe gerade vorziehen und beiseitelegen.',
              'Rad, Welle, Kurbel und Ständer bleiben montiert.')
     for index, (stage, caption, note) in enumerate(zip(selected, captions, notes)):
         parts = {**stage['fixed'], **{name: shape.translate(stage['translation_mm'])

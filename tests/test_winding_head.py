@@ -93,7 +93,7 @@ class WindingHeadTests(unittest.TestCase):
         self.assertGreater(free, rear)
         bounds = shoe.val().BoundingBox()
         self.assertLessEqual(bounds.xmin, -12.0)
-        self.assertEqual(head.metadata['pin_rows_y_mm'], (-5.0, 5.0))
+        self.assertEqual(head.metadata['tongue_rows_y_mm'], (-7.5, 7.5))
         self.assertEqual(head.metadata['cradle_bottom_radius_offset_mm'], 0.0)
         self.assertEqual(head.metadata['rear_shoulder_height_mm'], 0.0)
         self.assertEqual(head.metadata['free_shoulder_height_mm'], 2.7)
@@ -146,10 +146,10 @@ class WindingHeadTests(unittest.TestCase):
         head = build_winding_head(P, 100)
         clearances = []
         for diameter in diameter_settings_mm(P):
-            x = diameter / 2 - 8
+            x = diameter / 2 - 3.625
             for angle in range(0, 360, 60):
-                for y in (-5, 5):
-                    probe = box(x - .9, y - 1.5, -.1, 1.8, 3, 5.2).rotate(
+                for y in (-7.5, 7.5):
+                    probe = box(x - 2, y - 1.5, -.1, 4, 3, 5.2).rotate(
                         (0, 0, 0), (0, 0, 1), angle)
                     clearances.append(probe.val())
                     theta = radians(angle)
@@ -158,7 +158,7 @@ class WindingHeadTests(unittest.TestCase):
                     self.assertTrue(head.wheel.val().isInside(point))
                 glyph = cq.Workplane('XY').text(f'{diameter:g}', 2.8, .2,
                     combine=True).rotate((0, 0, 0), (0, 0, 1), 90).translate(
-                    (x, 10, 4.65)).rotate((0, 0, 0), (0, 0, 1), angle)
+                    (x, 11.5, 4.65)).rotate((0, 0, 0), (0, 0, 1), angle)
                 self.assertGreater(glyph.val().Volume(), .01)
                 clearances.append(glyph.val())
         all_clearances = cq.Workplane('XY').newObject([cq.Compound.makeCompound(clearances)])
@@ -171,33 +171,25 @@ class WindingHeadTests(unittest.TestCase):
         self.assertGreater(overlap(wheel, shaft.rotate(
             (0, 0, 0), (0, 0, 1), 30)), .1)
 
-    def test_pins_are_present_and_latches_retain_until_released(self):
+    def test_middle_rails_extend_into_close_friction_fit_with_positive_stop(self):
         head = build_winding_head(P, 150)
         shoe = head.shoes[0]
-        for y in (-5, 5):
-            core = box(66.2, y - .5 if y > 0 else y + .1, .2, 1.6, .4, 4.5)
+        for y in (-7.5, 7.5):
+            core = box(69.5, y - 1.39, -.8, 3.75, 2.78, 5.6)
             self.assertAlmostEqual(overlap(shoe, core), core.val().Volume(), places=5)
-            missing = shoe.cut(box(65, y - 3, -5, 4, 6, 10.2))
-            self.assertLess(overlap(missing, core), 1e-6)
         self.assertLess(overlap(head.wheel, shoe), 1e-6)
-        self.assertGreater(overlap(head.wheel, shoe.translate((0, 0, 1))), .01)
-        missing_latches = shoe.cut(box(65, -8, -2, 4, 16, 2))
-        self.assertLess(overlap(head.wheel, missing_latches.translate((0, 0, 1))), 1e-6)
-        self.assertGreater(overlap(head.wheel, shoe.rotate(
-            (67, 0, 0), (67, 0, 1), 10)), .01)
-        # Both tabs project behind the wheel; a finger probe reaches each tail.
-        for y in (-5, 5):
-            access = box(65, y - 3, -8, 4, 6, 4)
-            self.assertLess(overlap(head.wheel, access), 1e-6)
-        partial = shoe.translate((0, 0, 6))
-        self.assertLess(overlap(partial, box(66.2, 4.5, .2, 1.6, .4, 1)), .01)
+        self.assertGreater(overlap(head.wheel, shoe.translate((.011, 0, 0))), .001)
+        self.assertGreater(overlap(head.wheel, shoe.translate((0, .011, 0))), .001)
+        self.assertGreater(overlap(head.wheel, shoe.translate((0, 0, -.011))), .001)
+        self.assertAlmostEqual(shoe.val().BoundingBox().zmin, -1.0, places=6)
 
-    def test_retention_beams_have_filled_root_radii(self):
+    def test_friction_tongues_have_reduced_tip_area_for_lead_in(self):
         master = build_winding_head(P, 150).shoe_master
-        for row in (-5, 5):
-            y = row + .43 if row > 0 else row - .49
-            root = box(-8.5, y, 4.43, 1, .06, .06)
-            self.assertGreater(overlap(master, root), .002)
+        for row in (-7.5, 7.5):
+            tip = master.intersect(box(-6, row - 1.5, -.99, 5, 3, .1))
+            body = master.intersect(box(-6, row - 1.5, -.5, 5, 3, .1))
+            self.assertGreater(body.val().Volume(), 1)
+            self.assertLess(tip.val().Volume(), body.val().Volume() * .9)
 
     def test_mismatched_position_is_detected_by_physical_envelope(self):
         head = build_winding_head(P, 150)
@@ -255,30 +247,24 @@ class WindingHeadTests(unittest.TestCase):
             insufficient = build_winding_head(P, diameter).shoes[0].translate((-.5, 0, 10))
             self.assertGreater(overlap(insufficient, outer), .1)
 
-    def test_pressed_latches_allow_continuous_forward_removal_inside_fixed_winding(self):
+    def test_friction_tongues_allow_continuous_forward_removal_inside_fixed_winding(self):
         from windwall.winding_tool_service import _linear_collision, _winding_fixture
 
         for diameter in (100, 150, 200):
             head = build_winding_head(P, diameter)
-            # The interference lobe lies 0.2 mm outside the hole. Its compressed
-            # envelope is bounded by trimming that 0.25 mm strip on each tab.
-            compressed = head.shoes[0]
-            x = diameter / 2 - 8
-            for row in (-5, 5):
-                y = row + 1.65 if row > 0 else row - 3
-                compressed = compressed.cut(box(x - 1.1, y, -2, 2.2, 1.35, 2))
+            shoe = head.shoes[0]
             # Use the declared 9 mm axial x 1 mm radial winding, including
             # taut connecting spans at larger settings. A uniform 20 mm band
             # covered the protective shoulder even before any motion.
             winding = _winding_fixture(P, diameter)['coil']
             self.assertAlmostEqual(winding.val().BoundingBox().zmin, 12.5)
             self.assertAlmostEqual(winding.val().BoundingBox().zlen, 9)
-            self.assertLess(_linear_collision(compressed, winding, (0, 0, 40)), 1e-6)
-            self.assertLess(_linear_collision(compressed, head.wheel, (0, 0, 40)), 1e-6)
+            self.assertLess(_linear_collision(shoe, winding, (0, 0, 40)), 1e-6)
+            self.assertLess(_linear_collision(shoe, head.wheel, (0, 0, 40)), 1e-6)
             for neighbor in head.shoes[1:]:
-                self.assertLess(_linear_collision(compressed, neighbor, (0, 0, 40)), 1e-6)
+                self.assertLess(_linear_collision(shoe, neighbor, (0, 0, 40)), 1e-6)
             for lift in (0, 1, 3, 5, 10, 20, 40):
-                moved = compressed.translate((0, 0, lift))
+                moved = shoe.translate((0, 0, lift))
                 self.assertLess(overlap(head.wheel, moved), 1e-6)
                 self.assertLess(overlap(winding, moved), 1e-6)
 

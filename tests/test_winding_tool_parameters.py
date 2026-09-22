@@ -23,7 +23,7 @@ class WindingToolParameterTests(unittest.TestCase):
             (p.minimum_diameter_mm, p.maximum_diameter_mm, p.diameter_step_mm),
             (100.0, 200.0, 10.0),
         )
-        self.assertEqual((p.spoke_count, p.shoe_pin_count, p.tape_station_count), (6, 2, 18))
+        self.assertEqual((p.spoke_count, p.shoe_tongue_count, p.tape_station_count), (6, 2, 18))
         self.assertEqual((p.tape_clearance_mm, p.release_clearance_mm), (12.0, 2.0))
         self.assertEqual(
             (p.platter_diameter_mm, p.spool_pilot_diameter_mm, p.spool_pilot_height_mm,
@@ -49,9 +49,9 @@ class WindingToolParameterTests(unittest.TestCase):
         """Catches counts silently accepting numeric values that cannot be array sizes."""
         p = DEFAULT_WINDING_TOOL_PARAMETERS
 
-        for field, value in (('spoke_count', 6.0), ('shoe_pin_count', 2.0),
+        for field, value in (('spoke_count', 6.0), ('shoe_tongue_count', 2.0),
                              ('tape_station_count', 18.0), ('spoke_count', True),
-                             ('shoe_pin_count', None), ('tape_station_count', '18')):
+                             ('shoe_tongue_count', None), ('tape_station_count', '18')):
             with self.subTest(field=field, value=value), self.assertRaises(ValueError):
                 validate_winding_tool_parameters(replace(p, **{field: value}))
 
@@ -61,7 +61,7 @@ class WindingToolParameterTests(unittest.TestCase):
         invalid_parameters = (
             replace(p, maximum_diameter_mm=195.0),
             replace(p, spoke_count=5),
-            replace(p, shoe_pin_count=1),
+            replace(p, shoe_tongue_count=1),
             replace(p, tape_station_count=17),
         )
 

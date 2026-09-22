@@ -22,8 +22,13 @@ from windwall.winding_tool_parameters import WindingToolParameters, diameter_set
 
 
 _WHEEL_THICKNESS = 5.0
-_PIN_SETBACK = 8.0
-_PIN_ROWS = (-5.0, 5.0)
+_TONGUE_SETBACK = 3.625
+_TONGUE_ROWS = (-7.5, 7.5)
+_SLOT_RADIAL_WIDTH = 4.0
+_SLOT_TANGENTIAL_WIDTH = 3.0
+_TONGUE_RADIAL_WIDTH = 3.98
+_TONGUE_TANGENTIAL_WIDTH = 2.98
+_TONGUE_REAR_Z = -1.0
 _SHOE_BOTTOM = 5.2
 _REAR_SHOULDER_HEIGHT = 0.0
 _FREE_SHOULDER_HEIGHT = 2.7
@@ -92,7 +97,7 @@ def _print_master(shape, name, bed):
 @lru_cache(maxsize=8)
 def _build_wheel(p: WindingToolParameters) -> cq.Workplane:
     settings = diameter_settings_mm(p)
-    spoke_end = p.maximum_diameter_mm / 2 - 2
+    spoke_end = p.maximum_diameter_mm / 2 + 2
     spoke = _box(12, -14, 0, spoke_end - 12, 28, _WHEEL_THICKNESS)
     spoke = _fillet(spoke, spoke.edges('|Z').vals(), 3)
     wheel = cq.Workplane('XY').circle(21).extrude(_WHEEL_THICKNESS)
@@ -101,12 +106,14 @@ def _build_wheel(p: WindingToolParameters) -> cq.Workplane:
     wheel = _fillet(wheel, wheel.edges('|Z').vals(), 1)
     cutters = []
     for diameter in settings:
-        position = diameter / 2 - _PIN_SETBACK
-        for row in _PIN_ROWS:
-            cutters.append(_box(position - 1.2, row - 1.7, -1, 2.4, 3.4, 7))
+        position = diameter / 2 - _TONGUE_SETBACK
+        for row in _TONGUE_ROWS:
+            cutters.append(_box(position - _SLOT_RADIAL_WIDTH / 2,
+                                row - _SLOT_TANGENTIAL_WIDTH / 2, -1,
+                                _SLOT_RADIAL_WIDTH, _SLOT_TANGENTIAL_WIDTH, 7))
         cutters.append(cq.Workplane('XY').text(
             f'{diameter:g}', 2.8, .6, combine=True)
-            .rotate((0, 0, 0), (0, 0, 1), 90).translate((position, 10, 4.5)))
+            .rotate((0, 0, 0), (0, 0, 1), 90).translate((position, 11.5, 4.5)))
     spoke_cuts = _compound(cutters)
     wheel = wheel.cut(_compound([_rotate(spoke_cuts, index * 60)
                                  for index in range(p.spoke_count)]))
@@ -195,24 +202,18 @@ def _mouth_lip_filler(offset, side, half_width, top):
     return filler.translate((0, offset, 0))
 
 
-def _keyed_pin(row):
-    # Rigid rectangular key and separate 0.8 mm flexure share a broad root.
-    # The 0.2 mm hook interference implies roughly 0.9% outer-fiber strain
-    # over the 5.2 mm root-to-hook span. PLA fatigue needs prototype testing.
-    post = _box(-9, -.9, -4, 2, .9, 9.7)
-    beam = _box(-9, .5, -4, 2, .8, 9.7)
-    root = _box(-9, -.9, 4.5, 2, 2.2, 1.2)
-    hook = (cq.Workplane('YZ').polyline([
-        (1.2, -1.6), (1.9, -.7), (1.9, -.2), (1.2, -.2)])
-        .close().extrude(2).translate((-9, 0, 0)))
-    pin = post.union(beam).union(root).union(hook)
-    root_edges = [edge for edge in pin.val().Edges()
-                  if abs(edge.Center().z - 4.5) < 1e-6
-                  and any(abs(edge.Center().y - y) < 1e-6 for y in (0, .5))]
-    pin = _fillet(pin, root_edges, .2)
-    if row < 0:
-        pin = pin.mirror('XZ', union=False)
-    return pin.translate((0, row, 0))
+def _rail_tongue(row):
+    tongue = _box(-_SLOT_RADIAL_WIDTH / 2 - _TONGUE_SETBACK + .01,
+                  row - _TONGUE_TANGENTIAL_WIDTH / 2,
+                  _TONGUE_REAR_Z,
+                  _TONGUE_RADIAL_WIDTH,
+                  _TONGUE_TANGENTIAL_WIDTH,
+                  _WHEEL_THICKNESS - _TONGUE_REAR_Z)
+    tongue = tongue.faces('<Z').edges().chamfer(.25)
+    rail_neck = _box(-6.4, row - _SLOT_TANGENTIAL_WIDTH / 2,
+                     _WHEEL_THICKNESS, 5.55, _SLOT_TANGENTIAL_WIDTH,
+                     _SHOE_BOTTOM - _WHEEL_THICKNESS)
+    return tongue.union(rail_neck)
 
 
 @lru_cache(maxsize=8)
@@ -244,8 +245,8 @@ def _build_shoe(p: WindingToolParameters) -> cq.Workplane:
     foot = _box(-12, -8, _SHOE_BOTTOM, 9, 16, 3)
     foot = _fillet(foot, foot.edges('|Z').vals(), 1)
     shoe = shell.union(foot)
-    for row in _PIN_ROWS:
-        shoe = shoe.union(_keyed_pin(row))
+    for row in _TONGUE_ROWS:
+        shoe = shoe.union(_rail_tongue(row))
     return _print_master(shoe.clean(), 'shoe_master', p.print_bed_mm)
 
 
@@ -253,7 +254,8 @@ def build_winding_head(p: WindingToolParameters, diameter_mm: float,
                        released: bool = False) -> WindingHeadParts:
     """Seat all shoes at one setting, or remove all six through the open front.
 
-    Release requires squeezing both rear tabs and withdrawing each shoe axially.
+    Release requires overcoming the rigid tongue friction and withdrawing each
+    shoe axially against its positive stop.
     Detached shoes are inventory/service occurrences only, excluded from the
     assembled winding support. Inward relocation is not the release method:
     neighboring shoe ends would interfere at the smallest setting.
@@ -278,8 +280,12 @@ def build_winding_head(p: WindingToolParameters, diameter_mm: float,
                           for offset in _passage_offsets(p))
     metadata = {
         'diameter_labels': tuple(f'{value:g}' for value in settings),
-        'pin_rows_y_mm': _PIN_ROWS,
-        'pin_setback_mm': _PIN_SETBACK,
+        'tongue_rows_y_mm': _TONGUE_ROWS,
+        'tongue_setback_mm': _TONGUE_SETBACK,
+        'tongue_size_mm': (_TONGUE_RADIAL_WIDTH, _TONGUE_TANGENTIAL_WIDTH),
+        'wheel_slot_size_mm': (_SLOT_RADIAL_WIDTH, _SLOT_TANGENTIAL_WIDTH),
+        'nominal_friction_clearance_per_side_mm': .01,
+        'tongue_stop_z_mm': _WHEEL_THICKNESS,
         'cradle_bottom_radius_offset_mm': 0.0,
         'rear_shoulder_height_mm': _REAR_SHOULDER_HEIGHT,
         'free_shoulder_height_mm': _FREE_SHOULDER_HEIGHT,
@@ -293,7 +299,7 @@ def build_winding_head(p: WindingToolParameters, diameter_mm: float,
         'tape_clearance_mm': p.tape_clearance_mm,
         'tape_width_direction': 'tangential local Y; axial Z is bundle clearance; rear rim open',
         'release_lift_mm': _RELEASE_LIFT,
-        'release_method': 'press both rear tabs and remove each shoe forward',
+        'release_method': 'pull each friction-fit shoe straight forward',
         'detached_shoes': detached,
         'radial_release_clearance_mm': radius if released else 0.0,
         'released': released,

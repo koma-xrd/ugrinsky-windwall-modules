@@ -103,14 +103,14 @@ class WindingToolAssemblyTests(unittest.TestCase):
                     DEFAULT_PARAMETERS.bearings.radial_nominal_dimensions_mm)
                 self.assertFalse(all(checks.values()), checks)
 
-    def test_each_rear_shoe_hook_must_retain_its_own_pin(self):
+    def test_each_middle_rail_must_retain_its_own_friction_tongue(self):
         with patch('windwall.winding_tool_assembly.audit_winding_tool_assemblies', return_value={}):
             model = build_winding_tool_assemblies()
-        missing_hook = model.winding_jig['shoe_1'].cut(installed(box(65.9, 6.7, -2, 2.2, .4, 2)))
+        missing_tongue = model.winding_jig['shoe_1'].cut(installed(box(69, 6, -2, 5, 3.2, 8)))
         parts = {name: service_module.local_shape(shape, 130)
-                 for name, shape in changed(model, 'winding_jig', 'shoe_1', missing_hook).winding_jig.items()}
+                 for name, shape in changed(model, 'winding_jig', 'shoe_1', missing_tongue).winding_jig.items()}
         checks, _ = assembly_module._head_checks(tuple(parts.items()), model.parameters, 150)
-        self.assertFalse(checks['two_pin_engagement'])
+        self.assertFalse(checks['two_tongue_friction_fit'])
 
     def test_608_inner_ring_requires_actual_journal_contact(self):
         with patch('windwall.winding_tool_assembly.audit_winding_tool_assemblies', return_value={}):
@@ -203,13 +203,13 @@ class WindingToolAssemblyTests(unittest.TestCase):
                          model.winding_jig['shoe_1'].translate((5, 0, 0)))
         self.assertFalse(audit_winding_tool_assemblies(mutant)['equal_shoe_positions'])
 
-    def test_audit_rejects_a_missing_pin_and_an_unlatched_shoe(self):
+    def test_audit_rejects_a_missing_tongue_and_an_unseated_shoe(self):
         model = model_at()
-        for shape in (model.winding_jig['shoe_1'].cut(installed(box(65, 2, -5, 4, 6, 10))),
+        for shape in (model.winding_jig['shoe_1'].cut(installed(box(69, 5.8, -2, 5, 3.4, 8))),
                       model.winding_jig['shoe_1'].translate((0, -6, 0))):
             with self.subTest(shape=shape):
                 checks = audit_winding_tool_assemblies(changed(model, 'winding_jig', 'shoe_1', shape))
-                self.assertFalse(checks['two_pin_engagement'])
+                self.assertFalse(checks['two_tongue_friction_fit'])
 
     def test_audit_rejects_blocked_tape_and_false_actual_angles(self):
         model = model_at()
@@ -388,9 +388,10 @@ class WindingToolServiceTests(unittest.TestCase):
         for diameter in (100, 150, 200):
             model = model_at(diameter)
             stages = coil_removal_stages(model)
-            self.assertEqual(stages[0]['name'], 'wound_latched')
+            self.assertEqual(stages[0]['name'], 'wound_friction_fit')
             self.assertEqual(stages[-1]['name'], 'remove_taped_coil')
             self.assertEqual(len([name for name in stages[0]['fixed'] if name.startswith('tape_')]), 18)
+            self.assertFalse(any(s['name'].startswith(('release_', 'relax_')) for s in stages))
             withdrawal = [s for s in stages if s['name'].startswith('withdraw_shoe_')]
             self.assertEqual(len(withdrawal), 6)
             self.assertTrue(all(s['translation_mm'] == (0, -40, 0) for s in withdrawal))
@@ -408,7 +409,7 @@ class WindingToolServiceTests(unittest.TestCase):
             self.assertFalse(service['collisions'])
             self.assertTrue(service['continuous_translation_checks'])
 
-    def test_one_shoe_left_latched_cannot_pass_the_release_audit(self):
+    def test_one_shoe_left_friction_fitted_cannot_pass_the_release_audit(self):
         model = model_at()
         stages = list(coil_removal_stages(model))
         stages = [s for s in stages if not s['name'].endswith('shoe_6')]
