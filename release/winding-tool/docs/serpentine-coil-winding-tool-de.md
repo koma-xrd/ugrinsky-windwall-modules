@@ -160,8 +160,9 @@ Schuhe ersetzen; eine sichtbare Verrundung allein beweist keinen Lackschutz.
 6. Rad auf das vordere Polygon stecken, bis beide von vorn lösbaren Haken greifen.
    Formschluss, axialen Halt und einen vollständigen langsamen Handumlauf prüfen.
 7. Alle sechs Schuhe auf dieselbe markierte Einstellung stecken. Die beiden
-   mittleren Schienen jedes Schuhs verjüngen sich zu 3,98 × 2,98 mm großen
-   Reibzungen für die zugehörigen 4,00 × 3,00-mm-Öffnungen. Beide Schultern
+   mittleren Schienen jedes Schuhs verjüngen sich zu 3,50 × 3,00 mm großen
+   Reibzungen für die zugehörigen 3,50 × 3,00-mm-Öffnungen ohne Nominalspiel.
+   Beide Schultern
    müssen plan an der Radvorderseite anschlagen. Sechs gleiche Zahlen und zwölf
    vollständig sitzende Zungen kontrollieren.
 

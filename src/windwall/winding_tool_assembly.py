@@ -231,8 +231,13 @@ def _head_checks(member_items, parameters, diameter):
                      and intersection_volume(normalized, contact_band) > .001)
         for row in metadata['tongue_rows_y_mm']:
             x = radius - metadata['tongue_setback_mm']
-            core = box(x - 1.9, row - 1.39, -.8, 3.8, 2.78,
-                       metadata['wheel_thickness_mm'] + .6)
+            tongue_radial, tongue_tangential = metadata['tongue_size_mm']
+            core = box(x - tongue_radial / 2 + .1,
+                       row - tongue_tangential / 2 + .1,
+                       -.5,
+                       tongue_radial - .2,
+                       tongue_tangential - .2,
+                       metadata['wheel_thickness_mm'] + .3)
             core = core.rotate((0, 0, 0), (0, 0, 1), index * 60)
             friction_fit &= (intersection_volume(shoe, core) > .99 * core.val().Volume()
                              and clear(seat, core))

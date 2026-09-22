@@ -657,7 +657,7 @@
           "cad_bounds_mm": {
             "maximum_xyz": [
               77.7000001,
-              1.0000000000000018,
+              1.0000000000000016,
               155.89567730238662
             ],
             "minimum_xyz": [
@@ -667,14 +667,14 @@
             ],
             "size_xyz": [
               14.700000099999997,
-              30.20000010000001,
+              30.200000100000008,
               51.79135460477323
             ]
           },
           "cad_center_mm": [
-            70.15446094881837,
-            -20.223152990173435,
-            130.00000713803553
+            70.14909739243909,
+            -20.303187801506756,
+            130.00000716940315
           ],
           "cad_solid_count": 1,
           "cad_valid": true,
@@ -714,9 +714,9 @@
             ]
           },
           "cad_center_mm": [
-            35.07722429268887,
-            -20.223152990173464,
-            190.7555489394981
+            35.07454248733424,
+            -20.303187801506734,
+            190.75090397910273
           ],
           "cad_solid_count": 1,
           "cad_valid": true,
@@ -741,7 +741,7 @@
           "cad_bounds_mm": {
             "maximum_xyz": [
               -12.654283894573267,
-              1.000000000000008,
+              1.0000000000000075,
               204.34136084877304
             ],
             "minimum_xyz": [
@@ -756,9 +756,9 @@
             ]
           },
           "cad_center_mm": [
-            -35.07723665612948,
-            -20.22315299017343,
-            190.75554180146224
+            -35.0745549051049,
+            -20.3031878015067,
+            190.75089680969947
           ],
           "cad_solid_count": 1,
           "cad_valid": true,
@@ -783,7 +783,7 @@
           "cad_bounds_mm": {
             "maximum_xyz": [
               -63.0,
-              1.0000000000000013,
+              1.000000000000001,
               155.89567730238662
             ],
             "minimum_xyz": [
@@ -798,9 +798,9 @@
             ]
           },
           "cad_center_mm": [
-            -70.15446094881838,
-            -20.22315299017343,
-            129.99999286196427
+            -70.1490973924391,
+            -20.303187801506745,
+            129.99999283059688
           ],
           "cad_solid_count": 1,
           "cad_valid": true,
@@ -825,7 +825,7 @@
           "cad_bounds_mm": {
             "maximum_xyz": [
               -12.654283894573341,
-              0.9999999999999943,
+              0.999999999999994,
               86.14325601696596
             ],
             "minimum_xyz": [
@@ -840,9 +840,9 @@
             ]
           },
           "cad_center_mm": [
-            -35.07722429268894,
-            -20.223152990173453,
-            69.2444510605021
+            -35.074542487334305,
+            -20.303187801506784,
+            69.24909602089733
           ],
           "cad_solid_count": 1,
           "cad_valid": true,
@@ -867,7 +867,7 @@
           "cad_bounds_mm": {
             "maximum_xyz": [
               57.74811886995378,
-              0.9999999999999943,
+              0.9999999999999941,
               86.14325601696595
             ],
             "minimum_xyz": [
@@ -882,9 +882,9 @@
             ]
           },
           "cad_center_mm": [
-            35.077236656129536,
-            -20.223152990173446,
-            69.24445819853777
+            35.07455490510495,
+            -20.30318780150677,
+            69.2491031903005
           ],
           "cad_solid_count": 1,
           "cad_valid": true,
@@ -1050,9 +1050,9 @@
             ]
           },
           "cad_center_mm": [
-            6.261497758483946e-08,
-            -2.496856062627648,
-            130.00000003634742
+            5.653897615138509e-08,
+            -2.496902034759667,
+            130.00000003282926
           ],
           "cad_solid_count": 1,
           "cad_valid": true,
@@ -1129,8 +1129,8 @@
       "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies",
       "step_path": "assembly/simplified_winding_jig.step",
       "step_round_trip_valid": true,
-      "step_sha256": "b140b6d8d4867c432af15e50e1dbd870446dbe81e8c27e8c107d490c7d2d1e9c",
-      "summed_component_volume_mm3": 318011.09582097025,
+      "step_sha256": "d4144df3da6e92d8c0a3836ed220f763505e9ed1bdbbcb03f70fd186062d85bb",
+      "summed_component_volume_mm3": 318903.49202097155,
       "tool": "winding_jig",
       "topology_result": {
         "cad_solid_count": 18,
@@ -1914,7 +1914,7 @@
       },
       "cad_solid_count": 1,
       "cad_valid": true,
-      "cad_volume_mm3": 66713.56130315649,
+      "cad_volume_mm3": 67703.56130315758,
       "dimensions_mm": {
         "maximum_xyz": [
           102.0000001,
@@ -1959,7 +1959,7 @@
           0.0
         ],
         "nonmanifold_edge_count": 0,
-        "signed_volume": 66713.49380453276,
+        "signed_volume": 67703.49278222282,
         "size_xyz": [
           204.0,
           188.4730224609375,
@@ -1999,9 +1999,9 @@
       "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies",
       "step_path": "step/winding_jig_coil_wheel.step",
       "step_round_trip_valid": true,
-      "step_sha256": "1d3fe0c03158035b9f4b9bb8f249176c586bc94028f03b89809c50310a6bc853",
+      "step_sha256": "9b4eb6236749a2f6363dae904f925b1f9c613e058b6f293c0fb77862ac038120",
       "stl_path": "stl/winding_jig_coil_wheel.stl",
-      "stl_sha256": "47b019faa2ae8c89b4be0b639b32bc5f0178dabc6b9ef2b430a916292e05b66f",
+      "stl_sha256": "934d148bbc3fcd4b8e9b303d8ffb0fef6d8e08144ab130f6e0541b3fbc2c409a",
       "stl_translation_z_mm": 2.5000000500000006,
       "tool": "winding_jig",
       "topology_result": {
@@ -2025,7 +2025,7 @@
       "cad_bounds_mm": {
         "maximum_xyz": [
           7.350000049999998,
-          15.100000050000006,
+          15.100000050000004,
           25.89567730238662
         ],
         "minimum_xyz": [
@@ -2035,17 +2035,17 @@
         ],
         "size_xyz": [
           14.700000100000004,
-          30.20000010000001,
+          30.200000100000008,
           51.79135460477324
         ]
       },
       "cad_solid_count": 1,
       "cad_valid": true,
-      "cad_volume_mm3": 3718.078559388291,
+      "cad_volume_mm3": 3701.8112593882906,
       "dimensions_mm": {
         "maximum_xyz": [
           7.350000049999998,
-          15.100000050000006,
+          15.100000050000004,
           25.89567730238662
         ],
         "minimum_xyz": [
@@ -2055,7 +2055,7 @@
         ],
         "size_xyz": [
           14.700000100000004,
-          30.20000010000001,
+          30.200000100000008,
           51.79135460477324
         ]
       },
@@ -2086,7 +2086,7 @@
           5.862201305717463e-06
         ],
         "nonmanifold_edge_count": 0,
-        "signed_volume": 3717.999202826966,
+        "signed_volume": 3701.7318847639945,
         "size_xyz": [
           14.676777362823486,
           30.200000762939453,
@@ -2099,7 +2099,7 @@
       "physical_validation_verified": false,
       "print_bed_footprint_mm": [
         14.700000100000004,
-        30.20000010000001
+        30.200000100000008
       ],
       "print_orientation": {
         "axis_order": [
@@ -2126,9 +2126,9 @@
       "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies",
       "step_path": "step/winding_jig_contact_shoe.step",
       "step_round_trip_valid": true,
-      "step_sha256": "cb17c9134e2fb45c5bcff33a10d562145c4b59b8932fcb45d96a1dc5b2587e32",
+      "step_sha256": "e8526cac11f95b5cb655aab6d044772dae42d156d35e2e0563087b2a06990e28",
       "stl_path": "stl/winding_jig_contact_shoe.stl",
-      "stl_sha256": "ec0f464975d6ff794ba8a0652deb116b702b21a3d1c138cc98d37e3bed2e061f",
+      "stl_sha256": "f736fc9b5208b78ddfa163252e8ea6f74898b3af948600d0bbfd8e17e69e3cce",
       "stl_translation_z_mm": 25.89567730238662,
       "tool": "winding_jig",
       "topology_result": {
@@ -3007,7 +3007,7 @@
   "supporting_artifacts": [
     {
       "path": "docs/serpentine-coil-winding-tool-de.md",
-      "sha256": "c229e530d735f3fc36862a549e558bf296c1dbee6c4709b7b1a6461f05e87abf",
+      "sha256": "12e521e636eda57759e39f768ca4620d083e0958047467207212fe4e18435507",
       "source": "docs/serpentine-coil-winding-tool-de.md",
       "tables_synchronized_with": "bom.json and current CAD tape angles"
     },
@@ -3030,7 +3030,7 @@
       "height_px": 1400,
       "path": "drawings/winding-jig-range.png",
       "presentation_only": true,
-      "sha256": "2d7d79778279d972b6f5e8d30e0e5f0f2faf5efa153b5433bc67374b13f56c36",
+      "sha256": "89240d5775f0486f2dc95d66587d5af08718926a3a041382ba14a628dea88075",
       "source_builder": "scripts.preview_winding_tool.render_winding_tool_drawings",
       "width_px": 2000
     },
@@ -3038,7 +3038,7 @@
       "height_px": 1400,
       "path": "drawings/winding-jig-reference.png",
       "presentation_only": true,
-      "sha256": "59f0503b0608e23ab8a0a280c91630017255b9e1382323f9054244c0906512d7",
+      "sha256": "bb6b7a050fc2da06883ca2172381a64ccd6d6cf9ad516fe155cef3f0ea3e8e51",
       "source_builder": "scripts.preview_winding_tool.render_winding_tool_drawings",
       "width_px": 2000
     },
@@ -3439,7 +3439,7 @@
       "height_px": 1400,
       "path": "drawings/winding-tool-exploded.png",
       "presentation_only": true,
-      "sha256": "14069f918474fd58b690b772599c2b76567c453007734af7b992d7716e25ab60",
+      "sha256": "d71c9c43b8ae6c0addf99e43b0136ed303b2cc8c59f610116e881f223b51f1d1",
       "source_builder": "scripts.preview_winding_tool.render_winding_tool_drawings",
       "width_px": 2000
     }

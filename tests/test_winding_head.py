@@ -149,16 +149,16 @@ class WindingHeadTests(unittest.TestCase):
             x = diameter / 2 - 3.625
             for angle in range(0, 360, 60):
                 for y in (-7.5, 7.5):
-                    probe = box(x - 2, y - 1.5, -.1, 4, 3, 5.2).rotate(
+                    probe = box(x - 1.75, y - 1.5, -.1, 3.5, 3, 5.2).rotate(
                         (0, 0, 0), (0, 0, 1), angle)
                     clearances.append(probe.val())
                     theta = radians(angle)
-                    point = ((x + 2.5) * cos(theta) - y * sin(theta),
-                             (x + 2.5) * sin(theta) + y * cos(theta), 2.5)
+                    point = ((x + 2) * cos(theta) - y * sin(theta),
+                             (x + 2) * sin(theta) + y * cos(theta), 2.5)
                     self.assertTrue(head.wheel.val().isInside(point))
                 glyph = cq.Workplane('XY').text(f'{diameter:g}', 2.8, .2,
                     combine=True).rotate((0, 0, 0), (0, 0, 1), 90).translate(
-                    (x, 11.5, 4.65)).rotate((0, 0, 0), (0, 0, 1), angle)
+                    (x, 0, 4.65)).rotate((0, 0, 0), (0, 0, 1), angle)
                 self.assertGreater(glyph.val().Volume(), .01)
                 clearances.append(glyph.val())
         all_clearances = cq.Workplane('XY').newObject([cq.Compound.makeCompound(clearances)])
@@ -174,8 +174,11 @@ class WindingHeadTests(unittest.TestCase):
     def test_middle_rails_extend_into_close_friction_fit_with_positive_stop(self):
         head = build_winding_head(P, 150)
         shoe = head.shoes[0]
+        self.assertEqual(head.metadata['wheel_slot_size_mm'], (3.5, 3.0))
+        self.assertEqual(head.metadata['tongue_size_mm'], (3.5, 3.0))
+        self.assertEqual(head.metadata['nominal_friction_clearance_per_side_mm'], 0.0)
         for y in (-7.5, 7.5):
-            core = box(69.5, y - 1.39, -.8, 3.75, 2.78, 5.6)
+            core = box(69.7, y - 1.45, -.8, 3.3, 2.9, 5.6)
             self.assertAlmostEqual(overlap(shoe, core), core.val().Volume(), places=5)
         self.assertLess(overlap(head.wheel, shoe), 1e-6)
         self.assertGreater(overlap(head.wheel, shoe.translate((.011, 0, 0))), .001)

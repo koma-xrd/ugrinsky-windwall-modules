@@ -52,8 +52,9 @@ loose, rough or distorted parts. PLA fit, creep and fatigue remain unvalidated.
 6. Push the wheel onto the front polygon until the two front-accessible hooks
    engage. Check both axial retention directions and free hand rotation.
 7. Insert all six shoes at the same numbered diameter. Each shoe's two middle
-   rails narrow directly into 3.98 x 2.98 mm friction tongues for matching
-   4.00 x 3.00 mm wheel openings. Both shoulders must stop flat against the
+   rails narrow directly into 3.50 x 3.00 mm friction tongues for matching
+   3.50 x 3.00 mm wheel openings with zero nominal clearance. Both shoulders
+   must stop flat against the
    wheel front. Count six matching labels and twelve seated tongues before winding.
 
 The 608 outer rings belong to the stationary tower. Their shoulders and clips
@@ -191,8 +192,8 @@ from the front shoulder's outer limit and includes the shoulder in its rotation
 envelope. A rigid 20 mm axial ring spanning both contact and shoulder is not
 the declared winding fixture and would intersect the seated protective shoulder.
 The widened passages retain 0.8 mm outer/mouth radii, with 0.2 mm radii on
-the short inner returns at the sector ends. The 3.98 x 2.98 mm tongues retain
-0.01 mm nominal clearance per side in 4.00 x 3.00 mm openings. Their narrowed
+the short inner returns at the sector ends. The 3.50 x 3.00 mm tongues have
+zero nominal clearance in matching 3.50 x 3.00 mm openings. Their narrowed
 transition leaves positive shoulders against the wheel front, and their chamfered
 rear tips project 1 mm for insertion and optional push-out access.
 

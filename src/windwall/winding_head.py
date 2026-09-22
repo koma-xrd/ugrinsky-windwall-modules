@@ -24,10 +24,10 @@ from windwall.winding_tool_parameters import WindingToolParameters, diameter_set
 _WHEEL_THICKNESS = 5.0
 _TONGUE_SETBACK = 3.625
 _TONGUE_ROWS = (-7.5, 7.5)
-_SLOT_RADIAL_WIDTH = 4.0
+_SLOT_RADIAL_WIDTH = 3.5
 _SLOT_TANGENTIAL_WIDTH = 3.0
-_TONGUE_RADIAL_WIDTH = 3.98
-_TONGUE_TANGENTIAL_WIDTH = 2.98
+_TONGUE_RADIAL_WIDTH = 3.5
+_TONGUE_TANGENTIAL_WIDTH = 3.0
 _TONGUE_REAR_Z = -1.0
 _SHOE_BOTTOM = 5.2
 _REAR_SHOULDER_HEIGHT = 0.0
@@ -113,7 +113,7 @@ def _build_wheel(p: WindingToolParameters) -> cq.Workplane:
                                 _SLOT_RADIAL_WIDTH, _SLOT_TANGENTIAL_WIDTH, 7))
         cutters.append(cq.Workplane('XY').text(
             f'{diameter:g}', 2.8, .6, combine=True)
-            .rotate((0, 0, 0), (0, 0, 1), 90).translate((position, 11.5, 4.5)))
+            .rotate((0, 0, 0), (0, 0, 1), 90).translate((position, 0, 4.5)))
     spoke_cuts = _compound(cutters)
     wheel = wheel.cut(_compound([_rotate(spoke_cuts, index * 60)
                                  for index in range(p.spoke_count)]))
@@ -203,7 +203,7 @@ def _mouth_lip_filler(offset, side, half_width, top):
 
 
 def _rail_tongue(row):
-    tongue = _box(-_SLOT_RADIAL_WIDTH / 2 - _TONGUE_SETBACK + .01,
+    tongue = _box(-_SLOT_RADIAL_WIDTH / 2 - _TONGUE_SETBACK,
                   row - _TONGUE_TANGENTIAL_WIDTH / 2,
                   _TONGUE_REAR_Z,
                   _TONGUE_RADIAL_WIDTH,
@@ -284,7 +284,7 @@ def build_winding_head(p: WindingToolParameters, diameter_mm: float,
         'tongue_setback_mm': _TONGUE_SETBACK,
         'tongue_size_mm': (_TONGUE_RADIAL_WIDTH, _TONGUE_TANGENTIAL_WIDTH),
         'wheel_slot_size_mm': (_SLOT_RADIAL_WIDTH, _SLOT_TANGENTIAL_WIDTH),
-        'nominal_friction_clearance_per_side_mm': .01,
+        'nominal_friction_clearance_per_side_mm': 0.0,
         'tongue_stop_z_mm': _WHEEL_THICKNESS,
         'cradle_bottom_radius_offset_mm': 0.0,
         'rear_shoulder_height_mm': _REAR_SHOULDER_HEIGHT,
