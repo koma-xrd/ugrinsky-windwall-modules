@@ -1,8 +1,8 @@
 """Printable six-spoke wheel and six congruent plug-in contact shoes.
 
-Coordinates use the winding axis as Z: wheel rear is Z=0, front is Z=5.
-The shoe master's rear runout is at nominal radius, X=0 on its centerline;
-only its rounded free-front shoulder extends outward. It is translated to the
+Coordinates use the winding axis as Z: wheel underside is Z=0, top is Z=5.
+The shoe master's upper runout is at nominal radius, X=0 on its centerline;
+only its rounded lower supporting shoulder extends outward. It is translated to the
 selected radius before rotation. Only placement changes with diameter. Three tape
 reliefs per shoe provide tangential strip width and axial bundle clearance.
 Their fixed local centers and nominal 20-degree labels identify the
@@ -26,12 +26,12 @@ _TONGUE_SETBACK = 3.625
 _TONGUE_ROWS = (-7.5, 7.5)
 _SLOT_RADIAL_WIDTH = 3.5
 _SLOT_TANGENTIAL_WIDTH = 3.0
-_TONGUE_RADIAL_WIDTH = 3.5
-_TONGUE_TANGENTIAL_WIDTH = 3.0
+_TONGUE_RADIAL_WIDTH = 3.4
+_TONGUE_TANGENTIAL_WIDTH = 2.9
 _TONGUE_REAR_Z = -1.0
 _SHOE_BOTTOM = 5.2
-_REAR_SHOULDER_HEIGHT = 0.0
-_FREE_SHOULDER_HEIGHT = 2.7
+_REAR_SHOULDER_HEIGHT = 2.7
+_FREE_SHOULDER_HEIGHT = 0.0
 _TAPE_BOTTOM = 11.0
 _PASSAGE_INNER_X = -12.0
 _PASSAGE_OUTER_X = max(_REAR_SHOULDER_HEIGHT, _FREE_SHOULDER_HEIGHT) + .4
@@ -139,37 +139,28 @@ def _passage_probes(p):
 
 def _asymmetric_shoe_shell(minimum_radius: float, bottom: float,
                            top: float) -> cq.Workplane:
-    """Revolve a nominal-radius runout and the rounded protective front shoulder.
+    """Revolve a rounded lower support with an unobstructed nominal-radius top.
 
-    The runout extends under the full winding width. Its cubic front transition
-    meets both axial segments tangentially. Positive-Z removal moves the front
-    shoulder away from the fixed winding; no rear lip must pass through it.
-    Fixed axial end margins let the profile follow the tape clearance.
-    The translated sector retains the mounting side of the old shell; tape
-    passages and the unchanged foot/pins are applied by ``_build_shoe``.
+    The lower transition ends below the winding and tape envelope. Above that
+    point the outer surface never exceeds the nominal radius, allowing the
+    taped winding to lift while the shoe stays seated.
     """
     inner = minimum_radius - 6
     radius = _AXIAL_EDGE_RADIUS
-    # Keep the full winding and upper tape mouth on the nominal cylinder.
-    # Starting the rise below the mouth creates an unstable three-surface
-    # fillet junction and an open triangle wedge in the otherwise valid CAD.
     rear_shoulder_z = bottom + 1.3
-    free_shoulder_z = top - 2.7
-    runout_front_z = top - 6.2 + _MOUTH_RADIUS
+    runout_start_z = _TAPE_BOTTOM - _MOUTH_RADIUS
     outer_points = (
         (minimum_radius + _REAR_SHOULDER_HEIGHT, bottom + 1.0),
         (minimum_radius + _REAR_SHOULDER_HEIGHT, rear_shoulder_z),
-        (minimum_radius, runout_front_z),
-        (minimum_radius + _FREE_SHOULDER_HEIGHT, free_shoulder_z),
+        (minimum_radius, runout_start_z),
         (minimum_radius + _FREE_SHOULDER_HEIGHT, top - 1.0),
     )
     rear_radius, free_radius = outer_points[0][0], outer_points[-1][0]
     profile = (cq.Workplane('XZ').moveTo(inner + radius, bottom)
                .lineTo(rear_radius - radius, bottom)
                .radiusArc((rear_radius, bottom + radius), radius)
-               .lineTo(*outer_points[0]).lineTo(*outer_points[1])
-               .lineTo(*outer_points[2]))
-    start, end = outer_points[2:4]
+               .lineTo(*outer_points[0]).lineTo(*outer_points[1]))
+    start, end = outer_points[1:3]
     handle = (end[1] - start[1]) / 3
     profile = profile.bezier([
         (start[0], start[1] + handle),
@@ -203,7 +194,7 @@ def _mouth_lip_filler(offset, side, half_width, top):
 
 
 def _rail_tongue(row):
-    tongue = _box(-_SLOT_RADIAL_WIDTH / 2 - _TONGUE_SETBACK,
+    tongue = _box(-_TONGUE_RADIAL_WIDTH / 2 - _TONGUE_SETBACK,
                   row - _TONGUE_TANGENTIAL_WIDTH / 2,
                   _TONGUE_REAR_Z,
                   _TONGUE_RADIAL_WIDTH,
@@ -223,24 +214,24 @@ def _build_shoe(p: WindingToolParameters) -> cq.Workplane:
     shell = _print_master(_asymmetric_shoe_shell(minimum_radius, _SHOE_BOTTOM, top),
                           'shoe shell', p.print_bed_mm)
     shell_envelope = shell
-    passage_top = _TAPE_BOTTOM + p.tape_clearance_mm + _MOUTH_RADIUS
+    passage_bottom = _TAPE_BOTTOM - 1.0
     half_width = p.tape_clearance_mm / 2 + .3
     for offset in _passage_offsets(p):
-        # Leave the front bridge, but open every channel through the rear rim.
-        # A closed tape loop's inner leg must not meet a trailing contact rim
-        # when the shoe is withdrawn forward.
-        shell = shell.cut(_box(-18, offset - half_width, -1,
-                              _PASSAGE_OUTER_X + 18, 2 * half_width, passage_top + 1))
+        # Keep a lower bridge, with no upper crossbar trapping the inner leg
+        # of a closed tape loop during upward coil removal.
+        shell = shell.cut(_box(-18, offset - half_width, passage_bottom,
+                              _PASSAGE_OUTER_X + 18, 2 * half_width, top + 1 - passage_bottom))
     # The widened side slots leave short inner returns at the sector ends.
     # Their adjacent radii must fit that 0.65 mm land; the outer wire-contact
-    # exits and six upper mouth lips retain the full 0.8 mm radius.
+    # exits and six lower mouth lips retain the full 0.8 mm radius.
     inner_edges = [edge for edge in shell.edges('|Z').vals() if edge.Center().x < -10]
     shell = _fillet(shell, inner_edges, .2)
     outer_edges = [edge for edge in shell.edges('|Z').vals() if edge.Center().x > -10]
     shell = _fillet(shell, outer_edges, _MOUTH_RADIUS)
     for offset in _passage_offsets(p):
         for side in (-1, 1):
-            filler = _mouth_lip_filler(offset, side, half_width, passage_top)
+            filler = (_mouth_lip_filler(offset, side, half_width, passage_bottom)
+                      .mirror('XY', union=False).translate((0, 0, 2 * passage_bottom)))
             shell = shell.union(filler.intersect(shell_envelope))
     foot = _box(-12, -8, _SHOE_BOTTOM, 9, 16, 3)
     foot = _fillet(foot, foot.edges('|Z').vals(), 1)
@@ -252,14 +243,7 @@ def _build_shoe(p: WindingToolParameters) -> cq.Workplane:
 
 def build_winding_head(p: WindingToolParameters, diameter_mm: float,
                        released: bool = False) -> WindingHeadParts:
-    """Seat all shoes at one setting, or remove all six through the open front.
-
-    Release requires overcoming the rigid tongue friction and withdrawing each
-    shoe axially against its positive stop.
-    Detached shoes are inventory/service occurrences only, excluded from the
-    assembled winding support. Inward relocation is not the release method:
-    neighboring shoe ends would interfere at the smallest setting.
-    """
+    """Seat six shoes; coil release leaves their friction mounting untouched."""
     settings = diameter_settings_mm(p)
     if (isinstance(diameter_mm, bool) or not isinstance(diameter_mm, Real)
             or not isfinite(diameter_mm) or diameter_mm not in settings):
@@ -269,8 +253,7 @@ def build_winding_head(p: WindingToolParameters, diameter_mm: float,
     master = _build_shoe(p)
     seated = tuple(_rotate(master.translate((radius, 0, 0)), index * 60)
                   for index in range(p.spoke_count))
-    shoes = () if released else seated
-    detached = tuple(shoe.translate((0, 0, _RELEASE_LIFT)) for shoe in seated) if released else ()
+    shoes = seated
     probes = tuple(_rotate(probe.translate((radius, 0, 0)), index * 60)
                    for index in range(p.spoke_count) for probe in _passage_probes(p))
     passage_center_x = radius + (_PASSAGE_INNER_X + _PASSAGE_OUTER_X) / 2
@@ -284,24 +267,28 @@ def build_winding_head(p: WindingToolParameters, diameter_mm: float,
         'tongue_setback_mm': _TONGUE_SETBACK,
         'tongue_size_mm': (_TONGUE_RADIAL_WIDTH, _TONGUE_TANGENTIAL_WIDTH),
         'wheel_slot_size_mm': (_SLOT_RADIAL_WIDTH, _SLOT_TANGENTIAL_WIDTH),
-        'nominal_friction_clearance_per_side_mm': 0.0,
+        'nominal_friction_clearance_per_side_mm': min(
+            _SLOT_RADIAL_WIDTH - _TONGUE_RADIAL_WIDTH,
+            _SLOT_TANGENTIAL_WIDTH - _TONGUE_TANGENTIAL_WIDTH,
+        ) / 2,
         'tongue_stop_z_mm': _WHEEL_THICKNESS,
         'cradle_bottom_radius_offset_mm': 0.0,
         'rear_shoulder_height_mm': _REAR_SHOULDER_HEIGHT,
         'free_shoulder_height_mm': _FREE_SHOULDER_HEIGHT,
-        'wire_guidance': 'rounded free-front shoulder; nominal-radius rear runout',
-        'nominal_runout_end_z_mm': _TAPE_BOTTOM + p.tape_clearance_mm + _MOUTH_RADIUS,
+        'wire_guidance': 'rounded lower support; open nominal-radius upper runout',
+        'nominal_runout_start_z_mm': _TAPE_BOTTOM - _MOUTH_RADIUS,
+        'nominal_runout_end_z_mm': _TAPE_BOTTOM + p.tape_clearance_mm + 6.2 - _AXIAL_EDGE_RADIUS,
         'wheel_thickness_mm': _WHEEL_THICKNESS,
         'drive_socket': {'polygon_sides': 6, 'circumdiameter_mm': 14.4},
         'nominal_tape_angles_deg': tape_station_angles(p),
         'actual_tape_angles_deg': actual_angles,
         'tape_passage_probes': probes,
         'tape_clearance_mm': p.tape_clearance_mm,
-        'tape_width_direction': 'tangential local Y; axial Z is bundle clearance; rear rim open',
+        'tape_width_direction': 'tangential local Y; axial Z is bundle clearance; upper channels open',
         'release_lift_mm': _RELEASE_LIFT,
-        'release_method': 'pull each friction-fit shoe straight forward',
-        'detached_shoes': detached,
-        'radial_release_clearance_mm': radius if released else 0.0,
+        'release_method': 'remove crank and lift taped coil upward over seated shoes',
+        'detached_shoes': (),
+        'radial_release_clearance_mm': 0.0,
         'released': released,
         'print_orientations': {
             'wheel': 'rear XY face on bed, Z up',
@@ -309,4 +296,4 @@ def build_winding_head(p: WindingToolParameters, diameter_mm: float,
         },
     }
     return WindingHeadParts(wheel, master, shoes,
-        WindingHeadState(float(diameter_mm), 0.0 if released else radius, 0.0), metadata)
+        WindingHeadState(float(diameter_mm), radius, 0.0), metadata)

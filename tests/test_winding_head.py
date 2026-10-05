@@ -38,7 +38,7 @@ def overlap(first, second):
 def assert_rounded_mouths(test, shape):
     faces = shape.val().Faces()
     mouth_edges = [edge for edge in shape.val().Edges()
-                   if abs(edge.Center().z - 11) < .01 or abs(edge.Center().z - 23) < .01]
+                   if abs(edge.Center().z - 10.8) < .01]
     test.assertGreater(len(mouth_edges), 0)
     for edge in mouth_edges:
         adjacent = [face for face in faces if any(edge.isSame(candidate)
@@ -61,6 +61,17 @@ def raw_release_mesh(shape, destination, name):
 
 
 class WindingHeadTests(unittest.TestCase):
+    def test_open_top_shoe_clears_upward_winding_sweep(self):
+        # A full annulus is a conservative continuous swept volume: it covers
+        # both the winding and the outer legs of closed tape loops.
+        sweep = cq.Workplane('XY').circle(52).circle(50.01).extrude(60).translate((0, 0, 12.5))
+        head = build_winding_head(P, 100)
+        self.assertLess(overlap(head.shoes[0], sweep), 1e-6)
+        self.assertEqual(head.metadata['free_shoulder_height_mm'], 0.0)
+        self.assertGreater(head.metadata['rear_shoulder_height_mm'], 0.0)
+        trapped = head.shoes[0].union(box(49.5, 7, 26, 3, 1, 1))
+        self.assertGreater(overlap(trapped, sweep), .1)
+
     def test_public_contract_is_one_wheel_and_one_reusable_shoe(self):
         self.assertEqual(tuple(field.name for field in fields(WindingHeadState)),
                          ('diameter_mm', 'shoe_radius_mm', 'release_radius_mm'))
@@ -72,7 +83,7 @@ class WindingHeadTests(unittest.TestCase):
             self.assertEqual(len(shape.val().Solids()), 1)
             self.assertGreater(shape.val().Volume(), 0)
 
-    def test_contact_surface_has_a_nominal_rear_runout_and_rounded_front_shoulder(self):
+    def test_contact_surface_has_rounded_lower_support_and_nominal_upper_runout(self):
         head = build_winding_head(P, 150)
         shoe = head.shoe_master
 
@@ -87,18 +98,17 @@ class WindingHeadTests(unittest.TestCase):
         bottom = outer_radius_offset_at(16.5)
         free = outer_radius_offset_at(26.5)
         self.assertAlmostEqual(bottom, 0.0, delta=.15)
-        self.assertAlmostEqual(rear - bottom, 0.0, delta=.01)
-        self.assertGreaterEqual(free - bottom, 2.5)
-        self.assertLessEqual(free - bottom, 3.0)
-        self.assertGreater(free, rear)
+        self.assertGreater(rear - bottom, 2.0)
+        self.assertLessEqual(rear - bottom, 2.7)
+        self.assertAlmostEqual(free - bottom, 0.0, delta=.01)
         bounds = shoe.val().BoundingBox()
         self.assertLessEqual(bounds.xmin, -12.0)
         self.assertEqual(head.metadata['tongue_rows_y_mm'], (-7.5, 7.5))
         self.assertEqual(head.metadata['cradle_bottom_radius_offset_mm'], 0.0)
-        self.assertEqual(head.metadata['rear_shoulder_height_mm'], 0.0)
-        self.assertEqual(head.metadata['free_shoulder_height_mm'], 2.7)
+        self.assertEqual(head.metadata['rear_shoulder_height_mm'], 2.7)
+        self.assertEqual(head.metadata['free_shoulder_height_mm'], 0.0)
         self.assertEqual(head.metadata['wire_guidance'],
-                         'rounded free-front shoulder; nominal-radius rear runout')
+                         'rounded lower support; open nominal-radius upper runout')
 
     def test_cradle_fits_a_valid_reduced_tape_clearance(self):
         p = WindingToolParameters(tape_clearance_mm=6.0)
@@ -126,9 +136,9 @@ class WindingHeadTests(unittest.TestCase):
                 reference = signatures
             self.assertEqual(signatures, reference)
             rear_excess = cq.Workplane('XY').circle(diameter / 2 + 30).circle(
-                diameter / 2 + .001).extrude(18.8).translate((0, 0, 5))
+                diameter / 2 + .001).extrude(19).translate((0, 0, 10.2))
             front_excess = cq.Workplane('XY').circle(diameter / 2 + 30).circle(
-                diameter / 2 + 2.701).extrude(6).translate((0, 0, 23.8))
+                diameter / 2 + 2.701).extrude(5).translate((0, 0, 5.2))
             for index, shoe in enumerate(head.shoes):
                 self.assertTrue(shoe.val().isValid())
                 self.assertLess(overlap(shoe, rear_excess), 1e-6)
@@ -171,18 +181,25 @@ class WindingHeadTests(unittest.TestCase):
         self.assertGreater(overlap(wheel, shaft.rotate(
             (0, 0, 0), (0, 0, 1), 30)), .1)
 
-    def test_middle_rails_extend_into_close_friction_fit_with_positive_stop(self):
+    def test_middle_rails_have_minimal_lateral_clearance_and_positive_stop(self):
         head = build_winding_head(P, 150)
         shoe = head.shoes[0]
         self.assertEqual(head.metadata['wheel_slot_size_mm'], (3.5, 3.0))
-        self.assertEqual(head.metadata['tongue_size_mm'], (3.5, 3.0))
-        self.assertEqual(head.metadata['nominal_friction_clearance_per_side_mm'], 0.0)
+        self.assertEqual(head.metadata['tongue_size_mm'], (3.4, 2.9))
+        self.assertAlmostEqual(
+            head.metadata['nominal_friction_clearance_per_side_mm'], .05)
         for y in (-7.5, 7.5):
-            core = box(69.7, y - 1.45, -.8, 3.3, 2.9, 5.6)
+            core = box(69.7, y - 1.35, -.7, 3.2, 2.7, 5.4)
             self.assertAlmostEqual(overlap(shoe, core), core.val().Volume(), places=5)
         self.assertLess(overlap(head.wheel, shoe), 1e-6)
-        self.assertGreater(overlap(head.wheel, shoe.translate((.011, 0, 0))), .001)
-        self.assertGreater(overlap(head.wheel, shoe.translate((0, .011, 0))), .001)
+        self.assertLess(overlap(head.wheel, shoe.translate((.049, 0, 0))), 1e-6)
+        self.assertGreater(overlap(head.wheel, shoe.translate((.051, 0, 0))), .001)
+        self.assertLess(overlap(head.wheel, shoe.translate((-.049, 0, 0))), 1e-6)
+        self.assertGreater(overlap(head.wheel, shoe.translate((-.051, 0, 0))), .001)
+        self.assertLess(overlap(head.wheel, shoe.translate((0, .049, 0))), 1e-6)
+        self.assertGreater(overlap(head.wheel, shoe.translate((0, .051, 0))), .001)
+        self.assertLess(overlap(head.wheel, shoe.translate((0, -.049, 0))), 1e-6)
+        self.assertGreater(overlap(head.wheel, shoe.translate((0, -.051, 0))), .001)
         self.assertGreater(overlap(head.wheel, shoe.translate((0, 0, -.011))), .001)
         self.assertAlmostEqual(shoe.val().BoundingBox().zmin, -1.0, places=6)
 
@@ -191,7 +208,7 @@ class WindingHeadTests(unittest.TestCase):
         for row in (-7.5, 7.5):
             tip = master.intersect(box(-6, row - 1.5, -.99, 5, 3, .1))
             body = master.intersect(box(-6, row - 1.5, -.5, 5, 3, .1))
-            self.assertGreater(body.val().Volume(), 1)
+            self.assertGreater(body.val().Volume(), .95)
             self.assertLess(tip.val().Volume(), body.val().Volume() * .9)
 
     def test_mismatched_position_is_detected_by_physical_envelope(self):
@@ -234,23 +251,19 @@ class WindingHeadTests(unittest.TestCase):
                 measured = degrees(atan2(centre.y, centre.x)) % 360
                 self.assertAlmostEqual(angle, measured, places=6)
 
-    def test_complete_removal_releases_coil_and_preserves_six_service_occurrences(self):
+    def test_release_keeps_all_six_shoes_seated(self):
         for diameter in (100, 150, 200):
             head = build_winding_head(P, diameter, released=True)
-            self.assertEqual(head.shoes, ())
-            self.assertEqual(len(head.metadata['detached_shoes']), 6)
-            self.assertGreaterEqual(diameter / 2 - head.state.release_radius_mm, 2)
-            for shoe in head.metadata['detached_shoes']:
-                self.assertGreater(shoe.val().BoundingBox().zmin, 30)
+            self.assertEqual(len(head.shoes), 6)
+            self.assertEqual(head.metadata['detached_shoes'], ())
+            self.assertEqual(head.state.shoe_radius_mm, diameter / 2)
+            for shoe in head.shoes:
+                self.assertAlmostEqual(shoe.val().BoundingBox().zmin, -1)
                 self.assertLess(overlap(shoe, head.wheel), 1e-6)
-            for first, second in combinations(head.metadata['detached_shoes'], 2):
+            for first, second in combinations(head.shoes, 2):
                 self.assertLess(overlap(first, second), 1e-6)
-            outer = cq.Workplane('XY').circle(diameter / 2 + 20).circle(
-                diameter / 2 - 2).extrude(40)
-            insufficient = build_winding_head(P, diameter).shoes[0].translate((-.5, 0, 10))
-            self.assertGreater(overlap(insufficient, outer), .1)
 
-    def test_friction_tongues_allow_continuous_forward_removal_inside_fixed_winding(self):
+    def test_seated_shoes_allow_continuous_upward_winding_removal(self):
         from windwall.winding_tool_service import _linear_collision, _winding_fixture
 
         for diameter in (100, 150, 200):
@@ -262,21 +275,21 @@ class WindingHeadTests(unittest.TestCase):
             winding = _winding_fixture(P, diameter)['coil']
             self.assertAlmostEqual(winding.val().BoundingBox().zmin, 12.5)
             self.assertAlmostEqual(winding.val().BoundingBox().zlen, 9)
-            self.assertLess(_linear_collision(shoe, winding, (0, 0, 40)), 1e-6)
-            self.assertLess(_linear_collision(shoe, head.wheel, (0, 0, 40)), 1e-6)
+            self.assertLess(_linear_collision(winding, shoe, (0, 0, 40)), 1e-6)
+            self.assertLess(_linear_collision(winding, head.wheel, (0, 0, 40)), 1e-6)
             for neighbor in head.shoes[1:]:
-                self.assertLess(_linear_collision(shoe, neighbor, (0, 0, 40)), 1e-6)
+                self.assertLess(_linear_collision(winding, neighbor, (0, 0, 40)), 1e-6)
             for lift in (0, 1, 3, 5, 10, 20, 40):
-                moved = shoe.translate((0, 0, lift))
+                moved = winding.translate((0, 0, lift))
                 self.assertLess(overlap(head.wheel, moved), 1e-6)
-                self.assertLess(overlap(winding, moved), 1e-6)
+                self.assertLess(overlap(shoe, moved), 1e-6)
 
     def test_final_contact_mouths_are_rounded(self):
         head = build_winding_head(P, 150)
         faces = head.shoe_master.val().Faces()
         self.assertGreaterEqual(sum(face.geomType() == 'TORUS' for face in faces), 2)
         assert_rounded_mouths(self, head.shoe_master)
-        sharp = head.shoe_master.union(box(-.4, 1, 11, .4, 2, .5))
+        sharp = head.shoe_master.union(box(-.4, 5.8, 10.8, .4, 1, .5))
         with self.assertRaises(AssertionError):
             assert_rounded_mouths(self, sharp)
 
@@ -312,7 +325,7 @@ class WindingHeadTests(unittest.TestCase):
             with self.subTest(diameter=diameter), self.assertRaises(ValueError):
                 build_winding_head(P, diameter)
 
-    def test_closed_tape_ring_clears_the_entire_forward_removal_sweep(self):
+    def test_closed_tape_ring_clears_the_entire_upward_removal_sweep(self):
         """Real 10 mm tangential strips must clear, including their inner legs."""
         for diameter in (100, 150, 200):
             head = build_winding_head(P, diameter)
@@ -326,11 +339,10 @@ class WindingHeadTests(unittest.TestCase):
                 self.assertEqual(len(tape.val().Solids()), 1)
                 positioned = tape.translate((diameter / 2 - 50, 0, 0))
                 self.assertLess(overlap(head.shoes[0], positioned), 1e-6)
-                # Horizontal tape legs sweep overlapping axial intervals.
-                # Their exact union over 40 mm inverse withdrawal is the full
-                # curved strip, rather than a 1 mm tangential surrogate.
-                sweep = cq.Workplane('XY').circle(52).circle(48).extrude(50).translate((0, 0, -28))
-                sweep = sweep.intersect(box(32, offset - 5, -29, 21, 10, 52))
+                # Both horizontal legs continuously sweep upward over seated
+                # shoes. The inner leg must clear every upper bridge too.
+                sweep = cq.Workplane('XY').circle(52).circle(48).extrude(50).translate((0, 0, 12))
+                sweep = sweep.intersect(box(32, offset - 5, 11, 21, 10, 52))
                 for angle in range(0, 360, 60):
                     sweeps.append(sweep.translate((diameter / 2 - 50, 0, 0)).rotate(
                         (0, 0, 0), (0, 0, 1), angle).val())
