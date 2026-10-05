@@ -1,16 +1,13 @@
-"""Tool-free service poses and continuous straight-line collision checks.
+"""Horizontal tool service and continuous straight-line collision checks.
 
-The authoritative assembly solids remain in every pose. Contact shoes use
-rigid friction-fit rail tongues and withdraw without an elastic release state.
-The explicit fixture is a fixed 9 mm axial winding with 1 mm radial build on
-the nominal-radius rear runout, and eighteen closed tape loops, each 10 mm
-wide tangentially. The protective front shoulder moves away during forward
-shoe removal. No wire deformation or radial shoe relief is assumed. This does
-not certify larger coils, fit, fatigue or hand force.
+The actual taped winding lifts +Z after the removable crank is parked above it.
+All six shoes remain seated. The independently defined fixture has 9 mm axial
+width, 1 mm radial winding build and eighteen closed 10 mm tape loops.
+No deformation is assumed; physical fit, force and powered use are unvalidated.
 """
 
 from functools import lru_cache
-from math import cos, isfinite, radians, sin
+from math import isfinite
 
 import cadquery as cq
 from OCP.BRepPrimAPI import BRepPrimAPI_MakePrism
@@ -59,12 +56,12 @@ def ring(outer, inner, bottom, height):
 
 @lru_cache(maxsize=4096)
 def installed_shape(shape, height):
-    return shape.rotate((0, 0, 0), (1, 0, 0), 90).translate((0, 0, height))
+    return shape.translate((0, 0, height))
 
 
 @lru_cache(maxsize=4096)
 def local_shape(shape, height):
-    return shape.translate((0, 0, -height)).rotate((0, 0, 0), (1, 0, 0), -90)
+    return shape.translate((0, 0, -height))
 
 
 def head_datum(model):
@@ -168,9 +165,9 @@ def _winding_fixture(parameters, diameter):
     head = head_reference(parameters, diameter)
     radius = diameter / 2
     contact_radius = parameters.minimum_diameter_mm / 2
-    # The full winding sits on the constant-radius runout ending at Z=23.8.
-    # Its 0.02 mm inner gap is the existing geometric clearance, not an
-    # allowance for lifting the bundle over a rear lip during withdrawal.
+    # The full winding sits above the lower support on the nominal-radius runout.
+    # Its 0.02 mm inner gap is geometric clearance, not an allowance for
+    # deforming the winding to lift it over a trapping lip.
     shapes = {'coil': _winding_band(parameters, diameter, .02, 1, 12.5, 9)}
     # Follow the same circular contact arc as the winding. A straight rectangle
     # at each old slot center intersects the curved bundle when widened to a
@@ -184,139 +181,93 @@ def _winding_fixture(parameters, diameter):
         offset = local.val().Center().y
         tape = tape_envelope.intersect(box(radius - 12, offset - 5, 11, 14, 10, 12))
         shapes[f'tape_{index + 1}'] = tape.rotate((0, 0, 0), (0, 0, 1), (index // 3) * 60)
-    return shapes
+    # Find the gravity seat from actual reference solids, not a floating nominal
+    # height. Congruent shoes share the same support, so one suffices here; the
+    # production audit independently checks all six actual occurrences below.
+    coil, support = shapes['coil'], head.shoes[0]
+    if not clear(coil, support):
+        raise ValueError('Winding fixture starts inside its supporting shoe')
+    low, high = 0.0, 8.0
+    if clear(translated(coil, (0, 0, -high)), support):
+        raise ValueError('Winding fixture has no lower supporting shoulder')
+    for _ in range(13):
+        middle = (low + high) / 2
+        if intersection_volume(translated(coil, (0, 0, -middle)), support) <= 1e-8:
+            low = middle
+        else:
+            high = middle
+    # Keep two microns off the mathematical tangent so OCCT boundary prisms do
+    # not report tolerance-sized overlap. The independent 0.02 mm support probe
+    # still rejects a floating winding or a missing lower shoulder.
+    return {name: translated(shape, (0, 0, -low + .002)) for name, shape in shapes.items()}
 
 
 def coil_removal_stages(model):
-    """Return drawing-ready poses with explicit motion and service ownership.
-
-    Each friction-fit shoe is withdrawn 40 mm forward, then parked radially
-    outside the winding. The taped coil stays put until all six shoes are
-    detached. Fixed members, including parked shoes, are never discarded.
-    Positive local Z is world negative Y. A helper supports the taped winding.
-    """
+    """Keep every occurrence while lifting the crank, then the closed taped coil."""
     diameter, height = head_datum(model)
-    head = head_reference(model.parameters, diameter)
     parts = dict(model.winding_jig)
-    parts.update({name: installed_shape(shape, height)
-                  for name, shape in _winding_fixture(model.parameters, diameter).items()})
+    fixture = _winding_fixture(model.parameters, diameter)
+    parts.update({name: installed_shape(shape, height) for name, shape in fixture.items()})
     groups = {name: owner['group'] for name, owner in model.ownership['winding_jig'].items()}
-    groups.update({name: 'held_winding' for name in parts if name not in groups})
+    groups.update({name: 'held_winding' for name in fixture})
     stages = []
-
-    def stage(name, names=(), vector=(0, 0, 0), released=None, restored=None):
+    for name, names, vector in (
+        ('wound_friction_fit', (), (0, 0, 0)),
+        ('remove_crank', ('crank', 'grip'), (0, 0, 160)),
+        ('remove_taped_coil', tuple(fixture), (0, 0, 120)),
+    ):
         moving = {key: parts[key] for key in names}
         stages.append({'name': name, 'moving': moving,
                        'fixed': {key: value for key, value in parts.items() if key not in names},
                        'translation_mm': vector, 'groups': dict(groups),
-                       'released': {} if released is None else released,
-                       'restored': {} if restored is None else restored})
-        for key, value in moving.items():
-            parts[key] = translated(value, vector)
-        if released:
-            parts.update(released)
-        if restored:
-            parts.update(restored)
-
-    stage('wound_friction_fit')
-    lift = head.metadata['release_lift_mm']
-    for index in range(model.parameters.spoke_count):
-        name = f'shoe_{index + 1}'
-        stage(f'withdraw_{name}', (name,), (0, -lift, 0))
-        groups[name] = 'service_detached'
-        angle = radians(index * 60)
-        stage(f'park_{name}', (name,), (lift * cos(angle), 0, lift * sin(angle)))
-    stage('shoes_detached')
-    winding = tuple(_winding_fixture(model.parameters, diameter))
-    stage('remove_taped_coil', winding, (0, -120, 0))
+                       'released': {}, 'restored': {}})
+        for key, shape in moving.items():
+            parts[key] = translated(shape, vector)
+        if name == 'remove_crank':
+            groups.update(crank='service_detached', grip='service_detached')
     return tuple(stages)
 
 
 def audit_snap_access(model):
-    _, height = head_datum(model)
-    local = {name: local_shape(shape, height) for name, shape in model.winding_jig.items()}
-    access = []
-    for name in ('snap_collar_1', 'snap_collar_2'):
-        z = bounds(local[name]).zmin
-        access.append((box(-8, 5.2, z - .1, 16, 18, 2), ('base', 'tower', 'wheel', 'crank')))
-    for name in ('bearing_retainer_1', 'bearing_retainer_2'):
-        z = bounds(local[name]).zmin
-        access.append((box(-5, 12, z, 10, 12, 1.5), ('tower', 'base')))
-    for x in (-24, 17):
-        access.append((box(x, -height + 18, -40, 7, 12, 18), ('base',)))
-    access.append((box(-9, -4, 7.5, 18, 8, 12), ('base', 'tower', 'wheel')))
-    access.append((box(-2, 5, -68, 4, 10, 12), ('base', 'tower', 'shaft')))
-    access.append((box(47, -5, -95, 10, 10, 10), ('base', 'tower', 'grip')))
-    return all(clear(probe, local[name]) for probe, names in access for name in names)
+    """The winder has no snaps: reserve a clear upward path for its top drive."""
+    parts = model.winding_jig
+    return all(_linear_collision(parts[moving], parts[fixed], (0, 0, 160)) <= VOLUME_TOLERANCE
+               for moving in ('crank', 'grip')
+               for fixed in parts if fixed not in ('crank', 'grip'))
 
 
 def _motion_ownership(model, stages):
-    """Permit only shoe withdrawal/parking and final held-winding translation."""
     diameter, _ = head_datum(model)
-    lift = head_reference(model.parameters, diameter).metadata['release_lift_mm']
-    winding = set(_winding_fixture(model.parameters, diameter))
-    states = {f'shoe_{i}': 'fitted' for i in range(1, 7)}
-    initial_groups = {name: owner['group'] for name, owner in model.ownership['winding_jig'].items()}
-    initial_groups.update({name: 'held_winding' for name in winding})
-    transitions = {'withdraw': ('fitted', 'withdrawn'), 'park': ('withdrawn', 'parked')}
-    valid = bool(stages)
-    for index, stage in enumerate(stages):
-        groups = dict(initial_groups)
-        groups.update({name: 'service_detached' for name, state in states.items()
-                       if state in ('withdrawn', 'parked')})
-        valid &= stage['groups'] == groups
-        vector = tuple(stage['translation_mm'])
-        if len(vector) != 3 or not all(isfinite(value) for value in vector):
+    fixture = set(_winding_fixture(model.parameters, diameter))
+    if len(stages) != 3:
+        return False
+    groups = {name: owner['group'] for name, owner in model.ownership['winding_jig'].items()}
+    groups.update({name: 'held_winding' for name in fixture})
+    for stage, (name, moving, vector) in zip(stages, (
+        ('wound_friction_fit', set(), (0, 0, 0)),
+        ('remove_crank', {'crank', 'grip'}, (0, 0, 160)),
+        ('remove_taped_coil', fixture, (0, 0, 120)),
+    )):
+        if (stage['name'] != name or set(stage['moving']) != moving
+                or tuple(stage['translation_mm']) != vector or stage['groups'] != groups
+                or stage.get('released') or stage.get('restored')):
             return False
-        name = stage['name']
-        moving, released, restored = set(stage['moving']), set(stage.get('released', {})), set(stage.get('restored', {}))
-        expected_moving = expected_released = expected_restored = set()
-        expected_vector = (0, 0, 0)
-        if name == 'wound_friction_fit':
-            valid &= index == 0 and all(state == 'fitted' for state in states.values())
-        elif name == 'shoes_detached':
-            valid &= all(state == 'parked' for state in states.values())
-        elif name == 'remove_taped_coil':
-            valid &= index == len(stages) - 1 and all(state == 'parked' for state in states.values())
-            valid &= vector[1] < -100
-            expected_moving = winding
-            expected_vector = (0, vector[1], 0)
-        else:
-            action, _, shoe = name.partition('_')
-            if action not in transitions or shoe not in states:
-                valid = False
-                continue
-            before, after = transitions[action]
-            valid &= states[shoe] == before
-            states[shoe] = after
-            expected_moving = {shoe}
-            if action == 'withdraw':
-                expected_vector = (0, -lift, 0)
-            else:
-                angle = radians((int(shoe.split('_')[1]) - 1) * 60)
-                expected_vector = (lift * cos(angle), 0, lift * sin(angle))
-        valid &= (moving == expected_moving and released == expected_released and restored == expected_restored
-                  and all(abs(actual - expected) <= 1e-6 for actual, expected in zip(vector, expected_vector)))
-    return bool(valid and all(state == 'parked' for state in states.values()))
+        if name == 'remove_crank':
+            groups.update(crank='service_detached', grip='service_detached')
+    return True
 
 
 def audit_winding_tool_service(model, stages=None):
-    """Inspect the standard route or a supplied drawing/service route.
-
-    The supplied route is validated against the model's first pose, bounded
-    rigid friction-fit withdrawal, every intervening pose and final removal motion.
-    The return is JSON-safe; the pose builder itself intentionally returns CAD.
-    """
-    checks = {name: False for name in ('snap_access', 'wound_closed_tape',
-        'route_continuity', 'motion_ownership', 'all_shoes_detached', 'radial_support_clearance',
-        'complete_coil_removal')}
+    """Continuously sweep actual solids, retaining the shoes and parked crank."""
+    checks = {name: False for name in (
+        'snap_access', 'winding_supported', 'wound_closed_tape', 'route_continuity', 'motion_ownership',
+        'all_shoes_seated', 'complete_coil_removal')}
     result = {'checks': checks, 'collisions': [], 'errors': [],
-              'radial_support_clearance_mm': 0.0,
               'continuous_translation_checks': True,
+              'release_direction': '+Z', 'shoes_removed': False,
               'fixture_mm': {'winding_radial_build': 1, 'winding_axial_width': 9,
                              'tape_radial_span': 4, 'tape_axial_span': 10,
-                             'tape_tangential_width': 10,
-                             'tape_wall': .25}}
+                             'tape_tangential_width': 10, 'tape_wall': .25}}
     try:
         diameter, height = head_datum(model)
         stages = coil_removal_stages(model) if stages is None else tuple(stages)
@@ -326,53 +277,42 @@ def audit_winding_tool_service(model, stages=None):
         fixture = {name: installed_shape(shape, height)
                    for name, shape in _winding_fixture(model.parameters, diameter).items()}
         expected.update(fixture)
+        checks['winding_supported'] = all(
+            clear(fixture['coil'], model.winding_jig[f'shoe_{index}'])
+            and _linear_collision(fixture['coil'], model.winding_jig[f'shoe_{index}'],
+                                  (0, 0, -.02)) > VOLUME_TOLERANCE
+            for index in range(1, 7))
+        result['fixture_mm']['seated_coil_bottom_local_z'] = bounds(fixture['coil']).zmin - height
         checks['wound_closed_tape'] = all(clear(shape, body)
             for shape in fixture.values() for body in model.winding_jig.values())
-        continuous = bool(stages and stages[0]['name'] == 'wound_friction_fit'
-                          and stages[-1]['name'] == 'remove_taped_coil')
+        continuous = bool(stages)
         for stage in stages:
             present = {**stage['fixed'], **stage['moving']}
             continuous &= (not stage['fixed'].keys() & stage['moving'].keys()
                            and present.keys() == expected.keys()
                            and all(_same_shape(present[name], body) for name, body in expected.items()))
             vector = tuple(stage['translation_mm'])
+            if len(vector) != 3 or not all(isfinite(v) for v in vector):
+                raise ValueError('Service translation must be a finite three-vector')
             for name, moving in stage['moving'].items():
                 for fixed_name, fixed in stage['fixed'].items():
-                    overlap = _linear_collision(moving, fixed, vector)
-                    if overlap > VOLUME_TOLERANCE:
+                    volume = _linear_collision(moving, fixed, vector)
+                    if volume > VOLUME_TOLERANCE:
                         result['collisions'].append({'stage': stage['name'], 'moving': name,
-                            'fixed': fixed_name, 'overlap_mm3': overlap})
+                            'fixed': fixed_name, 'overlap_mm3': volume})
                         break
                 expected[name] = translated(moving, vector)
             continuous &= not stage.get('released') and not stage.get('restored')
         checks['route_continuity'] = bool(continuous)
         final = stages[-1]
-        shoes = [f'shoe_{i}' for i in range(1, 7)]
-        checks['all_shoes_detached'] = all(
-            final['groups'].get(name) == 'service_detached'
-            and local_shape(final['fixed'][name], height).val().BoundingBox().zmin > 30
-            for name in shoes)
-        # Enlarge the entire closed taped winding inward and outward by the
-        # required radial margin, over its axial span. Any retained shoe or
-        # obstructing structural member then fails before winding motion.
-        margin = model.parameters.release_clearance_mm
-        support_band = installed_shape(_winding_band(model.parameters, diameter,
-            -4 - margin, 4 + margin, 12, 10), height)
-        winding_pose_known = set(final['moving']) == set(fixture)
-        if winding_pose_known:
-            offset = final['moving']['coil'].val().Center().sub(fixture['coil'].val().Center()).toTuple()
-            winding_pose_known = all(_same_shape(final['moving'][name], translated(shape, offset))
-                                     for name, shape in fixture.items())
-            support_band = translated(support_band, offset)
-        clearance = winding_pose_known and all(clear(support_band, shape) for shape in final['fixed'].values())
-        checks['radial_support_clearance'] = bool(clearance and checks['all_shoes_detached'])
-        result['radial_support_clearance_mm'] = margin if checks['radial_support_clearance'] else 0.0
+        checks['all_shoes_seated'] = all(
+            name in final['fixed'] and _same_shape(final['fixed'][name], model.winding_jig[name])
+            and final['groups'][name] == model.ownership['winding_jig'][name]['group']
+            for name in (f'shoe_{i}' for i in range(1, 7)))
         checks['complete_coil_removal'] = bool(
-            checks['wound_closed_tape'] and checks['route_continuity'] and checks['motion_ownership']
-            and checks['all_shoes_detached'] and checks['radial_support_clearance']
-            and not result['collisions']
-            and set(final['moving']) == set(fixture)
-            and final['translation_mm'][1] < -100)
+            all(checks[name] for name in checks if name != 'complete_coil_removal')
+            and not result['collisions'] and set(final['moving']) == set(fixture)
+            and tuple(final['translation_mm']) == (0, 0, 120))
     except (KeyError, ValueError, RuntimeError, TypeError, IndexError) as error:
         result['errors'].append(f'{type(error).__name__}: {error}')
     return result

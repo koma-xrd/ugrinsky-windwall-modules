@@ -61,6 +61,23 @@ def raw_release_mesh(shape, destination, name):
 
 
 class WindingHeadTests(unittest.TestCase):
+    def test_taped_winding_is_supported_before_tape_contacts_lower_bridges(self):
+        from windwall.winding_tool_service import _winding_fixture, _linear_collision
+
+        for diameter in (100, 150, 200):
+            with self.subTest(diameter=diameter):
+                head = build_winding_head(P, diameter)
+                fixture = _winding_fixture(P, diameter)
+                # A 0.5 mm fall must already meet the lower shoulder, while
+                # the closed tape loop remains clear throughout that fall.
+                self.assertGreater(_linear_collision(
+                    fixture['coil'], head.shoes[0], (0, 0, -.5)), 1e-5)
+                for name, tape in fixture.items():
+                    if name != 'coil':
+                        for shoe in head.shoes:
+                            self.assertLess(_linear_collision(
+                                tape, shoe, (0, 0, -.5)), 1e-5)
+
     def test_open_top_shoe_clears_upward_winding_sweep(self):
         # A full annulus is a conservative continuous swept volume: it covers
         # both the winding and the outer legs of closed tape loops.
@@ -136,7 +153,7 @@ class WindingHeadTests(unittest.TestCase):
                 reference = signatures
             self.assertEqual(signatures, reference)
             rear_excess = cq.Workplane('XY').circle(diameter / 2 + 30).circle(
-                diameter / 2 + .001).extrude(19).translate((0, 0, 10.2))
+                diameter / 2 + .001).extrude(19).translate((0, 0, 12.5))
             front_excess = cq.Workplane('XY').circle(diameter / 2 + 30).circle(
                 diameter / 2 + 2.701).extrude(5).translate((0, 0, 5.2))
             for index, shoe in enumerate(head.shoes):
@@ -273,7 +290,9 @@ class WindingHeadTests(unittest.TestCase):
             # taut connecting spans at larger settings. A uniform 20 mm band
             # covered the protective shoulder even before any motion.
             winding = _winding_fixture(P, diameter)['coil']
-            self.assertAlmostEqual(winding.val().BoundingBox().zmin, 12.5)
+            self.assertGreater(winding.val().BoundingBox().zmin, 12.0)
+            self.assertLess(winding.val().BoundingBox().zmin, 12.5)
+            self.assertGreater(_linear_collision(winding, shoe, (0, 0, -.02)), 1e-5)
             self.assertAlmostEqual(winding.val().BoundingBox().zlen, 9)
             self.assertLess(_linear_collision(winding, shoe, (0, 0, 40)), 1e-6)
             self.assertLess(_linear_collision(winding, head.wheel, (0, 0, 40)), 1e-6)
@@ -296,7 +315,7 @@ class WindingHeadTests(unittest.TestCase):
     def test_print_masters_fit_declared_orientation(self):
         head = build_winding_head(P, 150)
         for shape in (head.wheel, head.shoe_master.rotate(
-                (0, 0, 0), (1, 0, 0), 90)):
+                (0, 0, 0), (0, 1, 0), -90)):
             bounds = shape.val().BoundingBox()
             self.assertLessEqual(bounds.xlen, 220)
             self.assertLessEqual(bounds.ylen, 220)
@@ -304,7 +323,7 @@ class WindingHeadTests(unittest.TestCase):
 
     def test_fresh_shoe_master_raw_release_mesh_has_no_topology_defects(self):
         shoe = build_winding_head(P, 150).shoe_master.rotate(
-            (0, 0, 0), (1, 0, 0), 90)
+            (0, 0, 0), (0, 1, 0), -90)
         with temporary_build_directory() as destination:
             mesh = raw_release_mesh(shoe, destination, 'contact_shoe')
         self.assertEqual((mesh.component_count, mesh.boundary_edge_count,

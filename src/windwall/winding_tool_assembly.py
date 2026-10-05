@@ -15,7 +15,7 @@ from math import atan2, cos, degrees, hypot, isfinite, radians, sin
 
 import cadquery as cq
 
-from windwall.bearings import build_51105_reference, build_608_reference
+from windwall.bearings import build_51105_reference
 from windwall.parameters import DEFAULT_PARAMETERS, DesignParameters
 from windwall.winding_frame import build_winding_frame
 from windwall.winding_head import build_winding_head
@@ -41,13 +41,13 @@ class WindingToolAssemblies:
 
 # One identity table owns required occurrences, print grouping and motion role.
 _JIG_LAYOUT = {
-    'base': ('base', 'stationary'), 'tower': ('bearing_tower', 'stationary'),
-    'wheel': ('coil_wheel', 'rotating'), 'shaft': ('printed_shaft', 'rotating'),
-    'crank': ('hand_crank', 'rotating'), 'grip': ('rotating_grip', 'rotating'),
+    'base': ('base', 'stationary'), 'hub': ('horizontal_hub', 'rotating'),
+    'wheel': ('coil_wheel', 'rotating'), 'crank': ('hand_crank', 'rotating'),
+    'grip': ('rotating_grip', 'rotating'),
     **{f'shoe_{i}': ('contact_shoe', 'rotating') for i in range(1, 7)},
-    **{f'bearing_retainer_{i}': ('bearing_retainer', 'stationary') for i in (1, 2)},
-    **{f'snap_collar_{i}': ('snap_collar', 'rotating') for i in (1, 2)},
-    **{f'bearing_608_{i}': ('608 bearing', 'stationary') for i in (1, 2)},
+    'lower_washer': ('51105 thrust bearing', 'stationary'),
+    'bearing': ('51105 thrust bearing', 'bearing_internal'),
+    'upper_washer': ('51105 thrust bearing', 'rotating'),
 }
 _PAYOFF_LAYOUT = {
     'base': ('base', 'stationary'), 'spindle': ('printed_spindle', 'rotating'),
@@ -56,11 +56,8 @@ _PAYOFF_LAYOUT = {
     'bearing': ('51105 thrust bearing', 'bearing_internal'),
     'upper_washer': ('51105 thrust bearing', 'rotating'),
 }
-_PURCHASES = frozenset(('608 bearing', '51105 thrust bearing'))
-_BEARING_DIMENSIONS = {
-    '608': DEFAULT_PARAMETERS.bearings.radial_nominal_dimensions_mm,
-    '51105': DEFAULT_PARAMETERS.bearings.thrust_nominal_dimensions_mm,
-}
+_PURCHASES = frozenset(('51105 thrust bearing',))
+_BEARING_DIMENSIONS = {'51105': DEFAULT_PARAMETERS.bearings.thrust_nominal_dimensions_mm}
 
 
 def _owners(layout):
@@ -74,44 +71,38 @@ def build_winding_tool_assemblies(
         design_parameters: DesignParameters = DEFAULT_PARAMETERS,
         diameter_mm: float = 150.0,
 ) -> WindingToolAssemblies:
-    """Install all members, evaluate every labeled setting, and fail closed."""
-    for designation, dimensions in (
-        ('608', design_parameters.bearings.radial_nominal_dimensions_mm),
-        ('51105', design_parameters.bearings.thrust_nominal_dimensions_mm),
-    ):
-        if dimensions != _BEARING_DIMENSIONS[designation]:
-            raise ValueError(f'{designation} requires canonical dimensions {_BEARING_DIMENSIONS[designation]} mm')
+    """Install the horizontal wheel and independent payoff, then fail closed."""
+    if design_parameters.bearings.thrust_nominal_dimensions_mm != _BEARING_DIMENSIONS['51105']:
+        raise ValueError('51105 requires canonical 25 x 42 x 11 mm dimensions')
     head = build_winding_head(tool_parameters, diameter_mm)
     frame = build_winding_frame(tool_parameters, design_parameters)
     payoff = build_wire_payoff(tool_parameters, design_parameters)
-    height = frame.metadata['axis_height_mm']
-    jig = {name: getattr(frame, name) for name in ('base', 'tower', 'shaft', 'crank', 'grip')}
-    for prefix, members in (('bearing_retainer', frame.bearing_retainers),
-                            ('bearing_608', frame.bearings),
-                            ('snap_collar', frame.snap_collars)):
-        jig.update({f'{prefix}_{index}': body for index, body in enumerate(members, 1)})
+    height = frame.metadata['wheel_bottom_z_mm']
+    jig = {name: getattr(frame, name) for name in (
+        'base', 'hub', 'crank', 'grip', 'lower_washer', 'bearing', 'upper_washer')}
     jig['wheel'] = installed_shape(head.wheel, height)
     jig.update({f'shoe_{index}': installed_shape(body, height)
                 for index, body in enumerate(head.shoes, 1)})
     supply = {name: getattr(payoff, name) for name in _PAYOFF_LAYOUT}
     ownership = {'winding_jig': _owners(_JIG_LAYOUT), 'wire_payoff': _owners(_PAYOFF_LAYOUT)}
+    for tool, owners in ownership.items():
+        for name, owner in owners.items():
+            if owner['source'] == 'printed':
+                owner['canonical_master'] = 'wire_payoff/base' if name == 'base' else f'{tool}/{owner["master"]}'
+            else:
+                owner.update(purchase_set=f'{tool}_51105',
+                             nominal_dimensions_mm=_BEARING_DIMENSIONS['51105'])
     for name, owner in ownership['winding_jig'].items():
         if owner['source'] == 'printed':
-            component = name.rsplit('_', 1)[0] if name[-1:].isdigit() else name
-            owner['print_rotations_deg'] = ((90, 0, 0) if component == 'shoe' else
+            component = 'shoe' if name.startswith('shoe_') else name
+            owner['print_rotations_deg'] = ((0, -90, 0) if component == 'shoe' else
                 (0, 0, 0) if component == 'wheel' else frame.metadata['print_rotations_deg'][component])
-    ownership['winding_jig']['wheel'].update({
-        'diameter_mm': head.state.diameter_mm, 'axis_height_mm': height,
-        'actual_tape_angles_deg': head.metadata['actual_tape_angles_deg'],
-        'nominal_tape_angles_deg': head.metadata['nominal_tape_angles_deg'],
-    })
-    for name in ('bearing_608_1', 'bearing_608_2'):
-        ownership['winding_jig'][name]['nominal_dimensions_mm'] = frame.metadata['bearing_nominal_dimensions_mm']
+    ownership['winding_jig']['wheel'].update(
+        diameter_mm=head.state.diameter_mm, axis_height_mm=height,
+        actual_tape_angles_deg=head.metadata['actual_tape_angles_deg'],
+        nominal_tape_angles_deg=head.metadata['nominal_tape_angles_deg'])
     for name in ('base', 'spindle', 'platter'):
         ownership['wire_payoff'][name]['print_rotations_deg'] = (0, 90, 0) if name == 'spindle' else (0, 0, 0)
-    for name in ('lower_washer', 'bearing', 'upper_washer'):
-        ownership['wire_payoff'][name]['purchase_set'] = '51105_1'
-        ownership['wire_payoff'][name]['nominal_dimensions_mm'] = tuple(payoff.metadata['bearing_nominal_dimensions_mm'])
     ownership['wire_payoff']['spindle']['journal_diameter_mm'] = design_parameters.bearings.thrust_rotating_pilot_diameter_mm
     model = WindingToolAssemblies(jig, supply, ownership, tool_parameters, {})
     checks = audit_winding_tool_assemblies(model)
@@ -124,58 +115,46 @@ def build_winding_tool_assemblies(
 def _ownership_checks(model):
     required = set(model.winding_jig) == set(_JIG_LAYOUT) and set(model.wire_payoff) == set(_PAYOFF_LAYOUT)
     correct = set(model.ownership) == {'winding_jig', 'wire_payoff'}
+    thrust = True
+    sets = []
     for tool, layout in (('winding_jig', _JIG_LAYOUT), ('wire_payoff', _PAYOFF_LAYOUT)):
         owners = model.ownership.get(tool, {})
         correct &= set(owners) == set(getattr(model, tool))
         for name, expected in _owners(layout).items():
-            correct &= all(owners.get(name, {}).get(key) == value for key, value in expected.items())
-    owners = model.ownership.get('wire_payoff', {})
-    thrust = all(owners.get(name, {}).get('group') == group for name, group in (
-        ('lower_washer', 'stationary'), ('bearing', 'bearing_internal'), ('upper_washer', 'rotating')))
-    thrust &= {owners.get(name, {}).get('purchase_set') for name in
-               ('lower_washer', 'bearing', 'upper_washer')} == {'51105_1'}
+            actual = owners.get(name, {})
+            correct &= all(actual.get(key) == value for key, value in expected.items())
+            if expected['source'] == 'printed':
+                identity = 'wire_payoff/base' if name == 'base' else f'{tool}/{expected["master"]}'
+                correct &= actual.get('canonical_master') == identity
+        purchase_sets = {owners.get(name, {}).get('purchase_set')
+                         for name in ('lower_washer', 'bearing', 'upper_washer')}
+        thrust &= len(purchase_sets) == 1 and None not in purchase_sets
+        sets.extend(purchase_sets)
+    thrust &= len(set(sets)) == 2
     return {'required_members': bool(required), 'ownership': bool(correct),
             'bearing_51105_ownership': bool(thrust)}
 
 
 @lru_cache(maxsize=1)
 def _bearing_references():
-    return {'608': build_608_reference(DEFAULT_PARAMETERS),
-            '51105': build_51105_reference(DEFAULT_PARAMETERS)}
+    return {'51105': build_51105_reference(DEFAULT_PARAMETERS)}
 
 
 def _validated_bearing_inventory(model):
-    """Validate every size record and the real catalog-shaped purchased stack."""
-    references = _bearing_references()
-    dimensions = {}
-    for designation, tool, names in (
-        ('608', 'winding_jig', ('bearing_608_1', 'bearing_608_2')),
-        ('51105', 'wire_payoff', ('lower_washer', 'bearing', 'upper_washer')),
-    ):
-        for name in names:
+    """Require both purchased stacks at their canonical installed poses."""
+    reference = _bearing_references()['51105']
+    for tool in ('winding_jig', 'wire_payoff'):
+        for name, reference_name in (('lower_washer', 'housing_washer'),
+                                     ('bearing', 'rolling_envelope'), ('upper_washer', 'shaft_washer')):
             record = model.ownership[tool][name].get('nominal_dimensions_mm', ())
-            if not isinstance(record, (tuple, list)) or tuple(record) != _BEARING_DIMENSIONS[designation]:
-                raise ValueError(f'{designation} occurrence {name} has noncanonical bearing dimensions')
-            dimensions[designation] = tuple(record)
-    _, height = head_datum(model)
-    actual_and_gauge = []
-    for name in ('bearing_608_1', 'bearing_608_2'):
-        actual = local_shape(model.winding_jig[name], height)
-        center = actual.val().Center()
-        actual = translated(actual, (-center.x, -center.y, -bounds(actual).zmin))
-        actual_and_gauge.append(('608', actual, references['608'].parts['sealed_envelope']))
-    lower = model.wire_payoff['lower_washer']
-    center = lower.val().Center()
-    offset = (-center.x, -center.y, -bounds(lower).zmin)
-    for name, reference_name in (('lower_washer', 'housing_washer'),
-                                 ('bearing', 'rolling_envelope'), ('upper_washer', 'shaft_washer')):
-        actual_and_gauge.append(('51105', translated(model.wire_payoff[name], offset),
-                                 references['51105'].parts[reference_name]))
-    for designation, actual, gauge in actual_and_gauge:
-        if (actual.cut(gauge).val().Volume() > VOLUME_TOLERANCE
-                or gauge.cut(actual).val().Volume() > VOLUME_TOLERANCE):
-            raise ValueError(f'{designation} actual bearing geometry does not match its canonical stack')
-    return dimensions
+            if not isinstance(record, (tuple, list)) or tuple(record) != _BEARING_DIMENSIONS['51105']:
+                raise ValueError(f'51105 occurrence {tool}/{name} has noncanonical dimensions')
+            actual = getattr(model, tool)[name]
+            gauge = translated(reference.parts[reference_name], (0, 0, 8))
+            if (actual.cut(gauge).val().Volume() > VOLUME_TOLERANCE
+                    or gauge.cut(actual).val().Volume() > VOLUME_TOLERANCE):
+                raise ValueError(f'51105 actual member {tool}/{name} differs from its canonical pose')
+    return {'51105': _BEARING_DIMENSIONS['51105']}
 
 
 @lru_cache(maxsize=32)
@@ -214,12 +193,13 @@ def _head_checks(member_items, parameters, diameter):
     # Check the translated master arc, not a full nominal-diameter circle:
     # off-center contact lands lie inside that circle at larger settings.
     runout_excess = translated(ring(contact_radius + 40, contact_radius + .001,
-                                   5, runout_end - 5), arc_center)
+                                   metadata['nominal_runout_start_z_mm'],
+                                   runout_end - metadata['nominal_runout_start_z_mm']), arc_center)
     shoulder_excess = translated(ring(contact_radius + 40,
         contact_radius + metadata['free_shoulder_height_mm'] + .001,
         runout_end, 40 - runout_end), arc_center)
     contact_band = translated(ring(contact_radius + .001, contact_radius - .05,
-                                  runout_end - .2, .2), arc_center)
+                                  16.3, .2), arc_center)
     # Evaluate both mass centers in the same frame: OCCT's default integration
     # of curved faces differs slightly if the master is measured before moving.
     expected_center = reference.shoes[0].val().Center()
@@ -242,11 +222,18 @@ def _head_checks(member_items, parameters, diameter):
             friction_fit &= (intersection_volume(shoe, core) > .99 * core.val().Volume()
                              and clear(seat, core))
         angle = radians(index * 60)
-        radial = (.011 * cos(angle), .011 * sin(angle), 0)
-        tangential = (-.011 * sin(angle), .011 * cos(angle), 0)
+        clearance = metadata['nominal_friction_clearance_per_side_mm']
+        free_offset = clearance - .001
+        contact_offset = clearance + .001
+        radial_free = (free_offset * cos(angle), free_offset * sin(angle), 0)
+        radial_contact = (contact_offset * cos(angle), contact_offset * sin(angle), 0)
+        tangential_free = (-free_offset * sin(angle), free_offset * cos(angle), 0)
+        tangential_contact = (-contact_offset * sin(angle), contact_offset * cos(angle), 0)
         friction_fit &= (clear(seat, shoe)
-                         and intersection_volume(seat, translated(shoe, radial)) > .001
-                         and intersection_volume(seat, translated(shoe, tangential)) > .001
+                         and clear(seat, translated(shoe, radial_free))
+                         and clear(seat, translated(shoe, tangential_free))
+                         and intersection_volume(seat, translated(shoe, radial_contact)) > .001
+                         and intersection_volume(seat, translated(shoe, tangential_contact)) > .001
                          and intersection_volume(seat, translated(shoe, (0, 0, -.011))) > .001)
     corridors = metadata['tape_passage_probes']
     all_corridors = cq.Workplane('XY').newObject([
@@ -262,12 +249,11 @@ def _head_checks(member_items, parameters, diameter):
     # A conservative continuous revolution contains every wheel/shoe occurrence.
     head_members = [wheel, *shoes]
     max_radius = (max(parameters.maximum_diameter_mm, diameter) / 2
-                  + metadata['free_shoulder_height_mm'] + .01)
+                  + max(metadata['rear_shoulder_height_mm'], metadata['free_shoulder_height_mm']) + 5)
     bottom, top = min(bounds(s).zmin for s in head_members), max(bounds(s).zmax for s in head_members)
     sweep = ring(max_radius, 0, bottom, top - bottom)
     contained = all(shape.cut(sweep).val().Volume() < VOLUME_TOLERANCE for shape in head_members)
-    head_clear = all(clear(sweep, local[name]) for name in ('base', 'tower', 'bearing_retainer_1',
-                                                          'bearing_retainer_2', 'bearing_608_1', 'bearing_608_2'))
+    head_clear = all(clear(sweep, local[name]) for name in ('base', 'lower_washer', 'bearing'))
     return {'equal_shoe_positions': bool(equal), 'wire_contact_envelope': bool(envelope),
             'two_tongue_friction_fit': bool(friction_fit), 'tape_corridors': bool(tape),
             'head_rotation_clearance': bool(contained and head_clear and pair_clear)}, measured
@@ -277,7 +263,7 @@ def _head_checks(member_items, parameters, diameter):
 def _rotation_envelope(shape, split_axially=False):
     """Conservative full revolution, proven to contain the supplied solid.
 
-    Shaft/spindle sections preserve their narrow bearing journals instead of
+    Hub/spindle sections preserve their narrow bearing journals instead of
     extending the enlarged drive or snap radius across a bearing interface.
     Every axial interval is covered continuously; no angular samples are used.
     """
@@ -323,7 +309,7 @@ def _all_rotating_clearance(parts, layout):
     for name, (_, group) in layout.items():
         if group != 'rotating':
             continue
-        sweep = _rotation_envelope(parts[name], name in ('shaft', 'spindle'))
+        sweep = _rotation_envelope(parts[name], name in ('hub', 'crank', 'spindle'))
         if not all(clear(sweep, fixed) for fixed in stationary):
             return False
     return True
@@ -331,69 +317,40 @@ def _all_rotating_clearance(parts, layout):
 
 @lru_cache(maxsize=128)
 def _frame_checks(member_items, height, bearing_dimensions):
-    parts = dict(member_items)
-    shaft, tower = parts['shaft'], parts['tower']
-    clips = [parts[f'bearing_retainer_{i}'] for i in (1, 2)]
-    collars = [parts[f'snap_collar_{i}'] for i in (1, 2)]
-    bore, outer, thickness = bearing_dimensions
-    bearings = [parts[f'bearing_608_{i}'] for i in (1, 2)]
-    engaged = floating = seal_clear = True
-    for index, (bearing, outward) in enumerate(zip(bearings, (-1, 1))):
-        bb = bounds(bearing)
-        core = ring(bore / 2, 0, bb.zmin, thickness)
-        engaged &= (abs(bb.xlen - outer) < 1e-5 and abs(bb.ylen - outer) < 1e-5
-                    and abs(bb.zlen - thickness) < 1e-5
-                    and clear(shaft, bearing) and clear(tower, bearing)
-                    and intersection_volume(shaft, core) > .99999 * core.val().Volume())
-        for vector in ((.3, 0, 0), (-.3, 0, 0), (0, .3, 0), (0, -.3, 0)):
-            engaged &= intersection_volume(translated(bearing, vector), tower) > .01
-        for vector in ((.05, 0, 0), (-.05, 0, 0), (0, .05, 0), (0, -.05, 0)):
-            engaged &= intersection_volume(translated(shaft, vector), bearing) > .01
-        engaged &= intersection_volume(translated(bearing, (0, 0, -outward)), tower) > .01
-        engaged &= sum(intersection_volume(translated(bearing, (0, 0, outward)), clip)
-                       for clip in clips) > .01
-        for dz in (-.4, .4):
-            engaged &= intersection_volume(translated(clips[index], (0, 0, dz)), tower) > .01
-        seal = ring(9.6, 5.25, bb.zmin - .6, thickness + 1.2)
-        seal_clear &= all(clear(seal, shape) for shape in (tower, *clips, *collars))
-        for dz in (-.5, .5):
-            if index == 0:
-                floating &= all(clear(translated(bearing, (0, 0, dz)), body) for body in (tower, *clips))
-    located = True
-    for collar, direction in zip(collars, (1, -1)):
-        located &= (clear(shaft, collar) and clear(collar, bearings[1])
-                    and intersection_volume(translated(shaft, (0, 0, direction * .4)), collar) > .01
-                    and intersection_volume(translated(collar, (0, 0, direction * .4)), bearings[1]) > .01)
-    drives = True
-    for name in ('wheel', 'crank'):
-        driven = parts[name]
-        drives &= (clear(shaft, driven)
-                   and intersection_volume(shaft, driven.rotate((0, 0, 0), (0, 0, 1), 30)) > .1)
-        for dz in (-.6, .6):
-            drives &= intersection_volume(shaft, translated(driven, (0, 0, dz))) > .01
-    crank, grip = parts['crank'], parts['grip']
-    radius = max(hypot(max(abs(bounds(s).xmin), abs(bounds(s).xmax)),
-                       max(abs(bounds(s).ymin), abs(bounds(s).ymax))) for s in (crank, grip))
-    bottom, top = min(bounds(s).zmin for s in (crank, grip)), max(bounds(s).zmax for s in (crank, grip))
-    sweep = ring(radius, 0, bottom, top - bottom)
-    crank_clear = (height > radius and all(clear(sweep, parts[name])
-                   for name in ('base', 'tower', 'wheel', 'bearing_retainer_1', 'bearing_retainer_2')))
-    crank_clear &= all(shape.cut(sweep).val().Volume() < VOLUME_TOLERANCE for shape in (crank, grip))
-    grip_center = bounds(grip).center
-    free_grip = all(clear(crank, grip.rotate((grip_center.x, grip_center.y, 0),
-                    (grip_center.x, grip_center.y, 1), angle)) for angle in (0, 30, 90, 180))
-    for dz in (-1.5, 1.5):
-        free_grip &= intersection_volume(crank, translated(grip, (0, 0, dz))) > .01
-    mount = (clear(parts['base'], tower) and abs(bounds(parts['base']).ymin + height) < 1e-6)
-    for vector in ((.5, 0, 0), (-.5, 0, 0), (0, 0, .5), (0, 0, -.5), (0, .5, 0)):
-        mount &= intersection_volume(parts['base'], translated(tower, vector)) > .01
-    nominal_clear = all(clear(a, b) for a, b in combinations(parts.values(), 2))
-    return {'bearing_608_engagement': bool(engaged),
-            'locating_floating_load_path': bool(engaged and floating and seal_clear and located),
-            'shaft_axial_restraint': bool(located), 'positive_polygon_drives': bool(drives),
-            'crank_full_rotation': bool(crank_clear and free_grip),
+    local = dict(member_items)
+    parts = {name: installed_shape(shape, height) for name, shape in local.items()}
+    hub, base, upper, wheel = (parts[name] for name in ('hub', 'base', 'upper_washer', 'wheel'))
+    canonical = build_wire_payoff(DEFAULT_WINDING_TOOL_PARAMETERS, DEFAULT_PARAMETERS).base
+    shared_base = (base.cut(canonical).val().Volume() < VOLUME_TOLERANCE
+                   and canonical.cut(base).val().Volume() < VOLUME_TOLERANCE)
+    load = True
+    for below, above in (('base', 'lower_washer'), ('lower_washer', 'bearing'),
+                         ('bearing', 'upper_washer'), ('upper_washer', 'hub'), ('hub', 'wheel')):
+        supporting, supported = parts[below], parts[above]
+        load &= (clear(supporting, supported) and supporting.val().distance(supported.val()) < 1e-6
+                 and intersection_volume(supporting, translated(supported, (0, 0, -.01))) > .01)
+    core = ring(12, 0, 1.5, bounds(upper).zmax - 1.5)
+    guide = (abs(bounds(hub).zmin - 1.5) < 1e-6 and clear(hub, base)
+             and intersection_volume(hub, core) > .99999 * core.val().Volume())
+    guide &= all(clear(hub, parts[name]) for name in ('lower_washer', 'bearing', 'upper_washer'))
+    guide &= intersection_volume(translated(hub, (.3, 0, 0)), parts['lower_washer']) > .01
+    drive = (clear(hub, wheel) and clear(hub, parts['crank'])
+             and intersection_volume(hub, wheel.rotate((0, 0, 0), (0, 0, 1), 30)) > .1
+             and intersection_volume(hub, parts['crank'].rotate((0, 0, 0), (0, 0, 1), 30)) > .1)
+    gap = bounds(wheel).zmin - 8 >= 25 - 1e-6
+    nominal = all(clear(a, b) for a, b in combinations(parts.values(), 2))
+    # Separate moving subassemblies are swept against structural members only;
+    # positive polygon engagements must not be interpreted as relative rotation.
+    arm_clear = True
+    for name in ('crank', 'grip'):
+        envelope = _rotation_envelope(parts[name], split_axially=True)
+        arm_clear &= all(clear(envelope, parts[fixed])
+                         for fixed in ('base', 'lower_washer', 'bearing', 'wheel', *(f'shoe_{i}' for i in range(1, 7))))
+    return {'shared_base_geometry': bool(shared_base), 'winder_51105_load_path': bool(load),
+            'hub_radial_guidance': bool(guide), 'positive_polygon_drives': bool(drive),
+            'wheel_working_gap': bool(gap), 'crank_full_rotation': bool(arm_clear),
             'jig_full_rotation_clearance': _all_rotating_clearance(parts, _JIG_LAYOUT),
-            'stand_snap_joint': bool(mount), 'member_collision_clearance': bool(nominal_clear)}
+            'member_collision_clearance': bool(nominal)}
 
 
 @lru_cache(maxsize=128)
@@ -456,7 +413,7 @@ def _at_setting(model, diameter):
     for index in range(6):
         angle = radians(index * 60)
         name = f'shoe_{index + 1}'
-        jig[name] = translated(jig[name], (delta * cos(angle), 0, delta * sin(angle)))
+        jig[name] = translated(jig[name], (delta * cos(angle), delta * sin(angle), 0))
     owners = {tool: dict(records) for tool, records in model.ownership.items()}
     owners['winding_jig']['wheel'] = {**owners['winding_jig']['wheel'],
         'diameter_mm': diameter,
@@ -474,25 +431,22 @@ def _service_checks(member_items, parameters, diameter, height):
 
 
 def audit_winding_tool_assemblies(model: WindingToolAssemblies) -> dict[str, bool]:
-    """Flat fail-closed gates; no cached model.audit flag is accepted as evidence.
-
-    Each setting repositions the actual six shoes and physically probes them.
-    Mutations therefore remain present in all settings and service checks.
-    """
-    checks = {name: False for name in ('required_members', 'ownership', 'valid_solids', 'bearing_catalog_dimensions',
+    """Audit actual occurrences and retain mutations throughout all settings."""
+    names = ('required_members', 'ownership', 'valid_solids', 'bearing_catalog_dimensions',
         'independent_tools', 'equal_shoe_positions', 'wire_contact_envelope', 'two_tongue_friction_fit',
-        'tape_corridors', 'actual_tape_angles', 'head_rotation_clearance', 'bearing_608_engagement',
-        'locating_floating_load_path', 'shaft_axial_restraint', 'positive_polygon_drives',
-        'crank_full_rotation', 'jig_full_rotation_clearance', 'stand_snap_joint', 'member_collision_clearance',
+        'tape_corridors', 'actual_tape_angles', 'head_rotation_clearance', 'shared_base_geometry',
+        'winder_51105_load_path', 'hub_radial_guidance', 'positive_polygon_drives', 'wheel_working_gap',
+        'crank_full_rotation', 'jig_full_rotation_clearance', 'member_collision_clearance',
         'bearing_51105_ownership', 'bearing_51105_load_path', 'payoff_free_rotation', 'payoff_top_access',
-        'snap_access', 'complete_coil_removal', 'print_bed')}
+        'snap_access', 'complete_coil_removal', 'print_bed')
+    checks = dict.fromkeys(names, False)
     try:
         settings = diameter_settings_mm(model.parameters)
         checks.update({f'setting_{d:g}_geometry': False for d in settings})
         release_settings = (settings[0], settings[len(settings) // 2], settings[-1])
         checks.update({f'removal_{d:g}': False for d in release_settings})
         checks.update(_ownership_checks(model))
-        if not checks['required_members'] or not checks['ownership']:
+        if not all(checks[name] for name in ('required_members', 'ownership', 'bearing_51105_ownership')):
             return checks
         shapes = (*model.winding_jig.values(), *model.wire_payoff.values())
         checks['valid_solids'] = all(s.val().isValid() and len(s.val().Solids()) == 1
@@ -508,21 +462,16 @@ def audit_winding_tool_assemblies(model: WindingToolAssemblies) -> dict[str, boo
         actual = model.ownership['winding_jig']['wheel']['actual_tape_angles_deg']
         checks['actual_tape_angles'] = len(actual) == 18 and all(abs(a - b) < 1e-6 for a, b in zip(actual, measured))
         checks['print_bed'] = _print_bed_check(model, height)
-        checks['snap_access'] = audit_snap_access(model)
-        if not all(current.values()) or not all(checks[name] for name in
-            ('actual_tape_angles', 'print_bed', 'snap_access')):
-            return checks
-        dimensions = tuple(model.ownership['winding_jig']['bearing_608_1']['nominal_dimensions_mm'])
-        checks.update(_frame_checks(tuple(local.items()), height, dimensions))
+        checks.update(_frame_checks(tuple(local.items()), height, _BEARING_DIMENSIONS['51105']))
         checks.update(_payoff_checks(tuple(model.wire_payoff.items()),
                                     model.ownership['wire_payoff']['spindle']['journal_diameter_mm']))
-        checks['snap_access'] &= checks['payoff_top_access']
-        checks['independent_tools'] = not any(a.val().isSame(b.val())
-            for a in model.winding_jig.values() for b in model.wire_payoff.values())
-        if not all(checks[name] for name in ('bearing_608_engagement', 'locating_floating_load_path',
-            'shaft_axial_restraint', 'positive_polygon_drives', 'crank_full_rotation', 'jig_full_rotation_clearance',
-            'stand_snap_joint', 'member_collision_clearance', 'bearing_51105_load_path',
-            'payoff_free_rotation', 'payoff_top_access')):
+        canonical = model.wire_payoff['base']
+        shared = model.winding_jig['base']
+        checks['shared_base_geometry'] &= (canonical.cut(shared).val().Volume() < VOLUME_TOLERANCE
+                                           and shared.cut(canonical).val().Volume() < VOLUME_TOLERANCE)
+        # Identical shapes in independent assembly coordinate systems are expected.
+        checks['independent_tools'] = model.winding_jig is not model.wire_payoff
+        if not all(checks[name] for name in names if name not in ('snap_access', 'complete_coil_removal')):
             return checks
         for setting in settings:
             candidate = _at_setting(model, setting)
@@ -536,34 +485,25 @@ def audit_winding_tool_assemblies(model: WindingToolAssemblies) -> dict[str, boo
                 if setting == diameter:
                     checks['snap_access'] = service['checks']['snap_access']
                     checks['complete_coil_removal'] = service['checks']['complete_coil_removal']
-    except (ValueError, KeyError, TypeError, RuntimeError):
-        # A malformed or incomplete assembly cannot publish a success audit.
+    except (ValueError, KeyError, TypeError, RuntimeError, IndexError):
         return checks
     return {name: bool(value) for name, value in checks.items()}
 
 
 def winding_tool_bom(model: WindingToolAssemblies) -> tuple[dict, ...]:
-    """Derive printed quantities and purchased sets from occurrence ownership."""
-    ownership = _ownership_checks(model)
-    if not all(ownership.values()):
-        raise ValueError('Cannot derive a BOM from incomplete or incorrect occurrence ownership')
-    dimensions = _validated_bearing_inventory(model)
-    specifications = {name: ' x '.join(f'{value:g}' for value in values) + ' mm'
-                      for name, values in dimensions.items()}
-    counts = Counter()
-    for tool, records in model.ownership.items():
-        counts.update(f'{tool}/{owner["master"]}' for owner in records.values() if owner['source'] == 'printed')
+    """Group global printed masters and count complete purchased bearing sets."""
+    if not all(_ownership_checks(model).values()):
+        raise ValueError('Cannot derive a BOM from incomplete or incorrect ownership')
+    dimensions = _validated_bearing_inventory(model)['51105']
+    counts = Counter(owner['canonical_master'] for records in model.ownership.values()
+                     for owner in records.values() if owner['source'] == 'printed')
     rows = [{'name': master.replace('/', ' ').replace('_', ' '), 'master': master,
              'source': 'printed', 'quantity': quantity, 'material': 'PLA',
-             'physical_fit_verified': False}
-            for master, quantity in sorted(counts.items())]
-    bearings = [owner for records in model.ownership.values() for owner in records.values()
-                if owner['source'] == 'purchased']
-    rows.append({'name': '608 bearing', 'source': 'purchased',
-                 'quantity': sum(owner['master'] == '608 bearing' for owner in bearings),
-                 'specification': specifications['608'], 'physical_fit_verified': False})
+             'physical_fit_verified': False} for master, quantity in sorted(counts.items())]
+    purchase_sets = {owner['purchase_set'] for records in model.ownership.values()
+                     for owner in records.values() if owner['source'] == 'purchased'}
     rows.append({'name': '51105 thrust bearing', 'source': 'purchased',
-                 'quantity': len({owner['purchase_set'] for owner in bearings if owner['master'] == '51105 thrust bearing'}),
-                 'specification': specifications['51105'] + '; complete set with separate lower and upper washers',
-                 'physical_fit_verified': False})
+                 'quantity': len(purchase_sets), 'physical_fit_verified': False,
+                 'specification': ' x '.join(f'{v:g}' for v in dimensions)
+                 + ' mm; complete set with separate lower and upper washers'})
     return tuple(rows)

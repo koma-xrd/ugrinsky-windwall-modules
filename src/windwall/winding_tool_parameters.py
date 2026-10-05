@@ -15,6 +15,7 @@ class WindingToolParameters:
     shoe_tongue_count: int = 2
     tape_station_count: int = 18
     tape_clearance_mm: float = 12.0
+    # Retained for existing callers; horizontal release no longer moves shoes.
     release_clearance_mm: float = 2.0
     platter_diameter_mm: float = 150.0
     spool_pilot_diameter_mm: float = 15.0

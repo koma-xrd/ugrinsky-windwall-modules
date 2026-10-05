@@ -68,7 +68,11 @@ def build_winding_frame(tool_parameters: WindingToolParameters,
     arm = (cq.Workplane('XY').box(lever, 14, 5, centered=False)
            .translate((0, -7, arm_bottom)))
     crank = crank.union(arm).union(_cylinder(10, arm_bottom, 5))
-    crank = crank.union(_cylinder(7, arm_bottom, 5).translate((lever, 0, 0)))
+    # A flat-ended journal pad gives the horizontal print a real planar bed
+    # datum; a purely circular end can lose its tangent during tessellation.
+    journal_pad = (cq.Workplane('XY').box(14, 14, 5, centered=(True, True, False))
+                   .edges('|Z').fillet(1).translate((lever, 0, arm_bottom)))
+    crank = crank.union(journal_pad)
     crank = crank.union(_cylinder(3, arm_bottom + 5, 20).translate((lever, 0, 0))).clean()
     grip = _cylinder(8, arm_bottom + 5, 24)
     grip = grip.cut(_cylinder(3.2, arm_bottom + 4, 22)).translate((lever, 0, 0)).clean()

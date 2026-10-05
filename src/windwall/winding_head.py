@@ -8,7 +8,7 @@ reliefs per shoe provide tangential strip width and axial bundle clearance.
 Their fixed local centers and nominal 20-degree labels identify the
 conceptual sequence; actual physical angles change with diameter and are never
 claimed to be equally spaced. This is a rounded six-point envelope.
-The frame owns the mating printed shaft; this module supplies its hex socket.
+The frame owns the mating horizontal hub; this module supplies the wheel socket.
 """
 
 from dataclasses import dataclass
@@ -33,6 +33,7 @@ _SHOE_BOTTOM = 5.2
 _REAR_SHOULDER_HEIGHT = 2.7
 _FREE_SHOULDER_HEIGHT = 0.0
 _TAPE_BOTTOM = 11.0
+_SUPPORT_RUNOUT_Z = 12.5
 _PASSAGE_INNER_X = -12.0
 _PASSAGE_OUTER_X = max(_REAR_SHOULDER_HEIGHT, _FREE_SHOULDER_HEIGHT) + .4
 _MOUTH_RADIUS = .8
@@ -148,7 +149,7 @@ def _asymmetric_shoe_shell(minimum_radius: float, bottom: float,
     inner = minimum_radius - 6
     radius = _AXIAL_EDGE_RADIUS
     rear_shoulder_z = bottom + 1.3
-    runout_start_z = _TAPE_BOTTOM - _MOUTH_RADIUS
+    runout_start_z = _SUPPORT_RUNOUT_Z
     outer_points = (
         (minimum_radius + _REAR_SHOULDER_HEIGHT, bottom + 1.0),
         (minimum_radius + _REAR_SHOULDER_HEIGHT, rear_shoulder_z),
@@ -276,7 +277,7 @@ def build_winding_head(p: WindingToolParameters, diameter_mm: float,
         'rear_shoulder_height_mm': _REAR_SHOULDER_HEIGHT,
         'free_shoulder_height_mm': _FREE_SHOULDER_HEIGHT,
         'wire_guidance': 'rounded lower support; open nominal-radius upper runout',
-        'nominal_runout_start_z_mm': _TAPE_BOTTOM - _MOUTH_RADIUS,
+        'nominal_runout_start_z_mm': _SUPPORT_RUNOUT_Z,
         'nominal_runout_end_z_mm': _TAPE_BOTTOM + p.tape_clearance_mm + 6.2 - _AXIAL_EDGE_RADIUS,
         'wheel_thickness_mm': _WHEEL_THICKNESS,
         'drive_socket': {'polygon_sides': 6, 'circumdiameter_mm': 14.4},
@@ -292,7 +293,7 @@ def build_winding_head(p: WindingToolParameters, diameter_mm: float,
         'released': released,
         'print_orientations': {
             'wheel': 'rear XY face on bed, Z up',
-            'shoe_master': 'rotate +90 degrees about X; support only inward face/foot',
+            'shoe_master': 'rotate -90 degrees about Y; flat inward foot face on bed; support overhangs',
         },
     }
     return WindingHeadParts(wheel, master, shoes,
