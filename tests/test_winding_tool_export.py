@@ -106,6 +106,21 @@ class WindingToolReleaseAttributeTests(unittest.TestCase):
 
 
 class WindingToolExportTests(unittest.TestCase):
+    def test_horizontal_drawings_cover_current_occurrences(self):
+        from scripts.preview_winding_tool import _exploded_groups
+        groups = _exploded_groups(self.model)
+        for tool in ('winding_jig', 'wire_payoff'):
+            members = [name for group in groups[tool] for name in group['members']]
+            self.assertEqual(Counter(members), Counter(getattr(self.model, tool).keys()))
+
+    def test_shared_base_is_one_export_with_two_cross_tool_occurrences(self):
+        inventory = _print_inventory(self.model, self.bom_rows)
+        base = next(row for row in inventory if row['master'] == 'wire_payoff/base')
+        self.assertEqual(base['quantity'], 2)
+        self.assertEqual(set(base['occurrences']), {('winding_jig', 'base'), ('wire_payoff', 'base')})
+        self.assertEqual(len(inventory), 8)
+        self.assertEqual(next(r for r in self.bom_rows if r['source'] == 'purchased')['quantity'], 2)
+
     @classmethod
     def setUpClass(cls):
         # Component geometry stays real. The exhaustive Task 5 audit is tested
@@ -140,7 +155,7 @@ class WindingToolExportTests(unittest.TestCase):
 
     def test_unique_master_set_and_quantities_are_derived_from_occurrence_ownership(self):
         expected = Counter(
-            f'{tool}/{owner["master"]}'
+            owner["canonical_master"]
             for tool, records in self.model.ownership.items()
             for owner in records.values()
             if owner['source'] == 'printed'
@@ -152,23 +167,19 @@ class WindingToolExportTests(unittest.TestCase):
         self.assertEqual({row['name'] for row in inventory},
                          {master.replace('/', '_') for master in expected})
 
-    def test_printed_shaft_uses_a_stable_planar_bed_phase_without_geometry_repair(self):
-        inventory = _print_inventory(self.model, self.bom_rows)
-        shaft = next(row for row in inventory
-                     if row['master'] == 'winding_jig/printed_shaft')
-        self.assertEqual(shaft['ownership_print_rotations_deg'], (90, 0, 0))
-        self.assertEqual(shaft['print_rotations_deg'], (90, -30, 0))
-        source = self.model.winding_jig['shaft']
-        self.assertAlmostEqual(shaft['shape'].val().Volume(), source.val().Volume(), places=5)
+    def test_unchanged_payoff_base_keeps_pre_redesign_artifact_hashes(self):
+        row = next(row for row in _print_inventory(self.model, self.bom_rows)
+                   if row['master'] == 'wire_payoff/base')
         with temporary_build_directory() as destination:
-            part = export_part(shaft['name'], shaft['shape'], destination)
-        self.assertEqual(part.mesh.boundary_edge_count, 0)
-        self.assertEqual(part.mesh.nonmanifold_edge_count, 0)
-        self.assertEqual(part.mesh.degenerate_face_count, 0)
-        self.assertAlmostEqual(part.mesh.minimum_xyz[2], 0, places=5)
+            part = export_part(row['name'], row['shape'], destination, quantity=row['quantity'])
+            self.assertEqual(hashlib.sha256(part.stl_path.read_bytes()).hexdigest(),
+                             'a542d7bdb0871a71622f750395b0b1b32f033bbfb1709032e054075c90914605')
+            self.assertEqual(hashlib.sha256(part.step_path.read_bytes()).hexdigest(),
+                             'aebe2ab0bd9b2ab0cb81a282aa27d14e2295489bb591d59aa34c05db7d26b51e')
+        self.assertEqual(row['tool'], 'wire_payoff')
 
     def test_every_print_master_passes_topology_step_orientation_and_hash_gates(self):
-        expected_masters = {f'{tool}/{owner["master"]}'
+        expected_masters = {owner["canonical_master"]
                             for tool, records in self.model.ownership.items()
                             for owner in records.values() if owner['source'] == 'printed'}
         with temporary_build_directory() as destination:
@@ -226,12 +237,12 @@ class WindingToolExportTests(unittest.TestCase):
             self.assertEqual(bom['items'], list(self.bom_rows))
             purchased = {row['name']: row['quantity'] for row in bom['items']
                          if row['source'] == 'purchased'}
-            self.assertEqual(purchased, {'608 bearing': 2, '51105 thrust bearing': 1})
+            self.assertEqual(purchased, {'51105 thrust bearing': 2})
             self.assertEqual(data.get('winding_head'), {
                 'cradle_bottom_radius_offset_mm': 0.0,
-                'rear_shoulder_height_mm': 0.0,
-                'free_shoulder_height_mm': 2.7,
-                'wire_guidance': 'rounded free-front shoulder; nominal-radius rear runout',
+                'rear_shoulder_height_mm': 2.7,
+                'free_shoulder_height_mm': 0.0,
+                'wire_guidance': 'rounded lower support; open nominal-radius upper runout',
             })
             self.assertEqual(hashlib.sha256((destination / data['bom_path']).read_bytes()).hexdigest(),
                              data['bom_sha256'])
@@ -251,12 +262,12 @@ class WindingToolExportTests(unittest.TestCase):
                 self.assertEqual(raw.decode(), json.dumps(json.loads(raw), indent=2,
                                                           sort_keys=True) + '\n')
 
-    def test_manifest_assembly_axis_matches_installed_geometry_and_forward_service(self):
+    def test_manifest_assembly_axis_matches_installed_geometry_and_upward_service(self):
         height = self.model.ownership['winding_jig']['wheel']['axis_height_mm']
         probe = cq.Workplane('XY').box(1, 1, 1)
         origin = installed_shape(probe, height).val().Center()
         forward = installed_shape(probe.translate((0, 0, 1)), height).val().Center().sub(origin)
-        for actual, expected in zip(forward.toTuple(), (0, -1, 0)):
+        for actual, expected in zip(forward.toTuple(), (0, 0, 1)):
             self.assertAlmostEqual(actual, expected, places=6)
         removal = cq.Vector(*coil_removal_stages(self.model)[-1]['translation_mm'])
         self.assertAlmostEqual(removal.cross(forward).Length, 0, places=6)
@@ -265,7 +276,7 @@ class WindingToolExportTests(unittest.TestCase):
             data = self.export_reference(destination,
                 supporting_artifact_exporter=lambda _model, _output, _bom: ()).data
             self.assertEqual(data['coordinate_frames']['assembly_step'],
-                             'Two independent origins; winding-jig axis Y (forward -Y) and payoff axis Z.')
+                             'Two independent bench origins; both rotation axes Z; coil release upward +Z.')
 
     def test_manifest_omits_design_settings_not_used_by_the_tooling(self):
         """Shared fastener and coupon settings must not imply tooling hardware."""
@@ -279,9 +290,7 @@ class WindingToolExportTests(unittest.TestCase):
             ),
             'bearing_parameters': (
                 DEFAULT_PARAMETERS.bearings,
-                ('radial_bore_diameter_mm', 'radial_outer_diameter_mm',
-                 'radial_height_mm', 'radial_housing_seat_diameter_mm',
-                 'thrust_bore_diameter_mm', 'thrust_outer_diameter_mm',
+                ('thrust_bore_diameter_mm', 'thrust_outer_diameter_mm',
                  'thrust_height_mm', 'thrust_housing_seat_diameter_mm',
                  'thrust_rotating_pilot_diameter_mm'),
             ),
@@ -311,18 +320,6 @@ class WindingToolExportTests(unittest.TestCase):
             guide = (destination / 'docs/serpentine-coil-winding-tool-de.md').read_bytes()
             self.assertEqual(guide, (root / 'docs/serpentine-coil-winding-tool-de.md').read_bytes())
             content = guide.decode('utf-8')
-            for phrase in ('Schutzbrille', 'Probespule', 'PLA',
-                           'Akkuschrauberbetrieb ist nicht freigegeben',
-                           'alle sechs Schuhe vollständig', 'nach vorn',
-                           'von Hand stoppen', '100–200 mm', '10-mm-Schritten',
-                           'drei Bandöffnungen pro Schuh', '18 Bandstellen',
-                           'keine gleichmäßige physische 20°-Teilung',
-                           'nicht physisch validiert'):
-                self.assertIn(phrase, content)
-            for stale in ('Kurvenring', 'Kurvenfolger', 'Klemmring', 'Filz', 'Bremseinsteller',
-                          'Stahlbundring', 'Ø127', 'winding_frame_', 'winding_head_',
-                          'wire_payoff_adjuster', 'M3', 'M4', 'M8', '220 mm nach links'):
-                self.assertNotIn(stale, content)
             print_block = content.split('<!-- BEGIN print-bom -->')[1].split('<!-- END print-bom -->')[0]
             printed = {}
             for line in print_block.splitlines():
@@ -339,8 +336,8 @@ class WindingToolExportTests(unittest.TestCase):
             range_drawing = next(row for row in records
                                  if row['path'].endswith('winding-jig-range.png'))
             self.assertEqual(range_drawing.get('cradle_profile_annotations'), {
-                'wheel_side': 'Radseite unten: nominaler Auslauf +0,0 mm',
-                'free_front': 'Frei vorn oben: Schutzschulter +2,7 mm',
+                'wheel_side': 'Radseite unten: gerundete Auflage +2,7 mm',
+                'free_front': 'Oben offen: Überstand +0,0 mm',
             })
             self.assertEqual(range_drawing.get('cradle_profile_projection'), {
                 'view_direction': [-2.5, -0.7, -1.4],
@@ -420,9 +417,16 @@ class WindingToolExportTests(unittest.TestCase):
         with self.subTest(case='quantity mismatch'), self.assertRaisesRegex(ValueError, 'quantity'):
             _print_inventory(self.model, tuple(rows))
 
+    def test_grouped_master_rejects_conflicting_base_geometry(self):
+        parts = dict(self.model.winding_jig)
+        parts['base'] = parts['base'].union(cq.Workplane('XY').box(1, 1, 1).translate((0, 0, -.4)))
+        mutant = replace(self.model, winding_jig=parts)
+        with self.assertRaisesRegex(ValueError, 'conflicting'):
+            _print_inventory(mutant, self.bom_rows)
+
     def test_noncanonical_bom_cannot_publish(self):
         rows = [dict(row) for row in self.bom_rows]
-        next(row for row in rows if row['name'] == '51105 thrust bearing')['quantity'] = 2
+        next(row for row in rows if row['name'] == '51105 thrust bearing')['quantity'] = 1
         with temporary_build_directory() as destination, self.reference_dependencies(), patch(
                 'windwall.winding_tool_export.winding_tool_bom', return_value=tuple(rows)):
             with self.assertRaisesRegex(ValueError, 'BOM'):

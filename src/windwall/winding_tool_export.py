@@ -34,12 +34,12 @@ from windwall.winding_tool_service import local_shape
 
 
 PROTOTYPE_LIMITS = (
-    'Printed shaft strength and fatigue require physical prototype testing.',
+    'Printed hub, crank and hex-drive strength require physical prototype testing.',
     'PLA snap fit, retention, wear life and bearing fits require physical prototype testing.',
     'Actual winding diameter, repeatability and enamel protection remain unvalidated.',
     'Payoff stability and manual stopping remain unvalidated.',
     'Coil-release force and suitability for continuous or production use remain unvalidated.',
-    'Hand-crank operation only; powered operation is not approved.',
+    'Manual operation intended; the future driver-bit option is not validated.',
 )
 _ASSEMBLY_SOURCE = 'windwall.winding_tool_assembly.build_winding_tool_assemblies'
 _ASSEMBLY_NAMES = {
@@ -47,16 +47,10 @@ _ASSEMBLY_NAMES = {
     'wire_payoff': 'free_running_wire_payoff',
 }
 _PUBLISHER_MANIFEST_NAMES = frozenset(('manifest.json', 'manifest.pending.json'))
-# The Task 5 shaft orientation puts its axis parallel to the bed. This equivalent
-# Euler representation adds a 30 degree phase around that axis so an actual
-# planar drive face, rather than an inward-tessellated cylinder tangent, defines
-# the bed datum. It rotates the unchanged solid; no facet or mesh is rewritten.
-_RELEASE_ROTATION_OVERRIDES = {
-    'winding_jig/printed_shaft': (90, -30, 0),
-}
 _FORBIDDEN_BOM_TERMS = (
     'cam', 'slider', 'follower', 'rib', 'clamp', 'upright', 'brake', 'felt',
     'spring', 'adjuster', 'fastener', 'bolt', 'screw', 'threaded', 'metal shaft',
+    '608', 'bearing_tower', 'bearing_retainer', 'snap_collar', 'printed_shaft',
 )
 
 
@@ -92,6 +86,8 @@ def _oriented_print_shape(model: WindingToolAssemblies, tool: str, member: str,
         except KeyError as error:
             raise ValueError('Winding-jig ownership is missing the assembly datum') from error
         shape = local_shape(shape, height)
+        if member.startswith('shoe_'):
+            shape = shape.rotate((0, 0, 0), (0, 0, 1), -60 * (int(member.split('_')[1]) - 1))
     bounds = shape.val().BoundingBox()
     shape = shape.translate((-(bounds.xmin + bounds.xmax) / 2,
                              -(bounds.ymin + bounds.ymax) / 2,
@@ -107,7 +103,7 @@ def _validated_bom(model: WindingToolAssemblies, bom_rows) -> tuple[dict, ...]:
     if not rows or any(not isinstance(row, dict) for row in rows):
         raise ValueError('BOM must contain canonical Task 5 rows')
     expected = Counter(
-        f'{tool}/{owner["master"]}'
+        owner["canonical_master"]
         for tool, records in model.ownership.items()
         for owner in records.values()
         if owner.get('source') == 'printed'
@@ -132,8 +128,8 @@ def _validated_bom(model: WindingToolAssemblies, bom_rows) -> tuple[dict, ...]:
             raise ValueError('BOM rows must identify printed or purchased source')
     if printed != dict(sorted(expected.items())):
         raise ValueError('BOM printed-master quantity does not match occurrence ownership')
-    if purchased != {'608 bearing': 2, '51105 thrust bearing': 1}:
-        raise ValueError('BOM purchases must be exactly two 608 and one 51105 assembly')
+    if purchased != {'51105 thrust bearing': 2}:
+        raise ValueError('BOM purchases must be exactly two complete 51105 assemblies')
     searchable = json.dumps(rows, sort_keys=True).lower()
     stale = [term for term in _FORBIDDEN_BOM_TERMS if term in searchable]
     if stale:
@@ -142,68 +138,59 @@ def _validated_bom(model: WindingToolAssemblies, bom_rows) -> tuple[dict, ...]:
 
 
 def _print_inventory(model: WindingToolAssemblies, bom_rows=None) -> tuple[dict, ...]:
-    """Collapse audited occurrences solely by their tool-qualified master identity."""
-    if bom_rows is None:
-        bom_rows = winding_tool_bom(model)
-    rows = _validated_bom(model, bom_rows)
-    bom_quantities = {row['master']: row['quantity'] for row in rows
-                      if row['source'] == 'printed'}
-    inventory = []
+    """Group canonical masters globally; retain every cross-tool occurrence."""
+    rows = _validated_bom(model, winding_tool_bom(model) if bom_rows is None else bom_rows)
+    quantities = {row['master']: row['quantity'] for row in rows if row['source'] == 'printed'}
+    grouped = {}
     for tool in sorted(_ASSEMBLY_NAMES):
-        try:
-            parts = getattr(model, tool)
-            owners = model.ownership[tool]
-        except (AttributeError, KeyError) as error:
-            raise ValueError(f'Missing {tool} occurrence ownership') from error
+        parts, owners = getattr(model, tool), model.ownership[tool]
         if set(parts) != set(owners):
             raise ValueError(f'{tool} occurrences and ownership do not match')
-        grouped = {}
         for member, owner in owners.items():
             if owner.get('source') == 'printed':
-                master = owner.get('master')
+                master = owner.get('canonical_master')
                 if not isinstance(master, str) or not master:
-                    raise ValueError(f'{tool}/{member} has no printed master identity')
-                grouped.setdefault(f'{tool}/{master}', []).append(member)
+                    raise ValueError(f'{tool}/{member} has no canonical printed master')
+                grouped.setdefault(master, []).append((tool, member))
             elif owner.get('source') != 'purchased':
                 raise ValueError(f'{tool}/{member} has an invalid ownership source')
-        for master, members in sorted(grouped.items()):
-            records = [owners[member] for member in members]
-            rotations = {tuple(record.get('print_rotations_deg', ())) for record in records}
-            groups = {record.get('group') for record in records}
-            if len(rotations) != 1 or len(next(iter(rotations))) != 3:
-                raise ValueError(f'{master} lacks one documented print orientation')
-            if len(groups) != 1 or None in groups:
-                raise ValueError(f'{master} occurrences disagree on their role')
-            ownership_rotation = next(iter(rotations))
-            if any(isinstance(value, bool) or not isinstance(value, (int, float))
-                   or not isfinite(value) for value in ownership_rotation):
-                raise ValueError(f'{master} print rotation must be finite numeric degrees')
-            rotation = _RELEASE_ROTATION_OVERRIDES.get(master, ownership_rotation)
-            quantity = len(members)
-            if bom_quantities.get(master) != quantity:
-                raise ValueError(f'{master} quantity does not match the canonical BOM')
-            representative = sorted(members)[0]
-            shape = _oriented_print_shape(model, tool, representative, rotation)
-            _valid_solid(shape.val(), master)
-            size = _bounds(shape.val())['size_xyz']
-            footprint = [size[0], size[1]]
-            limit = min(model.parameters.print_bed_mm, 220.0)
-            if max(footprint) > limit + 1e-6:
-                raise ValueError(f'{master} exceeds the documented {limit:g} mm print bed')
-            inventory.append({
-                'name': master.replace('/', '_'),
-                'master': master,
-                'tool': tool,
-                'members': tuple(sorted(members)),
-                'quantity': quantity,
-                'shape': shape,
-                'role': next(iter(groups)),
-                'source_builder': _ASSEMBLY_SOURCE,
-                'ownership_print_rotations_deg': ownership_rotation,
-                'print_rotations_deg': rotation,
-                'print_bed_footprint_mm': footprint,
-            })
-    if {row['master'] for row in inventory} != set(bom_quantities):
+    inventory = []
+    for master, occurrences in sorted(grouped.items()):
+        records = [model.ownership[tool][member] for tool, member in occurrences]
+        rotations = {tuple(r.get('print_rotations_deg', ())) for r in records}
+        groups = {r.get('group') for r in records}
+        if len(rotations) != 1 or len(next(iter(rotations))) != 3:
+            raise ValueError(f'{master} lacks one documented print orientation')
+        if len(groups) != 1 or None in groups:
+            raise ValueError(f'{master} occurrences disagree on their role')
+        rotation = next(iter(rotations))
+        if any(isinstance(v, bool) or not isinstance(v, (int, float)) or not isfinite(v) for v in rotation):
+            raise ValueError(f'{master} print rotation must be finite numeric degrees')
+        if quantities.get(master) != len(occurrences):
+            raise ValueError(f'{master} quantity does not match the canonical BOM')
+        canonical_tool = master.split('/')[0]
+        tool, member = min(occurrences, key=lambda pair: (pair[0] != canonical_tool, pair))
+        shape = _oriented_print_shape(model, tool, member, rotation)
+        _valid_solid(shape.val(), master)
+        for occurrence_tool, occurrence_member in occurrences:
+            if (occurrence_tool, occurrence_member) == (tool, member):
+                continue
+            candidate = _oriented_print_shape(model, occurrence_tool, occurrence_member, rotation)
+            if (shape.cut(candidate).val().Volume() > 1e-5
+                    or candidate.cut(shape).val().Volume() > 1e-5):
+                raise ValueError(f'{master} grouped occurrences have conflicting actual geometry')
+        size = _bounds(shape.val())['size_xyz']
+        if max(size[:2]) > min(model.parameters.print_bed_mm, 220) + 1e-6:
+            raise ValueError(f'{master} exceeds the documented print bed')
+        inventory.append({
+            'name': master.replace('/', '_'), 'master': master, 'tool': tool,
+            'members': tuple(sorted(member for occurrence_tool, member in occurrences if occurrence_tool == tool)),
+            'occurrences': tuple(sorted(occurrences)), 'quantity': len(occurrences),
+            'shape': shape, 'role': next(iter(groups)), 'source_builder': _ASSEMBLY_SOURCE,
+            'ownership_print_rotations_deg': rotation, 'print_rotations_deg': rotation,
+            'print_bed_footprint_mm': list(size[:2]),
+        })
+    if {row['master'] for row in inventory} != set(quantities):
         raise ValueError('Print inventory does not cover every canonical BOM master')
     return tuple(inventory)
 
@@ -212,8 +199,8 @@ def _export_tool_assembly(release_name: str, tool: str, model: WindingToolAssemb
                           destination: Path, inventory: tuple[dict, ...]) -> dict:
     parts = getattr(model, tool)
     owners = model.ownership[tool]
-    by_member = {member: row for row in inventory if row['tool'] == tool
-                 for member in row['members']}
+    by_member = {member: row for row in inventory
+                 for occurrence_tool, member in row['occurrences'] if occurrence_tool == tool}
     assembly = cq.Assembly(name=release_name)
     components = []
     for member, body in sorted(parts.items()):
@@ -394,6 +381,8 @@ def _publish_winding_tool(
             'material': 'PLA',
             'tool': row['tool'],
             'assembly_members': list(row['members']),
+            'assembly_occurrences': [{'tool': tool, 'member': member}
+                                     for tool, member in row['occurrences']],
             'print_orientation': {
                 'rotations_deg': list(row['print_rotations_deg']),
                 'ownership_rotations_deg': list(row['ownership_print_rotations_deg']),
@@ -422,7 +411,7 @@ def _publish_winding_tool(
 
     nominal_angles = list(tape_station_angles(parameters))
     data = _json_safe({
-        'schema_version': 2,
+        'schema_version': 3,
         'release': 'simple-pin-adjustable-coil-winder',
         'units': 'mm',
         'parameters': asdict(parameters),
@@ -432,9 +421,7 @@ def _publish_winding_tool(
         },
         'bearing_parameters': {
             name: getattr(design_parameters.bearings, name)
-            for name in ('radial_bore_diameter_mm', 'radial_outer_diameter_mm',
-                         'radial_height_mm', 'radial_housing_seat_diameter_mm',
-                         'thrust_bore_diameter_mm', 'thrust_outer_diameter_mm',
+            for name in ('thrust_bore_diameter_mm', 'thrust_outer_diameter_mm',
                          'thrust_height_mm', 'thrust_housing_seat_diameter_mm',
                          'thrust_rotating_pilot_diameter_mm')
         },
@@ -444,6 +431,9 @@ def _publish_winding_tool(
             'cadquery-ocp': version('cadquery-ocp'),
         },
         'winding_head': _winding_head_manifest(parameters),
+        'coil_release': {'direction': '+Z', 'shoes_stay_seated': True, 'remove_crank_first': True},
+        'wheel_to_base_workspace_mm': 25,
+        'drive_hex': {'male_across_flats_mm': 6.35, 'female_across_flats_mm': 6.45},
         'wheel_settings': _wheel_settings(parameters),
         'tape_angle_semantics': {
             'nominal_angles_deg': nominal_angles,
@@ -465,10 +455,9 @@ def _publish_winding_tool(
         'known_limitations': list(PROTOTYPE_LIMITS),
         'coordinate_frames': {
             'print_step': ('Task 5 master geometry bounding-box-centered at the origin, then '
-                           'given the recorded release X/Y/Z rotations; the shaft uses an '
-                           'equivalent axis-parallel phase that places a planar face on the bed.'),
+                           'given the recorded release X/Y/Z rotations.'),
             'print_stl': 'The print STEP master translated vertically to minimum Z = 0 mm.',
-            'assembly_step': 'Two independent origins; winding-jig axis Y (forward -Y) and payoff axis Z.',
+            'assembly_step': 'Two independent bench origins; both rotation axes Z; coil release upward +Z.',
         },
         'manifest_path_base': 'output directory',
         'determinism': ('Sorted ownership-derived inventory, sorted named assemblies, canonical STEP headers, '
