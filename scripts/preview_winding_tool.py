@@ -29,14 +29,14 @@ import numpy as np
 
 from windwall.winding_head import build_winding_head
 from windwall.winding_tool_parameters import diameter_settings_mm
-from windwall.winding_tool_service import coil_removal_stages
+from windwall.winding_tool_service import coil_removal_stages, _winding_fixture, installed_shape
 
 
 INK = '#213649'
 MUTED = '#536573'
 ACCENT = '#ad4830'
 COLORS = {'structure': '#397f8b', 'wheel': '#4e74a2', 'shoe': '#e6a338',
-          'shaft': '#65737b', 'snap': '#bf6655', 'bearing': '#946ca6',
+          'journal': '#65737b', 'bearing': '#946ca6',
           'coil': '#b36131', 'tape': '#7c994a'}
 DRAWING_NAMES = ('winding-jig-reference.png', 'winding-jig-range.png',
                  'winding-tool-exploded.png')
@@ -49,16 +49,14 @@ def _color(name):
         return COLORS['tape']
     if name == 'coil':
         return COLORS['coil']
-    if name.startswith('snap_collar') or name.startswith('bearing_retainer'):
-        return COLORS['snap']
     if name.startswith('bearing') or name.endswith('_washer'):
         return COLORS['bearing']
     if name.startswith('shoe') or name in ('platter', 'crank', 'grip'):
         return COLORS['shoe']
     if name == 'wheel':
         return COLORS['wheel']
-    if name in ('shaft', 'spindle'):
-        return COLORS['shaft']
+    if name in ('hub', 'spindle'):
+        return COLORS['journal']
     return COLORS['structure']
 
 
@@ -160,61 +158,31 @@ def _rotation_arrow(ax, center, radius):
 
 
 def _reference(model):
-    p = model.parameters
-    fig = _page('01  ·  Zwei einfache Module zum Wickeln von Hand',
-                'Vertikales Wickelrad bei 150 mm · separater freilaufender Abroller · schraubenlos gestecktes PLA')
-    fig.text(.04, .864, 'A  WICKELRAD + HANDKURBEL', fontsize=16, weight='bold', color=INK)
-    fig.text(.675, .864, 'B  FREIER DRAHTABROLLER', fontsize=16, weight='bold', color=INK)
-    ax, points = _project(fig, (.025, .36, .61, .49), model.winding_jig)
+    fig = _page('01  ·  Waagerechtes Wickelrad und freier Drahtabroller',
+                'Gemeinsame Basis: 190 × 190 mm · je ein 51105 · steckbare Handkurbel · Referenz Ø150 mm')
     height = model.ownership['winding_jig']['wheel']['axis_height_mm']
+    winding = {name: installed_shape(shape, height)
+               for name, shape in _winding_fixture(model.parameters, 150).items()}
+    ax, points = _project(fig, (.02, .37, .49, .51), {**model.winding_jig, **winding})
+    _callout(ax, points, 'wheel', 'Waagerechtes Wickelrad', (.25, .16))
+    _callout(ax, points, 'crank', '6,35-mm-Sechskant: abziehbare Kurbel', (.58, .96))
+    _callout(ax, points, 'shoe_2', '6 oben offene Kontaktschuhe', (.76, .68))
     _, right, up = _basis(CAMERA)
-    hole = np.array((88, -5, height + 5))
-    _callout(ax, points, 'shoe_2', '6 steckbare Schuhe', (.20, .93))
-    _callout(ax, points, 'wheel', '2 Lochreihen je Speiche', (.70, .90),
-             target=(hole @ right, hole @ up))
-    _callout(ax, points, 'tower', 'Einseitiger Ständer', (.78, .10))
-    angles = np.linspace(radians(20), radians(105), 50)
-    xyz = np.column_stack((34 * np.cos(angles), np.full_like(angles, -35), height + 34 * np.sin(angles)))
-    arc = np.column_stack((xyz @ right, xyz @ up))
-    ax.plot(arc[:, 0], arc[:, 1], color=ACCENT, lw=2)
-    ax.annotate('', arc[-1], arc[-4], arrowprops=dict(arrowstyle='-|>', color=ACCENT, lw=2))
-    ax.text(.36, .58, 'nur von Hand', transform=ax.transAxes, color=ACCENT, fontsize=11)
-    payoff_ax, _ = _project(fig, (.66, .45, .31, .36), model.wire_payoff, (1.6, -2.6, 1.8))
-    # Dashed roll outline is a loading example, not an additional product part.
-    _, right, up = _basis((1.6, -2.6, 1.8))
-    top = model.wire_payoff['platter'].val().BoundingBox().zmax - p.spool_pilot_height_mm
-    theta = np.linspace(0, 2 * np.pi, 100)
-    for height in (top + 1, top + 48):
-        xyz = np.column_stack((45 * np.cos(theta), 45 * np.sin(theta), np.full_like(theta, height)))
-        payoff_ax.plot(xyz @ right, xyz @ up, '--', color=ACCENT, lw=1.2)
-    for x, y in ((45, 0), (-45, 0)):
-        xyz = np.array(((x, y, top + 1), (x, y, top + 48)))
-        payoff_ax.plot(xyz @ right, xyz @ up, '--', color=ACCENT, lw=1.2)
-    payoff_ax.set_ylim(payoff_ax.get_ylim()[0], max(payoff_ax.get_ylim()[1], top + 60))
-    _labels(fig, .675, .805, ('Vorratsrolle aufrecht', '(gestrichelte Beispielkontur)'), size=11, spacing=.020)
-    _labels(fig, .675, .43, (f'Teller Ø{p.platter_diameter_mm:g} mm',
-                           f'Integraler Dorn Ø{p.spool_pilot_diameter_mm:g} × {p.spool_pilot_height_mm:g} mm',
-                           '1 × 51105 unter dem Teller',
-                           'Freier Lauf; von Hand stoppen.'), spacing=.025)
-    feed = fig.add_axes((.29, .32, .44, .035))
-    feed.annotate('', (.04, .5), (.96, .5), arrowprops=dict(arrowstyle='->', color=ACCENT, lw=2.5))
-    feed.text(.5, 1.15, 'Drahtzufuhr B → A · 0,18-mm-Kupferlackdraht', ha='center', fontsize=12, color=INK)
-    feed.axis('off')
-
-    drive_names = ('shaft', 'snap_collar_1', 'snap_collar_2', 'bearing_608_1',
-                   'bearing_608_2', 'bearing_retainer_1', 'bearing_retainer_2', 'crank', 'grip')
-    drive = {name: model.winding_jig[name] for name in drive_names}
-    ax, points = _project(fig, (.025, .115, .43, .17), drive, (3, -.6, 1.2), padding=.14)
-    _callout(ax, points, 'shaft', 'PLA-Welle', (.28, .12))
-    _callout(ax, points, 'bearing_608_1', '2 × 608', (.48, .95))
-    _callout(ax, points, 'snap_collar_2', '2 Schnappringe', (.84, .85))
-    fig.text(.04, .292, 'Antriebsdetail · dieselben Teile; Rad und Ständer ausgeblendet', fontsize=11, color=MUTED)
-    _labels(fig, .49, .269, ('608: Außenringe im Ständer; Innenringe folgen der Welle.',
-                           'Zwei Schnappringe halten die Welle am vorderen 608.',
-                           'Handkurbel und Griff sind einzeln abnehmbar.',
-                           'Beide Module separat gegen Rutschen/Kippen sichern.',
-                           'Schutzbrille · vor jedem Versuch Risse und Drahtflächen prüfen.'),
-            spacing=.029, size=12)
+    start, end = (np.array((60, -45, z)) for z in (8, 33))
+    start, end = np.array((start @ right, start @ up)), np.array((end @ right, end @ up))
+    ax.annotate('', end, start, arrowprops=dict(arrowstyle='<->', color=ACCENT, lw=1.5))
+    ax.text(*(start + end) / 2, ' 25 mm', color=ACCENT, fontsize=11, weight='bold')
+    ax, points = _project(fig, (.53, .37, .44, .51), model.wire_payoff)
+    _callout(ax, points, 'platter', 'Ø150-mm-Teller', (.67, .65))
+    _callout(ax, points, 'base', 'Identische Basis: zweimal drucken', (.40, .12))
+    _labels(fig, .035, .34, (
+        'Wickler: Lastweg Rad → Nabe → obere Scheibe → Wälzkranz → untere Scheibe → Basis.',
+        '25 mm freier Arbeitsraum unter dem Rad außerhalb des mittigen Lagersitzes.',
+        '18 Bandstellen: im Stillstand umwickeln; danach Kurbel entfernen und Spule nach oben abheben.',
+        'Drahtabroller bleibt unverändert: Kupferrolle aufrecht, Zentrierung Ø15 × 20 mm.',
+        'Kein automatischer Vorschub und keine Bremse: Draht führen, Rolle von Hand stoppen.',
+        'Passungen, Lagerlauf und PLA-Festigkeit vor der ersten Probespule prüfen.',
+    ), spacing=.043, size=14)
     return fig
 
 
@@ -253,19 +221,19 @@ def _range(model):
                            'Die sechs Schuhmitten liegen jeweils 60° auseinander.',
                            'Drei getrennte Bandöffnungen pro Schuh = 18 insgesamt.',
                            f'Je ≥{p.tape_clearance_mm:g} mm tangential und axial; 10-mm-Band.',
-                           'Drehsinn der Frontansicht markieren; nur Handkurbel.'), spacing=.030, size=12)
+                           'Rad liegt waagerecht; Spule hebt nach oben ab.'), spacing=.030, size=12)
 
     head = build_winding_head(p, 150)
     projection = _cradle_profile_projection_contract()
     _project(fig, (.65, .145, .31, .19), {'shoe_1': head.shoe_master},
              CRADLE_PROFILE_VIEW_DIRECTION)
     annotations = {
-        'wheel_side': ('Radseite unten: nominaler Auslauf '
+        'wheel_side': ('Radseite unten: gerundete Auflage '
                        f'+{head.metadata["rear_shoulder_height_mm"]:.1f} mm').replace('.', ','),
-        'free_front': ('Frei vorn oben: Schutzschulter '
+        'free_front': ('Oben offen: Überstand '
                        f'+{head.metadata["free_shoulder_height_mm"]:.1f} mm').replace('.', ','),
     }
-    fig.text(.65, .370, 'EIN SCHUH · FREIE VORDERSEITE OBEN',
+    fig.text(.65, .370, 'EIN SCHUH · SPULE NACH OBEN ABZIEHEN',
              fontsize=12, weight='bold', color=INK)
     fig.text(.65, .130, 'Drei offene Passagen · zwei massive Schienen-Reibzungen',
              fontsize=10.5, color=INK)
@@ -274,99 +242,67 @@ def _range(model):
 
 
 def _exploded_groups(model):
-    """Partition real occurrences exactly once into readable assembly groups."""
+    """Partition every installed solid exactly once; preserve its ownership."""
     definitions = {
         'winding_jig': (
-            ('A1  Basis', ('base',)),
-            ('A2  Lagerturm', ('tower',)),
-            ('A3  2 × 608 + 2 Außenclips', ('bearing_608_1', 'bearing_608_2', 'bearing_retainer_1', 'bearing_retainer_2')),
-            ('A4  Welle + 2 Schnappringe', ('shaft', 'snap_collar_1', 'snap_collar_2')),
-            ('A5  Kurbel + Drehgriff', ('crank', 'grip')),
-            ('A6  Wickelrad', ('wheel',)),
-            ('A7  6 gleiche Kontaktschuhe', tuple(f'shoe_{i}' for i in range(1, model.parameters.spoke_count + 1))),
+            ('A1  Gemeinsame Basis', ('base',)),
+            ('A2  51105: unten / Wälzkranz / oben', ('lower_washer', 'bearing', 'upper_washer')),
+            ('A3  Gedruckte horizontale Nabe', ('hub',)),
+            ('A4  Einstellbares Wickelrad', ('wheel',)),
+            ('A5  6 gleiche offene Schuhe', tuple(f'shoe_{i}' for i in range(1, 7))),
+            ('A6  Steckkurbel + drehbarer Griff', ('crank', 'grip')),
         ),
         'wire_payoff': (
-            ('B1  Basis', ('base',)),
-            ('B2  1 × 51105: unten / innen / oben', ('lower_washer', 'bearing', 'upper_washer')),
-            ('B3  Druckspindel', ('spindle',)),
-            ('B4  Teller + integraler Dorn', ('platter',)),
+            ('B1  Gleiche Basis', ('base',)),
+            ('B2  Gedruckte Steckachse', ('spindle',)),
+            ('B3  Zweites komplettes 51105', ('lower_washer', 'bearing', 'upper_washer')),
+            ('B4  Teller + Zentriernippel', ('platter',)),
         ),
     }
-    groups = {}
+    result = {}
     for tool, entries in definitions.items():
-        flattened = [name for _, members in entries for name in members]
-        if len(flattened) != len(set(flattened)) or set(flattened) != set(getattr(model, tool)):
+        names = [name for _, members in entries for name in members]
+        if len(names) != len(set(names)) or set(names) != set(getattr(model, tool)):
             raise ValueError(f'Exploded groups must cover each {tool} occurrence exactly once')
-        groups[tool] = [{'label': label, 'members': list(members),
-                         'ownership': {name: model.ownership[tool][name] for name in members}}
-                        for label, members in entries]
-    return groups
+        result[tool] = [{'label': label, 'members': list(members),
+                        'ownership': {name: model.ownership[tool][name] for name in members}}
+                       for label, members in entries]
+    return result
 
 
 def _spread_group(parts, members):
-    """Separate parts with rigid translations; retain their real size within a group."""
-    shapes, cursor = {}, 0.
-    for name in members:
-        body = parts[name]
-        bounds = body.val().BoundingBox()
-        shapes[name] = body.translate((cursor - bounds.xmin,
-                                      -(bounds.ymin + bounds.ymax) / 2,
-                                      -(bounds.zmin + bounds.zmax) / 2))
-        cursor += bounds.xlen + 12
-    return shapes
+    """Separate the three actual bearing members only for presentation."""
+    result = {name: parts[name] for name in members}
+    if set(members) == {'lower_washer', 'bearing', 'upper_washer'}:
+        result['bearing'] = result['bearing'].translate((0, 0, 12))
+        result['upper_washer'] = result['upper_washer'].translate((0, 0, 24))
+    return result
 
 
 def _exploded(model):
-    fig = _page('03  ·  Steckmontage und vollständige Spulenentnahme',
-                'Zwei unabhängige Module · alle Bauteile in getrennten Montagegruppen · Darstellungsabstände ohne Montagefunktion')
+    fig = _page('03  ·  Zwei Module, gemeinsame Basis und Abzug nach oben',
+                'Kaufteile violett: zwei komplette 51105 · keine Lagerteile drucken · keine Schuhe beim Abzug entfernen')
     groups = _exploded_groups(model)
-    fig.text(.035, .865, f'A  WICKELMODUL · {len(model.winding_jig)} BAUGLIEDER', fontsize=14, weight='bold', color=INK)
-    fig.text(.695, .865, f'B  ABROLLER · {len(model.wire_payoff)} BAUGLIEDER', fontsize=14, weight='bold', color=INK)
     for index, group in enumerate(groups['winding_jig']):
-        column, row = index % 4, index // 4
-        x, y = .025 + column * .163, .685 - row * .177
-        width = .153 if index != 6 else .315
-        fig.text(x + .005, y + .137, group['label'], fontsize=10.5, color=INK, weight='bold')
-        _project(fig, (x, y, width, .126),
-                 _spread_group(model.winding_jig, group['members']), (1, -3.5, 1.4))
+        x = .025 + index * .163
+        _project(fig, (x, .64, .145, .20), _spread_group(model.winding_jig, group['members']))
+        fig.text(x, .855, group['label'], fontsize=10.5, color=INK, weight='bold')
     for index, group in enumerate(groups['wire_payoff']):
-        column, row = index % 2, index // 2
-        x, y = .685 + column * .155, .685 - row * .177
-        label = group['label'].replace(': unten / innen / oben', '\nunten / innen / oben')
-        fig.text(x + .004, y + .137, label, fontsize=10.5, color=INK, weight='bold')
-        _project(fig, (x, y, .15, .126), _spread_group(model.wire_payoff, group['members']), (1, -3, 1.8))
-    _labels(fig, .035, .488, ('Steckfolge A: Basis → Turm → 608/Außenclips → Welle/2 Ringe → Kurbel/Griff → Rad → 6 Schuhe.',
-                           '608: Außenringe stehen; Innenringe drehen. Zwei Ringe orten die Welle am vorderen 608.'),
-            spacing=.024, size=11)
-    _labels(fig, .695, .488, ('B: unten Gehäusescheibe (steht),',
-                           'Wälzkranz (lagerintern), oben',
-                           'Wellenscheibe (dreht mit Teller).'), spacing=.020, size=10.5)
-
-    stages = coil_removal_stages(model)
-    selected = (stages[0], stages[-2], stages[-1])
-    captions = ('1  Anhalten; alle 18 Bandstellen schließen.',
-                '2  Alle sechs Schuhe vollständig abnehmen.',
-                '3  Getapte Spule zusammen nach vorn abziehen.')
-    notes = ('Helfer hält die Spule; Leitungen A/B markieren.',
-             'Schuhe gerade vorziehen und beiseitelegen.',
-             'Rad, Welle, Kurbel und Ständer bleiben montiert.')
-    for index, (stage, caption, note) in enumerate(zip(selected, captions, notes)):
-        parts = {**stage['fixed'], **{name: shape.translate(stage['translation_mm'])
-                                    for name, shape in stage['moving'].items()}}
-        direction = (2.3, -3.5, 1.6)
-        ax, _ = _project(fig, (.02 + index * .326, .132, .31, .254), parts, direction)
-        if stage['name'] == 'remove_taped_coil':
-            height = model.ownership['winding_jig']['wheel']['axis_height_mm']
-            _, right, up = _basis(direction)
-            path = np.array(((30, -45, height + 52), (30, -130, height + 52)))
-            projected = np.column_stack((path @ right, path @ up))
-            ax.annotate('', projected[1], projected[0],
-                        arrowprops=dict(arrowstyle='-|>', color=ACCENT, lw=2))
-        fig.text(.035 + index * .326, .402, caption, fontsize=11, weight='bold', color=INK)
-        fig.text(.035 + index * .326, .378, note, fontsize=10.5, color=INK)
-    fig.text(.035, .103,
-             'Service: Rastflächen lösen, Steckfolge umkehren. Abroller von oben zerlegen; beide Lagerscheiben getrennt erhalten.',
-             fontsize=11, color=INK)
+        x = .035 + index * .242
+        _project(fig, (x, .385, .22, .18), _spread_group(model.wire_payoff, group['members']))
+        fig.text(x, .59, group['label'], fontsize=11, color=INK, weight='bold')
+    fig.text(.035, .355, 'SPULENABZUG: alle sechs Schuhe bleiben eingesteckt; Lagerung und Rad bleiben montiert.',
+             fontsize=14, color=ACCENT, weight='bold')
+    labels = ('1  Wicklung im Stillstand tapen', '2  Kurbel und Griff nach oben abnehmen',
+              '3  Getapte Spule senkrecht nach oben abheben')
+    for index, (stage, label) in enumerate(zip(coil_removal_stages(model), labels)):
+        x = .03 + index * .326
+        parts = {**stage['fixed'], **stage['moving']}
+        # Show the end pose of each authorized motion, with every solid retained.
+        for name, shape in stage['moving'].items():
+            parts[name] = shape.translate(stage['translation_mm'])
+        _project(fig, (x, .09, .30, .22), parts, (1.5, -3.5, 1.2))
+        fig.text(x, .315, label, fontsize=11, color=INK)
     return fig, groups
 
 

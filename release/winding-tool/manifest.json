@@ -48,6 +48,7 @@
           "cad_valid": true,
           "name": "base",
           "ownership": {
+            "canonical_master": "wire_payoff/base",
             "group": "stationary",
             "master": "base",
             "print_rotations_deg": [
@@ -97,7 +98,7 @@
               42.0,
               11.0
             ],
-            "purchase_set": "51105_1",
+            "purchase_set": "wire_payoff_51105",
             "source": "purchased"
           },
           "physical_validation_verified": false,
@@ -139,7 +140,7 @@
               42.0,
               11.0
             ],
-            "purchase_set": "51105_1",
+            "purchase_set": "wire_payoff_51105",
             "source": "purchased"
           },
           "physical_validation_verified": false,
@@ -174,6 +175,7 @@
           "cad_valid": true,
           "name": "platter",
           "ownership": {
+            "canonical_master": "wire_payoff/platter",
             "group": "rotating",
             "master": "platter",
             "print_rotations_deg": [
@@ -216,6 +218,7 @@
           "cad_valid": true,
           "name": "spindle",
           "ownership": {
+            "canonical_master": "wire_payoff/printed_spindle",
             "group": "rotating",
             "journal_diameter_mm": 24.8,
             "master": "printed_spindle",
@@ -266,7 +269,7 @@
               42.0,
               11.0
             ],
-            "purchase_set": "51105_1",
+            "purchase_set": "wire_payoff_51105",
             "source": "purchased"
           },
           "physical_validation_verified": false,
@@ -276,12 +279,12 @@
         }
       ],
       "known_limitations": [
-        "Printed shaft strength and fatigue require physical prototype testing.",
+        "Printed hub, crank and hex-drive strength require physical prototype testing.",
         "PLA snap fit, retention, wear life and bearing fits require physical prototype testing.",
         "Actual winding diameter, repeatability and enamel protection remain unvalidated.",
         "Payoff stability and manual stopping remain unvalidated.",
         "Coil-release force and suitability for continuous or production use remain unvalidated.",
-        "Hand-crank operation only; powered operation is not approved."
+        "Manual operation intended; the future driver-bit option is not validated."
       ],
       "name": "free_running_wire_payoff",
       "physical_validation_verified": false,
@@ -302,54 +305,55 @@
       "cad_bounds_mm": {
         "maximum_xyz": [
           102.0000001,
-          85.0000001,
-          224.23651507465942
+          95.0,
+          95.0
         ],
         "minimum_xyz": [
           -102.0000001,
-          -30.000000000000014,
-          -7.771561172376096e-16
+          -95.0,
+          0.0
         ],
         "size_xyz": [
           204.0000002,
-          115.00000010000001,
-          224.23651507465942
+          190.0,
+          95.0
         ]
       },
-      "cad_solid_count": 18,
-      "component_count": 18,
+      "cad_solid_count": 14,
+      "component_count": 14,
       "components": [
         {
           "cad_bounds_mm": {
             "maximum_xyz": [
-              80.0,
-              79.99999999999999,
-              17.0
+              95.0,
+              95.0,
+              9.0
             ],
             "minimum_xyz": [
-              -80.0,
-              -30.000000000000014,
-              -7.771561172376096e-16
+              -95.0,
+              -95.0,
+              0.0
             ],
             "size_xyz": [
-              160.0,
-              110.0,
-              17.0
+              190.0,
+              190.0,
+              9.0
             ]
           },
           "cad_center_mm": [
-            -3.308743871318995e-18,
-            24.944536468892863,
-            4.066798752501268
+            3.1173441973419406e-15,
+            -3.023713028562567e-15,
+            4.002019668612624
           ],
           "cad_solid_count": 1,
           "cad_valid": true,
           "name": "base",
           "ownership": {
+            "canonical_master": "wire_payoff/base",
             "group": "stationary",
             "master": "base",
             "print_rotations_deg": [
-              90,
+              0,
               0,
               0
             ],
@@ -357,44 +361,45 @@
           },
           "physical_validation_verified": false,
           "placement": "prepositioned geometry in the assembly coordinate frame",
-          "print_part": "winding_jig_base",
+          "print_part": "wire_payoff_base",
           "printable": true,
           "quantity": 1
         },
         {
           "cad_bounds_mm": {
             "maximum_xyz": [
-              11.0,
+              20.0,
+              20.0,
+              18.0
+            ],
+            "minimum_xyz": [
+              -20.0,
+              -20.0,
+              9.0
+            ],
+            "size_xyz": [
               40.0,
-              141.0
-            ],
-            "minimum_xyz": [
-              -11.0,
-              33.0,
-              119.0
-            ],
-            "size_xyz": [
-              22.0,
-              7.0,
-              22.0
+              40.0,
+              9.0
             ]
           },
           "cad_center_mm": [
-            -1.0585501416039424e-14,
-            36.50000000000001,
-            130.0
+            -7.445265065598936e-14,
+            -9.010949064772423e-17,
+            13.5
           ],
           "cad_solid_count": 1,
           "cad_valid": true,
-          "name": "bearing_608_1",
+          "name": "bearing",
           "ownership": {
-            "group": "stationary",
-            "master": "608 bearing",
+            "group": "bearing_internal",
+            "master": "51105 thrust bearing",
             "nominal_dimensions_mm": [
-              8.0,
-              22.0,
-              7.0
+              25.0,
+              42.0,
+              11.0
             ],
+            "purchase_set": "winding_jig_51105",
             "source": "purchased"
           },
           "physical_validation_verified": false,
@@ -405,160 +410,36 @@
         {
           "cad_bounds_mm": {
             "maximum_xyz": [
-              11.0,
-              28.0,
-              141.0
+              77.0,
+              10.0,
+              91.0
             ],
             "minimum_xyz": [
-              -11.0,
-              21.0,
-              119.0
+              -10.0,
+              -10.0,
+              32.0
             ],
             "size_xyz": [
-              22.0,
-              7.0,
-              22.0
+              87.0,
+              20.0,
+              59.0
             ]
           },
           "cad_center_mm": [
-            -1.0585501416039424e-14,
-            24.5,
-            130.0
-          ],
-          "cad_solid_count": 1,
-          "cad_valid": true,
-          "name": "bearing_608_2",
-          "ownership": {
-            "group": "stationary",
-            "master": "608 bearing",
-            "nominal_dimensions_mm": [
-              8.0,
-              22.0,
-              7.0
-            ],
-            "source": "purchased"
-          },
-          "physical_validation_verified": false,
-          "placement": "prepositioned geometry in the assembly coordinate frame",
-          "printable": false,
-          "quantity": 1
-        },
-        {
-          "cad_bounds_mm": {
-            "maximum_xyz": [
-              11.900000000000002,
-              42.1,
-              144.4
-            ],
-            "minimum_xyz": [
-              -11.900000000000002,
-              40.6,
-              118.1
-            ],
-            "size_xyz": [
-              23.800000000000004,
-              1.5,
-              26.30000000000001
-            ]
-          },
-          "cad_center_mm": [
-            -1.2906971839089246e-13,
-            41.349999999999994,
-            130.2966282483442
-          ],
-          "cad_solid_count": 1,
-          "cad_valid": true,
-          "name": "bearing_retainer_1",
-          "ownership": {
-            "group": "stationary",
-            "master": "bearing_retainer",
-            "print_rotations_deg": [
-              0,
-              0,
-              0
-            ],
-            "source": "printed"
-          },
-          "physical_validation_verified": false,
-          "placement": "prepositioned geometry in the assembly coordinate frame",
-          "print_part": "winding_jig_bearing_retainer",
-          "printable": true,
-          "quantity": 1
-        },
-        {
-          "cad_bounds_mm": {
-            "maximum_xyz": [
-              11.900000000000002,
-              20.9,
-              144.4
-            ],
-            "minimum_xyz": [
-              -11.900000000000002,
-              19.4,
-              118.1
-            ],
-            "size_xyz": [
-              23.800000000000004,
-              1.5,
-              26.30000000000001
-            ]
-          },
-          "cad_center_mm": [
-            -1.295932946079817e-13,
-            20.149999999999995,
-            130.2966282483442
-          ],
-          "cad_solid_count": 1,
-          "cad_valid": true,
-          "name": "bearing_retainer_2",
-          "ownership": {
-            "group": "stationary",
-            "master": "bearing_retainer",
-            "print_rotations_deg": [
-              0,
-              0,
-              0
-            ],
-            "source": "printed"
-          },
-          "physical_validation_verified": false,
-          "placement": "prepositioned geometry in the assembly coordinate frame",
-          "print_part": "winding_jig_bearing_retainer",
-          "printable": true,
-          "quantity": 1
-        },
-        {
-          "cad_bounds_mm": {
-            "maximum_xyz": [
-              59.0,
-              85.0000001,
-              137.0
-            ],
-            "minimum_xyz": [
-              -7.0,
-              54.0,
-              122.99999999999999
-            ],
-            "size_xyz": [
-              66.0,
-              31.000000099999994,
-              14.000000000000014
-            ]
-          },
-          "cad_center_mm": [
-            28.482428502754903,
-            59.61373638048305,
-            130.0
+            24.52314556553847,
+            -4.264706457065557e-17,
+            64.14933994199639
           ],
           "cad_solid_count": 1,
           "cad_valid": true,
           "name": "crank",
           "ownership": {
+            "canonical_master": "winding_jig/hand_crank",
             "group": "rotating",
             "master": "hand_crank",
             "print_rotations_deg": [
-              90,
               0,
+              90,
               0
             ],
             "source": "printed"
@@ -572,30 +453,31 @@
         {
           "cad_bounds_mm": {
             "maximum_xyz": [
-              61.0000001,
-              81.8,
-              139.0
+              78.0,
+              8.0,
+              95.0
             ],
             "minimum_xyz": [
-              42.9999999,
-              59.199999999999996,
-              121.0
+              62.0,
+              -8.0,
+              71.0
             ],
             "size_xyz": [
-              18.000000200000002,
-              22.6,
-              18.0
+              16.0,
+              16.0,
+              24.0
             ]
           },
           "cad_center_mm": [
-            51.999999999999964,
-            70.5,
-            130.0
+            69.99999999999999,
+            9.167128979230031e-17,
+            83.24418604651164
           ],
           "cad_solid_count": 1,
           "cad_valid": true,
           "name": "grip",
           "ownership": {
+            "canonical_master": "winding_jig/rotating_grip",
             "group": "rotating",
             "master": "rotating_grip",
             "print_rotations_deg": [
@@ -614,77 +496,121 @@
         {
           "cad_bounds_mm": {
             "maximum_xyz": [
-              9.0,
-              68.0,
-              139.0
+              18.0,
+              18.0,
+              42.0
             ],
             "minimum_xyz": [
-              -9.0,
-              -7.500000000000001,
-              121.0
+              -18.0,
+              -18.0,
+              1.5
             ],
             "size_xyz": [
-              18.0,
-              75.5,
-              18.0
+              36.0,
+              36.0,
+              40.5
             ]
           },
           "cad_center_mm": [
-            -6.382689268001199e-11,
-            20.852766411074924,
-            129.99999999999991
+            -1.4907585337431965e-15,
+            -3.231535223157269e-16,
+            20.72337869666318
           ],
           "cad_solid_count": 1,
           "cad_valid": true,
-          "name": "shaft",
+          "name": "hub",
           "ownership": {
+            "canonical_master": "winding_jig/horizontal_hub",
             "group": "rotating",
-            "master": "printed_shaft",
+            "master": "horizontal_hub",
             "print_rotations_deg": [
-              90,
               0,
+              90,
               0
             ],
             "source": "printed"
           },
           "physical_validation_verified": false,
           "placement": "prepositioned geometry in the assembly coordinate frame",
-          "print_part": "winding_jig_printed_shaft",
+          "print_part": "winding_jig_horizontal_hub",
           "printable": true,
           "quantity": 1
         },
         {
           "cad_bounds_mm": {
             "maximum_xyz": [
-              77.7000001,
-              1.0000000000000016,
-              155.89567730238662
+              21.0,
+              21.0,
+              9.0
             ],
             "minimum_xyz": [
-              63.0,
-              -29.200000100000008,
-              104.10432269761338
+              -21.0,
+              -21.0,
+              8.0
             ],
             "size_xyz": [
-              14.700000099999997,
-              30.200000100000008,
-              51.79135460477323
+              42.0,
+              42.0,
+              1.0
             ]
           },
           "cad_center_mm": [
-            70.14909739243909,
-            -20.303187801506756,
-            130.00000716940315
+            -5.4901009202210634e-14,
+            -1.0757731091238066e-15,
+            8.5
+          ],
+          "cad_solid_count": 1,
+          "cad_valid": true,
+          "name": "lower_washer",
+          "ownership": {
+            "group": "stationary",
+            "master": "51105 thrust bearing",
+            "nominal_dimensions_mm": [
+              25.0,
+              42.0,
+              11.0
+            ],
+            "purchase_set": "winding_jig_51105",
+            "source": "purchased"
+          },
+          "physical_validation_verified": false,
+          "placement": "prepositioned geometry in the assembly coordinate frame",
+          "printable": false,
+          "quantity": 1
+        },
+        {
+          "cad_bounds_mm": {
+            "maximum_xyz": [
+              77.7000001,
+              25.895671938941394,
+              62.20000010000002
+            ],
+            "minimum_xyz": [
+              63.0,
+              -25.895671938833246,
+              31.999999999999996
+            ],
+            "size_xyz": [
+              14.700000099999997,
+              51.791343877774636,
+              30.20000010000002
+            ]
+          },
+          "cad_center_mm": [
+            70.11677156584179,
+            1.2749100436032975e-08,
+            43.979032054279834
           ],
           "cad_solid_count": 1,
           "cad_valid": true,
           "name": "shoe_1",
           "ownership": {
+            "canonical_master": "winding_jig/contact_shoe",
             "group": "rotating",
             "master": "contact_shoe",
             "print_rotations_deg": [
-              90,
               0,
+              -90,
               0
             ],
             "source": "printed"
@@ -698,35 +624,36 @@
         {
           "cad_bounds_mm": {
             "maximum_xyz": [
-              57.74811886995376,
-              1.000000000000008,
-              204.3413608487731
+              57.74811718647578,
+              74.34136044892308,
+              62.20000010000002
             ],
             "minimum_xyz": [
-              12.65428389457332,
-              -29.2000001,
-              173.85674398303405
+              12.654283894573288,
+              43.856743983034036,
+              31.999999999999996
             ],
             "size_xyz": [
-              45.09383497538044,
-              30.200000100000008,
-              30.484616865739042
+              45.09383329190249,
+              30.484616465889047,
+              30.20000010000002
             ]
           },
           "cad_center_mm": [
-            35.07454248733424,
-            -20.303187801506734,
-            190.75090397910273
+            35.058385771879905,
+            60.72290541374381,
+            43.979032054279806
           ],
           "cad_solid_count": 1,
           "cad_valid": true,
           "name": "shoe_2",
           "ownership": {
+            "canonical_master": "winding_jig/contact_shoe",
             "group": "rotating",
             "master": "contact_shoe",
             "print_rotations_deg": [
-              90,
               0,
+              -90,
               0
             ],
             "source": "printed"
@@ -741,34 +668,35 @@
           "cad_bounds_mm": {
             "maximum_xyz": [
               -12.654283894573267,
-              1.0000000000000075,
-              204.34136084877304
+              74.34136044950279,
+              62.20000010000002
             ],
             "minimum_xyz": [
-              -57.74811886995376,
-              -29.2000001,
-              173.85674398303405
+              -57.748117185544565,
+              43.85674398303405,
+              31.999999999999996
             ],
             "size_xyz": [
-              45.09383497538049,
-              30.200000100000008,
-              30.484616865738985
+              45.0938332909713,
+              30.484616466468736,
+              30.20000010000002
             ]
           },
           "cad_center_mm": [
-            -35.0745549051049,
-            -20.3031878015067,
-            190.75089680969947
+            -35.05838579396178,
+            60.722905400994776,
+            43.979032054279806
           ],
           "cad_solid_count": 1,
           "cad_valid": true,
           "name": "shoe_3",
           "ownership": {
+            "canonical_master": "winding_jig/contact_shoe",
             "group": "rotating",
             "master": "contact_shoe",
             "print_rotations_deg": [
-              90,
               0,
+              -90,
               0
             ],
             "source": "printed"
@@ -783,34 +711,35 @@
           "cad_bounds_mm": {
             "maximum_xyz": [
               -63.0,
-              1.000000000000001,
-              155.89567730238662
+              25.895671938833253,
+              62.20000010000002
             ],
             "minimum_xyz": [
               -77.70000010000001,
-              -29.200000100000008,
-              104.10432269761338
+              -25.895671938941387,
+              31.999999999999996
             ],
             "size_xyz": [
               14.700000100000011,
-              30.200000100000008,
-              51.79135460477323
+              51.791343877774636,
+              30.20000010000002
             ]
           },
           "cad_center_mm": [
-            -70.1490973924391,
-            -20.303187801506745,
-            129.99999283059688
+            -70.11677156584174,
+            -1.2749070385609932e-08,
+            43.97903205427987
           ],
           "cad_solid_count": 1,
           "cad_valid": true,
           "name": "shoe_4",
           "ownership": {
+            "canonical_master": "winding_jig/contact_shoe",
             "group": "rotating",
             "master": "contact_shoe",
             "print_rotations_deg": [
-              90,
               0,
+              -90,
               0
             ],
             "source": "printed"
@@ -824,35 +753,36 @@
         {
           "cad_bounds_mm": {
             "maximum_xyz": [
-              -12.654283894573341,
-              0.999999999999994,
-              86.14325601696596
+              -12.65428389457331,
+              -43.85674398303402,
+              62.20000010000002
             ],
             "minimum_xyz": [
-              -57.74811886995378,
-              -29.200000100000015,
-              55.65863915122696
+              -57.748117186475795,
+              -74.34136044892308,
+              31.999999999999996
             ],
             "size_xyz": [
-              45.09383497538044,
-              30.200000100000008,
-              30.484616865739007
+              45.093833291902484,
+              30.48461646588906,
+              30.20000010000002
             ]
           },
           "cad_center_mm": [
-            -35.074542487334305,
-            -20.303187801506784,
-            69.24909602089733
+            -35.05838577187983,
+            -60.72290541374382,
+            43.9790320542798
           ],
           "cad_solid_count": 1,
           "cad_valid": true,
           "name": "shoe_5",
           "ownership": {
+            "canonical_master": "winding_jig/contact_shoe",
             "group": "rotating",
             "master": "contact_shoe",
             "print_rotations_deg": [
-              90,
               0,
+              -90,
               0
             ],
             "source": "printed"
@@ -866,35 +796,36 @@
         {
           "cad_bounds_mm": {
             "maximum_xyz": [
-              57.74811886995378,
-              0.9999999999999941,
-              86.14325601696595
+              57.74811718554459,
+              -43.856743983034036,
+              62.20000010000002
             ],
             "minimum_xyz": [
               12.654283894573288,
-              -29.200000100000015,
-              55.65863915122696
+              -74.34136044950279,
+              31.999999999999996
             ],
             "size_xyz": [
-              45.09383497538049,
-              30.200000100000008,
-              30.484616865738992
+              45.0938332909713,
+              30.48461646646875,
+              30.20000010000002
             ]
           },
           "cad_center_mm": [
-            35.07455490510495,
-            -20.30318780150677,
-            69.2491031903005
+            35.058385793961946,
+            -60.722905400994776,
+            43.97903205427981
           ],
           "cad_solid_count": 1,
           "cad_valid": true,
           "name": "shoe_6",
           "ownership": {
+            "canonical_master": "winding_jig/contact_shoe",
             "group": "rotating",
             "master": "contact_shoe",
             "print_rotations_deg": [
-              90,
               0,
+              -90,
               0
             ],
             "source": "printed"
@@ -908,151 +839,67 @@
         {
           "cad_bounds_mm": {
             "maximum_xyz": [
-              5.1000000000000005,
-              30.1,
-              133.80131556174965
+              21.0,
+              21.0,
+              19.0
             ],
             "minimum_xyz": [
-              -5.1000000000000005,
-              28.3,
-              124.9
+              -21.0,
+              -21.0,
+              18.0
             ],
             "size_xyz": [
-              10.200000000000001,
-              1.8000000000000007,
-              8.901315561749641
+              42.0,
+              42.0,
+              1.0
             ]
           },
           "cad_center_mm": [
-            -2.3885884625477714e-14,
-            29.199999999999996,
-            128.47700030086696
+            -5.4901009202210634e-14,
+            -1.0757731091238066e-15,
+            18.5
           ],
           "cad_solid_count": 1,
           "cad_valid": true,
-          "name": "snap_collar_1",
+          "name": "upper_washer",
           "ownership": {
             "group": "rotating",
-            "master": "snap_collar",
-            "print_rotations_deg": [
-              0,
-              0,
-              0
+            "master": "51105 thrust bearing",
+            "nominal_dimensions_mm": [
+              25.0,
+              42.0,
+              11.0
             ],
-            "source": "printed"
+            "purchase_set": "winding_jig_51105",
+            "source": "purchased"
           },
           "physical_validation_verified": false,
           "placement": "prepositioned geometry in the assembly coordinate frame",
-          "print_part": "winding_jig_snap_collar",
-          "printable": true,
-          "quantity": 1
-        },
-        {
-          "cad_bounds_mm": {
-            "maximum_xyz": [
-              5.1000000000000005,
-              20.7,
-              133.80131556174965
-            ],
-            "minimum_xyz": [
-              -5.1000000000000005,
-              18.9,
-              124.9
-            ],
-            "size_xyz": [
-              10.200000000000001,
-              1.8000000000000007,
-              8.901315561749641
-            ]
-          },
-          "cad_center_mm": [
-            -2.383507343676237e-14,
-            19.8,
-            128.47700030086696
-          ],
-          "cad_solid_count": 1,
-          "cad_valid": true,
-          "name": "snap_collar_2",
-          "ownership": {
-            "group": "rotating",
-            "master": "snap_collar",
-            "print_rotations_deg": [
-              0,
-              0,
-              0
-            ],
-            "source": "printed"
-          },
-          "physical_validation_verified": false,
-          "placement": "prepositioned geometry in the assembly coordinate frame",
-          "print_part": "winding_jig_snap_collar",
-          "printable": true,
-          "quantity": 1
-        },
-        {
-          "cad_bounds_mm": {
-            "maximum_xyz": [
-              17.4,
-              44.0,
-              146.0
-            ],
-            "minimum_xyz": [
-              -17.4,
-              16.999999999999986,
-              2.0
-            ],
-            "size_xyz": [
-              34.8,
-              27.000000000000014,
-              144.0
-            ]
-          },
-          "cad_center_mm": [
-            -1.4754903161332245e-15,
-            29.928206633511277,
-            66.89458572497608
-          ],
-          "cad_solid_count": 1,
-          "cad_valid": true,
-          "name": "tower",
-          "ownership": {
-            "group": "stationary",
-            "master": "bearing_tower",
-            "print_rotations_deg": [
-              0,
-              90,
-              0
-            ],
-            "source": "printed"
-          },
-          "physical_validation_verified": false,
-          "placement": "prepositioned geometry in the assembly coordinate frame",
-          "print_part": "winding_jig_bearing_tower",
-          "printable": true,
+          "printable": false,
           "quantity": 1
         },
         {
           "cad_bounds_mm": {
             "maximum_xyz": [
               102.0000001,
-              1.0462354868530025e-14,
-              224.23651507465942
+              94.23651507465942,
+              38.0000001
             ],
             "minimum_xyz": [
               -102.0000001,
-              -5.000000100000011,
-              35.763484925340585
+              -94.23651507465941,
+              33.0
             ],
             "size_xyz": [
               204.0000002,
-              5.000000100000022,
-              188.47303014931884
+              188.47303014931884,
+              5.000000100000001
             ]
           },
           "cad_center_mm": [
-            5.653897615138509e-08,
-            -2.496902034759667,
-            130.00000003282926
+            5.653897574824952e-08,
+            3.283196164725165e-08,
+            35.49690203475814
           ],
           "cad_solid_count": 1,
           "cad_valid": true,
@@ -1078,7 +925,8 @@
               300.0,
               312.00321262484727
             ],
-            "axis_height_mm": 130.0,
+            "axis_height_mm": 33.0,
+            "canonical_master": "winding_jig/coil_wheel",
             "diameter_mm": 150.0,
             "group": "rotating",
             "master": "coil_wheel",
@@ -1117,23 +965,23 @@
         }
       ],
       "known_limitations": [
-        "Printed shaft strength and fatigue require physical prototype testing.",
+        "Printed hub, crank and hex-drive strength require physical prototype testing.",
         "PLA snap fit, retention, wear life and bearing fits require physical prototype testing.",
         "Actual winding diameter, repeatability and enamel protection remain unvalidated.",
         "Payoff stability and manual stopping remain unvalidated.",
         "Coil-release force and suitability for continuous or production use remain unvalidated.",
-        "Hand-crank operation only; powered operation is not approved."
+        "Manual operation intended; the future driver-bit option is not validated."
       ],
       "name": "simplified_winding_jig",
       "physical_validation_verified": false,
       "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies",
       "step_path": "assembly/simplified_winding_jig.step",
       "step_round_trip_valid": true,
-      "step_sha256": "d4144df3da6e92d8c0a3836ed220f763505e9ed1bdbbcb03f70fd186062d85bb",
-      "summed_component_volume_mm3": 318903.49202097155,
+      "step_sha256": "65f81b11fc13cb969b4ec0dc6d25a2a59ae7060fe754c8e3ff9fdf5b3390a471",
+      "summed_component_volume_mm3": 419494.3654449351,
       "tool": "winding_jig",
       "topology_result": {
-        "cad_solid_count": 18,
+        "cad_solid_count": 14,
         "cad_valid": true,
         "step_round_trip_valid": true,
         "stl_required": false
@@ -1144,15 +992,14 @@
     "actual_tape_angles": true,
     "bearing_51105_load_path": true,
     "bearing_51105_ownership": true,
-    "bearing_608_engagement": true,
     "bearing_catalog_dimensions": true,
     "complete_coil_removal": true,
     "crank_full_rotation": true,
     "equal_shoe_positions": true,
     "head_rotation_clearance": true,
+    "hub_radial_guidance": true,
     "independent_tools": true,
     "jig_full_rotation_clearance": true,
-    "locating_floating_load_path": true,
     "member_collision_clearance": true,
     "ownership": true,
     "payoff_free_rotation": true,
@@ -1174,19 +1021,16 @@
     "setting_180_geometry": true,
     "setting_190_geometry": true,
     "setting_200_geometry": true,
-    "shaft_axial_restraint": true,
+    "shared_base_geometry": true,
     "snap_access": true,
-    "stand_snap_joint": true,
     "tape_corridors": true,
     "two_tongue_friction_fit": true,
     "valid_solids": true,
+    "wheel_working_gap": true,
+    "winder_51105_load_path": true,
     "wire_contact_envelope": true
   },
   "bearing_parameters": {
-    "radial_bore_diameter_mm": 8.0,
-    "radial_height_mm": 7.0,
-    "radial_housing_seat_diameter_mm": 22.2,
-    "radial_outer_diameter_mm": 22.0,
     "thrust_bore_diameter_mm": 25.0,
     "thrust_height_mm": 11.0,
     "thrust_housing_seat_diameter_mm": 42.2,
@@ -1194,20 +1038,29 @@
     "thrust_rotating_pilot_diameter_mm": 24.8
   },
   "bom_path": "bom.json",
-  "bom_sha256": "b8a3b3bc887b59df24c7a9556b62acdee1bd6e51e7cef9a33d695ea35502d7d9",
+  "bom_sha256": "ee6aafbda0d3f54100ea1ed78e2a460fd4abcd8d6bd3b735082513d7e34991b3",
+  "coil_release": {
+    "direction": "+Z",
+    "remove_crank_first": true,
+    "shoes_stay_seated": true
+  },
   "coordinate_frames": {
-    "assembly_step": "Two independent origins; winding-jig axis Y (forward -Y) and payoff axis Z.",
-    "print_step": "Task 5 master geometry bounding-box-centered at the origin, then given the recorded release X/Y/Z rotations; the shaft uses an equivalent axis-parallel phase that places a planar face on the bed.",
+    "assembly_step": "Two independent bench origins; both rotation axes Z; coil release upward +Z.",
+    "print_step": "Task 5 master geometry bounding-box-centered at the origin, then given the recorded release X/Y/Z rotations.",
     "print_stl": "The print STEP master translated vertically to minimum Z = 0 mm."
   },
   "determinism": "Sorted ownership-derived inventory, sorted named assemblies, canonical STEP headers, absolute serial STL meshing, and sorted JSON keys.",
+  "drive_hex": {
+    "female_across_flats_mm": 6.45,
+    "male_across_flats_mm": 6.35
+  },
   "known_limitations": [
-    "Printed shaft strength and fatigue require physical prototype testing.",
+    "Printed hub, crank and hex-drive strength require physical prototype testing.",
     "PLA snap fit, retention, wear life and bearing fits require physical prototype testing.",
     "Actual winding diameter, repeatability and enamel protection remain unvalidated.",
     "Payoff stability and manual stopping remain unvalidated.",
     "Coil-release force and suitability for continuous or production use remain unvalidated.",
-    "Hand-crank operation only; powered operation is not approved."
+    "Manual operation intended; the future driver-bit option is not validated."
   ],
   "manifest_path_base": "output directory",
   "manufacturing_parameters": {
@@ -1217,66 +1070,40 @@
   "ownership": {
     "winding_jig": {
       "base": {
+        "canonical_master": "wire_payoff/base",
         "group": "stationary",
         "master": "base",
         "print_rotations_deg": [
-          90,
+          0,
           0,
           0
         ],
         "source": "printed"
       },
-      "bearing_608_1": {
-        "group": "stationary",
-        "master": "608 bearing",
+      "bearing": {
+        "group": "bearing_internal",
+        "master": "51105 thrust bearing",
         "nominal_dimensions_mm": [
-          8.0,
-          22.0,
-          7.0
+          25.0,
+          42.0,
+          11.0
         ],
+        "purchase_set": "winding_jig_51105",
         "source": "purchased"
-      },
-      "bearing_608_2": {
-        "group": "stationary",
-        "master": "608 bearing",
-        "nominal_dimensions_mm": [
-          8.0,
-          22.0,
-          7.0
-        ],
-        "source": "purchased"
-      },
-      "bearing_retainer_1": {
-        "group": "stationary",
-        "master": "bearing_retainer",
-        "print_rotations_deg": [
-          0,
-          0,
-          0
-        ],
-        "source": "printed"
-      },
-      "bearing_retainer_2": {
-        "group": "stationary",
-        "master": "bearing_retainer",
-        "print_rotations_deg": [
-          0,
-          0,
-          0
-        ],
-        "source": "printed"
       },
       "crank": {
+        "canonical_master": "winding_jig/hand_crank",
         "group": "rotating",
         "master": "hand_crank",
         "print_rotations_deg": [
-          90,
           0,
+          90,
           0
         ],
         "source": "printed"
       },
       "grip": {
+        "canonical_master": "winding_jig/rotating_grip",
         "group": "rotating",
         "master": "rotating_grip",
         "print_rotations_deg": [
@@ -1286,105 +1113,104 @@
         ],
         "source": "printed"
       },
-      "shaft": {
+      "hub": {
+        "canonical_master": "winding_jig/horizontal_hub",
         "group": "rotating",
-        "master": "printed_shaft",
+        "master": "horizontal_hub",
         "print_rotations_deg": [
-          90,
           0,
+          90,
           0
         ],
         "source": "printed"
       },
+      "lower_washer": {
+        "group": "stationary",
+        "master": "51105 thrust bearing",
+        "nominal_dimensions_mm": [
+          25.0,
+          42.0,
+          11.0
+        ],
+        "purchase_set": "winding_jig_51105",
+        "source": "purchased"
+      },
       "shoe_1": {
+        "canonical_master": "winding_jig/contact_shoe",
         "group": "rotating",
         "master": "contact_shoe",
         "print_rotations_deg": [
-          90,
           0,
+          -90,
           0
         ],
         "source": "printed"
       },
       "shoe_2": {
+        "canonical_master": "winding_jig/contact_shoe",
         "group": "rotating",
         "master": "contact_shoe",
         "print_rotations_deg": [
-          90,
           0,
+          -90,
           0
         ],
         "source": "printed"
       },
       "shoe_3": {
+        "canonical_master": "winding_jig/contact_shoe",
         "group": "rotating",
         "master": "contact_shoe",
         "print_rotations_deg": [
-          90,
           0,
+          -90,
           0
         ],
         "source": "printed"
       },
       "shoe_4": {
+        "canonical_master": "winding_jig/contact_shoe",
         "group": "rotating",
         "master": "contact_shoe",
         "print_rotations_deg": [
-          90,
           0,
+          -90,
           0
         ],
         "source": "printed"
       },
       "shoe_5": {
+        "canonical_master": "winding_jig/contact_shoe",
         "group": "rotating",
         "master": "contact_shoe",
         "print_rotations_deg": [
-          90,
           0,
+          -90,
           0
         ],
         "source": "printed"
       },
       "shoe_6": {
+        "canonical_master": "winding_jig/contact_shoe",
         "group": "rotating",
         "master": "contact_shoe",
         "print_rotations_deg": [
-          90,
           0,
+          -90,
           0
         ],
         "source": "printed"
       },
-      "snap_collar_1": {
+      "upper_washer": {
         "group": "rotating",
-        "master": "snap_collar",
-        "print_rotations_deg": [
-          0,
-          0,
-          0
+        "master": "51105 thrust bearing",
+        "nominal_dimensions_mm": [
+          25.0,
+          42.0,
+          11.0
         ],
-        "source": "printed"
-      },
-      "snap_collar_2": {
-        "group": "rotating",
-        "master": "snap_collar",
-        "print_rotations_deg": [
-          0,
-          0,
-          0
-        ],
-        "source": "printed"
-      },
-      "tower": {
-        "group": "stationary",
-        "master": "bearing_tower",
-        "print_rotations_deg": [
-          0,
-          90,
-          0
-        ],
-        "source": "printed"
+        "purchase_set": "winding_jig_51105",
+        "source": "purchased"
       },
       "wheel": {
         "actual_tape_angles_deg": [
@@ -1407,7 +1233,8 @@
           300.0,
           312.00321262484727
         ],
-        "axis_height_mm": 130.0,
+        "axis_height_mm": 33.0,
+        "canonical_master": "winding_jig/coil_wheel",
         "diameter_mm": 150.0,
         "group": "rotating",
         "master": "coil_wheel",
@@ -1441,6 +1268,7 @@
     },
     "wire_payoff": {
       "base": {
+        "canonical_master": "wire_payoff/base",
         "group": "stationary",
         "master": "base",
         "print_rotations_deg": [
@@ -1458,7 +1286,7 @@
           42.0,
           11.0
         ],
-        "purchase_set": "51105_1",
+        "purchase_set": "wire_payoff_51105",
         "source": "purchased"
       },
       "lower_washer": {
@@ -1469,10 +1297,11 @@
           42.0,
           11.0
         ],
-        "purchase_set": "51105_1",
+        "purchase_set": "wire_payoff_51105",
         "source": "purchased"
       },
       "platter": {
+        "canonical_master": "wire_payoff/platter",
         "group": "rotating",
         "master": "platter",
         "print_rotations_deg": [
@@ -1483,6 +1312,7 @@
         "source": "printed"
       },
       "spindle": {
+        "canonical_master": "wire_payoff/printed_spindle",
         "group": "rotating",
         "journal_diameter_mm": 24.8,
         "master": "printed_spindle",
@@ -1501,7 +1331,7 @@
           42.0,
           11.0
         ],
-        "purchase_set": "51105_1",
+        "purchase_set": "wire_payoff_51105",
         "source": "purchased"
       }
     }
@@ -1526,420 +1356,59 @@
   "printable_parts": [
     {
       "assembly_members": [
-        "base"
-      ],
-      "cad_bounds_mm": {
-        "maximum_xyz": [
-          80.0,
-          55.0,
-          8.5
-        ],
-        "minimum_xyz": [
-          -80.0,
-          -55.0,
-          -8.500000000000005
-        ],
-        "size_xyz": [
-          160.0,
-          110.0,
-          17.000000000000007
-        ]
-      },
-      "cad_solid_count": 1,
-      "cad_valid": true,
-      "cad_volume_mm3": 137438.06367979286,
-      "dimensions_mm": {
-        "maximum_xyz": [
-          80.0,
-          55.0,
-          8.5
-        ],
-        "minimum_xyz": [
-          -80.0,
-          -55.0,
-          -8.500000000000005
-        ],
-        "size_xyz": [
-          160.0,
-          110.0,
-          17.000000000000007
-        ]
-      },
-      "expected_component_count": 1,
-      "known_limitations": [
-        "Printed shaft strength and fatigue require physical prototype testing.",
-        "PLA snap fit, retention, wear life and bearing fits require physical prototype testing.",
-        "Actual winding diameter, repeatability and enamel protection remain unvalidated.",
-        "Payoff stability and manual stopping remain unvalidated.",
-        "Coil-release force and suitability for continuous or production use remain unvalidated.",
-        "Hand-crank operation only; powered operation is not approved."
-      ],
-      "master": "winding_jig/base",
-      "material": "PLA",
-      "mesh": {
-        "boundary_edge_count": 0,
-        "component_count": 1,
-        "degenerate_face_count": 0,
-        "filename": "winding_jig_base.stl",
-        "maximum_xyz": [
-          80.0,
-          55.0,
-          17.0
-        ],
-        "minimum_xyz": [
-          -80.0,
-          -55.0,
-          0.0
-        ],
-        "nonmanifold_edge_count": 0,
-        "signed_volume": 137438.79870819382,
-        "size_xyz": [
-          160.0,
-          110.0,
-          17.0
-        ],
-        "triangle_count": 1788,
-        "unique_vertex_count": 888
-      },
-      "name": "winding_jig_base",
-      "physical_validation_verified": false,
-      "print_bed_footprint_mm": [
-        160.0,
-        110.0
-      ],
-      "print_orientation": {
-        "axis_order": [
-          "X",
-          "Y",
-          "Z"
-        ],
-        "bed_origin": "STL minimum Z translated to 0 mm",
-        "geometry_policy": "Rigid orientation only; source CAD and STL facets are not altered by the winding-tool exporter.",
-        "ownership_rotations_deg": [
-          90,
-          0,
-          0
-        ],
-        "rotations_deg": [
-          90,
-          0,
-          0
-        ]
-      },
-      "printable": true,
-      "quantity": 1,
-      "role": "stationary",
-      "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies",
-      "step_path": "step/winding_jig_base.step",
-      "step_round_trip_valid": true,
-      "step_sha256": "b79c99ae926c25066ada3b11f472a56ac42dc31a117899daec64c31560c0227b",
-      "stl_path": "stl/winding_jig_base.stl",
-      "stl_sha256": "d750ffcc10253bf94717b9c0a957515f76646040fe4b73bdc6644dbc29e751d9",
-      "stl_translation_z_mm": 8.500000000000005,
-      "tool": "winding_jig",
-      "topology_result": {
-        "cad_solid_count": 1,
-        "cad_valid": true,
-        "step_round_trip_valid": true,
-        "stl_binary": true,
-        "stl_closed_manifold": true,
-        "stl_component_count": 1
-      }
-    },
-    {
-      "assembly_members": [
-        "bearing_retainer_1",
-        "bearing_retainer_2"
-      ],
-      "cad_bounds_mm": {
-        "maximum_xyz": [
-          11.900000000000002,
-          13.150000000000002,
-          0.75
-        ],
-        "minimum_xyz": [
-          -11.900000000000002,
-          -13.150000000000004,
-          -0.75
-        ],
-        "size_xyz": [
-          23.800000000000004,
-          26.300000000000004,
-          1.5
-        ]
-      },
-      "cad_solid_count": 1,
-      "cad_valid": true,
-      "cad_volume_mm3": 217.13522123106202,
-      "dimensions_mm": {
-        "maximum_xyz": [
-          11.900000000000002,
-          13.150000000000002,
-          0.75
-        ],
-        "minimum_xyz": [
-          -11.900000000000002,
-          -13.150000000000004,
-          -0.75
-        ],
-        "size_xyz": [
-          23.800000000000004,
-          26.300000000000004,
-          1.5
-        ]
-      },
-      "expected_component_count": 1,
-      "known_limitations": [
-        "Printed shaft strength and fatigue require physical prototype testing.",
-        "PLA snap fit, retention, wear life and bearing fits require physical prototype testing.",
-        "Actual winding diameter, repeatability and enamel protection remain unvalidated.",
-        "Payoff stability and manual stopping remain unvalidated.",
-        "Coil-release force and suitability for continuous or production use remain unvalidated.",
-        "Hand-crank operation only; powered operation is not approved."
-      ],
-      "master": "winding_jig/bearing_retainer",
-      "material": "PLA",
-      "mesh": {
-        "boundary_edge_count": 0,
-        "component_count": 1,
-        "degenerate_face_count": 0,
-        "filename": "winding_jig_bearing_retainer.stl",
-        "maximum_xyz": [
-          11.898782730102539,
-          13.149999618530273,
-          1.5
-        ],
-        "minimum_xyz": [
-          -11.898782730102539,
-          -13.149999618530273,
-          0.0
-        ],
-        "nonmanifold_edge_count": 0,
-        "signed_volume": 217.02832383156488,
-        "size_xyz": [
-          23.797565460205078,
-          26.299999237060547,
-          1.5
-        ],
-        "triangle_count": 780,
-        "unique_vertex_count": 392
-      },
-      "name": "winding_jig_bearing_retainer",
-      "physical_validation_verified": false,
-      "print_bed_footprint_mm": [
-        23.800000000000004,
-        26.300000000000004
-      ],
-      "print_orientation": {
-        "axis_order": [
-          "X",
-          "Y",
-          "Z"
-        ],
-        "bed_origin": "STL minimum Z translated to 0 mm",
-        "geometry_policy": "Rigid orientation only; source CAD and STL facets are not altered by the winding-tool exporter.",
-        "ownership_rotations_deg": [
-          0,
-          0,
-          0
-        ],
-        "rotations_deg": [
-          0,
-          0,
-          0
-        ]
-      },
-      "printable": true,
-      "quantity": 2,
-      "role": "stationary",
-      "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies",
-      "step_path": "step/winding_jig_bearing_retainer.step",
-      "step_round_trip_valid": true,
-      "step_sha256": "28c2a78ac8e7e6fbbcc3138eeb052fd3e28f6739bcf3e57cdcbedfeea012862e",
-      "stl_path": "stl/winding_jig_bearing_retainer.stl",
-      "stl_sha256": "0127c496eac2617f35a0d99f6e19e23535bc7c1bddad2aed67ac93811ec03be2",
-      "stl_translation_z_mm": 0.75,
-      "tool": "winding_jig",
-      "topology_result": {
-        "cad_solid_count": 1,
-        "cad_valid": true,
-        "step_round_trip_valid": true,
-        "stl_binary": true,
-        "stl_closed_manifold": true,
-        "stl_component_count": 1
-      }
-    },
-    {
-      "assembly_members": [
-        "tower"
-      ],
-      "cad_bounds_mm": {
-        "maximum_xyz": [
-          13.500000000000002,
-          72.0,
-          17.4
-        ],
-        "minimum_xyz": [
-          -13.500000000000002,
-          -72.0,
-          -17.4
-        ],
-        "size_xyz": [
-          27.000000000000004,
-          144.0,
-          34.8
-        ]
-      },
-      "cad_solid_count": 1,
-      "cad_valid": true,
-      "cad_volume_mm3": 70809.13359253282,
-      "dimensions_mm": {
-        "maximum_xyz": [
-          13.500000000000002,
-          72.0,
-          17.4
-        ],
-        "minimum_xyz": [
-          -13.500000000000002,
-          -72.0,
-          -17.4
-        ],
-        "size_xyz": [
-          27.000000000000004,
-          144.0,
-          34.8
-        ]
-      },
-      "expected_component_count": 1,
-      "known_limitations": [
-        "Printed shaft strength and fatigue require physical prototype testing.",
-        "PLA snap fit, retention, wear life and bearing fits require physical prototype testing.",
-        "Actual winding diameter, repeatability and enamel protection remain unvalidated.",
-        "Payoff stability and manual stopping remain unvalidated.",
-        "Coil-release force and suitability for continuous or production use remain unvalidated.",
-        "Hand-crank operation only; powered operation is not approved."
-      ],
-      "master": "winding_jig/bearing_tower",
-      "material": "PLA",
-      "mesh": {
-        "boundary_edge_count": 0,
-        "component_count": 1,
-        "degenerate_face_count": 0,
-        "filename": "winding_jig_bearing_tower.stl",
-        "maximum_xyz": [
-          13.5,
-          72.0,
-          34.79999923706055
-        ],
-        "minimum_xyz": [
-          -13.5,
-          -72.0,
-          0.0
-        ],
-        "nonmanifold_edge_count": 0,
-        "signed_volume": 70807.47330002759,
-        "size_xyz": [
-          27.0,
-          144.0,
-          34.79999923706055
-        ],
-        "triangle_count": 4206,
-        "unique_vertex_count": 2101
-      },
-      "name": "winding_jig_bearing_tower",
-      "physical_validation_verified": false,
-      "print_bed_footprint_mm": [
-        27.000000000000004,
-        144.0
-      ],
-      "print_orientation": {
-        "axis_order": [
-          "X",
-          "Y",
-          "Z"
-        ],
-        "bed_origin": "STL minimum Z translated to 0 mm",
-        "geometry_policy": "Rigid orientation only; source CAD and STL facets are not altered by the winding-tool exporter.",
-        "ownership_rotations_deg": [
-          0,
-          90,
-          0
-        ],
-        "rotations_deg": [
-          0,
-          90,
-          0
-        ]
-      },
-      "printable": true,
-      "quantity": 1,
-      "role": "stationary",
-      "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies",
-      "step_path": "step/winding_jig_bearing_tower.step",
-      "step_round_trip_valid": true,
-      "step_sha256": "30aeb37451e27155ad34dda022c4d5ce85ea2a4767437237e2dfa9139da2a95d",
-      "stl_path": "stl/winding_jig_bearing_tower.stl",
-      "stl_sha256": "bab3271a4d85a3509f9faf197f80eaec7f6f8ebb52fc1eedb0bf1d01fe973b55",
-      "stl_translation_z_mm": 17.4,
-      "tool": "winding_jig",
-      "topology_result": {
-        "cad_solid_count": 1,
-        "cad_valid": true,
-        "step_round_trip_valid": true,
-        "stl_binary": true,
-        "stl_closed_manifold": true,
-        "stl_component_count": 1
-      }
-    },
-    {
-      "assembly_members": [
         "wheel"
       ],
+      "assembly_occurrences": [
+        {
+          "member": "wheel",
+          "tool": "winding_jig"
+        }
+      ],
       "cad_bounds_mm": {
         "maximum_xyz": [
           102.0000001,
           94.23651507465942,
-          2.50000005
+          2.5000000499999997
         ],
         "minimum_xyz": [
           -102.0000001,
           -94.23651507465942,
-          -2.5000000500000006
+          -2.50000005
         ],
         "size_xyz": [
           204.0000002,
           188.47303014931884,
-          5.000000100000001
+          5.000000099999999
         ]
       },
       "cad_solid_count": 1,
       "cad_valid": true,
-      "cad_volume_mm3": 67703.56130315758,
+      "cad_volume_mm3": 67703.5613031576,
       "dimensions_mm": {
         "maximum_xyz": [
           102.0000001,
           94.23651507465942,
-          2.50000005
+          2.5000000499999997
         ],
         "minimum_xyz": [
           -102.0000001,
           -94.23651507465942,
-          -2.5000000500000006
+          -2.50000005
         ],
         "size_xyz": [
           204.0000002,
           188.47303014931884,
-          5.000000100000001
+          5.000000099999999
         ]
       },
       "expected_component_count": 1,
       "known_limitations": [
-        "Printed shaft strength and fatigue require physical prototype testing.",
+        "Printed hub, crank and hex-drive strength require physical prototype testing.",
         "PLA snap fit, retention, wear life and bearing fits require physical prototype testing.",
         "Actual winding diameter, repeatability and enamel protection remain unvalidated.",
         "Payoff stability and manual stopping remain unvalidated.",
         "Coil-release force and suitability for continuous or production use remain unvalidated.",
-        "Hand-crank operation only; powered operation is not approved."
+        "Manual operation intended; the future driver-bit option is not validated."
       ],
       "master": "winding_jig/coil_wheel",
       "material": "PLA",
@@ -1999,10 +1468,10 @@
       "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies",
       "step_path": "step/winding_jig_coil_wheel.step",
       "step_round_trip_valid": true,
-      "step_sha256": "9b4eb6236749a2f6363dae904f925b1f9c613e058b6f293c0fb77862ac038120",
+      "step_sha256": "b9304519189d93b370bcdd7d21ea17a03d67d4c8a9268b1939910b11694e4a23",
       "stl_path": "stl/winding_jig_coil_wheel.stl",
-      "stl_sha256": "934d148bbc3fcd4b8e9b303d8ffb0fef6d8e08144ab130f6e0541b3fbc2c409a",
-      "stl_translation_z_mm": 2.5000000500000006,
+      "stl_sha256": "ba008c7a2fc40964bf061e9de44a8d139c74a7ec777231958282a02f1715fadc",
+      "stl_translation_z_mm": 2.50000005,
       "tool": "winding_jig",
       "topology_result": {
         "cad_solid_count": 1,
@@ -2022,51 +1491,77 @@
         "shoe_5",
         "shoe_6"
       ],
+      "assembly_occurrences": [
+        {
+          "member": "shoe_1",
+          "tool": "winding_jig"
+        },
+        {
+          "member": "shoe_2",
+          "tool": "winding_jig"
+        },
+        {
+          "member": "shoe_3",
+          "tool": "winding_jig"
+        },
+        {
+          "member": "shoe_4",
+          "tool": "winding_jig"
+        },
+        {
+          "member": "shoe_5",
+          "tool": "winding_jig"
+        },
+        {
+          "member": "shoe_6",
+          "tool": "winding_jig"
+        }
+      ],
       "cad_bounds_mm": {
         "maximum_xyz": [
-          7.350000049999998,
           15.100000050000004,
-          25.89567730238662
+          25.89567193888732,
+          7.350000049999998
         ],
         "minimum_xyz": [
-          -7.350000050000006,
-          -15.100000050000004,
-          -25.89567730238662
+          -15.100000050000002,
+          -25.895671938887318,
+          -7.3500000500000064
         ],
         "size_xyz": [
-          14.700000100000004,
-          30.200000100000008,
-          51.79135460477324
+          30.200000100000004,
+          51.791343877774636,
+          14.700000100000004
         ]
       },
       "cad_solid_count": 1,
       "cad_valid": true,
-      "cad_volume_mm3": 3701.8112593882906,
+      "cad_volume_mm3": 3432.310613981105,
       "dimensions_mm": {
         "maximum_xyz": [
-          7.350000049999998,
           15.100000050000004,
-          25.89567730238662
+          25.89567193888732,
+          7.350000049999998
         ],
         "minimum_xyz": [
-          -7.350000050000006,
-          -15.100000050000004,
-          -25.89567730238662
+          -15.100000050000002,
+          -25.895671938887318,
+          -7.3500000500000064
         ],
         "size_xyz": [
-          14.700000100000004,
-          30.200000100000008,
-          51.79135460477324
+          30.200000100000004,
+          51.791343877774636,
+          14.700000100000004
         ]
       },
       "expected_component_count": 1,
       "known_limitations": [
-        "Printed shaft strength and fatigue require physical prototype testing.",
+        "Printed hub, crank and hex-drive strength require physical prototype testing.",
         "PLA snap fit, retention, wear life and bearing fits require physical prototype testing.",
         "Actual winding diameter, repeatability and enamel protection remain unvalidated.",
         "Payoff stability and manual stopping remain unvalidated.",
         "Coil-release force and suitability for continuous or production use remain unvalidated.",
-        "Hand-crank operation only; powered operation is not approved."
+        "Manual operation intended; the future driver-bit option is not validated."
       ],
       "master": "winding_jig/contact_shoe",
       "material": "PLA",
@@ -2076,30 +1571,30 @@
         "degenerate_face_count": 0,
         "filename": "winding_jig_contact_shoe.stl",
         "maximum_xyz": [
-          7.326777458190918,
           15.100000381469727,
-          51.79134750366211
+          25.89565658569336,
+          14.685433387756348
         ],
         "minimum_xyz": [
-          -7.349999904632568,
           -15.100000381469727,
-          5.862201305717463e-06
+          -25.89565658569336,
+          0.0
         ],
         "nonmanifold_edge_count": 0,
-        "signed_volume": 3701.7318847639945,
+        "signed_volume": 3430.9124642255824,
         "size_xyz": [
-          14.676777362823486,
           30.200000762939453,
-          51.791341641460804
+          51.79131317138672,
+          14.685433387756348
         ],
-        "triangle_count": 19026,
-        "unique_vertex_count": 9513
+        "triangle_count": 21734,
+        "unique_vertex_count": 10869
       },
       "name": "winding_jig_contact_shoe",
       "physical_validation_verified": false,
       "print_bed_footprint_mm": [
-        14.700000100000004,
-        30.200000100000008
+        30.200000100000004,
+        51.791343877774636
       ],
       "print_orientation": {
         "axis_order": [
@@ -2110,13 +1605,13 @@
         "bed_origin": "STL minimum Z translated to 0 mm",
         "geometry_policy": "Rigid orientation only; source CAD and STL facets are not altered by the winding-tool exporter.",
         "ownership_rotations_deg": [
-          90,
           0,
+          -90,
           0
         ],
         "rotations_deg": [
-          90,
           0,
+          -90,
           0
         ]
       },
@@ -2126,10 +1621,10 @@
       "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies",
       "step_path": "step/winding_jig_contact_shoe.step",
       "step_round_trip_valid": true,
-      "step_sha256": "e8526cac11f95b5cb655aab6d044772dae42d156d35e2e0563087b2a06990e28",
+      "step_sha256": "28eaf58f5fc5f4da50aa40a8447e2cf72fd26c9afb01d21b9cd6c197c7b77482",
       "stl_path": "stl/winding_jig_contact_shoe.stl",
-      "stl_sha256": "f736fc9b5208b78ddfa163252e8ea6f74898b3af948600d0bbfd8e17e69e3cce",
-      "stl_translation_z_mm": 25.89567730238662,
+      "stl_sha256": "731002e4b40cdc8aaaba114f6b1fc71c4a1b56928bdf5fad6b1c22a07908e70d",
+      "stl_translation_z_mm": 7.3500000500000064,
       "tool": "winding_jig",
       "topology_result": {
         "cad_solid_count": 1,
@@ -2144,51 +1639,57 @@
       "assembly_members": [
         "crank"
       ],
+      "assembly_occurrences": [
+        {
+          "member": "crank",
+          "tool": "winding_jig"
+        }
+      ],
       "cad_bounds_mm": {
         "maximum_xyz": [
-          33.0,
-          15.500000050000002,
-          7.00000000000001
+          29.500000000000004,
+          10.0,
+          43.5
         ],
         "minimum_xyz": [
-          -33.0,
-          -15.500000049999997,
-          -7.000000000000007
+          -29.500000000000004,
+          -10.0,
+          -43.5
         ],
         "size_xyz": [
-          66.0,
-          31.0000001,
-          14.000000000000018
+          59.00000000000001,
+          20.0,
+          87.0
         ]
       },
       "cad_solid_count": 1,
       "cad_valid": true,
-      "cad_volume_mm3": 5644.682433360059,
+      "cad_volume_mm3": 9950.027389542724,
       "dimensions_mm": {
         "maximum_xyz": [
-          33.0,
-          15.500000050000002,
-          7.00000000000001
+          29.500000000000004,
+          10.0,
+          43.5
         ],
         "minimum_xyz": [
-          -33.0,
-          -15.500000049999997,
-          -7.000000000000007
+          -29.500000000000004,
+          -10.0,
+          -43.5
         ],
         "size_xyz": [
-          66.0,
-          31.0000001,
-          14.000000000000018
+          59.00000000000001,
+          20.0,
+          87.0
         ]
       },
       "expected_component_count": 1,
       "known_limitations": [
-        "Printed shaft strength and fatigue require physical prototype testing.",
+        "Printed hub, crank and hex-drive strength require physical prototype testing.",
         "PLA snap fit, retention, wear life and bearing fits require physical prototype testing.",
         "Actual winding diameter, repeatability and enamel protection remain unvalidated.",
         "Payoff stability and manual stopping remain unvalidated.",
         "Coil-release force and suitability for continuous or production use remain unvalidated.",
-        "Hand-crank operation only; powered operation is not approved."
+        "Manual operation intended; the future driver-bit option is not validated."
       ],
       "master": "winding_jig/hand_crank",
       "material": "PLA",
@@ -2198,30 +1699,30 @@
         "degenerate_face_count": 0,
         "filename": "winding_jig_hand_crank.stl",
         "maximum_xyz": [
-          32.996925354003906,
-          15.5,
-          14.0
+          29.5,
+          9.998613357543945,
+          86.99551391601562
         ],
         "minimum_xyz": [
-          -32.996925354003906,
-          -15.5,
-          1.0658141036401503e-14
+          -29.5,
+          -9.998613357543945,
+          0.0
         ],
         "nonmanifold_edge_count": 0,
-        "signed_volume": 5643.214939307426,
+        "signed_volume": 9947.35832562619,
         "size_xyz": [
-          65.99385070800781,
-          31.0,
-          13.99999999999999
+          59.0,
+          19.99722671508789,
+          86.99551391601562
         ],
-        "triangle_count": 1708,
-        "unique_vertex_count": 854
+        "triangle_count": 1404,
+        "unique_vertex_count": 704
       },
       "name": "winding_jig_hand_crank",
       "physical_validation_verified": false,
       "print_bed_footprint_mm": [
-        66.0,
-        31.0000001
+        59.00000000000001,
+        20.0
       ],
       "print_orientation": {
         "axis_order": [
@@ -2232,13 +1733,13 @@
         "bed_origin": "STL minimum Z translated to 0 mm",
         "geometry_policy": "Rigid orientation only; source CAD and STL facets are not altered by the winding-tool exporter.",
         "ownership_rotations_deg": [
-          90,
           0,
+          90,
           0
         ],
         "rotations_deg": [
-          90,
           0,
+          90,
           0
         ]
       },
@@ -2248,10 +1749,10 @@
       "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies",
       "step_path": "step/winding_jig_hand_crank.step",
       "step_round_trip_valid": true,
-      "step_sha256": "6a6806777669948b7d0238085d1d1aedc804304f04e406c62da26d746bb28bbd",
+      "step_sha256": "b8269b642869942b5646654c5fd9025fb455c17a128c1a4f9f04979459748e83",
       "stl_path": "stl/winding_jig_hand_crank.stl",
-      "stl_sha256": "afc123da666dd5f2738d7e69d6d76c61059bd9acf9b77b6dad6fd7f558b56f8a",
-      "stl_translation_z_mm": 7.000000000000007,
+      "stl_sha256": "6e06d4f7b762127f1d9b865e73556d63471c544174d2c4435ad206296efe7e05",
+      "stl_translation_z_mm": 43.5,
       "tool": "winding_jig",
       "topology_result": {
         "cad_solid_count": 1,
@@ -2264,86 +1765,92 @@
     },
     {
       "assembly_members": [
-        "shaft"
+        "hub"
+      ],
+      "assembly_occurrences": [
+        {
+          "member": "hub",
+          "tool": "winding_jig"
+        }
       ],
       "cad_bounds_mm": {
         "maximum_xyz": [
-          8.999999999999998,
-          37.75,
-          9.000000000000004
+          20.25,
+          18.0,
+          18.0
         ],
         "minimum_xyz": [
-          -9.000000000000002,
-          -37.75,
-          -8.999999999999996
+          -20.25,
+          -18.0,
+          -18.0
         ],
         "size_xyz": [
-          18.0,
-          75.5,
-          18.0
+          40.5,
+          36.0,
+          36.0
         ]
       },
       "cad_solid_count": 1,
       "cad_valid": true,
-      "cad_volume_mm3": 5510.649073942199,
+      "cad_volume_mm3": 23488.408904382388,
       "dimensions_mm": {
         "maximum_xyz": [
-          8.999999999999998,
-          37.75,
-          9.000000000000004
+          20.25,
+          18.0,
+          18.0
         ],
         "minimum_xyz": [
-          -9.000000000000002,
-          -37.75,
-          -8.999999999999996
+          -20.25,
+          -18.0,
+          -18.0
         ],
         "size_xyz": [
-          18.0,
-          75.5,
-          18.0
+          40.5,
+          36.0,
+          36.0
         ]
       },
       "expected_component_count": 1,
       "known_limitations": [
-        "Printed shaft strength and fatigue require physical prototype testing.",
+        "Printed hub, crank and hex-drive strength require physical prototype testing.",
         "PLA snap fit, retention, wear life and bearing fits require physical prototype testing.",
         "Actual winding diameter, repeatability and enamel protection remain unvalidated.",
         "Payoff stability and manual stopping remain unvalidated.",
         "Coil-release force and suitability for continuous or production use remain unvalidated.",
-        "Hand-crank operation only; powered operation is not approved."
+        "Manual operation intended; the future driver-bit option is not validated."
       ],
-      "master": "winding_jig/printed_shaft",
+      "master": "winding_jig/horizontal_hub",
       "material": "PLA",
       "mesh": {
         "boundary_edge_count": 0,
         "component_count": 1,
         "degenerate_face_count": 0,
-        "filename": "winding_jig_printed_shaft.stl",
+        "filename": "winding_jig_horizontal_hub.stl",
         "maximum_xyz": [
-          8.998992919921875,
-          37.75,
-          17.9959716796875
+          20.25,
+          17.99798583984375,
+          35.991943359375
         ],
         "minimum_xyz": [
-          -8.998992919921875,
-          -37.75,
+          -20.25,
+          -17.99798583984375,
           0.0
         ],
         "nonmanifold_edge_count": 0,
-        "signed_volume": 5509.643383250351,
+        "signed_volume": 23474.86137107395,
         "size_xyz": [
-          17.99798583984375,
-          75.5,
-          17.9959716796875
+          40.5,
+          35.9959716796875,
+          35.991943359375
         ],
-        "triangle_count": 3450,
-        "unique_vertex_count": 1719
+        "triangle_count": 896,
+        "unique_vertex_count": 450
       },
-      "name": "winding_jig_printed_shaft",
+      "name": "winding_jig_horizontal_hub",
       "physical_validation_verified": false,
       "print_bed_footprint_mm": [
-        18.0,
-        75.5
+        40.5,
+        36.0
       ],
       "print_orientation": {
         "axis_order": [
@@ -2354,13 +1861,13 @@
         "bed_origin": "STL minimum Z translated to 0 mm",
         "geometry_policy": "Rigid orientation only; source CAD and STL facets are not altered by the winding-tool exporter.",
         "ownership_rotations_deg": [
-          90,
           0,
+          90,
           0
         ],
         "rotations_deg": [
+          0,
           90,
-          -30,
           0
         ]
       },
@@ -2368,12 +1875,12 @@
       "quantity": 1,
       "role": "rotating",
       "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies",
-      "step_path": "step/winding_jig_printed_shaft.step",
+      "step_path": "step/winding_jig_horizontal_hub.step",
       "step_round_trip_valid": true,
-      "step_sha256": "61b0f0444636bc4b9ff33904bed0082ae61e16c52d0383d81da9d48a064b7996",
-      "stl_path": "stl/winding_jig_printed_shaft.stl",
-      "stl_sha256": "74410e864f8340f57a7b8ca9de44b4c76af8b9cb18a139cbb00257f4e300509d",
-      "stl_translation_z_mm": 8.999999999999996,
+      "step_sha256": "6fa963c551970002f47b50773cc7a56c61f5e9a780c56fafe53044b6b681e85a",
+      "stl_path": "stl/winding_jig_horizontal_hub.stl",
+      "stl_sha256": "f1dababb5a413d3da5dba08df0c7ae6c1d3819fbbb7abb3264b5cd3992069f35",
+      "stl_translation_z_mm": 18.0,
       "tool": "winding_jig",
       "topology_result": {
         "cad_solid_count": 1,
@@ -2388,51 +1895,57 @@
       "assembly_members": [
         "grip"
       ],
+      "assembly_occurrences": [
+        {
+          "member": "grip",
+          "tool": "winding_jig"
+        }
+      ],
       "cad_bounds_mm": {
         "maximum_xyz": [
-          9.0,
-          9.000000000000002,
-          11.300000000000004
+          8.0,
+          8.0,
+          12.0
         ],
         "minimum_xyz": [
-          -9.0,
-          -9.000000000000002,
-          -11.299999999999997
+          -8.0,
+          -8.0,
+          -12.0
         ],
         "size_xyz": [
-          18.0,
-          18.000000000000004,
-          22.6
+          16.0,
+          16.0,
+          24.0
         ]
       },
       "cad_solid_count": 1,
       "cad_valid": true,
-      "cad_volume_mm3": 4429.242875476172,
+      "cad_volume_mm3": 4149.918231685972,
       "dimensions_mm": {
         "maximum_xyz": [
-          9.0,
-          9.000000000000002,
-          11.300000000000004
+          8.0,
+          8.0,
+          12.0
         ],
         "minimum_xyz": [
-          -9.0,
-          -9.000000000000002,
-          -11.299999999999997
+          -8.0,
+          -8.0,
+          -12.0
         ],
         "size_xyz": [
-          18.0,
-          18.000000000000004,
-          22.6
+          16.0,
+          16.0,
+          24.0
         ]
       },
       "expected_component_count": 1,
       "known_limitations": [
-        "Printed shaft strength and fatigue require physical prototype testing.",
+        "Printed hub, crank and hex-drive strength require physical prototype testing.",
         "PLA snap fit, retention, wear life and bearing fits require physical prototype testing.",
         "Actual winding diameter, repeatability and enamel protection remain unvalidated.",
         "Payoff stability and manual stopping remain unvalidated.",
         "Coil-release force and suitability for continuous or production use remain unvalidated.",
-        "Hand-crank operation only; powered operation is not approved."
+        "Manual operation intended; the future driver-bit option is not validated."
       ],
       "master": "winding_jig/rotating_grip",
       "material": "PLA",
@@ -2442,30 +1955,30 @@
         "degenerate_face_count": 0,
         "filename": "winding_jig_rotating_grip.stl",
         "maximum_xyz": [
-          9.0,
-          8.998992919921875,
-          22.600000381469727
+          8.0,
+          7.999104976654053,
+          24.0
         ],
         "minimum_xyz": [
-          -8.9959716796875,
-          -8.998992919921875,
+          -7.996419429779053,
+          -7.999104976654053,
           0.0
         ],
         "nonmanifold_edge_count": 0,
-        "signed_volume": 4426.581554442218,
+        "signed_volume": 4147.441992058422,
         "size_xyz": [
-          17.9959716796875,
-          17.99798583984375,
-          22.600000381469727
+          15.996419429779053,
+          15.998209953308105,
+          24.0
         ],
-        "triangle_count": 23520,
-        "unique_vertex_count": 11760
+        "triangle_count": 836,
+        "unique_vertex_count": 420
       },
       "name": "winding_jig_rotating_grip",
       "physical_validation_verified": false,
       "print_bed_footprint_mm": [
-        18.0,
-        18.000000000000004
+        16.0,
+        16.0
       ],
       "print_orientation": {
         "axis_order": [
@@ -2492,133 +2005,10 @@
       "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies",
       "step_path": "step/winding_jig_rotating_grip.step",
       "step_round_trip_valid": true,
-      "step_sha256": "4be7d4ad6d600de721f77eb92a12413682a731f4654aef17a3cff3f4a1413c8a",
+      "step_sha256": "519d89efe8b66d2b0a89d07eede2cb676c007c599860e1e6f51e50d21055d9a4",
       "stl_path": "stl/winding_jig_rotating_grip.stl",
-      "stl_sha256": "5b6a8cbd4cc41635fc9b36bec8adf78dc4f419179b646ad92c1be244db14e9a0",
-      "stl_translation_z_mm": 11.299999999999997,
-      "tool": "winding_jig",
-      "topology_result": {
-        "cad_solid_count": 1,
-        "cad_valid": true,
-        "step_round_trip_valid": true,
-        "stl_binary": true,
-        "stl_closed_manifold": true,
-        "stl_component_count": 1
-      }
-    },
-    {
-      "assembly_members": [
-        "snap_collar_1",
-        "snap_collar_2"
-      ],
-      "cad_bounds_mm": {
-        "maximum_xyz": [
-          5.1000000000000005,
-          4.450657780874824,
-          0.9000000000000021
-        ],
-        "minimum_xyz": [
-          -5.1000000000000005,
-          -4.450657780874824,
-          -0.8999999999999986
-        ],
-        "size_xyz": [
-          10.200000000000001,
-          8.901315561749648,
-          1.8000000000000007
-        ]
-      },
-      "cad_solid_count": 1,
-      "cad_valid": true,
-      "cad_volume_mm3": 52.43993157044655,
-      "dimensions_mm": {
-        "maximum_xyz": [
-          5.1000000000000005,
-          4.450657780874824,
-          0.9000000000000021
-        ],
-        "minimum_xyz": [
-          -5.1000000000000005,
-          -4.450657780874824,
-          -0.8999999999999986
-        ],
-        "size_xyz": [
-          10.200000000000001,
-          8.901315561749648,
-          1.8000000000000007
-        ]
-      },
-      "expected_component_count": 1,
-      "known_limitations": [
-        "Printed shaft strength and fatigue require physical prototype testing.",
-        "PLA snap fit, retention, wear life and bearing fits require physical prototype testing.",
-        "Actual winding diameter, repeatability and enamel protection remain unvalidated.",
-        "Payoff stability and manual stopping remain unvalidated.",
-        "Coil-release force and suitability for continuous or production use remain unvalidated.",
-        "Hand-crank operation only; powered operation is not approved."
-      ],
-      "master": "winding_jig/snap_collar",
-      "material": "PLA",
-      "mesh": {
-        "boundary_edge_count": 0,
-        "component_count": 1,
-        "degenerate_face_count": 0,
-        "filename": "winding_jig_snap_collar.stl",
-        "maximum_xyz": [
-          5.099862575531006,
-          4.450657844543457,
-          1.7999999523162842
-        ],
-        "minimum_xyz": [
-          -5.099862575531006,
-          -4.448397159576416,
-          0.0
-        ],
-        "nonmanifold_edge_count": 0,
-        "signed_volume": 52.39947085525315,
-        "size_xyz": [
-          10.199725151062012,
-          8.899055004119873,
-          1.7999999523162842
-        ],
-        "triangle_count": 584,
-        "unique_vertex_count": 294
-      },
-      "name": "winding_jig_snap_collar",
-      "physical_validation_verified": false,
-      "print_bed_footprint_mm": [
-        10.200000000000001,
-        8.901315561749648
-      ],
-      "print_orientation": {
-        "axis_order": [
-          "X",
-          "Y",
-          "Z"
-        ],
-        "bed_origin": "STL minimum Z translated to 0 mm",
-        "geometry_policy": "Rigid orientation only; source CAD and STL facets are not altered by the winding-tool exporter.",
-        "ownership_rotations_deg": [
-          0,
-          0,
-          0
-        ],
-        "rotations_deg": [
-          0,
-          0,
-          0
-        ]
-      },
-      "printable": true,
-      "quantity": 2,
-      "role": "rotating",
-      "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies",
-      "step_path": "step/winding_jig_snap_collar.step",
-      "step_round_trip_valid": true,
-      "step_sha256": "cc06235d3d4754ce32962a1bf2675a2c64c81fe2f5d54fd3fe5442cbb8d0efd6",
-      "stl_path": "stl/winding_jig_snap_collar.stl",
-      "stl_sha256": "83a05d34cec52a536816e7ddee66d1b52f8b05a4825f0e1e387df337f00ef53e",
-      "stl_translation_z_mm": 0.8999999999999986,
+      "stl_sha256": "651e923b419385dee98556d1d476923af595e59fbf7f82e5028a35677fbea6d5",
+      "stl_translation_z_mm": 12.0,
       "tool": "winding_jig",
       "topology_result": {
         "cad_solid_count": 1,
@@ -2632,6 +2022,16 @@
     {
       "assembly_members": [
         "base"
+      ],
+      "assembly_occurrences": [
+        {
+          "member": "base",
+          "tool": "winding_jig"
+        },
+        {
+          "member": "base",
+          "tool": "wire_payoff"
+        }
       ],
       "cad_bounds_mm": {
         "maximum_xyz": [
@@ -2672,12 +2072,12 @@
       },
       "expected_component_count": 1,
       "known_limitations": [
-        "Printed shaft strength and fatigue require physical prototype testing.",
+        "Printed hub, crank and hex-drive strength require physical prototype testing.",
         "PLA snap fit, retention, wear life and bearing fits require physical prototype testing.",
         "Actual winding diameter, repeatability and enamel protection remain unvalidated.",
         "Payoff stability and manual stopping remain unvalidated.",
         "Coil-release force and suitability for continuous or production use remain unvalidated.",
-        "Hand-crank operation only; powered operation is not approved."
+        "Manual operation intended; the future driver-bit option is not validated."
       ],
       "master": "wire_payoff/base",
       "material": "PLA",
@@ -2732,7 +2132,7 @@
         ]
       },
       "printable": true,
-      "quantity": 1,
+      "quantity": 2,
       "role": "stationary",
       "source_builder": "windwall.winding_tool_assembly.build_winding_tool_assemblies",
       "step_path": "step/wire_payoff_base.step",
@@ -2754,6 +2154,12 @@
     {
       "assembly_members": [
         "platter"
+      ],
+      "assembly_occurrences": [
+        {
+          "member": "platter",
+          "tool": "wire_payoff"
+        }
       ],
       "cad_bounds_mm": {
         "maximum_xyz": [
@@ -2794,12 +2200,12 @@
       },
       "expected_component_count": 1,
       "known_limitations": [
-        "Printed shaft strength and fatigue require physical prototype testing.",
+        "Printed hub, crank and hex-drive strength require physical prototype testing.",
         "PLA snap fit, retention, wear life and bearing fits require physical prototype testing.",
         "Actual winding diameter, repeatability and enamel protection remain unvalidated.",
         "Payoff stability and manual stopping remain unvalidated.",
         "Coil-release force and suitability for continuous or production use remain unvalidated.",
-        "Hand-crank operation only; powered operation is not approved."
+        "Manual operation intended; the future driver-bit option is not validated."
       ],
       "master": "wire_payoff/platter",
       "material": "PLA",
@@ -2877,6 +2283,12 @@
       "assembly_members": [
         "spindle"
       ],
+      "assembly_occurrences": [
+        {
+          "member": "spindle",
+          "tool": "wire_payoff"
+        }
+      ],
       "cad_bounds_mm": {
         "maximum_xyz": [
           14.25,
@@ -2916,12 +2328,12 @@
       },
       "expected_component_count": 1,
       "known_limitations": [
-        "Printed shaft strength and fatigue require physical prototype testing.",
+        "Printed hub, crank and hex-drive strength require physical prototype testing.",
         "PLA snap fit, retention, wear life and bearing fits require physical prototype testing.",
         "Actual winding diameter, repeatability and enamel protection remain unvalidated.",
         "Payoff stability and manual stopping remain unvalidated.",
         "Coil-release force and suitability for continuous or production use remain unvalidated.",
-        "Hand-crank operation only; powered operation is not approved."
+        "Manual operation intended; the future driver-bit option is not validated."
       ],
       "master": "wire_payoff/printed_spindle",
       "material": "PLA",
@@ -2996,25 +2408,25 @@
       }
     }
   ],
-  "printable_quantity": 19,
+  "printable_quantity": 14,
   "release": "simple-pin-adjustable-coil-winder",
   "runtime": {
     "cadquery": "2.8.0",
     "cadquery-ocp": "7.9.3.1.1",
     "python": "3.12.14"
   },
-  "schema_version": 2,
+  "schema_version": 3,
   "supporting_artifacts": [
     {
       "path": "docs/serpentine-coil-winding-tool-de.md",
-      "sha256": "12e521e636eda57759e39f768ca4620d083e0958047467207212fe4e18435507",
+      "sha256": "bf9ba696d501e28199b353a344e742089b35316cc59d27e70d7d47e75c56eb81",
       "source": "docs/serpentine-coil-winding-tool-de.md",
       "tables_synchronized_with": "bom.json and current CAD tape angles"
     },
     {
       "cradle_profile_annotations": {
-        "free_front": "Frei vorn oben: Schutzschulter +2,7 mm",
-        "wheel_side": "Radseite unten: nominaler Auslauf +0,0 mm"
+        "free_front": "Oben offen: \u00dcberstand +0,0 mm",
+        "wheel_side": "Radseite unten: gerundete Auflage +2,7 mm"
       },
       "cradle_profile_projection": {
         "local_negative_z_feature": "wheel_side",
@@ -3030,7 +2442,7 @@
       "height_px": 1400,
       "path": "drawings/winding-jig-range.png",
       "presentation_only": true,
-      "sha256": "89240d5775f0486f2dc95d66587d5af08718926a3a041382ba14a628dea88075",
+      "sha256": "a1b9c548c13f8c7da48e72c5f6d1fbfc7346cc9f15949cfa0fd9c167bf9981d0",
       "source_builder": "scripts.preview_winding_tool.render_winding_tool_drawings",
       "width_px": 2000
     },
@@ -3038,7 +2450,7 @@
       "height_px": 1400,
       "path": "drawings/winding-jig-reference.png",
       "presentation_only": true,
-      "sha256": "bb6b7a050fc2da06883ca2172381a64ccd6d6cf9ad516fe155cef3f0ea3e8e51",
+      "sha256": "61a94da507f8448858e6626163612884238d01f7468fcd37e9d66771c31ee953",
       "source_builder": "scripts.preview_winding_tool.render_winding_tool_drawings",
       "width_px": 2000
     },
@@ -3046,16 +2458,17 @@
       "exploded_groups": {
         "winding_jig": [
           {
-            "label": "A1  Basis",
+            "label": "A1  Gemeinsame Basis",
             "members": [
               "base"
             ],
             "ownership": {
               "base": {
+                "canonical_master": "wire_payoff/base",
                 "group": "stationary",
                 "master": "base",
                 "print_rotations_deg": [
-                  90,
+                  0,
                   0,
                   0
                 ],
@@ -3064,108 +2477,61 @@
             }
           },
           {
-            "label": "A2  Lagerturm",
+            "label": "A2  51105: unten / W\u00e4lzkranz / oben",
             "members": [
-              "tower"
+              "lower_washer",
+              "bearing",
+              "upper_washer"
             ],
             "ownership": {
-              "tower": {
-                "group": "stationary",
-                "master": "bearing_tower",
-                "print_rotations_deg": [
-                  0,
-                  90,
-                  0
-                ],
-                "source": "printed"
-              }
-            }
-          },
-          {
-            "label": "A3  2 \u00d7 608 + 2 Au\u00dfenclips",
-            "members": [
-              "bearing_608_1",
-              "bearing_608_2",
-              "bearing_retainer_1",
-              "bearing_retainer_2"
-            ],
-            "ownership": {
-              "bearing_608_1": {
-                "group": "stationary",
-                "master": "608 bearing",
+              "bearing": {
+                "group": "bearing_internal",
+                "master": "51105 thrust bearing",
                 "nominal_dimensions_mm": [
-                  8.0,
-                  22.0,
-                  7.0
+                  25.0,
+                  42.0,
+                  11.0
                 ],
+                "purchase_set": "winding_jig_51105",
                 "source": "purchased"
               },
-              "bearing_608_2": {
+              "lower_washer": {
                 "group": "stationary",
-                "master": "608 bearing",
+                "master": "51105 thrust bearing",
                 "nominal_dimensions_mm": [
-                  8.0,
-                  22.0,
-                  7.0
+                  25.0,
+                  42.0,
+                  11.0
                 ],
+                "purchase_set": "winding_jig_51105",
                 "source": "purchased"
               },
-              "bearing_retainer_1": {
-                "group": "stationary",
-                "master": "bearing_retainer",
-                "print_rotations_deg": [
-                  0,
-                  0,
-                  0
+              "upper_washer": {
+                "group": "rotating",
+                "master": "51105 thrust bearing",
+                "nominal_dimensions_mm": [
+                  25.0,
+                  42.0,
+                  11.0
                 ],
-                "source": "printed"
-              },
-              "bearing_retainer_2": {
-                "group": "stationary",
-                "master": "bearing_retainer",
-                "print_rotations_deg": [
-                  0,
-                  0,
-                  0
-                ],
-                "source": "printed"
+                "purchase_set": "winding_jig_51105",
+                "source": "purchased"
               }
             }
           },
           {
-            "label": "A4  Welle + 2 Schnappringe",
+            "label": "A3  Gedruckte horizontale Nabe",
             "members": [
-              "shaft",
-              "snap_collar_1",
-              "snap_collar_2"
+              "hub"
             ],
             "ownership": {
-              "shaft": {
+              "hub": {
+                "canonical_master": "winding_jig/horizontal_hub",
                 "group": "rotating",
-                "master": "printed_shaft",
+                "master": "horizontal_hub",
                 "print_rotations_deg": [
+                  0,
                   90,
-                  0,
-                  0
-                ],
-                "source": "printed"
-              },
-              "snap_collar_1": {
-                "group": "rotating",
-                "master": "snap_collar",
-                "print_rotations_deg": [
-                  0,
-                  0,
-                  0
-                ],
-                "source": "printed"
-              },
-              "snap_collar_2": {
-                "group": "rotating",
-                "master": "snap_collar",
-                "print_rotations_deg": [
-                  0,
-                  0,
                   0
                 ],
                 "source": "printed"
@@ -3173,36 +2539,7 @@
             }
           },
           {
-            "label": "A5  Kurbel + Drehgriff",
-            "members": [
-              "crank",
-              "grip"
-            ],
-            "ownership": {
-              "crank": {
-                "group": "rotating",
-                "master": "hand_crank",
-                "print_rotations_deg": [
-                  90,
-                  0,
-                  0
-                ],
-                "source": "printed"
-              },
-              "grip": {
-                "group": "rotating",
-                "master": "rotating_grip",
-                "print_rotations_deg": [
-                  0,
-                  0,
-                  0
-                ],
-                "source": "printed"
-              }
-            }
-          },
-          {
-            "label": "A6  Wickelrad",
+            "label": "A4  Einstellbares Wickelrad",
             "members": [
               "wheel"
             ],
@@ -3228,7 +2565,8 @@
                   300.0,
                   312.00321262484727
                 ],
-                "axis_height_mm": 130.0,
+                "axis_height_mm": 33.0,
+                "canonical_master": "winding_jig/coil_wheel",
                 "diameter_mm": 150.0,
                 "group": "rotating",
                 "master": "coil_wheel",
@@ -3262,7 +2600,7 @@
             }
           },
           {
-            "label": "A7  6 gleiche Kontaktschuhe",
+            "label": "A5  6 gleiche offene Schuhe",
             "members": [
               "shoe_1",
               "shoe_2",
@@ -3273,60 +2611,97 @@
             ],
             "ownership": {
               "shoe_1": {
+                "canonical_master": "winding_jig/contact_shoe",
                 "group": "rotating",
                 "master": "contact_shoe",
                 "print_rotations_deg": [
-                  90,
                   0,
+                  -90,
                   0
                 ],
                 "source": "printed"
               },
               "shoe_2": {
+                "canonical_master": "winding_jig/contact_shoe",
                 "group": "rotating",
                 "master": "contact_shoe",
                 "print_rotations_deg": [
-                  90,
                   0,
+                  -90,
                   0
                 ],
                 "source": "printed"
               },
               "shoe_3": {
+                "canonical_master": "winding_jig/contact_shoe",
                 "group": "rotating",
                 "master": "contact_shoe",
                 "print_rotations_deg": [
-                  90,
                   0,
+                  -90,
                   0
                 ],
                 "source": "printed"
               },
               "shoe_4": {
+                "canonical_master": "winding_jig/contact_shoe",
                 "group": "rotating",
                 "master": "contact_shoe",
                 "print_rotations_deg": [
-                  90,
                   0,
+                  -90,
                   0
                 ],
                 "source": "printed"
               },
               "shoe_5": {
+                "canonical_master": "winding_jig/contact_shoe",
                 "group": "rotating",
                 "master": "contact_shoe",
                 "print_rotations_deg": [
-                  90,
                   0,
+                  -90,
                   0
                 ],
                 "source": "printed"
               },
               "shoe_6": {
+                "canonical_master": "winding_jig/contact_shoe",
                 "group": "rotating",
                 "master": "contact_shoe",
                 "print_rotations_deg": [
+                  0,
+                  -90,
+                  0
+                ],
+                "source": "printed"
+              }
+            }
+          },
+          {
+            "label": "A6  Steckkurbel + drehbarer Griff",
+            "members": [
+              "crank",
+              "grip"
+            ],
+            "ownership": {
+              "crank": {
+                "canonical_master": "winding_jig/hand_crank",
+                "group": "rotating",
+                "master": "hand_crank",
+                "print_rotations_deg": [
+                  0,
                   90,
+                  0
+                ],
+                "source": "printed"
+              },
+              "grip": {
+                "canonical_master": "winding_jig/rotating_grip",
+                "group": "rotating",
+                "master": "rotating_grip",
+                "print_rotations_deg": [
+                  0,
                   0,
                   0
                 ],
@@ -3337,12 +2712,13 @@
         ],
         "wire_payoff": [
           {
-            "label": "B1  Basis",
+            "label": "B1  Gleiche Basis",
             "members": [
               "base"
             ],
             "ownership": {
               "base": {
+                "canonical_master": "wire_payoff/base",
                 "group": "stationary",
                 "master": "base",
                 "print_rotations_deg": [
@@ -3355,7 +2731,27 @@
             }
           },
           {
-            "label": "B2  1 \u00d7 51105: unten / innen / oben",
+            "label": "B2  Gedruckte Steckachse",
+            "members": [
+              "spindle"
+            ],
+            "ownership": {
+              "spindle": {
+                "canonical_master": "wire_payoff/printed_spindle",
+                "group": "rotating",
+                "journal_diameter_mm": 24.8,
+                "master": "printed_spindle",
+                "print_rotations_deg": [
+                  0,
+                  90,
+                  0
+                ],
+                "source": "printed"
+              }
+            }
+          },
+          {
+            "label": "B3  Zweites komplettes 51105",
             "members": [
               "lower_washer",
               "bearing",
@@ -3370,7 +2766,7 @@
                   42.0,
                   11.0
                 ],
-                "purchase_set": "51105_1",
+                "purchase_set": "wire_payoff_51105",
                 "source": "purchased"
               },
               "lower_washer": {
@@ -3381,7 +2777,7 @@
                   42.0,
                   11.0
                 ],
-                "purchase_set": "51105_1",
+                "purchase_set": "wire_payoff_51105",
                 "source": "purchased"
               },
               "upper_washer": {
@@ -3392,37 +2788,19 @@
                   42.0,
                   11.0
                 ],
-                "purchase_set": "51105_1",
+                "purchase_set": "wire_payoff_51105",
                 "source": "purchased"
               }
             }
           },
           {
-            "label": "B3  Druckspindel",
-            "members": [
-              "spindle"
-            ],
-            "ownership": {
-              "spindle": {
-                "group": "rotating",
-                "journal_diameter_mm": 24.8,
-                "master": "printed_spindle",
-                "print_rotations_deg": [
-                  0,
-                  90,
-                  0
-                ],
-                "source": "printed"
-              }
-            }
-          },
-          {
-            "label": "B4  Teller + integraler Dorn",
+            "label": "B4  Teller + Zentriernippel",
             "members": [
               "platter"
             ],
             "ownership": {
               "platter": {
+                "canonical_master": "wire_payoff/platter",
                 "group": "rotating",
                 "master": "platter",
                 "print_rotations_deg": [
@@ -3439,7 +2817,7 @@
       "height_px": 1400,
       "path": "drawings/winding-tool-exploded.png",
       "presentation_only": true,
-      "sha256": "d71c9c43b8ae6c0addf99e43b0136ed303b2cc8c59f610116e881f223b51f1d1",
+      "sha256": "9d5e1d18cfacecbd5d7334032fe88ec13c58b885a3aafaccdba9793b2e3c9cc3",
       "source_builder": "scripts.preview_winding_tool.render_winding_tool_drawings",
       "width_px": 2000
     }
@@ -3725,10 +3103,11 @@
       "nominal_diameter_mm": 200.0
     }
   ],
+  "wheel_to_base_workspace_mm": 25,
   "winding_head": {
     "cradle_bottom_radius_offset_mm": 0.0,
-    "free_shoulder_height_mm": 2.7,
-    "rear_shoulder_height_mm": 0.0,
-    "wire_guidance": "rounded free-front shoulder; nominal-radius rear runout"
+    "free_shoulder_height_mm": 0.0,
+    "rear_shoulder_height_mm": 2.7,
+    "wire_guidance": "rounded lower support; open nominal-radius upper runout"
   }
 }

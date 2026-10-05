@@ -1,7 +1,7 @@
 # Horizontal 51105-supported coil-winder design
 
 Date: 2026-09-26  
-Status: Approved in conversation; awaiting review of this written specification  
+Status: Approved; implemented as a geometrically checked workshop prototype
 Supersedes: the vertical coil-wheel module in
 `2026-09-16-simple-pin-adjustable-coil-winder-design.md`
 

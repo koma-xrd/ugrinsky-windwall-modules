@@ -1,207 +1,117 @@
-# Manual winding-tool assembly
+# Horizontal manual winding-tool assembly
 
-This PLA prototype consists of two independent tools: an open vertical wheel
-with six removable contact shoes, and an upright free-running wire-roll
-turntable. The assembly contains 19 printed occurrences from 12 unique masters,
-two 608 bearings, and one complete 51105 thrust bearing. No assembly tools or
-additional purchased retention parts are required. Optional bench clamps are
-workshop equipment and must remain on the provided lands, clear of moving parts.
+The PLA prototype consists of two independent manual modules: a horizontal coil
+wheel and an upright-wire-roll payoff turntable. Both use the unchanged
+190 × 190 mm payoff base and one complete purchased 51105 (25 × 42 × 11 mm).
+For simultaneous operation print the common base twice and buy two bearings.
+The BOM contains 14 printed occurrences from eight masters; bearing washers and
+rolling members are purchased components, not printed races.
 
-The normal drawing setting is 150 mm. The eleven labeled settings are 100, 110,
-120, 130, 140, 150, 160, 170, 180, 190 and 200 mm. The wire-contact envelope is a
-rounded six-sided form, so the setting is not a promise of a perfectly circular
-finished winding or a measured diameter under wire tension.
+See the [German operating guide](serpentine-coil-winding-tool-de.md) for the
+canonical BOM, print orientations, tape-angle table and operating precautions.
+The [horizontal design](superpowers/specs/2026-09-26-horizontal-coil-winder-design.md)
+defines the intended arrangement.
 
-The rounded contact guide has a 2.7 mm protective shoulder at the free front.
-Its wheel-side rear runout stays at the nominal winding radius without a raised
-lip. The selected diameter is measured at this contact bottom, not at the
-shoulder tip. On the default shoe the nominal-radius runout extends through
-construction Z=23.8 mm, covering the winding and upper tape mouth; the smooth
-front rise reaches the shoulder at Z=26.5 mm.
+## Winder assembly and operation
 
-## Print and inspect
+1. Put the lower 51105 washer, rolling member and upper washer in the base seat.
+2. Insert the horizontal hub through the bearing and base bores. Its guide ends
+   at bench Z=1.5 mm, above the 1 mm blind floor. The upper washer carries weight;
+   the long clearance pilot supplies radial guidance.
+3. Seat the existing wheel on the 14 mm circumdiameter polygon. The flat stop
+   sets its underside to Z=33 mm: 25 mm above the base surface outside its boss.
+4. Fit all six shoes at the same marked setting, 100–200 mm in 10 mm increments.
+   The two 3.40 × 2.90 mm rigid tongues enter 3.50 × 3.00 mm openings with
+   0.05 mm nominal clearance per side. Their wider rails form positive stops.
+5. Insert the removable top crank and fit its freely rotating printed grip.
+   The male hex is 6.35 mm across flats; the female socket is 6.45 mm across flats.
+   There is no latch or drive screw. The raised arm clears the shoe tops.
+6. Turn slowly by hand, guide the wire and stop the independent payoff by hand.
+7. Stop rotation and close all 18 tape wraps through the three channels per shoe.
+   Each channel reserves at least 12 mm tangential and axial clearance for 10 mm tape.
+8. Remove the crank and grip upward. Lift the taped coil vertically over all six
+   still-seated shoes; do not move the shoes inward or unplug them for release.
 
-Print the wheel with its rear face on the bed; the contact shoes with a
-90-degree rotation about their construction X axis; the tower on its side;
-the shaft and crank with their journals parallel to the bed; the bearing clips
-and shaft collars flat; and the grip on its end. Print the payoff base and
-platter flat, with the platter pilot upward. Print the payoff spindle with its
-axis horizontal. Supports must leave the flexure slots free. Smooth journal
-and wire-contact surfaces, removing every burr and support scar.
+The shoes retain a rounded 2.7 mm lower support but have zero upper radial
+projection. Tape channels open upward, with no crossbar trapping closed loops.
+The actual winding is a rounded six-sided envelope, not a calibrated circle.
 
-All finished masters fit a 220 x 220 mm bed in these orientations. Bed fit is
-only a geometric check. Test the PLA snap and bearing fits before committing
-to a complete build. Inspect the printed 8 mm shaft journals, enlarged drive
-faces, snap roots and contact shoes before every use. Replace cracked, whitened,
-loose, rough or distorted parts. PLA fit, creep and fatigue remain unvalidated.
+## Unchanged wire payoff
 
-## Assemble the winding jig
+Use the second common base and second 51105. Retain the payoff's printed spindle,
+square platter plug and existing removable detents. The Ø150 mm platter's
+Ø15 × 20 mm integral nipple centers the upright supply roll. The platter and
+spindle are not mechanically linked to the crank.
 
-1. Push the tower's rectangular key into the base until both accessible side
-   hooks engage. The key faces carry operating loads; the hooks retain the tower.
-2. Insert the two 608 bearings from their respective outward faces. Squeeze the
-   split outer-ring clips, insert them into the grooves, and release their ears.
-   Both clips must be fully seated, with their ears accessible through the windows.
-3. Insert the printed shaft from the open front through both 608 bores. The small
-   rear polygon passes through the bearings. Never force a poor journal fit.
-4. Snap the two open shaft collars into the grooves immediately beside the front
-   bearing. Both collars are necessary: together they restrain forward and rearward
-   shaft motion. Their split faces remain accessible through the tower openings.
-5. Push the crank onto the rear polygon until its two hooks engage. Compress the
-   split end of its integral grip journal and slide on the freely rotating grip.
-6. Push the wheel onto the front polygon until the two front-accessible hooks
-   engage. Check both axial retention directions and free hand rotation.
-7. Insert all six shoes at the same numbered diameter. Each shoe's two middle
-   rails narrow directly into 3.50 x 3.00 mm friction tongues for matching
-   3.50 x 3.00 mm wheel openings with zero nominal clearance. Both shoulders
-   must stop flat against the
-   wheel front. Count six matching labels and twelve seated tongues before winding.
+For payoff service lift the platter, then the spindle, then the bearing members.
+The existing ramps and flexible tongues release the two payoff plugs. Their fit,
+elastic behavior and life still need physical verification. The upper plug hangs
+the spindle before its guide reaches the blind floor. The payoff geometry,
+service checks and common-base STL/STEP bytes are unchanged by this redesign.
 
-The 608 outer rings belong to the stationary tower. Their shoulders and clips
-contact only the outer-ring lands. The front bearing alone locates the printed
-shaft through the two collars against its inner-ring lands. The rear outer ring
-has axial float. Do not add preload across both bearing stacks or load the seals.
-The 608 solids are simplified catalog envelopes; their internal rolling parts
-are not separately modeled. Actual purchased bearing lands and clearances need
-physical verification.
+## Print and prototype limits
 
-For replacement, reverse the snap sequence: release the wheel's front hooks,
-release the grip end and crank tails, remove both shaft collars, and withdraw
-the shaft forward. Squeeze each outer clip and withdraw it through its open
-ear window before removing the corresponding bearing. Release the tower's two
-exposed side tabs to lift its key from the base.
+The STL masters are already oriented and translated to minimum Z=0. Print the
+base and wheel flat; the shoes rotated −90° about Y onto their flat inward foot
+face; the hub and crank rotated
+90° about Y; the grip upright. The payoff spindle also lies horizontally.
+Use support where required, keeping fits and tape passages clean. All masters
+fit a 220 × 220 mm bed. First test a shoe and the drive/bearing fits, deburr
+carefully and inspect the first coil for enamel damage.
 
-## Assemble the wire payoff
+The loose plug crank and removable grip have no positive transport retention.
+Remove them before carrying the tool. Gravity seats the wheel and hub; there is
+no fragile snap keeping the horizontal winder assembled. Secure the common base
+on its clamp lands if real wire tension causes sliding or tipping.
 
-Place the 51105 lower housing washer on the base's annular floor, then its
-rolling member, then its upper shaft washer. Keep these as the three separate
-members of one complete purchased bearing. The lower washer stays with the
-stationary base; the upper washer supports and turns with the platter. The
-rolling envelope is bearing-internal. Printed bearing races are not substitutes
-for the supplied washers.
+Wear eye protection. Keep hair, clothing, fingers, tape and loose wire clear.
+Inspect for cracks, whitening, looseness and rough wire-contact edges before use.
+Stop on abnormal resistance. PLA strength, wear, creep, bearing life, winding
+accuracy, stability, enamel protection and release force remain unvalidated.
+The bit socket is a future interface, not motor-operation approval:
+Akkuschrauberbetrieb ist nicht freigegeben.
 
-The integrated tool accepts only canonical 8 x 22 x 7 mm 608 bearings and a
-25 x 42 x 11 mm 51105 set. Every stored size record and the actual purchased CAD
-members are checked against their catalog envelopes before assembly or BOM
-approval. The BOM specification is formatted from those validated records.
+## CAD interfaces and release gates
 
-Push the printed spindle into the base until its lower detents engage the
-annular groove. Push the platter over its square upper plug until the upper
-detents engage. The platter must remain free to rotate without touching the
-base. The 150 mm platter's integral 15 x 20 mm pilot centers the upright wire
-roll. The spindle hangs from the platter before it can reach the stationary
-base floor, leaving axial freedom instead of compressing the bearing stack.
-Keep the upward loading and release path open; the integrated CAD audit reserves
-40 mm above the platter's complete envelope for lifting it off the upper plug.
+`WindingToolAssemblies` owns two tool dictionaries, occurrence ownership,
+parameters and audit results. Both tools use independent bench origins with
+vertical Z axes. Head installation is translation-only at `wheel_bottom_z_mm`.
+Recover local head coordinates by subtracting that translation, without rotation.
 
-Service is from above: lift the platter to release the ramped upper detents,
-pull the exposed spindle to release its lower detents, then lift the upper
-washer, rolling member and lower washer. The two finger recesses expose the
-lower washer's edge. Check release force on the printed prototype first.
+Each occurrence has a source and motion role. Printed occurrences also have a
+global `canonical_master` identity and documented print rotations. Both bases
+use `wire_payoff/base`. Each module has its own bearing `purchase_set`; the
+three physical 51105 members count as one complete purchased set per module.
+Mutations replace immutable Workplanes rather than editing cached shapes.
+The legacy `release_clearance_mm` parameter is retained for caller compatibility,
+but is ignored by horizontal release: shoes do not move radially.
 
-## Tape, wind and release
+The assembly audit verifies actual solids rather than trusting `model.audit`.
+It repositions the actual shoes through all eleven settings, preserving defects.
+Continuous full-revolution envelopes must contain the real parts and clear
+stationary material. Axial sections preserve narrow hub/spindle guide journals.
+The winder load path, pilot floor clearance, polygon torque engagement, working
+gap, complete canonical bearing poses, tape corridors and base identity are gates.
 
-Prepare three 10 mm tape strips through each shoe's three passages. Each passage
-has at least 12 mm tangential clearance for the strip width and a separate
-12 mm axial clearance for the winding bundle. Tape width runs along local Y,
-not along the axial Z loop height. There are 18 distinct, ordered passages.
-The nominal 20-degree sequence numbers identify stations only: physical passage
-angles vary with diameter and are not equally spaced, including at 150 mm.
-Drawings and assembly metadata report the actual angles. Adjust the tape's final
-distribution when forming the later serpentine if required.
+`coil_removal_stages` retains all occurrences in three poses: held winding,
+upward crank/grip removal and upward taped-coil removal. The service audit checks
+ownership, fixed-member continuity and every swept boundary face, not just motion
+endpoints. All six shoes stay fixed throughout. The fixture is bounded to a
+9 mm axial winding with 1 mm radial build and eighteen closed tape loops having
+10 mm tangential width, 10 mm axial height, 4 mm radial span and 0.25 mm walls.
+It follows the curved contact arcs and taut spans between them. Its height is
+found by descending the actual reference coil to the rounded lower support;
+the production audit separately requires contact within a 0.02 mm downward
+probe at all six actual shoes. The closed tape and upward sweep use that same
+gravity-seated pose, not a floating nominal height.
 
-Guide the 0.18 mm enamelled wire gently, using a rounded start attachment that
-does not cut the enamel. Turn only by the hand crank. Stop the payoff platter
-by hand when winding stops. Close all 18 tape wraps and mark winding direction
-and leads while the six shoes remain friction fitted.
+The schema-3 manifest records all `assembly_occurrences` of each global master,
+including the shared base across both tools. Export rejects conflicting grouped
+geometry, malformed ownership, incorrect quantities or failed audits. It checks
+single solids, closed manifold meshes, STL bed orientation, STEP reimports and
+all artifact hashes before publishing success. Drawings consume current CAD;
+guide tables consume the same BOM. V5 geometry and its `PRINT_SOURCES` are unchanged.
 
-Support the taped winding with a helper. Grip the first shoe evenly at both
-rails, overcome the close friction fit without canting, withdraw it completely
-forward, then set it outside the winding's forward path. Repeat for all six
-shoes. Do not substitute a one-hole inward shift:
-neighboring shoes interfere at the smallest setting. The modeled route withdraws
-each shoe 40 mm forward and parks it 40 mm radially outward. Every detached shoe
-remains represented as a separate service occurrence throughout removal.
-The high front shoulder moves away from the held winding during this motion;
-the nominal-radius rear runout slides out beneath it. No radial shoe relief,
-wire stretching, tape slip or bending over a rear lip is assumed.
-Its ownership becomes service-detached immediately after complete withdrawal,
-before parking.
-
-Only after all six shoes are detached and the support clearance is at least
-2 mm may the taped winding move forward. The wheel, printed shaft, tower,
-crank and base stay assembled. The CAD route translates the coil and all 18
-closed tape loops together through the open front; it never removes structural
-parts to create an artificial opening. Inspect the first test winding for enamel
-damage, changed dimensions and excessive release force before further use.
-
-## CAD contract and limits
-
-`WindingToolAssemblies` contains `winding_jig`, `wire_payoff`, `ownership`,
-`parameters` and `audit`. The two dictionaries have separate tool-local origins.
-Each occurrence has exactly one ownership record with its motion group, printed
-or purchased source, and master identity. Printed records also give rotations
-from construction coordinates into the print orientation. To recover winding-jig
-construction coordinates, remove the wheel record's axis-height translation and
-rotate -90 degrees about X. Payoff occurrences already use construction coordinates.
-Translate each oriented master's minimum Z to the bed before export.
-
-The release manifest records only design settings consumed by this tooling:
-the two export tessellation tolerances, canonical bearing bore/outer/height
-dimensions, the two housing-seat diameters and the 51105 rotating-pilot diameter.
-Shared fastener, fit-coupon and unused seat-depth settings are omitted; the
-shared V5 parameter model and its release serialization are unchanged.
-
-The wheel's ownership record supplies selected diameter, installed axis height,
-nominal station labels and actual tape angles. Those values do not replace
-geometry checks. Treat occurrence Workplanes as immutable; a model edit replaces
-the corresponding dictionary value with a newly constructed Workplane. Geometry
-caches rely on that convention. `audit_winding_tool_assemblies(model)` returns
-flat named boolean gates and rechecks the supplied solids. It builds all eleven settings using the
-actual shoes, preserving any defects, and tests complete removal at 100, 150 and
-200 mm. The builder fails if any gate fails. `winding_tool_bom` derives quantities
-from occurrence records and groups the three 51105 members into one purchase.
-
-`coil_removal_stages(model)` returns CAD poses with moving/fixed members,
-translations and motion ownership. `audit_winding_tool_service`
-can check the normal route or a supplied drawing route, including continuity.
-The permitted-motion gate allows only each rigid shoe's straight withdrawal and
-parking, followed by the held winding's forward translation. Structural
-members must stay fixed, ownership transitions must match the service state, and
-the clearance band is located at the actual winding pose. Moving the entire
-tool cannot create an artificial clearance result.
-Each translation is checked continuously using the initial solid and swept
-boundary faces. Full revolutions use
-enclosing solids whose containment is checked against actual geometry.
-Every rotating occurrence is checked against stationary members, including the
-shaft, both collars and the payoff's upper washer. Fused axial envelope sections
-preserve the shaft and spindle journal interfaces while covering full rotation.
-The winding follows the nominal-radius contact arcs
-and their taut straight connecting spans: a rounded hexagon at larger settings,
-reducing to a circle at 100 mm. The fixture is deliberately bounded: a 9 mm
-axial winding with 1 mm radial build, and 18 closed tape loops with 10 mm
-tangential strip width, 10 mm axial loop height and 0.25 mm walls. Their inner
-and outer contours follow the curved contact arcs, separated radially by
-4 mm; the cavity conservatively encloses the winding, including the inward
-chords across the wide tape slots, without crossing it. The width gauge
-is conservative for a strip measured along the slightly longer curved arc.
-The winding occupies construction Z=12.5..21.5 mm with its inner surface
-0.02 mm outside the nominal contact envelope. Its full axial width lies on the
-constant-radius rear runout. The assembly checks this contact radius separately
-from the front shoulder's outer limit and includes the shoulder in its rotation
-envelope. A rigid 20 mm axial ring spanning both contact and shoulder is not
-the declared winding fixture and would intersect the seated protective shoulder.
-The widened passages retain 0.8 mm outer/mouth radii, with 0.2 mm radii on
-the short inner returns at the sector ends. The 3.50 x 3.00 mm tongues have
-zero nominal clearance in matching 3.50 x 3.00 mm openings. Their narrowed
-transition leaves positive shoulders against the wheel front, and their chamfered
-rear tips project 1 mm for insertion and optional push-out access.
-
-No physical validation is claimed. Actual shaft strength, PLA friction fit and
-wear, bearing fit, winding dimensions, enamel protection, roll stability,
-withdrawal force and continuous-use suitability require prototype tests. The payoff
-stability estimate assumes light feed; clamp the tools where sliding or tipping
-is possible. Wear eye protection and keep hair, clothing, fingers and loose wire
-clear. Stop immediately if any printed component is damaged.
-
-Akkuschrauberbetrieb ist nicht freigegeben
+`physical_validation_verified`, `powered_operation` and `print_ready` remain
+false: the files are geometrically checked prototype candidates, not physical
+production or motor-operation approval.

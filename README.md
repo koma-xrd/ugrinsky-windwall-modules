@@ -248,11 +248,14 @@ and electrical design. No approved charging schematic is included.
 
 The [German build and operating guide](docs/serpentine-coil-winding-tool-de.md)
 and [tooling release manifest](release/winding-tool/manifest.json) describe two
-simple independent manual modules: a vertical hand-cranked wheel with six removable
-contact shoes, and a free-running turntable for an upright wire roll. All six
-shoes use the same marked setting, from 100–200 mm in 10 mm steps. The screwless
-PLA prototype uses a printed shaft, snap connections, two 608 bearings and one
-51105 bearing. Fits, strength, winding quality and operation require physical
+simple independent manual modules: a horizontal hand-cranked wheel with six open-top
+contact shoes, and a free-running turntable for an upright wire roll. Both use the
+same unchanged 190 × 190 mm base and one complete 51105 each. Print the common base
+twice for simultaneous use. All six shoes use the same marked setting, from
+100–200 mm in 10 mm steps. The wheel has 25 mm tape workspace below it. Remove the
+top hex crank, then lift the taped coil upward with all shoes still seated.
+The screwless PLA prototype has eight print masters and 14 printed occurrences.
+Fits, strength, winding quality and operation require physical
 testing. Akkuschrauberbetrieb ist nicht freigegeben.
 
 The tooling release is isolated from the V5 production inventory and
